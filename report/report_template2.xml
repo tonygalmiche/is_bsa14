@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+<data>
+
+
+
+
+<template id="template_tracabilite_reception">
+    <t t-call="report.html_container">
+        <!--Boucle sur les documents sélectionnés-->
+        <t t-foreach="docs" t-as="o">
+            <!--Contenu du document avec entète et pied de page-->
+            <t t-call="report.external_layout">
+                <div class="page">
+                    <h2 t-field="o.name" />
+                    <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128'   , o.name, 300, 60)"/><br/><br/>
+                    <table style="width:12cm">
+                        <tr><td style="width:6cm" >Réception</td><td><span t-field="o.picking_id.name" /></td></tr>
+                        <tr><td> BL fournisseur     </td>        <td><span t-field="o.bl_fournisseur" /></td></tr>
+                        <tr><td>Quantité            </td>        <td><span t-field="o.quantity" /></td></tr>
+                        <tr><td>Mouvement de stock  </td>        <td><span t-field="o.move_id.name" /></td></tr>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </t>
+</template>
+
+
+<template id="template_tracabilite_livraison">
+    <t t-call="report.html_container">
+        <!--Boucle sur les documents sélectionnés-->
+        <t t-foreach="docs" t-as="o">
+            <!--Contenu du document avec entète et pied de page-->
+            <t t-call="report.external_layout">
+                <div class="page">
+                    <h2 t-field="o.name" />
+                    <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128'   , o.name, 300, 60)"/><br/><br/>
+                    <table style="width:12cm">
+                        <tr><td style="width:6cm">OF       </td><td><span t-field="o.production_id.name" /></td></tr>
+                        <tr><td>Article OF         </td>        <td><span t-field="o.product_id.name" /></td></tr>
+                        <tr><td>Commande Client    </td>        <td><span t-field="o.sale_id.name" /></td></tr>
+                        <tr><td>Ligne de livraison </td>        <td><span t-field="o.move_id.picking_id.name" /></td></tr>
+                        <tr><td>Article livraison  </td>        <td><span t-field="o.move_id.name" /></td></tr>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </t>
+</template>
+
+<template id="template_etiquette_cde_client">
+    <t t-call="report.html_container">
+        <!--Boucle sur les documents sélectionnés-->
+        <t t-foreach="docs" t-as="o">
+            <!--Contenu du document avec entète et pied de page-->
+            <t t-call="report.external_layout">
+                <div class="page">
+                    <h2 t-field="o.name" />
+                    <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128'   , o.name, 300, 60)"/><br/><br/>
+                    <table style="width:12cm">
+                        <tr><td style="width:6cm">Commande </td><td><span t-field="o.name" /></td></tr>
+                        <tr><td>Client         </td>        <td><span t-field="o.partner_id.name" /></td></tr>
+                        <tr><td>Date           </td>        <td><span t-field="o.date_order" /></td></tr>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </t>
+</template>
+
+
+<template id="template_etiquette_of">
+    <t t-call="report.html_container">
+        <!--Boucle sur les documents sélectionnés-->
+        <t t-foreach="docs" t-as="o">
+            <!--Contenu du document avec entète et pied de page-->
+            <t t-call="report.external_layout">
+                <div class="page">
+                    <h2 t-field="o.name" />
+                    <table style="width:12cm">
+                        <tr><td style="width:6cm">OF </td><td><span t-field="o.name" /></td></tr>
+                        <tr><td>Article      </td>        <td><span t-field="o.product_id.name" /></td></tr>
+                        <tr><td>Qt           </td>        <td><span t-field="o.product_qty" /></td></tr>
+                    </table>
+
+                    <!-- Boucle sur les étiquettes -->
+                    <table style="100%">
+                        <tr t-foreach="o.etiquette_ids" t-as="line">
+                            <td><span t-field="line.name"/></td>
+                            <td style="padding:5mm"><img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128'   , line.name, 300, 60)"/></td>
+                        </tr>
+                    </table>
+
+
+
+                </div>
+            </t>
+        </t>
+    </t>
+</template>
+
+
+
+
+
+</data>
+</openerp>

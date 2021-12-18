@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- purchase.order -->
+        <record id="is_purchase_order_form" model="ir.ui.view">
+            <field name="name">is_purchase_order_form</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//sheet" position="attributes">
+                    <attribute name="class">oe_form_sheet_width_wider</attribute>
+                </xpath>
+                <button name="button_unlock" position="after" >
+                    <button name="import_nomenclature_action" states="draft" string="Importer la nomenclature" type="object"/>
+                </button>
+                <field name="state" position="before" >
+                    <button 
+                        name="mouvement_stock_action" 
+                        string="Lignes de réception" type="object" 
+                        attrs="{'invisible': [('state','in',('draft','sent'))]}"
+                    />
+                </field>
+                <field name="picking_type_id" position="after">
+                    <field name="is_a_commander"/>
+                    <field name="is_arc"/>
+                </field>
+                <xpath expr="//page[@name='products']/field[@name='order_line']/tree/field[@name='date_planned']" position="after">
+                    <field name="is_date_ar" />
+                </xpath>
+                <notebook position="inside">
+                    <page string="Importation nomenclature">
+                        <field name="is_nomenclature_ids">
+                            <tree string="Importation nomenclature" editable="bottom">
+                                <field name="product_id"/>
+                                <field name="quantite_vendue"/>
+                            </tree>
+                        </field>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+        <record id="is_purchase_order_tree" model="ir.ui.view">
+            <field name="name">is_purchase_order_arc_tree</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_tree"/>
+            <field name="priority" eval="90"/>
+            <field name="arch" type="xml">
+                <field name="state" position="before">
+                    <field name="is_a_commander"/>
+                </field>
+            </field>
+        </record>
+        <record id="is_purchase_order_arc_tree" model="ir.ui.view">
+            <field name="name">is_purchase_order_arc_tree</field>
+            <field name="model">purchase.order</field>
+            <field name="priority" eval="90"/>
+            <field name="arch" type="xml">
+                <tree editable="top">
+                    <field name="name"                 readonly="1"/>
+                    <field name="partner_id"           readonly="1"/>
+                    <!-- <field name="minimum_planned_date" readonly="1"/> -->
+                    <field name="amount_untaxed"       readonly="1"/>
+                    <field name="amount_total"         readonly="1"/>
+                    <field name="is_a_commander"       readonly="1"/>
+                    <field name="is_arc"/>
+                    <field name="state"                readonly="1"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_purchase_order_arc_acion" model="ir.actions.act_window">
+            <field name="name">Gestion des ARC</field>
+            <field name="res_model">purchase.order</field>
+            <field name="view_id" ref="is_purchase_order_arc_tree"/>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- purchase.order.line -->
+        <!-- <record id="is_purchase_order_line_form" model="ir.ui.view">
+            <field name="name">is.purchase.order.line.form</field>
+            <field name="model">purchase.order.line</field>
+            <field name="inherit_id" ref="purchase.purchase_order_line_form"/>
+            <field name="arch" type="xml">
+                <field name="product_id" position="before">
+                    <field name="order_id" readonly="1" />
+                </field>
+            </field>
+        </record> -->
+        <!-- <record id="is_purchase_order_line_form" model="ir.ui.view">
+            <field name="name">is_purchase_order_line_form</field>
+            <field name="model">purchase.order.line</field>
+            <field name="inherit_id" ref="purchase.purchase_order_line_form" />
+            <field name="arch" type="xml">
+                <field name="date_planned" position="after">
+                    <field name="is_date_ar"/>
+                </field>
+            </field>
+        </record> -->
+        <record id="is_purchase_order_line_tree" model="ir.ui.view">
+            <field name="name">is_purchase_order_line_tree</field>
+            <field name="model">purchase.order.line</field>
+            <field name="arch" type="xml">
+                <tree string="Purchase Order Lines" create="false"  editable="top">
+                    <field name="order_id" readonly="1" />
+                    <field name="name" readonly="1" />
+                    <field name="partner_id" string="Supplier" readonly="1"  />
+                    <field name="product_id"     readonly="1" />
+                    <field name="price_unit"     readonly="1" />
+                    <field name="product_qty"    readonly="1" />
+                    <field name="product_uom"    readonly="1" />
+                    <field name="price_subtotal" readonly="1" />
+                    <field name="date_planned"  widget="date"/>
+                    <field name="is_date_ar"/>
+                    <field name="state" />
+                    <!-- <field name="invoiced" /> -->
+                </tree>
+            </field>
+        </record>
+        <record id="is_purchase_order_line_graph_view" model="ir.ui.view">
+            <field name="name">is_purchase_order_line_graph_view</field>
+            <field name="model">purchase.order.line</field>
+            <field name="arch" type="xml">
+                <graph string="view" type="pivot">
+                    <field name="partner_id"     type="row"/>
+                    <field name="date_planned"   type="col" interval="year"/>
+                    <field name="product_qty"    type="measure"/>
+                </graph>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_purchase_order_line_acion">
+            <field name="name">Lignes des commandes</field>
+            <field name="res_model">purchase.order.line</field>
+            <field name="view_id" ref="is_purchase_order_line_tree"/>
+            <field name="view_mode">tree,form,graph</field>
+        </record>
+        <record id="is_purchase_order_line_tole_tree" model="ir.ui.view">
+            <field name="name">is_purchase_order_line_tole_tree</field>
+            <field name="model">purchase.order.line</field>
+            <field name="arch" type="xml">
+                <tree string="Lignes commandes tôles" create="false"  editable="top">
+                    <field name="order_id"      readonly="1"/>
+                    <field name="partner_id"    readonly="1"/>
+                    <field name="product_id"    readonly="1"/>
+                    <field name="product_qty"   readonly="1"/>
+                    <field name="is_masse_tole" readonly="1"/>
+                    <field name="date_planned"  readonly="1"/>
+                    <field name="state" />
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_purchase_order_line_tole_acion">
+            <field name="name">Lignes commandes tôles</field>
+            <field name="res_model">purchase.order.line</field>
+            <field name="view_id" ref="is_purchase_order_line_tole_tree"/>
+            <field name="view_mode">tree,form,graph</field>
+        </record>
+
+
+        <!-- Modèles de mail de demande de prix -->
+        <!-- <record id="is_demande_de_prix_email_template" model="email.template">
+            <field name="name">Demande de prix</field>
+            <field name="model_id" ref="purchase.model_purchase_order"/>
+            <field name="auto_delete" eval="True"/>
+        </record> -->
+
+    </data>
+</odoo>

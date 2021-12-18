@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+     <data>
+          <!-- is.pointage -->
+          <record model="ir.ui.view" id="is_pointage_form_view">
+               <field name="name">is_pointage_form_view</field>
+               <field name="model">is.pointage</field>
+               <field name="type">form</field>
+               <field name="arch" type="xml">
+                    <form string="Form">     
+                    <sheet>
+                         <group col="2" colspan="4">
+                              <field name="name"/> 
+                              <field name="employee"/> 
+                              <field name="entree_sortie"/> 
+                              <field name="pointeuse"/> 
+                              <field name="commentaire" readonly="1"/> 
+                         </group>
+                    </sheet>
+                    </form>
+               </field>
+          </record>
+          <record model="ir.ui.view" id="is_pointage_tree_view">
+               <field name="name">is_pointage_tree_view</field>
+               <field name="model">is.pointage</field>
+               <field name="type">tree</field>
+                <field name="arch" type="xml">
+                    <tree string="pointage" editable="top">
+                         <field name="name"/>
+                         <field name="employee"/>
+                         <field name="entree_sortie"/>
+                    </tree>
+               </field>
+          </record>
+          <record model="ir.ui.view" id="is_pointage_filter_view" >
+               <field name="name">is_pointage_filter_view</field>
+               <field name="model">is.pointage</field>
+               <field name="arch" type="xml">
+                    <search string="Recherche">
+                         <field name="name"/>
+                         <field name="employee"/>
+                         <field name="entree_sortie"/>
+                         <field name="pointeuse"/> 
+                         <field name="commentaire"/>
+                         <!-- <group expand="0" string="Regroupé par...">
+                                <filter name="group_pointeuse" string="Pointeuse" context="{'group_by':'pointeuse'}"/>
+                                <filter name="group_employee"     string="Employé"      context="{'group_by':'employee'}"/>
+                                <filter name="group_mois"               string="Mois"               context="{'group_by':'name:month'}"/>
+                                <filter name="group_jour"               string="Jour"               context="{'group_by':'name:day'}"/>
+                         </group> -->
+                    </search>
+               </field>
+          </record>
+          <record model="ir.actions.act_window" id="is_pointage_action">
+               <field name="name">Pointages</field>
+               <field name="res_model">is.pointage</field>
+               <field name="view_mode">tree,form</field>
+          </record>
+
+
+          <!-- is.heure.effective -->
+          <record model="ir.ui.view" id="is_heure_effective_tree_view">
+               <field name="name">is_heure_effective_tree_view</field>
+               <field name="model">is.heure.effective</field>
+               <field name="type">tree</field>
+                <field name="arch" type="xml">
+                     <!-- colors="red:effectif_calcule!=effectif_reel" -->
+                    <tree string="pointage" editable="top">
+                         <field name="name"                               readonly="1"/>
+                         <field name="employee_id"               readonly="1"/>
+                         <field name="department_id"          readonly="1"/>
+                         <field name="theorique"                    readonly="1"/>
+                         <field name="effectif_calcule" readonly="1"/>
+                         <field name="effectif_reel"                                        />
+                         <field name="balance_reelle"      readonly="1"/>
+                         <field name="info_id"                                                       />
+                         <field name="info_complementaire"                         />
+                    </tree>
+               </field>
+          </record>
+          <record model="ir.ui.view" id="is_heure_effective_filter_view" >
+               <field name="name">is_heure_effective_filter_view</field>
+               <field name="model">is.heure.effective</field>
+               <field name="arch" type="xml">
+                    <search string="Recherche">
+                        <field name="name"/>
+                        <field name="employee_id"/>
+                        <field name="department_id"/>
+                        <field name="info_id"/>
+                        <!-- <group expand="0" string="Regroupé par...">
+                            <filter string="Mois"               context="{'group_by':'name:month'}"/>
+                            <filter string="Jour"               context="{'group_by':'name:day'}"/>
+                            <filter string="Employé"           context="{'group_by':'employee_id'}"/>
+                            <filter string="Département" context="{'group_by':'department_id'}"/>
+                            <filter string="Information" context="{'group_by':'info_id'}"/>
+                        </group> -->
+                    </search>
+               </field>
+          </record>
+          <record model="ir.actions.act_window" id="is_heure_effective_action">
+               <field name="name">Heures éffectives</field>
+               <field name="res_model">is.heure.effective</field>
+               <field name="view_mode">tree,form</field>
+          </record>
+
+
+          <!-- is_heure_effective_info -->
+          <record model="ir.ui.view" id="is_heure_effective_info_tree_view">
+               <field name="name">is_heure_effective_info_tree_view</field>
+               <field name="model">is.heure.effective.info</field>
+               <field name="type">tree</field>
+                <field name="arch" type="xml">
+                    <tree editable="top">
+                         <field name="name"/>
+                    </tree>
+               </field>
+          </record>
+          <record model="ir.actions.act_window" id="is_heure_effective_info_action">
+               <field name="name">Informations</field>
+               <field name="res_model">is.heure.effective.info</field>
+               <field name="view_mode">tree,form</field>
+          </record>
+     </data>
+</odoo>

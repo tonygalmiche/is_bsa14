@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Ventes -->
+        <menuitem 
+            name="Lignes de commandes"
+            id="is_menu_sale_order_line" 
+            parent="sale.sale_order_menu" 
+            action="is_action_sale_order_line" 
+            sequence="70"
+        />
+        <menuitem 
+            name="Statistique commandes"
+            id="is_sale_order_line_menu"
+            parent="sale.sale_order_menu"
+            action="is_sale_order_line_action"
+            sequence="80"
+        />
+        <menuitem 
+            name="Catégorie client"
+            id="is_categorie_client_menu"
+            parent="sale.sale_order_menu"
+            action="is_categorie_client_action"
+            sequence="90"
+        />
+        <menuitem 
+            name="Société commerciale"
+            id="is_societe_commerciale_menu"
+            parent="sale.sale_order_menu"
+            action="is_societe_commerciale_action"
+            sequence="92"
+        />
+
+
+        <!-- <menuitem id="is_product_pricelist_item_menu" parent="product.menu_product_pricelist_main" action="is_product_pricelist_item_acion" sequence="90" /> -->
+
+
+        <!-- Achats -->
+        <menuitem 
+            name="Articles avec dernière commande d'achat"
+            id="is_derniere_commande_achat_menu" 
+            parent="purchase.menu_procurement_management" 
+            action="is_derniere_commande_achat_action" 
+            sequence="7"
+        />
+        <menuitem id="is_purchase_order_arc_menu" parent="purchase.menu_procurement_management" action="is_purchase_order_arc_acion" sequence="7" />
+        <menuitem id="is_purchase_order_line_menu" parent="purchase.menu_procurement_management" action="is_purchase_order_line_acion" sequence="7" />
+        <menuitem id="is_purchase_order_line_tole_menu" parent="purchase.menu_procurement_management" action="is_purchase_order_line_tole_acion" sequence="7" />
+
+
+
+        <!-- Inventaire -->
+        <menuitem 
+            id="is_liste_manquants_menu" 
+            sequence="90"  
+            name="Liste des manquants" 
+            action="is_liste_manquants_action" 
+            parent="stock.menu_stock_inventory_control"
+        />
+        <menuitem 
+            action="action_is_stock_category_config" 
+            id="menu_stock_category"
+            parent="stock.menu_stock_config_settings" 
+            sequence="12" 
+        />
+        <menuitem   
+            name="Lignes des livraisons"
+            action="is_picking_line_action"  
+            id="is_picking_line_menu" 
+            parent="stock.menu_stock_warehouse_mgmt"
+            sequence="900"
+        />
+        <menuitem 
+            id="menu_is_bsa_tracabilite" 
+            name="Etiquettes" 
+            parent="stock.menu_stock_root" 
+            sequence="5"
+        />
+        <menuitem   action="action_is_bsa_tracabilite_reception" 
+                id="menu_action_is_bsa_tracabilite_reception"
+                parent="menu_is_bsa_tracabilite"
+                sequence="1"/>
+        <menuitem   action="action_is_bsa_tracabilite_livraison" 
+                    id="menu_action_is_bsa_tracabilite_livraison"
+                    parent="menu_is_bsa_tracabilite"
+                    sequence="2"/> 
+        <menuitem   action="is_tracabilite_reception_line_action" 
+                    id="is_tracabilite_reception_line_menu"
+                    parent="menu_is_bsa_tracabilite"
+                    sequence="3"/> 
+       
+        <menuitem 
+            id="is_valorisation_stock_menu" 
+            sequence="10" 
+            name=" Valorisation du stock"
+            parent="stock.menu_stock_root" 
+        />
+        <menuitem 
+            id="is_product_template_menu" 
+            sequence="10" 
+            name=" Articles"
+            parent="is_valorisation_stock_menu" 
+            action="is_product_template_action" 
+        />
+        <menuitem 
+            id="bsa_stock_a_date_menu_20" 
+            sequence="20" 
+            name="Calculer stock à date" 
+            parent="is_valorisation_stock_menu" 
+            action="bsa_stock_a_date_wizard_action"
+        />
+        <menuitem 
+            id="bsa_stock_a_date_menu_10" 
+            sequence="30" 
+            name="Stock à date" 
+            parent="is_valorisation_stock_menu" 
+            action="bsa_stock_a_date_action"
+        />
+
+
+
+
+
+        <!-- Facturation -->
+        <menuitem   
+            action="is_export_vente_compta_action"  
+            id="is_export_vente_compta_menu" 
+            parent="account.menu_finance_receivables" 
+            sequence="900"
+        />
+        <menuitem
+            action="is_balance_agee_action"         
+            id="is_balance_agee_menu"        
+            parent="account.menu_finance_receivables" 
+            sequence="910"
+        />
+        <menuitem  
+            action="is_export_achat_compta_action"  
+            id="is_export_achat_compta_menu" 
+            parent="account.menu_finance_payables" 
+            sequence="900"
+        />
+        <menuitem   
+            id="is_mode_reglement_menu" 
+            name="Mode de règlement"
+            action="is_mode_reglement_action"  
+            parent="account.menu_finance_configuration" 
+            sequence="90"
+        />
+        <menuitem 
+            name="Lignes de factures"
+            id="is_account_invoice_line_menu"
+            parent="account.menu_finance_receivables"
+            action="is_account_invoice_line_action"
+            sequence="800"
+        />
+        <menuitem   
+            id="is_account_move_line_menu" 
+            name="Lignes d'écritures"
+            action="is_account_move_line_action"  
+            parent="account.menu_finance_entries" 
+            sequence="0"
+        />
+
+
+        <!-- Production -->
+        <menuitem 
+            id="is_product_product_menu" 
+            sequence="10" 
+            name=" Variantes d'articles"
+            parent="mrp.menu_mrp_bom" 
+            action="is_product_product_action" 
+        />
+        <menuitem   
+            name="Lignes des nomenclatures"
+            action="is_mrp_bom_line_action"  
+            id="is_mrp_bom_line_menu" 
+            parent="mrp.menu_mrp_bom" 
+            sequence="11"
+        />
+        <menuitem   
+            name="Importation nomenclature"
+            action="is_import_nomenclature_action"  
+            id="is_import_nomenclature_menu" 
+            parent="mrp.menu_mrp_bom" 
+            sequence="900"
+        />
+        <menuitem 
+            action="is_position_dans_produit_action" 
+            id="is_position_dans_produit_menu"
+            parent="mrp.menu_mrp_configuration"
+            sequence="90" 
+        />
+        <menuitem 
+            id="menu_is_fiche_travail" 
+            parent="mrp.menu_mrp_manufacturing" 
+            action="is_fiche_travail_action" 
+            sequence="90"
+        />
+        <menuitem id="bsa_affectation_gabarit_menu" parent="mrp.menu_mrp_manufacturing" action="bsa_affectation_gabarit_action" sequence="10" />
+        <menuitem id="mrp.menu_mrp_production_action" action="bsa_mrp_production_action" parent="mrp.menu_mrp_manufacturing" sequence="1"/>
+        <menuitem id="bsa_mrp_production_planification_menu" parent="mrp.menu_mrp_manufacturing" action="bsa_mrp_production_planification_action" sequence="11" />
+        <menuitem name="Gabarits" id="is_gabarit_menu" parent="mrp.menu_mrp_manufacturing" action="is_gabarit_action" sequence="90" />
+        <menuitem name="Dates postes de charge" id="is_mrp_workcenter_temps_ouverture_menu" parent="mrp.menu_mrp_manufacturing" action="is_mrp_workcenter_temps_ouverture_action" sequence="96" />
+        <!-- <menuitem name="Postes de charge" id="is_mrp_workcenter_menu" parent="mrp.menu_mrp_manufacturing" action="is_mrp_workcenter_action" sequence="95" /> -->
+
+
+
+
+        <!-- Projets -->
+        <menuitem   
+            name="Cause retour plan"
+            action="is_cause_retour_plan_action"  
+            id="is_cause_retour_plan_menu" 
+            parent="project.menu_project_management" 
+            sequence="900"
+        />
+
+
+
+
+        <!-- Qualité -->
+        <menuitem   
+            name="Qualité"
+            id="is_qualite_menu" 
+            parent="mrp.menu_mrp_root"
+            sequence="3"
+        />
+        <menuitem   
+            name="Fiches de contrôle"
+            action="is_fiche_controle_action"  
+            id="is_fiche_controle_menu" 
+            parent="is_qualite_menu"
+            sequence="10"
+        />
+        <menuitem   
+            name="Points à contrôler"
+            action="is_fiche_controle_point_action"  
+            id="is_fiche_controle_point_menu" 
+            parent="is_qualite_menu"
+            sequence="20"
+        />
+
+
+
+
+
+
+
+        <!-- Ressources Humaines -->
+        <menuitem   
+            name="Personnel présent"
+            action="is_personnel_present_action"  
+            id="is_personnel_present_menu" 
+            parent="hr.menu_hr_main"
+            sequence="900"
+        />
+        <menuitem 
+            id="is_accident_travail_menu"
+            sequence="20" 
+            name="Suivi accident du travail" 
+            parent="hr.menu_hr_root"
+        />
+        <menuitem 
+            id="is_accident_travail_menu_10" 
+            sequence="10" 
+            name="Suivi accident du travail" 
+            parent="is_accident_travail_menu" 
+            action="is_accident_travail_action"
+        />
+
+
+
+
+        <menuitem 
+            id="menu_is_pointage"                    
+            sequence="30" 
+            name="Pointage" 
+            parent="hr.menu_hr_root"
+        />
+        <menuitem 
+            id="menu_is_pointage_pointage"     
+            sequence="10" 
+            parent="menu_is_pointage" 
+            action="is_pointage_action"
+        />
+
+       <menuitem 
+            id="menu_is_pointage_commentaire"     
+            sequence="20" 
+            parent="menu_is_pointage" 
+            action="is_pointage_commentaire_action"
+        />
+
+
+        <menuitem 
+            id="is_heure_effective_menu"     
+            sequence="21" 
+            parent="menu_is_pointage" 
+            action="is_heure_effective_action"
+        />
+
+
+        <menuitem 
+            id="is_heure_effective_info_menu"     
+            sequence="22" 
+            parent="menu_is_pointage" 
+            action="is_heure_effective_info_action"
+        />
+
+
+        <menuitem 
+            id="menu_is_pointage_badge"     
+            sequence="30" name="Badges"      
+            parent="menu_is_pointage" 
+            action="is_badge_action"
+        />
+        <menuitem 
+            id="menu_is_pointage_jour_ferie"     
+            sequence="40" 
+            name="Jours fériés / Congés"      
+            parent="menu_is_pointage" 
+            action="is_jour_ferie_action"
+        />
+        <menuitem id="menu_is_pointage_report" sequence="25" parent="hr.menu_hr_root" name="Rapport" />
+        <menuitem id="menu_is_pointage_report1" sequence="10" action="is_pointage_report1_action" parent="menu_is_pointage_report"/>
+
+
+ 
+
+
+
+
+        <!--<menuitem action="hr.open_view_employee_list_my" id="is_menu_open_view_employee_list_my" sequence="10" parent="hr.menu_hr_main"/>-->
+
+
+
+
+
+        <!-- FNC -->
+        <menuitem id="bsa_fnc_main_menu"      sequence="85" name="FNC"/>
+        <menuitem id="bsa_fnc_menu"           sequence="2"  name="FNC"           parent="bsa_fnc_main_menu"/>
+        <menuitem id="bsa_fnc_menu_10"        sequence="10" name="FNC"           parent="bsa_fnc_menu" action="bsa_fnc_action"/>
+        <menuitem id="bsa_fnc_categorie_menu" sequence="20" name="Catégorie FNC" parent="bsa_fnc_menu" action="bsa_fnc_categorie_action"/>
+
+
+
+
+
+        <!-- Messages -->
+        <record model="ir.actions.act_window" id="is_mail_message_action">
+            <field name="name">Messages</field>
+            <field name="res_model">mail.message</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('type', 'not in', ['notification'])]</field>
+        </record>
+        <menuitem 
+            action="is_mail_message_action" 
+            id="is_mail_message_menu"
+            parent="purchase.menu_procurement_management"
+            sequence="900" 
+        />
+
+
+        <menuitem id="menu_is_autre"           sequence="90"  name="Autre"/>
+        <menuitem id="mail.mail_feeds_main"    sequence="90"  name="Messagerie"          parent="menu_is_autre"/>
+
+
+
+
+
+        <menuitem id="mail.mail_feeds_main"       sequence="90" name="Messagerie"           parent="base.menu_administration"/>
+
+
+
+    </data>
+</odoo>
+

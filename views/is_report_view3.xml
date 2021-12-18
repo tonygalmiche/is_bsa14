@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+<data>
+
+<template id="report_fiche_utilisateur">
+  <t t-call="report.html_container">
+      <t t-foreach="docs" t-as="o">
+          <t t-call="report.external_layout">
+              <div class="page">
+                  <h1>Fiche utilisateur</h1>
+                  <h2>Nom : <span t-field="o.name"/></h2>
+                  <div t-if="o.is_matricule">
+                    <h2>Matricule : <span t-field="o.is_matricule"/></h2>
+                    <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128'   , o.is_matricule, 600, 100)"/><br/>
+                  </div><br/><br/><br/>
+              </div>
+          </t>
+      </t>
+  </t>
+</template>
+
+</data>
+</openerp>

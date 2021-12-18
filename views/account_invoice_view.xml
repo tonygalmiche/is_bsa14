@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- is.mode.reglement --> 
+        <record model="ir.ui.view" id="is_mode_reglement_form_view">
+            <field name="name">is_mode_reglement_form_view</field>
+            <field name="model">is.mode.reglement</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>  
+                    <sheet>
+                        <group>
+                            <field name="name"  /> 
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_mode_reglement_tree_view">
+            <field name="name">is_mode_reglement_tree_view</field>
+            <field name="model">is.mode.reglement</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/> 
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_mode_reglement_search_view" >
+            <field name="name">is_mode_reglement_search_view</field>
+            <field name="model">is.mode.reglement</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/> 
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_mode_reglement_action">
+            <field name="name">Mode de règlement</field>
+            <field name="res_model">is.mode.reglement</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- account.invoice -->
+        <!-- <record id="is_invoice_form" model="ir.ui.view">
+            <field name="name">is_invoice_form</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//sheet" position="attributes">
+                    <attribute name="class">oe_form_sheet_width_wider</attribute>
+                </xpath>
+                <field name="account_id" position="after">
+                    <field style="background:orange" name="is_alerte_acompte" readonly="1" attrs="{'invisible':[('is_alerte_acompte','=',False)]}"/>
+                    <field name="is_sale_order_id"/>
+                    <field 
+                        name="is_account_invoice_id"
+                        attrs="{
+                            'invisible': [('is_sale_order_id', '=', False)],
+                        }" 
+                    />
+                </field>
+                <field name="fiscal_position" position="before">
+                    <field name="is_contact_id" domain="[('parent_id','=',partner_id)]" />
+                    <field name="is_imputation_partenaire"/>
+                </field>
+                <field name="payment_term" position="after">
+                    <field name="is_mode_reglement_id"/>
+                    <field name="is_acompte"/>
+                </field>
+            </field>
+        </record>
+        <record id="is_invoice_supplier_form" model="ir.ui.view">
+            <field name="name">is_invoice_supplier_form</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_supplier_form" />
+            <field name="arch" type="xml">
+                <field name="fiscal_position" position="before">
+                    <field name="is_contact_id" domain="[('parent_id','=',partner_id)]" />
+                    <field name="is_imputation_partenaire"/>
+                </field>
+            </field>
+        </record> -->
+    </data>
+</odoo>

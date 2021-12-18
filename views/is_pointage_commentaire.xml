@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<openerp>
+     <data>
+          <record model="ir.ui.view" id="is_pointage_commentaire_form_view">
+               <field name="name">is_pointage_commentaire_form_view</field>
+               <field name="model">is.pointage.commentaire</field>
+               <field name="type">form</field>
+               <field name="arch" type="xml">
+                    <form string="Form" version="7.0">     
+                    <sheet>
+                         <group col="2" colspan="4">
+                              <field name="name"/> 
+                              <field name="employee"/> 
+                              <field name="commentaire"/> 
+                         </group>
+                    </sheet>
+                    </form>
+               </field>
+          </record>
+          <record model="ir.ui.view" id="is_pointage_commentaire_tree_view">
+               <field name="name">is_pointage_commentaire_tree_view</field>
+               <field name="model">is.pointage.commentaire</field>
+               <field name="type">tree</field>
+                <field name="arch" type="xml">
+                    <tree string="pointage" editable="top">
+                         <field name="name"/>
+                         <field name="employee"/>
+                         <field name="commentaire"/>
+                    </tree>
+               </field>
+          </record>
+          <record model="ir.ui.view" id="is_pointage_commentaire_filter_view" >
+               <field name="name">is_pointage_commentaire_filter_view</field>
+               <field name="model">is.pointage.commentaire</field>
+               <field name="arch" type="xml">
+                   <search string="Recherche">
+                         <field name="name"/>
+                         <field name="employee"/>
+                         <field name="commentaire"/>
+                         <!-- <group expand="0" string="Regroupé par...">
+                                   <filter name="group_employee"     string="Employé" context="{'group_by':'employee'}"/>
+                                   <filter name="group_mois"               string="Mois"          context="{'group_by':'name:month'}"/>
+                                   <filter name="group_semaine"      string="Semaine" context="{'group_by':'name:week'}"/>
+                         </group> -->
+                    </search>
+                </field>
+          </record>
+          <record model="ir.actions.act_window" id="is_pointage_commentaire_action">
+               <field name="name">Commentaires de pointages</field>
+               <field name="res_model">is.pointage.commentaire</field>
+               <field name="view_mode">tree,form</field>
+          </record>
+     </data>
+</openerp>

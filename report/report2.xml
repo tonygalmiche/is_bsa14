@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<openerp>
+<data>
+
+    <report
+        id="report_tracabilite_reception"
+        model="is.tracabilite.reception"
+        string="Etiquette"
+        report_type="qweb-pdf"
+        name="bsa_tracabilite.template_tracabilite_reception"
+        file="bsa_tracabilite.template_tracabilite_reception"
+    /> 
+
+    <report
+        id="report_tracabilite_livraison"
+        model="is.tracabilite.livraison"
+        string="Etiquette"
+        report_type="qweb-pdf"
+        name="bsa_tracabilite.template_tracabilite_livraison"
+        file="bsa_tracabilite.template_tracabilite_livraison"
+    /> 
+
+    <report
+        id="report_etiquette_cde_client"
+        model="sale.order"
+        string="Etiquette"
+        report_type="qweb-pdf"
+        name="bsa_tracabilite.template_etiquette_cde_client"
+        file="bsa_tracabilite.template_etiquette_cde_client"
+    /> 
+
+<!--
+    <report
+        id="report_etiquette_of"
+        model="mrp.production"
+        string="Etiquette"
+        report_type="qweb-pdf"
+        name="bsa_tracabilite.template_etiquette_of"
+        file="bsa_tracabilite.template_etiquette_of"
+    /> 
+-->
+
+
+
+</data>
+</openerp>

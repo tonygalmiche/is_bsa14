@@ -2,17 +2,13 @@
 <odoo>
     <data>
         <!-- is.accident.travail --> 
-        <!-- <record id="is_accident_travail_type_seq" model="ir.sequence.type">
-            <field name="name">Suivi accident du travail</field>
-            <field name="code">is.accident.travail</field>
-        </record>
         <record id="is_accident_travail_seq" model="ir.sequence">
             <field name="name">Suivi accident du travail</field>
             <field name="code">is.accident.travail</field>
             <field name="prefix"></field>
             <field name="padding">4</field>
-            <field name="company_id" eval="False"/>
-        </record> -->
+            <field eval="False" name="company_id"/>
+        </record>
         <record model="ir.ui.view" id="is_accident_travail_form_view">
             <field name="name">is_accident_travail_form_view</field>
             <field name="model">is.accident.travail</field>

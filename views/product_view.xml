@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
+<odoo>
     <data>
         <!-- is.position.dans.produit --> 
         <record model="ir.ui.view" id="is_position_dans_produit_form_view">
@@ -149,6 +149,7 @@
         </record>
 
 
+        <!-- product.product -->
         <record id="is_product_product_tree_view" model="ir.ui.view">
             <field name="name">is_product_product_tree_view</field>
             <field name="model">product.product</field>
@@ -175,15 +176,5 @@
             <field name="view_id" ref="is_product_product_tree_view"/>
             <field name="domain">[]</field>
         </record>
-
-
-
-
-
-
-
-
-
-
     </data>
-</openerp>
+</odoo>

@@ -32,9 +32,7 @@
             sequence="92"
         />
 
-
         <!-- <menuitem id="is_product_pricelist_item_menu" parent="product.menu_product_pricelist_main" action="is_product_pricelist_item_acion" sequence="90" /> -->
-
 
         <!-- Achats -->
         <menuitem 
@@ -47,7 +45,6 @@
         <menuitem id="is_purchase_order_arc_menu" parent="purchase.menu_procurement_management" action="is_purchase_order_arc_acion" sequence="7" />
         <menuitem id="is_purchase_order_line_menu" parent="purchase.menu_procurement_management" action="is_purchase_order_line_acion" sequence="7" />
         <menuitem id="is_purchase_order_line_tole_menu" parent="purchase.menu_procurement_management" action="is_purchase_order_line_tole_acion" sequence="7" />
-
 
 
         <!-- Inventaire -->
@@ -89,7 +86,6 @@
                     id="is_tracabilite_reception_line_menu"
                     parent="menu_is_bsa_tracabilite"
                     sequence="3"/> 
-       
         <menuitem 
             id="is_valorisation_stock_menu" 
             sequence="10" 
@@ -117,9 +113,6 @@
             parent="is_valorisation_stock_menu" 
             action="bsa_stock_a_date_action"
         />
-
-
-
 
 
         <!-- Facturation -->
@@ -177,14 +170,21 @@
             action="is_mrp_bom_line_action"  
             id="is_mrp_bom_line_menu" 
             parent="mrp.menu_mrp_bom" 
-            sequence="11"
+            sequence="20"
+        />
+        <menuitem   
+            name="Gamme générique"
+            action="is_gamme_generique_action"  
+            id="is_gamme_generique_menu" 
+            parent="mrp.menu_mrp_bom" 
+            sequence="30"
         />
         <menuitem   
             name="Importation nomenclature"
             action="is_import_nomenclature_action"  
             id="is_import_nomenclature_menu" 
             parent="mrp.menu_mrp_bom" 
-            sequence="900"
+            sequence="40"
         />
         <menuitem 
             action="is_position_dans_produit_action" 
@@ -206,8 +206,6 @@
         <!-- <menuitem name="Postes de charge" id="is_mrp_workcenter_menu" parent="mrp.menu_mrp_manufacturing" action="is_mrp_workcenter_action" sequence="95" /> -->
 
 
-
-
         <!-- Projets -->
         <menuitem   
             name="Cause retour plan"
@@ -216,8 +214,6 @@
             parent="project.menu_project_management" 
             sequence="900"
         />
-
-
 
 
         <!-- Qualité -->
@@ -243,11 +239,6 @@
         />
 
 
-
-
-
-
-
         <!-- Ressources Humaines -->
         <menuitem   
             name="Personnel présent"
@@ -271,8 +262,6 @@
         />
 
 
-
-
         <menuitem 
             id="menu_is_pointage"                    
             sequence="30" 
@@ -285,31 +274,24 @@
             parent="menu_is_pointage" 
             action="is_pointage_action"
         />
-
-       <menuitem 
+        <menuitem 
             id="menu_is_pointage_commentaire"     
             sequence="20" 
             parent="menu_is_pointage" 
             action="is_pointage_commentaire_action"
         />
-
-
         <menuitem 
             id="is_heure_effective_menu"     
             sequence="21" 
             parent="menu_is_pointage" 
             action="is_heure_effective_action"
         />
-
-
         <menuitem 
             id="is_heure_effective_info_menu"     
             sequence="22" 
             parent="menu_is_pointage" 
             action="is_heure_effective_info_action"
         />
-
-
         <menuitem 
             id="menu_is_pointage_badge"     
             sequence="30" name="Badges"      
@@ -325,17 +307,7 @@
         />
         <menuitem id="menu_is_pointage_report" sequence="25" parent="hr.menu_hr_root" name="Rapport" />
         <menuitem id="menu_is_pointage_report1" sequence="10" action="is_pointage_report1_action" parent="menu_is_pointage_report"/>
-
-
- 
-
-
-
-
         <!--<menuitem action="hr.open_view_employee_list_my" id="is_menu_open_view_employee_list_my" sequence="10" parent="hr.menu_hr_main"/>-->
-
-
-
 
 
         <!-- FNC -->
@@ -343,9 +315,6 @@
         <menuitem id="bsa_fnc_menu"           sequence="2"  name="FNC"           parent="bsa_fnc_main_menu"/>
         <menuitem id="bsa_fnc_menu_10"        sequence="10" name="FNC"           parent="bsa_fnc_menu" action="bsa_fnc_action"/>
         <menuitem id="bsa_fnc_categorie_menu" sequence="20" name="Catégorie FNC" parent="bsa_fnc_menu" action="bsa_fnc_categorie_action"/>
-
-
-
 
 
         <!-- Messages -->
@@ -362,18 +331,10 @@
             sequence="900" 
         />
 
-
-        <menuitem id="menu_is_autre"           sequence="90"  name="Autre"/>
-        <menuitem id="mail.mail_feeds_main"    sequence="90"  name="Messagerie"          parent="menu_is_autre"/>
-
-
-
-
-
-        <menuitem id="mail.mail_feeds_main"       sequence="90" name="Messagerie"           parent="base.menu_administration"/>
-
-
-
+        <!-- Déplacer les menus non utilsés -->
+        <menuitem id="menu_is_autre"           sequence="90" parent="base.menu_custom" name="Autre"/>
+        <menuitem id="mail.menu_root_discuss"  sequence="10" parent="menu_is_autre"/>
+        <menuitem id="mail.mail_feeds_main"    sequence="20" parent="menu_is_autre"/>
     </data>
 </odoo>
 

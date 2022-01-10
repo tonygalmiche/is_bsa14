@@ -21,8 +21,8 @@ class bsa_fnc(models.Model):
     _order='name desc'
 
     name            = fields.Char("N°", readonly=True)
-    createur_id     = fields.Many2one('res.users', 'Créateur', required=True)
-    date_creation   = fields.Date("Date de création", required=True)
+    createur_id     = fields.Many2one('res.users', 'Créateur', required=True, default=lambda self: self.env.user.id)
+    date_creation   = fields.Date("Date de création", required=True, default=lambda *a: fields.Date.today())
     type_fnc            = fields.Selection([
                         ('interne'     , 'Interne'),
                         ('client'      , 'Client'),
@@ -50,33 +50,14 @@ class bsa_fnc(models.Model):
                         ('ouverte', 'Ouverte'),
                         ('encours', 'En cours'),
                         ('fermee' , 'Fermée'),
-                    ], u"État")
-
-
-
-    def _date_creation():
-        now = datetime.date.today()     # Date du jour
-        return now.strftime('%Y-%m-%d') # Formatage
-
-    _defaults = {
-        'state'        : 'ouverte',
-        'date_creation':  _date_creation(),
-        'createur_id'  : lambda obj, cr, uid, ctx=None: uid,
-    }
+                    ], "État", default='ouverte')
 
 
     @api.model
     def create(self, vals):
-
-        #** Numérotation *******************************************************
-        data_obj = self.env['ir.model.data']
-        sequence_ids = data_obj.search([('name','=','bsa_fnc_seq')])
-        if sequence_ids:
-            sequence_id = sequence_ids[0].res_id
-            vals['name'] = self.env['ir.sequence'].get_id(sequence_id, 'id')
-        obj = super(bsa_fnc, self).create(vals)
-        #***********************************************************************
-        return obj
+        vals['name'] = self.env['ir.sequence'].next_by_code('bsa.fnc')
+        res = super(bsa_fnc, self).create(vals)
+        return res
 
 
     def action_send_mail(self):

@@ -41,21 +41,16 @@ class is_affecter_etiquette_livraison(models.Model):
             }
 
 
-
-
 class stock_move(models.Model):
     _inherit = "stock.move"
 
- 
     is_date_ar      = fields.Date(related="purchase_line_id.is_date_ar"  , string="Date AR")
     is_date_planned = fields.Datetime(related="purchase_line_id.date_planned", string="Date prévue")
-
 
     def _create_invoice_line_from_vals(self, cr, uid, move, invoice_line_vals, context=None):
         invoice_line_vals["is_stock_move_id"]=move.id
         res = super(stock_move, self)._create_invoice_line_from_vals(cr, uid, move, invoice_line_vals, context)
         return res
-
 
     def etiquette_livraison_action(self):
         for obj in self:
@@ -72,7 +67,6 @@ class stock_move(models.Model):
                 "context": context,
             }
 
-
     def fiche_article_action(self):
         for obj in self:
             return {
@@ -84,8 +78,6 @@ class stock_move(models.Model):
                 "res_id": obj.product_id.product_tmpl_id.id,
                 "domain": "[]",
             }
-
-
 
 
 class stock_quant(models.Model):
@@ -101,7 +93,6 @@ class stock_inventory(models.Model):
     product_stock_category_id = fields.Many2one("is.stock.category", string="Catégorie de stock")
     is_date_forcee            = fields.Datetime("Date forcée pour l'inventaire")
 
-
     def action_force_date_inventaire(self):
         cr = self._cr
         for obj in self:
@@ -111,7 +102,6 @@ class stock_inventory(models.Model):
                     WHERE inventory_id="""+str(obj.id)+"""
                 """
                 res=cr.execute(SQL)
-
 
     def _get_inventory_lines(self, cr, uid, inventory, context=None):
         location_obj = self.pool.get("stock.location")

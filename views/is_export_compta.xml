@@ -1,18 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- is.export.compta -->
-        <!-- <record id="is_export_compta_type_seq" model="ir.sequence.type">
-            <field name="name">Folio Export Compta</field>
-            <field name="code">is.export.compta</field>
-        </record>
-        <record id="is_export_compta_seq" model="ir.sequence">
-            <field name="name">Folio Export Compta</field>
-            <field name="code">is.export.compta</field>
-            <field name="prefix">FOLIO-</field>
-            <field name="padding">4</field>
-            <field name="company_id" eval="False"/>
-        </record> -->
+        <!-- is.export.compta.ligne -->
         <record id="is_export_compta_ligne_tree" model="ir.ui.view">
             <field name="name">is.export.compta.ligne.tree</field>
             <field name="model">is.export.compta.ligne</field>
@@ -66,10 +55,10 @@
                     <field name="piece"/>
                     <field name="libelle"/>
                     <field name="commentaire" />
-                    <!-- <group expand="0" string="Regrouper par...">
-                        <filter string="Compte"        context="{'group_by':'compte'}"/>
-                        <filter string="Pièce"         context="{'group_by':'piece'}"/>
-                    </group> -->
+                    <group expand="0" string="Regrouper par...">
+                        <filter name="compte" string="Compte" context="{'group_by':'compte'}"/>
+                        <filter name="piece"  string="Pièce"  context="{'group_by':'piece'}"/>
+                    </group>
                </search>
             </field>
         </record>
@@ -80,6 +69,15 @@
             <field name="view_mode">tree,form</field>
             <field name="domain">[('export_compta_id','=',active_id)]</field>
             <field name="context">{'default_export_compta_id': active_id}</field>
+        </record>
+
+        <!-- is.export.compta -->
+        <record id="is_export_compta_seq" model="ir.sequence">
+            <field name="name">Folio Export Compta</field>
+            <field name="code">is.export.compta</field>
+            <field name="prefix">FOLIO-</field>
+            <field name="padding">4</field>
+            <field eval="False" name="company_id"/>
         </record>
         <record id="is_export_compta_tree" model="ir.ui.view">
             <field name="name">is.export.compta.tree</field>

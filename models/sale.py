@@ -103,16 +103,14 @@ class sale_order_line(models.Model):
             obj.is_fabrication_prevue=fabrication_prevue
             obj.is_reste=obj.product_uom_qty-fabrication_prevue
 
-    def onchange_remise(self, remise1,remise2):
-        remise=100-remise1
-        remise=remise-remise*remise2/100.0
+
+    @api.onchange('is_remise1','is_remise2')
+    def onchange_remise(self):
+        remise=100-self.is_remise1
+        remise=remise-remise*self.is_remise2/100.0
         remise=100-remise
-        v = {
-            "discount": remise,
-        }
-        return {
-            "value": v,
-        }
+        self.discount=remise
+
 
     def action_creer_of(self):
         for obj in self:

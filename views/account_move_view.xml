@@ -42,16 +42,20 @@
         </record>
 
 
-        <!-- account.invoice -->
-        <!-- <record id="is_invoice_form" model="ir.ui.view">
+        <!-- account.move -->
+        <record id="is_view_move_form" model="ir.ui.view">
             <field name="name">is_invoice_form</field>
-            <field name="model">account.invoice</field>
-            <field name="inherit_id" ref="account.invoice_form" />
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form" />
             <field name="arch" type="xml">
-                <xpath expr="//sheet" position="attributes">
-                    <attribute name="class">oe_form_sheet_width_wider</attribute>
+                <xpath expr="//sheet[1]" position="inside">
+                    <style>
+                         .o_form_view .o_form_sheet_bg > .o_form_sheet{
+                            max-width: 1800px;
+                        }
+                    </style>
                 </xpath>
-                <field name="account_id" position="after">
+                 <field name="invoice_date" position="after">
                     <field style="background:orange" name="is_alerte_acompte" readonly="1" attrs="{'invisible':[('is_alerte_acompte','=',False)]}"/>
                     <field name="is_sale_order_id"/>
                     <field 
@@ -60,18 +64,18 @@
                             'invisible': [('is_sale_order_id', '=', False)],
                         }" 
                     />
+                    <field name="is_mode_reglement_id"/>
+                    <field name="is_acompte"/>
+
+
                 </field>
-                <field name="fiscal_position" position="before">
+                <field name="payment_reference" position="after">
                     <field name="is_contact_id" domain="[('parent_id','=',partner_id)]" />
                     <field name="is_imputation_partenaire"/>
                 </field>
-                <field name="payment_term" position="after">
-                    <field name="is_mode_reglement_id"/>
-                    <field name="is_acompte"/>
-                </field>
             </field>
         </record>
-        <record id="is_invoice_supplier_form" model="ir.ui.view">
+        <!-- <record id="is_invoice_supplier_form" model="ir.ui.view">
             <field name="name">is_invoice_supplier_form</field>
             <field name="model">account.invoice</field>
             <field name="inherit_id" ref="account.invoice_supplier_form" />

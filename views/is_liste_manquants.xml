@@ -49,9 +49,9 @@
                     <field name="type_val"/>
                     <field name="picking_id"/>
                     <filter string="Manquants" name="manquants" domain="[('cumul','&lt;',0)]"/>
-                    <!-- <group expand="1" string="Regrouper par...">
-                        <filter string="Article"         context="{'group_by':'product_id'}"/>
-                    </group> -->
+                    <group expand="1" string="Regrouper par...">
+                        <filter name="group_product_id" string="Article" context="{'group_by':'product_id'}"/>
+                    </group>
                 </search>
             </field>
         </record>

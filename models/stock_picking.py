@@ -9,10 +9,10 @@ class stock_picking(models.Model):
     def compute_montant_total(self):
         for obj in self:
             montant = 0
-            for line in obj.move_lines:
-                price_unit = line.procurement_id.sale_line_id.price_unit
-                if price_unit:
-                    montant+=price_unit*line.product_uom_qty
+            # for line in obj.move_lines:
+            #     price_unit = line.procurement_id.sale_line_id.price_unit
+            #     if price_unit:
+            #         montant+=price_unit*line.product_uom_qty
             obj.is_montant_total = montant
 
 

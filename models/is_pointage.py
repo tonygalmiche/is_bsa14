@@ -9,21 +9,18 @@ class is_pointage(models.Model):
     _description='is.pointage'
     _order='name desc'
 
-    name          = fields.Datetime("Date Heure",required=True, default=fields.datetime.now)
+    name          = fields.Datetime("Date Heure",required=True, default=lambda self: fields.Datetime.now())
     employee      = fields.Many2one('hr.employee', 'Employé', required=True, help="Sélectionnez un employé", index=True)
     entree_sortie = fields.Selection([("E", "Entrée"), ("S", "Sortie")], "Entrée/Sortie", required=True)
     pointeuse     = fields.Char('Pointeuse', help='Adresse IP du lecteur de badges', required=False)
     commentaire   = fields.Text('Commentaire')
 
     def write(self, vals):
-        now = datetime.now(timezone('Europe/Berlin'))
-        user_obj = self.pool.get('res.users')
-        user = user_obj.browse(cr, uid, uid, context=context)
-        this = self.pool.get(str(self))
-        doc = this.browse(cr, uid, ids, context=context)
-        msg="\nPointage modifié manuellement "+now.strftime('le %d/%m/%Y à %H:%M:%S')+' par '+str(user.name)
+        now = datetime.now(timezone('Europe/Paris'))
+        msg="Pointage modifié manuellement %s par %s"%(now.strftime('le %d/%m/%Y à %H:%M:%S'), self.env.user.name)
         vals.update({'commentaire': msg})
-        return super(is_pointage, self).write(cr, uid, ids, vals, context=context)
+        res = super(is_pointage, self).write(vals)
+        return res
 
 
 class is_pointage_commentaire(models.Model):
@@ -45,33 +42,6 @@ class is_jour_ferie(models.Model):
     date      = fields.Date("Date",required=True)
     jour_fixe = fields.Boolean('jour férié fixe',  help="Cocher pour préciser que ce jour férié est valable tous les ans")
     info_id   = fields.Many2one('is.heure.effective.info', 'Information')
-
-
-
-
-
-
-
-# Vue créée pour éssayer d'identifier les anomalies de pointage, mais c'est trop complexe à faire comme cela
-# Je la conserve juste pour l'exemple (Menu Configuration / Configuration / Anomalies de pointage)
-# class is_pointage_anomalie(osv.osv):
-#     _name = "is.pointage.anomalie"
-#     _auto = False
-#     _columns = {
-#         'pointage_id': fields.many2one('is.pointage', 'Pointage', required=True, ondelete='set null', help="Pointage", select=True),
-#         'name':fields.datetime("Date Heure",required=True),
-#         'employee': fields.many2one('hr.employee', 'Employé', required=True, ondelete='set null', help="Sélectionnez un employé", select=True),
-#         'entree_sortie': fields.selection([("E", "Entrée"), ("S", "Sortie")], "Entrée/Sortie", required=True),
-#     }
-#     def init(self, cr):
-#         tools.drop_view_if_exists(cr, 'is_pointage_anomalie')
-#         cr.execute("""
-#                 CREATE OR REPLACE view is_pointage_anomalie AS (
-#                     SELECT id as id, id as pointage_id, name, employee, entree_sortie
-#                     FROM is_pointage 
-#                     WHERE id>0
-#                )
-#         """)
 
 
 class is_heure_effective(models.Model):

@@ -33,10 +33,11 @@ from . import project
 from . import is_bsa_tracabilite
 from . import is_badge
 from . import is_pointage
-
 from . import is_account_move_line
+from . import is_gamme_generique
+
+
 #from . import mail_thread
-#from . import res_config
 
 
 

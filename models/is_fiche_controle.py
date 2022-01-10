@@ -11,28 +11,16 @@ class is_fiche_controle(models.Model):
     name               = fields.Char("Fiche", readonly=True)
     type_fiche         = fields.Selection([('interne', u'Interne'),('client', u'Client')], "Type de fiche", required=True)
     product_id         = fields.Many2one('product.product', 'Article', required=True)
-    date_creation      = fields.Date("Date de création"              , required=True)
-    createur_id        = fields.Many2one('res.users', 'Créateur'     , required=True)
+    date_creation      = fields.Date("Date de création"              , required=True, default=lambda *a: fields.Date.today())
+    createur_id        = fields.Many2one('res.users', 'Créateur'     , required=True, default=lambda self: self.env.user.id)
     ligne_ids          = fields.One2many('is.fiche.controle.ligne', 'fiche_id', u'Lignes')
     observation        = fields.Text("Observations")
 
-
-    _defaults = {
-        'date_creation':  datetime.date.today(),
-        'createur_id': lambda obj, cr, uid, context: uid,
-    }
-
-
     @api.model
     def create(self, vals):
-        data_obj = self.env['ir.model.data']
-        sequence_ids = data_obj.search([('name','=','is_fiche_controle_seq')])
-        if sequence_ids:
-            sequence_id = data_obj.browse(sequence_ids[0].id).res_id
-            vals['name'] = self.env['ir.sequence'].get_id(sequence_id, 'id')
+        vals['name'] = self.env['ir.sequence'].next_by_code('is.fiche.controle')
         res = super(is_fiche_controle, self).create(vals)
         return res
-
 
     @api.onchange('type_fiche')
     def _onchange_type_fiche(self):
@@ -44,9 +32,6 @@ class is_fiche_controle(models.Model):
                     'point': point.name,
                 }))
             self.ligne_ids = lignes
-
-
-
 
 
 class is_fiche_controle_ligne(models.Model):

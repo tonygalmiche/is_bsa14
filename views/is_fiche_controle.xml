@@ -2,18 +2,13 @@
 <odoo>
     <data>
         <!-- is.fiche.controle -->
-        <!-- <record id="is_fiche_controle_type_seq" model="ir.sequence.type">
-            <field name="name">Fiche contrôle</field>
-            <field name="code">is.fiche.controle</field>
-        </record>
         <record id="is_fiche_controle_seq" model="ir.sequence">
             <field name="name">Fiche contrôle</field>
             <field name="code">is.fiche.controle</field>
             <field name="prefix">FC-</field>
             <field name="padding">4</field>
-            <field name="company_id" eval="False"/>
-        </record> -->
-
+            <field eval="False" name="company_id"/>
+        </record>
         <record id="is_fiche_controle_tree" model="ir.ui.view">
             <field name="name">is.fiche.controle.tree</field>
             <field name="model">is.fiche.controle</field>

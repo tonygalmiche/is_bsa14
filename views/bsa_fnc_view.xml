@@ -42,19 +42,14 @@
             <field name="view_mode">tree,form</field>
         </record>
 
-
         <!-- bsa.fnc --> 
-        <!-- <record id="bsa_fnc_type_seq" model="ir.sequence.type">
-            <field name="name">FNC</field>
-            <field name="code">bsa.fnc</field>
-        </record>
         <record id="bsa_fnc_seq" model="ir.sequence">
             <field name="name">FNC</field>
             <field name="code">bsa.fnc</field>
-            <field name="prefix">FNC-</field>
+            <field name="prefix">FNC</field>
             <field name="padding">4</field>
-            <field name="company_id" eval="False"/>
-        </record> -->
+            <field eval="False" name="company_id"/>
+        </record>
         <record model="ir.ui.view" id="bsa_fnc_form_view">
             <field name="name">bsa_fnc_form_view</field>
             <field name="model">bsa.fnc</field>
@@ -156,12 +151,6 @@
                     <field name="action"/>
                     <field name="analyse"/>
                     <field name="state"/>
-                    <!-- <group expand="0" string="Regrouper par...">
-                        <filter string="Type"       context="{'group_by':'type_fnc'}"/>
-                        <filter string="Partenaire" context="{'group_by':'partner_id'}"/>
-                        <filter string="Catégorie"  context="{'group_by':'categorie_id'}"/>
-                        <filter string="Article"    context="{'group_by':'product_id'}"/>
-                    </group> -->
                 </search>
             </field>
         </record>
@@ -170,26 +159,6 @@
             <field name="res_model">bsa.fnc</field>
             <field name="view_mode">tree,form,graph</field>
         </record>
-
-
-        <!--Email template -->
-        <!-- <record id="bsa_fnc_email_template4" model="email.template">
-            <field name="name">FNC</field>
-            <field name="email_from">${(user.email)|safe}</field>
-            <field name="email_to">${object.partner_id.email}</field>
-            <field name="email_cc"></field>
-            <field name="reply_to"></field>
-            <field name="subject">${object.name|safe} </field>
-            <field name="model_id" ref="is_bsa.model_bsa_fnc"/>
-            <field name="auto_delete" eval="True"/>
-            <field name="body_html"><![CDATA[
-<div style="font-family: 'Lucica Grande', Ubuntu, Arial, Verdana, sans-serif; font-size: 12px; color: rgb(34, 34, 34); background-color: #FFF; ">
-Contenu du message à mettre ici
-</div>
-            ]]></field>
-        </record> -->
-
-
     </data>
 </odoo>
 

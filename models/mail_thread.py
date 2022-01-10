@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-
-from openerp import api, fields, models, tools
-from openerp.addons.mail.mail_message import decode
+from odoo import api, fields, models, tools
+from odoo.addons.mail.mail_message import decode
 import re
 import email
 #import html2text

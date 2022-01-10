@@ -42,6 +42,9 @@ class mrp_bom(models.Model):
     _order    = "product_tmpl_id"
     #_rec_name = "name"
 
+    is_gamme_generique_id = fields.Many2one('is.gamme.generique', 'Gamme générique')
+
+
     def _bom_explode(self, cr, uid, bom, product, factor, properties=None, level=0, routing_id=False, previous_products=None, master_bom=None, context=None):
         result, result2 = super(mrp_bom, self)._bom_explode(cr, uid, bom, product, factor, properties=properties, level=level, routing_id=routing_id, previous_products=previous_products, master_bom=master_bom, context=context)
         uom_obj = self.pool.get("product.uom")

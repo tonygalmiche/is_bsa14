@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<openerp>
+<odoo>
     <data>
 
         <!-- sale.order.line -->
@@ -79,6 +79,13 @@
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="sale.view_order_form"/>
             <field name="arch" type="xml">
+                <xpath expr="//sheet[1]" position="inside">
+                    <style>
+                         .o_form_view .o_form_sheet_bg > .o_form_sheet{
+                            max-width: 1800px;
+                        }
+                    </style>
+                </xpath>
                 <field name="state" position="before" >
                     <button 
                         name="mouvement_stock_action" 
@@ -211,4 +218,4 @@
             <field name="view_mode">tree,form</field>
         </record>
     </data>
-</openerp>
+</odoo>

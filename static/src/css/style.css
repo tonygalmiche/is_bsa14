@@ -1,13 +1,4 @@
-
-
-.openerp .oe_form_sheetbg {
-    padding: 16px 0;
-    max-width: none !important;
-}
-.openerp .oe_form_sheet_width_wider {
-    max-width: 95%;
-}
-
-.openerp .announcement_bar {
-    display:none;
+/* Permet de changer la largeur par défaut des formulaires */
+.o_form_view .o_form_sheet_bg > .o_form_sheet{
+    max-width: 1400px;
 }

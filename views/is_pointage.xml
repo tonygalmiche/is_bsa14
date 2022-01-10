@@ -30,6 +30,8 @@
                          <field name="name"/>
                          <field name="employee"/>
                          <field name="entree_sortie"/>
+                         <field name="pointeuse"   optional="hide" readonly="1"/>
+                         <field name="commentaire" optional="hide" readonly="1"/>
                     </tree>
                </field>
           </record>
@@ -43,12 +45,12 @@
                          <field name="entree_sortie"/>
                          <field name="pointeuse"/> 
                          <field name="commentaire"/>
-                         <!-- <group expand="0" string="Regroupé par...">
-                                <filter name="group_pointeuse" string="Pointeuse" context="{'group_by':'pointeuse'}"/>
-                                <filter name="group_employee"     string="Employé"      context="{'group_by':'employee'}"/>
-                                <filter name="group_mois"               string="Mois"               context="{'group_by':'name:month'}"/>
-                                <filter name="group_jour"               string="Jour"               context="{'group_by':'name:day'}"/>
-                         </group> -->
+                         <group expand="0" string="Regroupé par...">
+                              <filter name="group_pointeuse" string="Pointeuse" context="{'group_by':'pointeuse'}"/>
+                              <filter name="group_employee"  string="Employé"   context="{'group_by':'employee'}"/>
+                              <filter name="group_mois"      string="Mois"      context="{'group_by':'name:month'}"/>
+                              <filter name="group_jour"      string="Jour"      context="{'group_by':'name:day'}"/>
+                         </group>
                     </search>
                </field>
           </record>
@@ -65,8 +67,7 @@
                <field name="model">is.heure.effective</field>
                <field name="type">tree</field>
                 <field name="arch" type="xml">
-                     <!-- colors="red:effectif_calcule!=effectif_reel" -->
-                    <tree string="pointage" editable="top">
+                    <tree string="pointage" editable="top" decoration-danger="effectif_calcule!=effectif_reel">
                          <field name="name"                               readonly="1"/>
                          <field name="employee_id"               readonly="1"/>
                          <field name="department_id"          readonly="1"/>
@@ -88,13 +89,13 @@
                         <field name="employee_id"/>
                         <field name="department_id"/>
                         <field name="info_id"/>
-                        <!-- <group expand="0" string="Regroupé par...">
-                            <filter string="Mois"               context="{'group_by':'name:month'}"/>
-                            <filter string="Jour"               context="{'group_by':'name:day'}"/>
-                            <filter string="Employé"           context="{'group_by':'employee_id'}"/>
-                            <filter string="Département" context="{'group_by':'department_id'}"/>
-                            <filter string="Information" context="{'group_by':'info_id'}"/>
-                        </group> -->
+                        <group expand="0" string="Regroupé par...">
+                            <filter name="group_mois"          string="Mois"        context="{'group_by':'name:month'}"/>
+                            <filter name="group_jour"          string="Jour"        context="{'group_by':'name:day'}"/>
+                            <filter name="group_employee_id"   string="Employé"     context="{'group_by':'employee_id'}"/>
+                            <filter name="group_department_id" string="Département" context="{'group_by':'department_id'}"/>
+                            <filter name="group_info_id"       string="Information" context="{'group_by':'info_id'}"/>
+                        </group>
                     </search>
                </field>
           </record>

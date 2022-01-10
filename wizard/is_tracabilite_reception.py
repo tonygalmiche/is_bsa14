@@ -32,90 +32,66 @@ class is_imprimer_etiquette(models.TransientModel):
                         'quantity': move.product_uom_qty,
                         'move_id': move.id,
                     }
-                    res.append(vals)
+                    res.append((0,0, vals))
         return res
     
-    # def default_get(self, cr, uid, fields, context=None):
-    #     if context is None: context = {}
-    #     res = super(is_imprimer_etiquette, self).default_get(cr, uid, fields, context=context)
-    #     picking_ids = context.get('active_ids', [])
-    #     active_model = context.get('active_model')
-
-    #     if not picking_ids or len(picking_ids) != 1:
-    #         return res
-    #     assert active_model in ('stock.picking'), 'Bad context propagation'
-    #     picking_id, = picking_ids
-    #     picking = self.pool.get('stock.picking').browse(cr, uid, picking_id, context=context)
-    #     if 'etiquette_lines' in fields:
-    #         lines = self.get_lines_picking(cr, uid, picking, context=context)
-    #         res.update(etiquette_lines=lines)        
-    #     return res
-    
+    @api.model
+    def default_get(self, fields_list):
+        res={}
+        picking = self.env['stock.picking'].browse(self._context.get(('active_ids'), []))
+        if 'etiquette_lines' in fields_list:
+            lines = self.get_lines_picking(picking)
+            res.update(etiquette_lines=lines)
+        return res
     
     def exist_etiquette(self, move_id):
-        tracab_obj = self.pool.get('is.tracabilite.reception')
-        ids = tracab_obj.search(cr, uid, [('move_id','=',move_id)], context=context)
+        tracab_obj = self.env['is.tracabilite.reception']
+        ids = tracab_obj.search([('move_id','=',move_id)])
         if ids:
             return ids[0]
         else:
             return False
         
-        
-    def create_etiquette(self, lines, num_bl, picking_id):
-        tracab_obj = self.pool.get('is.tracabilite.reception')
-        
+    def create_etiquette(self, picking):
+        tracab_obj = self.env['is.tracabilite.reception']
         res = []
         etiquettes=""
-        for line in lines:
-            etiquette_id = self.exist_etiquette(cr, uid, line.move_id.id, context)
+        for line in self.etiquette_lines:
+            etiquette = self.exist_etiquette(line.move_id.id)
             vals = {
-                'picking_id': picking_id,
-                'bl_fournisseur': num_bl,
-                'move_id': line.move_id and line.move_id.id,
+                'picking_id': picking.id,
+                'bl_fournisseur': self.num_bl,
+                'move_id': line.move_id.id,
                 'quantity': line.quantity
             }
-            if etiquette_id:
-                tracab_obj.write(cr, uid, etiquette_id, vals, context=context)
-                res.append(etiquette_id)
+            if etiquette:
+                etiquette.write(vals)
+                res.append(etiquette.id)
             else:
-                new_id = tracab_obj.create(cr, uid, vals, context=context)
+                new_id = tracab_obj.create(vals)
                 res.append(new_id)
                 etiquette_id=new_id
-
             i = 0
             while i < line.quantity:
-                etiquettes=etiquettes+tracab_obj.generer_etiquette(cr, uid, [etiquette_id], context=context)
+                #etiquettes=etiquettes+tracab_obj.generer_etiquette(cr, uid, [etiquette_id], context=context)
                 i += 1
-
-
-        self.pool.get('is.tracabilite.reception').imprimer_etiquette(cr, uid, etiquettes)
-
-
+        #self.pool.get('is.tracabilite.reception').imprimer_etiquette(cr, uid, etiquettes)
+        return res
+        
+    def verifier_etiquettes_picking(self, etiquettes, picking):
+        tracab_obj = self.env['is.tracabilite.reception']
+        res=[]
+        for move in picking.move_ids_without_package:
+            etiquettes = tracab_obj.search([('move_id','=',move.id)])
+            for etiquette in etiquettes:
+                res.append(etiquette.id)
         return res
     
-    
-    def verifier_etiquettes_picking(self, etiquettes, move_lines):
-        tracab_obj = self.pool.get('is.tracabilite.reception')
-        
-        for move in move_lines:
-            etiquette_ids = tracab_obj.search(cr, uid, [('move_id','=',move.id)], context=context)
-            if etiquette_ids:
-                if etiquette_ids[0] in etiquettes:
-                    continue
-                else:
-                    etiquettes.append(etiquette_ids[0])
-        return etiquettes
-
-    
     def imprimer_etiquette(self):
-        picking_obj = self.pool.get('stock.picking')
-        
-        picking = picking_obj.browse(cr, uid, context.get(('active_ids'), []), context=context)
-        data = self.browse(cr, uid , ids[0], context=context)
-        
-        """ Créer Etiquettes en réception """
-        etiquettes = self.create_etiquette(cr, uid, data.etiquette_lines, data.num_bl, picking.id, context)
-        etiquette_ids = self.verifier_etiquettes_picking(cr, uid, etiquettes, picking.move_lines, context=context)
-        picking_obj.write(cr, uid, picking.id, {'etiquette_reception_ids': [(6, 0, etiquette_ids)]}, context=context)
+        context = self._context
+        picking_obj = self.env['stock.picking']
+        picking = picking_obj.browse(context.get(('active_ids'), []))        
+        etiquettes = self.create_etiquette(picking)
+        etiquette_ids = self.verifier_etiquettes_picking(etiquettes, picking)
+        picking.write({'etiquette_reception_ids': [(6, 0, etiquette_ids)]})
         return True
-                    

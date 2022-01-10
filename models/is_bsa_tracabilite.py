@@ -34,17 +34,11 @@ class is_tracabilite_reception(models.Model):
     move_id        = fields.Many2one('stock.move', 'Mouvement de stock', readonly=False)
     quantity       = fields.Float('Quantité', readonly=False)
     
-    
-    # @api.model
-    # def create(self, vals):
-    #     self.update_product(cr, uid, vals, context)
-    #     data_obj = self.pool.get('ir.model.data')
-    #     sequence_ids = data_obj.search(cr, uid, [('name','=','is_bsa_tracabilite_seq')], context=context)
-    #     if sequence_ids:
-    #         sequence_id = data_obj.browse(cr, uid, sequence_ids[0], context).res_id
-    #         vals['name'] = self.pool.get('ir.sequence').get_id(cr, uid, sequence_id, 'id', context=context)
-    #     new_id = super(is_tracabilite_reception, self).create(cr, uid, vals, context=context)
-    #     return new_id
+    @api.model
+    def create(self, vals):
+        vals['name'] = self.env['ir.sequence'].next_by_code('is.tracabilite.reception')
+        res = super(is_tracabilite_reception, self).create(vals)
+        return res
 
 
     # def write(self, vals):
@@ -168,9 +162,6 @@ class is_tracabilite_livraison(models.Model):
     #etiquette_livraison     = fields.Many2one('etiquette_livraison_id', 'etiquette_id', type='many2one', related='is.tracabilite.livraison.line', string='Etiquette semi-fini'),
 
 
-
-
-
     def ajouter_etiquette_of(self, production_id):
         """ Ajouter l'etiquette à la liste des etiquettes de l'OF correspondant """
         if production_id:
@@ -185,15 +176,11 @@ class is_tracabilite_livraison(models.Model):
         
     @api.model
     def create(self, vals):
-        self.update_product(cr, uid, vals, context)
-        data_obj = self.pool.get('ir.model.data')
-        sequence_ids = data_obj.search(cr, uid, [('name','=','is_bsa_tracabilite_livraison_seq')], context=context)
-        if sequence_ids:
-            sequence_id = data_obj.browse(cr, uid, sequence_ids[0], context).res_id
-            vals['name'] = self.pool.get('ir.sequence').get_id(cr, uid, sequence_id, 'id', context=context)
-        new_id = super(is_tracabilite_livraison, self).create(cr, uid, vals, context=context)
-        self.ajouter_etiquette_of(cr, uid, [new_id], vals['production_id'], context)
-        return new_id
+        #self.update_product(vals)
+        vals['name'] = self.env['ir.sequence'].next_by_code('is.tracabilite.livraison')
+        res = super(is_tracabilite_livraison, self).create(vals)
+        #self.ajouter_etiquette_of(cr, uid, [new_id], vals['production_id'], context)
+        return res
 
 
     def write(self, vals):

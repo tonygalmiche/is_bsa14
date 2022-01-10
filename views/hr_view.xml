@@ -22,7 +22,6 @@
             <field name="model">hr.employee</field>
             <field name="inherit_id" ref="hr.view_employee_form"/>
             <field name="arch" type="xml">
-
                 <div name="button_box" position="inside">
                     <button class="oe_stat_button" name="%(is_badge_action2)d" type="action" icon="fa-user">
                         <div class="o_stat_info">
@@ -41,40 +40,6 @@
                         </div>
                     </button>
                 </div>
-
-<!-- 
-                            <field string="Badge" name="is_badge_count" widget="statinfo" />
-                        </button>
-                        <button class="oe_inline oe_stat_button" name="%(is_pointage_action2)d" type="action" icon="fa-clock-o">
-                            <field string="Pointages" name="is_pointage_count" widget="statinfo" />
-                        </button>
-                </div> -->
-
-
-<!-- 
-                            <button id="hr_presence_button" class="oe_stat_button" disabled="1" attrs="{'invisible': ['|', ('last_activity', '=', False), ('user_id', '=', False)]}">
-                                <div role="img" class="fa fa-fw fa-circle text-success o_button_icon" attrs="{'invisible': [('hr_presence_state', '!=', 'present')]}" aria-label="Available" title="Available"/>
-                                <div role="img" class="fa fa-fw fa-circle text-warning o_button_icon" attrs="{'invisible': [('hr_presence_state', '!=', 'to_define')]}" aria-label="Away" title="Away"/>
-                                <div role="img" class="fa fa-fw fa-circle text-danger o_button_icon" attrs="{'invisible': [('hr_presence_state', '!=', 'absent')]}" aria-label="Not available" title="Not available"/>
-
-                                <div class="o_stat_info" attrs="{'invisible': [('hr_presence_state', '=', 'present')]}">
-                                    <span class="o_stat_text">
-                                        Not Connected
-                                    </span>
-                                </div>
-                                <div class="o_stat_info" attrs="{'invisible': [('hr_presence_state', '!=', 'present')]}">
-                                    <span class="o_stat_value" attrs="{'invisible': [('last_activity_time', '=', False)]}">
-                                        <field name="last_activity_time"/>
-                                    </span>
-                                    <span class="o_stat_value" attrs="{'invisible': [('last_activity_time', '!=', False)]}">
-                                        <field name="last_activity"/>
-                                    </span>
-                                    <span class="o_stat_text">Present Since</span>
-                                </div>
-                            </button> -->
-
-
-
                 <page name="public" position="after">
                     <page string="Horaires">
                         <group>
@@ -115,13 +80,13 @@
                 </field>
                 <field name="department_id" position="after">
                     <field name="is_interimaire"/>
-                    <field name="is_jour1" invisible="context.get('invisible_horaire', True)"/>
-                    <field name="is_jour2" invisible="context.get('invisible_horaire', True)"/>
-                    <field name="is_jour3" invisible="context.get('invisible_horaire', True)"/>
-                    <field name="is_jour4" invisible="context.get('invisible_horaire', True)"/>
-                    <field name="is_jour5" invisible="context.get('invisible_horaire', True)"/>
-                    <field name="is_jour6" invisible="context.get('invisible_horairet', True)"/>
-                    <field name="is_jour7" invisible="context.get('invisible_horaire', True)"/>
+                    <field name="is_jour1" optional="hide"/>
+                    <field name="is_jour2" optional="hide"/>
+                    <field name="is_jour3" optional="hide"/>
+                    <field name="is_jour4" optional="hide"/>
+                    <field name="is_jour5" optional="hide"/>
+                    <field name="is_jour6" optional="hide"/>
+                    <field name="is_jour7" optional="hide"/>
                 </field>
                 <field name="job_id" position="replace" />
                 <field name="parent_id" position="replace" />
@@ -137,31 +102,20 @@
                         <field name="is_categorie"/>
                         <field name="is_interimaire"/>
                     </field>
-                    <!-- <group string="Group By" position="before">
-                        <group string="Filtres">
-                            <filter string="Employés"     name="is_interimaire" domain="[('is_interimaire','!=',True)]" />
-                            <filter string="Intérimaires" name="is_interimaire" domain="[('is_interimaire','=',True)]" />
-                        </group>
-                    </group> -->
-                    <!-- <filter string="Manager" position="before">
-                        <filter string="Catégorie"   context="{'group_by': 'is_categorie'}"/>
-                        <filter string="Intérimaire" context="{'group_by': 'is_interimaire'}"/>
-                    </filter> -->
-                    <!-- <group string="Group By" position="after">
-                        <group string="Afficher les champs">
-                            <filter string="Horaires" context="{'invisible_horaire': False}" />
-                        </group>
-                    </group> -->
+
+                    <filter name="activities_upcoming_all" position="after">
+                        <filter string="Employés"     name="is_interimaire" domain="[('is_interimaire','!=',True)]" />
+                        <filter string="Intérimaires" name="is_interimaire" domain="[('is_interimaire','=',True)]" />
+                    </filter>
+                    <filter name="group_job" position="after">
+                        <filter name="group_is_categorie"   string="Catégorie"   context="{'group_by': 'is_categorie'}"/>
+                        <filter name="group_is_interimaire" string="Intérimaire" context="{'group_by': 'is_interimaire'}"/>
+                    </filter>
              </field>
          </record>
         <!-- Pour surcharger une action (ici changer l'ordre des vues), il suffit de mettre le même id que l'action d'origine (et son module en préfix) -->
-        <!-- <record id="hr.open_view_employee_list_my" model="ir.actions.act_window">
-            <field name="name">Employees test</field>
-            <field name="context">{}</field>
-            <field name="view_mode">tree,form</field>
-        </record> -->
-
-
-        <!-- Pour surcharger un menu (ici changer son action), il suffit de mettre le même id que le menu d'origine (et son module en préfix) -->
+        <record id="hr.open_view_employee_list_my" model="ir.actions.act_window">
+            <field name="view_mode">tree,kanban,form,activity</field>
+        </record>
     </data>
 </odoo>

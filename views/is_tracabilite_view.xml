@@ -1,34 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-
-        <!-- <record id="is_bsa_tracabilite_type_seq" model="ir.sequence.type">
-            <field name="name">Tracabilité réception</field>
-            <field name="code">is.tracabilite.reception</field>
-        </record>
-        <record id="is_bsa_tracabilite_seq" model="ir.sequence">
+        <!--  is.tracabilite.reception -->
+        <record id="is_bsa_tracabilite_reception_seq" model="ir.sequence">
             <field name="name">Tracabilité réception</field>
             <field name="code">is.tracabilite.reception</field>
             <field name="prefix">TR</field>
             <field name="padding">4</field>
-            <field name="company_id" eval="False"/>
+            <field eval="False" name="company_id"/>
         </record>
-        
-        
-        <record id="is_bsa_tracabilite_livraison_type_seq" model="ir.sequence.type">
-            <field name="name">Tracabilité livraison</field>
-            <field name="code">is.tracabilite.livraison</field>
-        </record>
-        <record id="is_bsa_tracabilite_livraison_seq" model="ir.sequence">
-            <field name="name">Tracabilité livraison</field>
-            <field name="code">is.tracabilite.livraison</field>
-            <field name="prefix">TL</field>
-            <field name="padding">4</field>
-            <field name="company_id" eval="False"/>
-        </record> -->
-        
-
-        <!--  is.tracabilite.reception -->
         <record id="is_bsa_tracabilite_reception_tree" model="ir.ui.view">
             <field name="name">is.bsa.tracabilite.reception.tree</field>
             <field name="model">is.tracabilite.reception</field>
@@ -88,7 +68,14 @@
             <field name="search_view_id" ref="is_bsa_tracabilite_reception_view_filter"/>
         </record>
                     
-        <!--  is.tracabilite.livraison -->            
+        <!--  is.tracabilite.livraison -->    
+        <record id="is_bsa_tracabilite_livraison_seq" model="ir.sequence">
+            <field name="name">Tracabilité livraison</field>
+            <field name="code">is.tracabilite.livraison</field>
+            <field name="prefix">TL</field>
+            <field name="padding">4</field>
+            <field eval="False" name="company_id"/>
+        </record>
         <record id="is_bsa_tracabilite_livraison_tree" model="ir.ui.view">
             <field name="name">is.bsa.tracabilite.livraison.tree</field>
             <field name="model">is.tracabilite.livraison</field>
@@ -163,13 +150,13 @@
                     <field name="move_id"/>
                     <!-- <field name="etiquette_reception"/> -->
                     <!-- <field name="etiquette_livraison"/> -->
-                    <!-- <group string="Group By">
-                        <filter string="OF"                    context="{'group_by':'production_id'}"/>
-                        <filter string="Article"               context="{'group_by':'product_id'}"/>
-                        <filter string="Commande client"       context="{'group_by':'sale_id'}"/>
-                        <filter string="Mois Fabrication"      context="{'group_by':'fabrique:month'}"/>
-                        <filter string="Semaine Fabrication"   context="{'group_by':'fabrique:week'}"/>
-                    </group> -->
+                    <group string="Group By">
+                        <filter name="group_production_id" string="OF"            context="{'group_by':'production_id'}"/>
+                        <filter name="group_product_id" string="Article"          context="{'group_by':'product_id'}"/>
+                        <filter name="group_sale_id" string="Commande client"     context="{'group_by':'sale_id'}"/>
+                        <filter name="group_mois" string="Mois Fabrication"       context="{'group_by':'fabrique:month'}"/>
+                        <filter name="group_semaine" string="Semaine Fabrication" context="{'group_by':'fabrique:week'}"/>
+                    </group>
                </search>
             </field>
         </record>

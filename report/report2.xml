@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<openerp>
+<odoo>
 <data>
 
     <report
@@ -43,4 +43,4 @@
 
 
 </data>
-</openerp>
+</odoo>

@@ -19,27 +19,18 @@ class is_export_compta(models.Model):
     _order='name desc'
 
     name               = fields.Char("N°Folio"      , readonly=True)
-    type_interface     = fields.Selection([('ventes', u'Ventes'),('achats', u'Achats')], "Interface"    , required=True)
-    format_export      = fields.Selection([('cegid' , u'CEGID'),('ledonia', u'Cabinet LEDONIA EXPERTISE')], "Format export", required=True)
+    type_interface     = fields.Selection([('ventes', 'Ventes'),('achats', 'Achats')], "Interface", required=True, default="ventes")
+    format_export      = fields.Selection([('cegid' , 'CEGID'),('ledonia', 'Cabinet LEDONIA EXPERTISE')], "Format export", required=True, default="ledonia")
     date_debut         = fields.Date("Date de début")
     date_fin           = fields.Date("Date de fin")
     num_debut          = fields.Char("N° facture début")
     num_fin            = fields.Char("N° facture fin")
     ligne_ids          = fields.One2many('is.export.compta.ligne', 'export_compta_id', u'Lignes')
 
-    _defaults = {
-        'type_interface':  'ventes',
-        'format_export' :  'ledonia',
-    }
-
 
     @api.model
     def create(self, vals):
-        data_obj = self.env['ir.model.data']
-        sequence_ids = data_obj.search([('name','=','is_export_compta_seq')])
-        if sequence_ids:
-            sequence_id = data_obj.browse(sequence_ids[0].id).res_id
-            vals['name'] = self.env['ir.sequence'].get_id(sequence_id, 'id')
+        vals['name'] = self.env['ir.sequence'].next_by_code('is.export.compta')
         res = super(is_export_compta, self).create(vals)
         return res
 

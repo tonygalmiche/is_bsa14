@@ -51,14 +51,14 @@
                     <field name="picking_type_id"/>
                     <field name="product_id"/>
                     <field name="description"/>
-                    <!-- <group expand="1" string="Regrouper par...">
-                        <filter string="Référence "           context="{'group_by':'picking_id'}"/>
-                        <filter string="Date du BL "          context="{'group_by':'is_date_bl'}"/>
-                        <filter string="Date du transfert"    context="{'group_by':'date_done'}"/>
-                        <filter string="Client / Fournisseur" context="{'group_by':'partner_id'}"/>
-                        <filter string="Article "             context="{'group_by':'product_id'}"/>
-                        <filter string="Picking Type "        context="{'group_by':'picking_type_id'}"/>
-                    </group> -->
+                    <group expand="1" string="Regrouper par...">
+                        <filter name="group_picking_id"      string="Référence "           context="{'group_by':'picking_id'}"/>
+                        <filter name="group_is_date_bl"      string="Date du BL "          context="{'group_by':'is_date_bl'}"/>
+                        <filter name="group_date_done"       string="Date du transfert"    context="{'group_by':'date_done'}"/>
+                        <filter name="group_partner_id"      string="Client / Fournisseur" context="{'group_by':'partner_id'}"/>
+                        <filter name="group_product_id"      string="Article "             context="{'group_by':'product_id'}"/>
+                        <filter name="group_picking_type_id" string="Picking Type "        context="{'group_by':'picking_type_id'}"/>
+                    </group>
                 </search>
             </field>
         </record>

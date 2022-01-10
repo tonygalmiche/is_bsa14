@@ -63,12 +63,12 @@
                     <field name="is_categorie_client_id"/>
                     <field name="product_id"/>
                     <field name="state"/>
-                    <!-- <group expand="1" string="Regrouper par...">
-                        <filter string="Catégorie de client " context="{'group_by':'is_categorie_client_id'}"/>
-                        <filter string="Client "              context="{'group_by':'partner_id'}"/>
-                        <filter string="Article"              context="{'group_by':'product_id'}"/>
-                        <filter string="Etat"                 context="{'group_by':'state'}"/>
-                    </group> -->
+                    <group expand="1" string="Regrouper par...">
+                        <filter name="groupe_is_categorie_client_id" string="Catégorie de client " context="{'group_by':'is_categorie_client_id'}"/>
+                        <filter name="groupe_partner_id" string="Client "                          context="{'group_by':'partner_id'}"/>
+                        <filter name="groupe_product_id" string="Article"                          context="{'group_by':'product_id'}"/>
+                        <filter name="groupe_state" string="Etat"                                  context="{'group_by':'state'}"/>
+                    </group>
                 </search>
             </field>
         </record>

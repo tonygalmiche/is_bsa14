@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
+<odoo>
     <data>
         <!--mrp.bom-->
-       <!-- <record id="is_mrp_bom_tree_view" model="ir.ui.view">
-            <field name="name">is_mrp_bom_tree_view</field>
+       <record id="is_mrp_bom_form_view" model="ir.ui.view">
+            <field name="name">is_mrp_bom_form_view</field>
             <field name="model">mrp.bom</field>
+            <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
             <field name="arch" type="xml">
-                <tree string="Bill of Materials">
-                    <field name="product_tmpl_id"/>
-                    <field name="name"/>
-                </tree>
+                <field name="type" position="after">
+                    <field name="is_gamme_generique_id"/>
+                </field>
             </field>
-        </record> -->
-
+        </record>
 
 
         <!-- is.gabarit -->
@@ -308,6 +307,6 @@
         </record>
 
     </data>
-</openerp>
+</odoo>
 
 

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="is_gamme_generique_tree" model="ir.ui.view">
+            <field name="name">is.gamme.generique.tree</field>
+            <field name="model">is.gamme.generique</field>
+            <field name="arch" type="xml">
+                <tree >
+                    <field name="name" />
+                </tree>
+            </field>
+        </record>
+        <record id="is_gamme_generique_form" model="ir.ui.view">
+            <field name="name">is.gamme.generique.form</field>
+            <field name="model">is.gamme.generique</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button 
+                            name="actualiser_gammes_action" type="object" 
+                            string="Actualiser les opérations des nomenclatures"
+                            confirm="Voulez-vous vraiment remplacer les opérations des nomenclatures ?"
+                        />
+                    </header>
+                    <sheet>
+                        <group>
+                            <field name="name" />
+                        </group>
+
+                        <field name="ligne_ids" >
+                            <tree editable="bottom">
+                                <field name="sequence" widget="handle"/>
+                                <field name="name" />
+                                <field name="workcenter_id"/>
+                                <field name="duree" widget="mrp_time_counter" sum="Total"/>
+                            </tree>
+                        </field>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_gamme_generique_search" model="ir.ui.view">
+            <field name="name">is.gamme.generique.search</field>
+            <field name="model">is.gamme.generique</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+               </search>
+            </field>
+        </record>
+        <record id="is_gamme_generique_action" model="ir.actions.act_window">
+            <field name="name">Gamme générique</field>
+            <field name="res_model">is.gamme.generique</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>

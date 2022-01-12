@@ -64,8 +64,6 @@ class bsa_stock_a_date_wizard(models.TransientModel):
                 having sum(sm.qty)<>0
                 order by sm2.product_id
             """
-
-
             cr.execute(sql)
             rows = cr.fetchall()
             nb=len(rows)
@@ -91,9 +89,6 @@ class bsa_stock_a_date_wizard(models.TransientModel):
                         'date_stock'       : obj.date
                     }
                     res=self.env['bsa.stock.a.date'].create(vals)
-                    #print ct,'/',nb,product.id,product.name,product.qty_available
-
-
             return {
                 'name': u'Stock au '+str(obj.date),
                 'view_mode': 'tree,form',

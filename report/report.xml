@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <odoo>
-
 <!-- 
     <report
        id="report_qweb_mrp_production_workcenter_line"
@@ -12,7 +10,6 @@
         file="is_bsa.mrp_production_workcenter_line"
        
     />
-
     <report 
             string="Production Order" 
             id="action_report_production_order" 
@@ -29,67 +26,65 @@
             name="is_bsa.report_picking" 
             file="is_bsa.report_picking" 
     />
-
-
     <report
-        id="action_report_hr_expense"
-        string="HR Expense"
-        model="hr.expense.expense"
+        id="report_tracabilite_reception"
+        model="is.tracabilite.reception"
+        string="Etiquette"
         report_type="qweb-pdf"
-        name="is_bsa.report_expense"
-        file="is_bsa.report_expense"
-    />
-
+        name="bsa_tracabilite.template_tracabilite_reception"
+        file="bsa_tracabilite.template_tracabilite_reception"
+    /> 
     <report
-        id="action_report_hr_expense_list"
-        string="Liste des notes de frais"
-        model="hr.expense.expense"
+        id="report_tracabilite_livraison"
+        model="is.tracabilite.livraison"
+        string="Etiquette"
         report_type="qweb-pdf"
-        name="is_bsa.report_expense_list"
-        file="is_bsa.report_expense_list"
-    />
-
-
+        name="bsa_tracabilite.template_tracabilite_livraison"
+        file="bsa_tracabilite.template_tracabilite_livraison"
+    /> 
     <report
-        id="action_report_fiche_travail"
-        string="Fiche de travail"
-        model="is.fiche.travail"
+        id="report_etiquette_cde_client"
+        model="sale.order"
+        string="Etiquette"
         report_type="qweb-pdf"
-        name="is_bsa.report_fiche_travail"
-        file="is_bsa.report_fiche_travail"
-    />
-
-    <report
-        id="action_report_personnel_present"
-        string="Personnel présent"
-        model="is.personnel.present"
-        report_type="qweb-pdf"
-        name="is_bsa.report_personnel_present"
-        file="is_bsa.report_personnel_present"
-    /> -->
-
-
+        name="bsa_tracabilite.template_etiquette_cde_client"
+        file="bsa_tracabilite.template_etiquette_cde_client"
+    /> 
+ -->
     <record id="action_report_bon_atelier" model="ir.actions.report">
         <field name="name">Bon atelier</field>
         <field name="model">stock.picking</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">is_bsa14.report_bon_atelier</field>
+        <field name="report_file">is_bsa14.report_bon_atelier</field>
+        <field name="binding_model_id" ref="model_stock_picking"/>
+        <field name="binding_type">report</field>
     </record>
-
-
-
-
-
-<!-- 
-    <report
-        id="action_report_fiche_controle"
-        string="Fiche de contrôle"
-        model="is.fiche.controle"
-        report_type="qweb-pdf"
-        name="is_bsa.report_fiche_controle"
-        file="is_bsa.report_fiche_controle"
-    />
- -->
-
-
+    <record id="action_report_fiche_controle" model="ir.actions.report">
+        <field name="name">Fiche de contrôle</field>
+        <field name="model">is.fiche.controle</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">is_bsa14.report_fiche_controle</field>
+        <field name="report_file">is_bsa14.report_fiche_controle</field>
+        <field name="binding_model_id" ref="model_is_fiche_controle"/>
+        <field name="binding_type">report</field>
+    </record>
+    <record id="action_report_fiche_travail" model="ir.actions.report">
+        <field name="name">Fiche de travail</field>
+        <field name="model">is.fiche.travail</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">is_bsa14.report_fiche_travail</field>
+        <field name="report_file">is_bsa14.report_fiche_travail</field>
+        <field name="binding_model_id" ref="model_is_fiche_travail"/>
+        <field name="binding_type">report</field>
+    </record>
+    <record id="action_report_personnel_present" model="ir.actions.report">
+        <field name="name">Personnel présent</field>
+        <field name="model">is.personnel.present</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">is_bsa14.report_personnel_present</field>
+        <field name="report_file">is_bsa14.report_personnel_present</field>
+        <field name="binding_model_id" ref="model_is_personnel_present"/>
+        <field name="binding_type">report</field>
+    </record>
 </odoo>

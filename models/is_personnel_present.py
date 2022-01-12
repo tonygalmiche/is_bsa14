@@ -25,9 +25,9 @@ class is_personnel_present(models.Model):
         employes=[]
         for obj in self:
             SQL="""
-                select id,name_related 
+                select id,name
                 from hr_employee
-                order by name_related
+                order by name
             """
             cr.execute(SQL)
             res = cr.fetchall()
@@ -41,8 +41,8 @@ class is_personnel_present(models.Model):
                     where 
                         employee="""+str(row[0])+""" and
                         pointeuse='"""+obj.site+"""' and
-                        create_date>='"""+obj.name+""" 00:00:00' and
-                        create_date<='"""+obj.name+""" 23:59:59' 
+                        create_date>='"""+str(obj.name)+""" 00:00:00' and
+                        create_date<='"""+str(obj.name)+""" 23:59:59' 
                     order by id desc limit 1
                 """
                 cr.execute(SQL)
@@ -72,17 +72,11 @@ class is_personnel_present(models.Model):
     def get_connexions(self):
         cr = self._cr
         connexions=[]
-        for obj in self:
-            SQL="""
-                select rp.name
-                from res_users ru inner join  res_partner rp on ru.partner_id=rp.id
-                where ru.login_date='"""+obj.name+"""'
-                order by rp.name
-            """
-            cr.execute(SQL)
-            rows = cr.fetchall()
-            for row in rows:
-                connexions.append(row[0])
+        users = self.env['res.users'].search([])
+        for user in users:
+            d = str(user.login_date)[:10]
+            if d==str(self.name):
+                connexions.append(user.name)
         return connexions
 
 

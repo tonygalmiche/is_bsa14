@@ -63,33 +63,21 @@ InfoSaône - Module Odoo 14 pour BSA
         "views/stock_view.xml",
         "views/stock_picking_view.xml",
         "views/account_move_view.xml",
-
-        # "views/is_report_view.xml",
-        # "views/is_report.xml",
-
         "report/report_template.xml",
         "report/conditions_generales_de_vente_bressane_templates.xml",
         "report/conditions_generales_de_vente_bsa_templates.xml",
         "report/purchase_order_templates.xml",
-
-
-        # "report/layouts.xml",
         "report/report_bon_atelier.xml",
-        # "report/report_expense_list.xml",
-        # "report/report_expense.xml",
-        # "report/report_fiche_controle.xml",
-        # "report/report_fiche_travail.xml",
+        "report/report_fiche_controle.xml",
+        "report/report_fiche_travail.xml",
         "report/report_invoice.xml",
         # "report/report_mrporder.xml",
-        # "report/report_personnel_present.xml",
+        "report/report_personnel_present.xml",
         # "report/report_qweb_mrp.xml",
         # "report/report_stockpicking.xml",
         # "report/report_template2.xml",
         "report/report.xml", 
-        # "report/report2.xml",
         "report/sale_report_templates.xml",
-
-
         "wizard/assistent_report_view.xml",
         "wizard/is_etiquette_reception_view.xml",
         "wizard/is_mrp_workcenter_temps_ouverture_wiz.xml",

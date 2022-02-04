@@ -1,6 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+
+        <!-- is.imprimer.etiquette -->
+        <record id="is_imprimer_etiquette_view" model="ir.ui.view">
+            <field name="name">is.imprimer.etiquette.view</field>
+            <field name="model">is.imprimer.etiquette</field>
+            <field name="arch" type="xml">
+                <form string="Impression des étiquettes de réception">
+                    <group>
+                        <field name="num_bl" />
+                    </group>
+                    <field name="etiquette_lines" nolabel="1" >
+                        <tree name="etiquette_line" string="Produits" editable="bottom" >
+                            <field name="product_id" />
+                            <field name="quantity" />
+                            <field name="move_id" invisible="1" />
+                            <field name="etiquette_id" invisible="1" />
+                        </tree>
+                    </field>
+                    <footer>
+                        <button name="imprimer_etiquette" string="Imprimer Etiquette" type="object" class="oe_highlight"/>
+                        or 
+                        <button string="Annuler" class="oe_link" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="action_is_imprimer_etiquette" model="ir.actions.act_window">
+            <field name="name">Impression des étiquettes de réception</field>
+            <field name="res_model">is.imprimer.etiquette</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="is_imprimer_etiquette_view"/>
+            <field name="target">new</field>
+        </record>
+
+
+
         <!-- stock.picking -->
         <record id="is_view_picking_form" model="ir.ui.view">
             <field name="name">is_view_picking_form</field>

@@ -81,7 +81,6 @@ InfoSaône - Module Odoo 14 pour BSA
         "wizard/assistent_report_view.xml",
         "wizard/is_etiquette_reception_view.xml",
         "wizard/is_mrp_workcenter_temps_ouverture_wiz.xml",
-        "wizard/is_tracabilite_reception_view.xml",
         #"wizard/stock_transfer_details.xml",
         "views/menu.xml",
     ],

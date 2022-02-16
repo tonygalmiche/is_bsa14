@@ -229,17 +229,17 @@ class product_template(models.Model):
             obj.is_stock_prevu_valorise      = is_stock_prevu_valorise
 
 
-    def write(self, vals):
-        vals = vals or {}
-        res=super(product_template, self).write(vals)
-        if 'stop_write_recursion' not in self.env.context:
-            champs=['name','description','description_purchase','description_sale']
-            for champ in champs:
-                if vals.get(champ):
-                    translatons = self.env["ir.translation"].search([('name','=','product.template,'+champ),('res_id','=',self.id)])
-                    for t in translatons:
-                        t.with_context(stop_write_recursion=1).write({'source':t.value})
-        return res
+    # def write(self, vals):
+    #     vals = vals or {}
+    #     res=super(product_template, self).write(vals)
+    #     if 'stop_write_recursion' not in self.env.context:
+    #         champs=['name','description','description_purchase','description_sale']
+    #         for champ in champs:
+    #             if vals.get(champ):
+    #                 translatons = self.env["ir.translation"].search([('name','=','product.template,'+champ),('res_id','=',self.id)])
+    #                 for t in translatons:
+    #                     t.with_context(stop_write_recursion=1).write({'source':t.value})
+    #     return res
 
 
     def copy(self,vals):

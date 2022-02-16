@@ -242,18 +242,18 @@ class product_template(models.Model):
     #     return res
 
 
-    def copy(self,vals):
-        for obj in self:
-            vals['purchase_line_warn'] = u'warning'
-            vals['purchase_line_warn_msg'] = u'Article non validé'
-            res=super(product_template, self).copy(vals)
-            for line in obj.seller_ids:
-                v = {
-                    'product_tmpl_id': res.id,
-                    'name'      : line.name.id,
-                }
-                id = self.env['product.supplierinfo'].create(v)
-            return res
+    # def copy(self,vals):
+    #     for obj in self:
+    #         vals['purchase_line_warn'] = u'warning'
+    #         vals['purchase_line_warn_msg'] = u'Article non validé'
+    #         res=super(product_template, self).copy(vals)
+    #         for line in obj.seller_ids:
+    #             v = {
+    #                 'product_tmpl_id': res.id,
+    #                 'name'      : line.name.id,
+    #             }
+    #             id = self.env['product.supplierinfo'].create(v)
+    #         return res
 
 
     def recalcul_prix_revient_action(self):

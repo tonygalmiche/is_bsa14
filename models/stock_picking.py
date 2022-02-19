@@ -36,11 +36,11 @@ class stock_picking(models.Model):
     etiquette_livraison_ids = fields.Many2many('is.tracabilite.livraison', 'stock_picking_tacabilite_livraison_rel', 'picking_id', 'etiquette_id', 'Etiquettes livraison', readonly=True, copy=False)
     
  
-    def write(self, vals):
-        res=super(stock_picking, self).write(vals)
-        if self.date_done and not self.is_date_bl:
-            self.is_date_bl=self.date_done
-        return res
+    # def write(self, vals):
+    #     res=super(stock_picking, self).write(vals)
+    #     if self.date_done and not self.is_date_bl:
+    #         self.is_date_bl=self.date_done
+    #     return res
 
 
     def f(self,x):

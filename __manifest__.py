@@ -23,6 +23,8 @@ InfoSaône - Module Odoo 14 pour BSA
         "project",
         "hr_timesheet",
         "attachment_indexation",
+        "crm",
+        "sale_crm",
     ],
     "data" : [
         "security/ir.model.access.csv",

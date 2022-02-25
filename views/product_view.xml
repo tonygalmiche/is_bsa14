@@ -164,7 +164,14 @@
             <field name="res_model">product.template</field>
             <field name="view_mode">tree,kanban,form,activity</field>
         </record>
-
+        <record model="ir.actions.act_window" id="mrp.product_template_action">
+            <field name="res_model">product.template</field>
+            <field name="view_mode">tree,kanban,form,activity</field>
+        </record>
+        <record model="ir.actions.act_window" id="mrp.mrp_product_variant_action">
+            <field name="res_model">product.product</field>
+            <field name="view_mode">tree,kanban,form,activity</field>
+        </record>
 
 
 

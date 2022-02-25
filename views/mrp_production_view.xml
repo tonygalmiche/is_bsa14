@@ -48,7 +48,6 @@
             <field name="inherit_id" ref="mrp.mrp_production_form_view" />
             <field name="arch" type="xml">
                 <xpath expr="//button[@name='button_unbuild']" position="after">
-                    <field name="generer_etiquette" invisible="0" />
                     <button name="%(action_is_imprimer_etiquette_mrp)d"
                         string="Créer et imprimer  les étiquette" 
                         groups="base.group_user" type="action" class="oe_highlight"
@@ -57,6 +56,9 @@
                 </xpath>
                 <page name="miscellaneous" position="before">
                     <page string="Etiquettes">
+
+
+
                         <field name="etiquette_ids">
                             <tree string="Etiquettes" >
                                 <field name="name" />
@@ -65,7 +67,8 @@
                                 <field name="move_id"/>
                             </tree>
                         </field>
-                        <field name="is_gestion_lot"    invisible="0" />
+                        <field name="is_gestion_lot"    invisible="0"/>
+                        <field name="generer_etiquette" invisible="0"/>
                     </page>
                 </page>
                  <xpath expr="//button[@name='action_cancel']" position="replace">

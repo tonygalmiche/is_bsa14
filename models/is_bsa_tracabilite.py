@@ -19,7 +19,7 @@ def datamax(sizex, sizey, y, x, txt):
     y="0000"+str(y)
     y=y[-4:]
 
-    r="10"+sizex+sizey+"000"+y+x+txt+chr(10)
+    r="10"+sizex+sizey+"000"+y+x+(txt or '')+chr(10)
     return r
 
 
@@ -58,85 +58,78 @@ class is_tracabilite_reception(models.Model):
 
 
     def imprimer_etiquette_direct(self):
-        etiquettes=self.generer_etiquette()
-        self.env['is.tracabilite.reception'].imprimer_etiquette(etiquettes)
-        return
+        for obj in self:
+            etiquettes=obj.generer_etiquette()
+            obj.imprimer_etiquette(etiquettes)
 
 
     def generer_etiquette(self):
-        obj = self.pool.get('is.tracabilite.reception')
-        eti = obj.browse(cr, uid, ids[0], context)
+        for eti in self:
+            txt=""
+            txt=txt+chr(2)+"qC"+chr(10)
+            txt=txt+chr(2)+"qC"+chr(10)
+            txt=txt+chr(2)+"n"+chr(10)
+            txt=txt+chr(2)+"e"+chr(10)
+            txt=txt+chr(2)+"c0000"+chr(10)
+            txt=txt+chr(2)+"Kf0000"+chr(10)
+            txt=txt+chr(2)+"V0"+chr(10)
+            txt=txt+chr(2)+"M0591"+chr(10)
+            txt=txt+chr(2)+"L"+chr(10)
+            txt=txt+"A2"+chr(10)
+            txt=txt+"D11"+chr(10)
+            txt=txt+"z"+chr(10)
+            txt=txt+"PG"+chr(10)
+            txt=txt+"SG"+chr(10)
+            txt=txt+"pC"+chr(10)
+            txt=txt+"H20"+chr(10)
 
-        txt=""
-        txt=txt+chr(2)+"qC"+chr(10)
-        txt=txt+chr(2)+"qC"+chr(10)
-        txt=txt+chr(2)+"n"+chr(10)
-        txt=txt+chr(2)+"e"+chr(10)
-        txt=txt+chr(2)+"c0000"+chr(10)
-        txt=txt+chr(2)+"Kf0000"+chr(10)
-        txt=txt+chr(2)+"V0"+chr(10)
-        txt=txt+chr(2)+"M0591"+chr(10)
-        txt=txt+chr(2)+"L"+chr(10)
-        txt=txt+"A2"+chr(10)
-        txt=txt+"D11"+chr(10)
-        txt=txt+"z"+chr(10)
-        txt=txt+"PG"+chr(10)
-        txt=txt+"SG"+chr(10)
-        txt=txt+"pC"+chr(10)
-        txt=txt+"H20"+chr(10)
+            txt=txt+datamax(x=15,y=220,sizex=2,sizey=2,txt="ARTICLE:")
+            if eti.product_id:
+                txt=txt+datamax(x=15,y=200,sizex=3,sizey=4,txt=eti.product_id.name) #.encode("utf-8"))
 
-        txt=txt+datamax(x=15,y=220,sizex=2,sizey=2,txt="ARTICLE:")
-        if eti.product_id:
-            txt=txt+datamax(x=15,y=200,sizex=3,sizey=4,txt=eti.product_id.name.encode("utf-8"))
+            if eti.product_id:
+                txt=txt+datamax(x=190,y=220,sizex=2,sizey=2,txt="ID:"+str(eti.product_id.id))
 
-        if eti.product_id:
-            txt=txt+datamax(x=190,y=220,sizex=2,sizey=2,txt="ID:"+str(eti.product_id.id))
+            txt=txt+datamax(x=15,y=180,sizex=2,sizey=2,txt="FOURNISSEUR:")
+            if eti.picking_id:
+                txt=txt+datamax(x=15,y=160,sizex=4,sizey=4,txt=eti.picking_id.partner_id.name) #.encode("utf-8"))
 
-        txt=txt+datamax(x=15,y=180,sizex=2,sizey=2,txt="FOURNISSEUR:")
-        if eti.picking_id:
-            txt=txt+datamax(x=15,y=160,sizex=4,sizey=4,txt=eti.picking_id.partner_id.name.encode("utf-8"))
+            txt=txt+datamax(x=15,y=140,sizex=2,sizey=2,txt="RECEPTION:")
+            if eti.picking_id:
+                txt=txt+datamax(x=15,y=120,sizex=4,sizey=4,txt=eti.picking_id.name) #.encode("utf-8"))
 
-        txt=txt+datamax(x=15,y=140,sizex=2,sizey=2,txt="RECEPTION:")
-        if eti.picking_id:
-            txt=txt+datamax(x=15,y=120,sizex=4,sizey=4,txt=eti.picking_id.name.encode("utf-8"))
+            txt=txt+datamax(x=190,y=140,sizex=2,sizey=2,txt="BL FOURNISSEUR:")
+            if eti.bl_fournisseur:
+                txt=txt+datamax(x=190,y=120,sizex=4,sizey=4,txt=eti.bl_fournisseur) #.encode("utf-8"))
 
-        txt=txt+datamax(x=190,y=140,sizex=2,sizey=2,txt="BL FOURNISSEUR:")
-        if eti.bl_fournisseur:
-            txt=txt+datamax(x=190,y=120,sizex=4,sizey=4,txt=eti.bl_fournisseur.encode("utf-8"))
+            txt=txt+datamax(x=15,y=100 ,sizex=2,sizey=2,txt="DATE:")
+            if eti.move_id:
+                txt=txt+datamax(x=15,y=80  ,sizex=4,sizey=4,txt=str(eti.move_id.create_date)[0:10])
 
-        txt=txt+datamax(x=15,y=100 ,sizex=2,sizey=2,txt="DATE:")
-        if eti.move_id:
-            txt=txt+datamax(x=15,y=80  ,sizex=4,sizey=4,txt=str(eti.move_id.create_date)[0:10])
+            txt=txt+datamax(x=190,y=100 ,sizex=2,sizey=2,txt="LOT:")
+            txt=txt+datamax(x=190,y=80  ,sizex=4,sizey=4,txt=eti.name) #.encode("utf-8"))
 
-        txt=txt+datamax(x=190,y=100 ,sizex=2,sizey=2,txt="LOT:")
-        txt=txt+datamax(x=190,y=80  ,sizex=4,sizey=4,txt=eti.name.encode("utf-8"))
+            txt=txt+"1E1406100060025B"+str(eti.name)+chr(10) # Code barre
 
-        txt=txt+"1E1406100060025B"+str(eti.name)+chr(10) # Code barre
-
-        txt=txt+"^01"+chr(10)
-        txt=txt+"Q0001"+chr(10)
-        txt=txt+"E"+chr(10)
-        return txt
+            txt=txt+"^01"+chr(10)
+            txt=txt+"Q0001"+chr(10)
+            txt=txt+"E"+chr(10)
+            return txt
 
 
     def imprimer_etiquette(self, etiquettes):
-        etiquettes=unicode(etiquettes,'utf-8')
-        etiquettes=etiquettes.encode("windows-1252")
+        #etiquettes=unicode(etiquettes,'utf-8')
+        #etiquettes=etiquettes.encode("windows-1252")
         path="/tmp/etiquette.txt"
         err=""
         fichier = open(path, "w")
-        # try:
-        #     fichier = open(path, "w")
-        # except IOError, e:
-        #     err="Problème d'accès au fichier '"+path+"' => "+ str(e)
         if err=="":
             fichier.write(etiquettes)
             fichier.close()
-            user       = self.pool['res.users'].browse(cr, uid, [uid])[0]
+            user  = self.env['res.users'].browse(self._uid)
             imprimante = user.company_id.is_nom_imprimante or 'Datamax'
             cmd="lpr -h -P"+imprimante+" "+path
             os.system(cmd)
-        return
 
 
 class is_tracabilite_livraison(models.Model):
@@ -163,15 +156,16 @@ class is_tracabilite_livraison(models.Model):
     #etiquette_livraison     = fields.Many2one('etiquette_livraison_id', 'etiquette_id', type='many2one', related='is.tracabilite.livraison.line', string='Etiquette semi-fini'),
 
 
-    def ajouter_etiquette_of(self, production_id):
+    def ajouter_etiquette_of(self, etiquette, production_id):
         """ Ajouter l'etiquette à la liste des etiquettes de l'OF correspondant """
         if production_id:
-            production_obj = self.pool.get('mrp.production')
-            production = production_obj.read(cr, uid, production_id, [], context=context)
-            if  production['etiquette_ids']:
-                if 'etiquette_ids' in production:
-                    etiquette_ids += production['etiquette_ids']
-            production_obj.write(cr, uid, production_id, {'etiquette_ids': [(6, 0, etiquette_ids)]}, context=context)
+            production_obj = self.env['mrp.production']
+            productions = production_obj.search([('id','=',production_id)])
+            for production in productions:
+                ids=[etiquette.id]
+                for line in production.etiquette_ids:
+                    ids.append(line.id)
+                production.write({'etiquette_ids': [(6, 0, ids)]})
         return True
             
         
@@ -180,7 +174,7 @@ class is_tracabilite_livraison(models.Model):
         #self.update_product(vals)
         vals['name'] = self.env['ir.sequence'].next_by_code('is.tracabilite.livraison')
         res = super(is_tracabilite_livraison, self).create(vals)
-        #self.ajouter_etiquette_of(cr, uid, [new_id], vals['production_id'], context)
+        self.ajouter_etiquette_of(res, vals['production_id'])
         return res
 
 
@@ -200,55 +194,55 @@ class is_tracabilite_livraison(models.Model):
 
 
     def imprimer_etiquette_livraison_direct(self):
-        etiquettes=self.generer_etiquette_livraison()
-        self.env['is.tracabilite.reception'].imprimer_etiquette(etiquettes)
-        return
+        for obj in self:
+            etiquettes=obj.generer_etiquette_livraison()
+            self.env['is.tracabilite.reception'].imprimer_etiquette(etiquettes)
 
 
     def generer_etiquette_livraison(self):
         #obj = self.env('is.tracabilite.livraison')
         #eti = obj.browse(cr, uid, ids[0], context)
-        eti = self
-        txt=""
-        txt=txt+chr(2)+"qC"+chr(10)
-        txt=txt+chr(2)+"qC"+chr(10)
-        txt=txt+chr(2)+"n"+chr(10)
-        txt=txt+chr(2)+"e"+chr(10)
-        txt=txt+chr(2)+"c0000"+chr(10)
-        txt=txt+chr(2)+"Kf0000"+chr(10)
-        txt=txt+chr(2)+"V0"+chr(10)
-        txt=txt+chr(2)+"M0591"+chr(10)
-        txt=txt+chr(2)+"L"+chr(10)
-        txt=txt+"A2"+chr(10)
-        txt=txt+"D11"+chr(10)
-        txt=txt+"z"+chr(10)
-        txt=txt+"PG"+chr(10)
-        txt=txt+"SG"+chr(10)
-        txt=txt+"pC"+chr(10)
-        txt=txt+"H20"+chr(10)
-        txt=txt+datamax(x=15,y=220,sizex=2,sizey=2,txt="ARTICLE:")
-        txt=txt+datamax(x=15,y=200,sizex=3,sizey=4,txt=eti.product_id.name.encode("utf-8"))
-        txt=txt+datamax(x=15,y=180,sizex=2,sizey=2,txt="REF")
-        default_code=eti.product_id.default_code or ''
-        txt=txt+datamax(x=15,y=160,sizex=4,sizey=4,txt=default_code.encode("utf-8"))
-        txt=txt+datamax(x=200,y=180,sizex=2,sizey=2,txt="QT:")
-        txt=txt+datamax(x=200,y=160,sizex=3,sizey=4,txt=str(eti.lot_fabrication))
-        txt=txt+datamax(x=15,y=140 ,sizex=2,sizey=2,txt="DATE:")
-        txt=txt+datamax(x=15,y=120  ,sizex=3,sizey=4,txt=str(eti.production_id.date_planned)[0:10])
-        txt=txt+datamax(x=120,y=140 ,sizex=2,sizey=2,txt="LOT:")
-        txt=txt+datamax(x=120,y=120  ,sizex=3,sizey=4,txt=eti.name.encode("utf-8"))
-        txt=txt+datamax(x=200,y=140,sizex=2,sizey=2,txt="OF:")
-        txt=txt+datamax(x=200,y=120,sizex=3,sizey=4,txt=eti.production_id.name.encode("utf-8"))
-        t=str(eti.name)
-        sizex="3"
-        sizey="7"
-        x="025"
-        y="020"
-        txt=txt+"1E1"+sizex+"0"+sizey+"10"+y+"0"+x+"B"+t+chr(10) # Code barre
-        txt=txt+"^01"+chr(10)
-        txt=txt+"Q0001"+chr(10)
-        txt=txt+"E"+chr(10)
-        return txt
+        for eti in self:
+            txt=""
+            txt=txt+chr(2)+"qC"+chr(10)
+            txt=txt+chr(2)+"qC"+chr(10)
+            txt=txt+chr(2)+"n"+chr(10)
+            txt=txt+chr(2)+"e"+chr(10)
+            txt=txt+chr(2)+"c0000"+chr(10)
+            txt=txt+chr(2)+"Kf0000"+chr(10)
+            txt=txt+chr(2)+"V0"+chr(10)
+            txt=txt+chr(2)+"M0591"+chr(10)
+            txt=txt+chr(2)+"L"+chr(10)
+            txt=txt+"A2"+chr(10)
+            txt=txt+"D11"+chr(10)
+            txt=txt+"z"+chr(10)
+            txt=txt+"PG"+chr(10)
+            txt=txt+"SG"+chr(10)
+            txt=txt+"pC"+chr(10)
+            txt=txt+"H20"+chr(10)
+            txt=txt+datamax(x=15,y=220,sizex=2,sizey=2,txt="ARTICLE:")
+            txt=txt+datamax(x=15,y=200,sizex=3,sizey=4,txt=eti.product_id.name) #.encode("utf-8"))
+            txt=txt+datamax(x=15,y=180,sizex=2,sizey=2,txt="REF")
+            default_code=eti.product_id.default_code or ''
+            txt=txt+datamax(x=15,y=160,sizex=4,sizey=4,txt=default_code) #.encode("utf-8"))
+            txt=txt+datamax(x=200,y=180,sizex=2,sizey=2,txt="QT:")
+            txt=txt+datamax(x=200,y=160,sizex=3,sizey=4,txt=str(eti.lot_fabrication))
+            txt=txt+datamax(x=15,y=140 ,sizex=2,sizey=2,txt="DATE:")
+            txt=txt+datamax(x=15,y=120  ,sizex=3,sizey=4,txt=str(eti.production_id.date_planned)[0:10])
+            txt=txt+datamax(x=120,y=140 ,sizex=2,sizey=2,txt="LOT:")
+            txt=txt+datamax(x=120,y=120  ,sizex=3,sizey=4,txt=eti.name) #.encode("utf-8"))
+            txt=txt+datamax(x=200,y=140,sizex=2,sizey=2,txt="OF:")
+            txt=txt+datamax(x=200,y=120,sizex=3,sizey=4,txt=eti.production_id.name) #.encode("utf-8"))
+            t=str(eti.name)
+            sizex="3"
+            sizey="7"
+            x="025"
+            y="020"
+            txt=txt+"1E1"+sizex+"0"+sizey+"10"+y+"0"+x+"B"+t+chr(10) # Code barre
+            txt=txt+"^01"+chr(10)
+            txt=txt+"Q0001"+chr(10)
+            txt=txt+"E"+chr(10)
+            return txt
 
 
     def get_picking_id(self, pick_ids):

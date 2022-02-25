@@ -20,7 +20,6 @@ class mrp_production(models.Model):
  
     def action_creer_etiquette_mrp(self):
         for obj in self:
-            tracab_obj = self.env["is.tracabilite.livraison"]
             res = []
             etiquettes=""
             if obj.product_qty:
@@ -34,7 +33,7 @@ class mrp_production(models.Model):
                         "quantity": 1.0,
                         "lot_fabrication": lot,
                     }
-                    new_id = tracab_obj.create(vals)
+                    new_id = self.env["is.tracabilite.livraison"].create(vals)
                     qty = qty - lot
                 obj.generer_etiquette=True
 

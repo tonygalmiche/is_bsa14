@@ -158,13 +158,13 @@
 
 
         <!-- Production -->
-        <menuitem 
+        <!-- <menuitem 
             id="is_product_product_menu" 
             sequence="10" 
             name=" Variantes d'articles"
             parent="mrp.menu_mrp_bom" 
             action="is_product_product_action" 
-        />
+        /> -->
         <menuitem   
             name="Lignes des nomenclatures"
             action="is_mrp_bom_line_action"  

@@ -64,7 +64,7 @@ class product_template(models.Model):
         y="0000"+str(y)
         y=y[-4:]
 
-        r="10"+sizex+sizey+"000"+y+x+txt+chr(10)
+        r="10"+sizex+sizey+"000"+y+x+(txt or '')+chr(10)
         return r
 
 
@@ -98,14 +98,14 @@ class product_template(models.Model):
                 name3=obj.name[60:]
 
             txt=txt+self.datamax(x=15,y=200,sizex=2,sizey=2,txt="ARTICLE:")
-            txt=txt+self.datamax(x=15,y=180,sizex=3,sizey=4,txt=name1.encode("utf-8"))
-            txt=txt+self.datamax(x=15,y=155,sizex=3,sizey=4,txt=name2.encode("utf-8"))
-            txt=txt+self.datamax(x=15,y=130,sizex=3,sizey=4,txt=name3.encode("utf-8"))
+            txt=txt+self.datamax(x=15,y=180,sizex=3,sizey=4,txt=name1) #.encode("utf-8"))
+            txt=txt+self.datamax(x=15,y=155,sizex=3,sizey=4,txt=name2) #.encode("utf-8"))
+            txt=txt+self.datamax(x=15,y=130,sizex=3,sizey=4,txt=name3) #.encode("utf-8"))
 
             txt=txt+self.datamax(x=15,y=110,sizex=2,sizey=2,txt="FOURNISSEUR:")
             for line in obj.seller_ids:
                 fournisseur=line.name.name
-                txt=txt+self.datamax(x=15,y=90,sizex=4,sizey=4,txt=fournisseur.encode("utf-8"))
+                txt=txt+self.datamax(x=15,y=90,sizex=4,sizey=4,txt=fournisseur) #.encode("utf-8"))
                 break
 
             now=time.strftime('%Y-%m-%d',time.gmtime())
@@ -116,7 +116,7 @@ class product_template(models.Model):
             txt=txt+self.datamax(x=250,y=50,sizex=4,sizey=4,txt=str(obj.id))
 
             txt=txt+self.datamax(x=15,y=30,sizex=2,sizey=2,txt="REFERENCE:")
-            txt=txt+self.datamax(x=15,y=10 ,sizex=4,sizey=4,txt=obj.default_code.encode("utf-8"))
+            txt=txt+self.datamax(x=15,y=10 ,sizex=4,sizey=4,txt=obj.default_code) #.encode("utf-8"))
 
             txt=txt+"^01"+chr(10)
             txt=txt+"Q0001"+chr(10)
@@ -127,17 +127,11 @@ class product_template(models.Model):
     def imprimer_etiquette_direct(self):
         for obj in self:
             etiquettes=self.generer_etiquette()
-            etiquettes=unicode(etiquettes,'utf-8')
-            etiquettes=etiquettes.encode("windows-1252")
             path="/tmp/etiquette.txt"
             err=""
-            fichier = open(path, "w")
-            # try:
-            #     fichier = open(path, "w")
-            # except IOError, e:
-            #     err="Problème d'accès au fichier '"+path+"' => "+ str(e)
+            fichier = open(path, "w", encoding="windows-1252")
             if err=="":
-                fichier.write(etiquettes)
+                fichier.write(etiquettes )
                 fichier.close()
                 user  = self.env['res.users'].browse(self._uid)
                 imprimante = user.company_id.is_nom_imprimante or 'Datamax'

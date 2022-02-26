@@ -2,46 +2,32 @@
 
 <odoo>
     <data>
-
-        <!-- sale.order.line -->
-        <!-- <record id="is_view_order_line_form" model="ir.ui.view">
-            <field name="name">is_view_order_line_form2</field>
-            <field name="model">sale.order.line</field>
-            <field name="inherit_id" ref="sale.view_order_line_form"/>
-            <field name="arch" type="xml">
-                <field name="price_unit" position="before">
-                    <field name="is_date_demandee"/>
-                    <field name="is_date_prevue"/>
-                    <field name="is_derniere_date_prevue"/>
-                </field>
-            </field>
-        </record> -->
         <record id="is_view_order_line_tree2" model="ir.ui.view">
             <field name="name">is.sale.order.line.tree</field>
             <field name="model">sale.order.line</field>
             <field name="arch" type="xml">
                 <tree string="Sales Order Lines" editable="top">
                     <field name="product_id"                   invisible="1"/>
-                    <field name="order_id"                     readonly="True"/>
-                    <field name="order_partner_id"             readonly="True"/>
-                    <field name="is_client_order_ref"          readonly="True"/>
-                    <field name="name"                         readonly="True"/>
-                    <field name="is_date_demandee" />
-                    <field name="is_date_prevue" />
-                    <field name="is_derniere_date_prevue" />
-                    <field name="product_uom_qty" string="Qt commandée" readonly="True"/>
-                    <field name="is_fabrication_prevue" />
-                    <field name="is_reste" />
+                    <field name="order_id"                     optional="show" readonly="True"/>
+                    <field name="order_partner_id"             optional="show" readonly="True"/>
+                    <field name="is_client_order_ref"          optional="show" readonly="True"/>
+                    <field name="name"                         optional="show" readonly="True"/>
+                    <field name="is_date_demandee"             optional="show"/>
+                    <field name="is_date_prevue"               optional="show"/>
+                    <field name="is_derniere_date_prevue"      optional="show"/>
+                    <field name="product_uom_qty" string="Qt commandée" readonly="True" optional="show"/>
+                    <field name="is_fabrication_prevue" optional="show"/>
+                    <field name="is_reste"              optional="show"/>
                     <button
-                        string="Créer OF" name="action_creer_of" type="object" icon="gtk-add" 
+                        title="Créer OF" name="action_creer_of" type="object" icon="fa-plus" 
                         attrs="{'invisible':['|',('state','not in',('draft','confirmed')),('is_reste','&lt;=',0)]}" 
+
                     />
-                    <field name="is_production_id"/>
-                    <field name="salesman_id" readonly="True"/>
-                    <field name="price_subtotal" sum="Total" readonly="True"/>
-                    <field name="state" readonly="True"/>
+                    <field name="is_production_id"            optional="show"/>
+                    <field name="salesman_id" readonly="True" optional="show"/>
+                    <field name="price_subtotal" sum="Total"  optional="show" readonly="True"/>
+                    <field name="state"                       optional="show" readonly="True"/>
                     <field name="company_id" invisible="True"/>
-                    <!-- <field name="invoiced" readonly="True"/> -->
                 </tree>
             </field>
         </record>
@@ -139,26 +125,18 @@
             <field name="inherit_id" ref="sale.view_order_tree"/>
             <field name="arch" type="xml">
                 <field name="name" position="after">
-                    <field name="client_order_ref" />
-                    <field name="is_arc_a_faire"/>
-                    <field name="is_date_ar" />
+                    <field name="client_order_ref" optional="show"/>
+                    <field name="is_arc_a_faire"   optional="show"/>
+                    <field name="is_date_ar"       optional="show"/>
                 </field>
-                <!-- <field name="amount_total" position="after">
-                    <field name="order_policy" />
-                </field> -->
-                <field name="date_order" position="attributes">
+               <field name="date_order" position="attributes">
                     <attribute name="invisible">1</attribute>
+                </field>
+                <field name="state" position="replace">
+                    <field name="state" optional="hide"/>
                 </field>
             </field>
         </record>
-        <!-- <record id="is_view_order_tree_date" model="ir.ui.view">
-            <field name="model">sale.order</field>
-            <field name="inherit_id" ref="sale_order_dates.view_order_tree_date"/>
-            <field name="arch" type="xml">
-                <field name="requested_date"  position="replace" />
-                <field name="commitment_date" position="replace" />
-            </field>
-        </record> -->
         <record model="ir.ui.view" id="is_view_sales_order_filter">
             <field name="name">is.sale.order.list.select</field>
             <field name="model">sale.order</field>
@@ -169,24 +147,14 @@
                 </xpath>
             </field>
         </record>
-
-        <!-- Cela permet de corriger le bug d'affichage de la liste des ventes en supprimant le context qui pointe sur la variante et non pas sur le produit -->
-        <!-- <record id="sale.action_order_line_product_tree" model="ir.actions.act_window">
-            <field name="context">{}</field>
-        </record> -->
-
-        <!-- Ajout du total sur les quantités -->
-        <!-- <record id="is_view_order_line_tree" model="ir.ui.view">
-            <field name="name">is.sale.order.line.tree</field>
-            <field name="model">sale.order.line</field>
-            <field name="inherit_id" ref="sale.view_order_line_tree"/>
-            <field name="arch" type="xml">
-                <field name="product_uom_qty" position="replace">
-                    <field name="product_uom_qty" string="Qty" sum="Total"/>
-                </field>
-            </field>
+        <record id="sale.action_quotations_with_onboarding" model="ir.actions.act_window">
+            <field name="domain">[('state', 'not in', ('sale', 'sent', 'done'))]</field>
         </record>
- -->
+
+        <record id="sale.action_orders" model="ir.actions.act_window">
+            <field name="domain">[('state', 'not in', ('draft', 'cancel'))]</field>
+        </record>
+
 
         <!-- is.societe.commerciale -->
         <record id="is_societe_commerciale_form_view" model="ir.ui.view">

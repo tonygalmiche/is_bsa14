@@ -29,7 +29,8 @@ class is_fiche_controle(models.Model):
             points = self.env['is.fiche.controle.point'].search([])
             for point in points:
                 lignes.append((0, 0, {
-                    'point': point.name,
+                    'fiche_id': self.id,
+                    'point'   : point.name,
                 }))
             self.ligne_ids = lignes
 

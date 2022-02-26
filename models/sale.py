@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from copy import copy
 from odoo import models,fields,api
 from odoo.exceptions import Warning
 import datetime
@@ -78,7 +79,7 @@ class sale_order_line(models.Model):
     is_client_order_ref        = fields.Char("Référence Client", store=True, compute="_compute")
     is_remise1                 = fields.Integer("Remise 1 (%)")
     is_remise2                 = fields.Integer("Remise 2 (%)")
-    is_production_id           = fields.Many2one("mrp.production", "Ordre de fabrication")
+    is_production_id           = fields.Many2one("mrp.production", "Ordre de fabrication", copy=False)
 
 
     @api.depends("order_id","order_id.client_order_ref")
@@ -115,37 +116,68 @@ class sale_order_line(models.Model):
     def action_creer_of(self):
         for obj in self:
             mrp_production_obj = self.env["mrp.production"]
-            bom_obj = self.env["mrp.bom"]
-            bom_id = bom_obj._bom_find(product_id=obj.product_id.id, properties=[])
-            routing_id = False
-            if bom_id:
-                bom_point = bom_obj.browse(bom_id)
-                routing_id = bom_point.routing_id.id or False
-            mrp_id = mrp_production_obj.create({
+            qty = obj.is_reste
+            vals={
                 "product_id"           : obj.product_id.id,
-                "product_uom"          : obj.product_id.uom_id.id,
-                "product_qty"          : obj.is_reste,
-                "bom_id"               : bom_id,
-                "routing_id"           : routing_id,
+                "product_uom_id"       : obj.product_id.uom_id.id,
+                "product_qty"          : qty,
+                #"bom_id"               : bom_id,
+                #"routing_id"           : routing_id,
                 "origin"               : obj.order_id.name,
-                "is_date_planifiee"    : datetime.date.today().strftime("%Y-%m-%d"),
+                #"is_date_planifiee"    : datetime.date.today().strftime("%Y-%m-%d"),
                 "is_sale_order_line_id": obj.id
-            })
-            try:
-                workflow.trg_validate(self._uid, "mrp.production", mrp_id.id, "button_confirm", self._cr)
-            except Exception as inst:
-                msg="Impossible de convertir la "+obj.name+"\n("+str(inst)+")"
-                raise Warning(msg)
-            if mrp_id:
+            }
+            production=mrp_production_obj.create(vals)
+            if production:
+                production.onchange_product_id()
+                production.product_qty = qty
+                production._onchange_bom_id()
+                production._onchange_move_raw()
+                production.action_confirm()
                 return {
                     "name": "Ordre de fabrication",
                     "view_mode": "form",
                     "view_type": "form",
                     "res_model": "mrp.production",
                     "type": "ir.actions.act_window",
-                    "res_id": mrp_id.id,
+                    "res_id": production.id,
                     "domain": "[]",
                 }
+
+
+
+            # mrp_production_obj = self.env["mrp.production"]
+            # bom_obj = self.env["mrp.bom"]
+            # bom_id = bom_obj._bom_find(product_id=obj.product_id.id, properties=[])
+            # routing_id = False
+            # if bom_id:
+            #     bom_point = bom_obj.browse(bom_id)
+            #     routing_id = bom_point.routing_id.id or False
+            # mrp_id = mrp_production_obj.create({
+            #     "product_id"           : obj.product_id.id,
+            #     "product_uom"          : obj.product_id.uom_id.id,
+            #     "product_qty"          : obj.is_reste,
+            #     "bom_id"               : bom_id,
+            #     "routing_id"           : routing_id,
+            #     "origin"               : obj.order_id.name,
+            #     "is_date_planifiee"    : datetime.date.today().strftime("%Y-%m-%d"),
+            #     "is_sale_order_line_id": obj.id
+            # })
+            # try:
+            #     workflow.trg_validate(self._uid, "mrp.production", mrp_id.id, "button_confirm", self._cr)
+            # except Exception as inst:
+            #     msg="Impossible de convertir la "+obj.name+"\n("+str(inst)+")"
+            #     raise Warning(msg)
+            # if mrp_id:
+            #     return {
+            #         "name": "Ordre de fabrication",
+            #         "view_mode": "form",
+            #         "view_type": "form",
+            #         "res_model": "mrp.production",
+            #         "type": "ir.actions.act_window",
+            #         "res_id": mrp_id.id,
+            #         "domain": "[]",
+            #     }
 
 
     # def name_get(self, cr, uid, ids, context=None):

@@ -66,16 +66,19 @@ class bsa_fnc(models.Model):
         ids=self._ids
 
         for obj in self:
-            ir_model_data = self.pool.get('ir.model.data')
+            ir_model_data = self.env['ir.model.data']
             try:
-                template_id = ir_model_data.get_object_reference(cr, uid, 'is_bsa', 'bsa_fnc_email_template4')[1]
+                template_id = ir_model_data.get_object_reference('is_bsa14', 'bsa_fnc_email_template4')[1]
             except ValueError:
                 template_id = False
             try:
-                compose_form_id = ir_model_data.get_object_reference(cr, uid, 'is_bsa', 'is_email_compose_message_wizard_form')[1]
+                compose_form_id = ir_model_data.get_object_reference('is_bsa14', 'is_email_compose_message_wizard_form')[1]
             except ValueError:
                 compose_form_id = False 
             ctx = dict()
+
+
+            print(template_id, compose_form_id)
 
             attachment_ids=[]
             for attachment in obj.attachment_ids:

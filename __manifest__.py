@@ -56,7 +56,7 @@ InfoSaône - Module Odoo 14 pour BSA
         "views/bsa_fnc_view.xml",
         "views/bsa_stock_a_date_view.xml",
         "views/hr_view.xml",
-        #"views/mail_view.xml",
+        "views/mail_view.xml",
         "views/mrp_view.xml",
         "views/mrp_production_view.xml",
         "views/pricelist_view.xml",

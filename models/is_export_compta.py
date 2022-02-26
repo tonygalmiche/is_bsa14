@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api
 import datetime
-from odoo.exceptions import Warning
+#from odoo.exceptions import Warning
+from odoo.exceptions import AccessError, UserError, ValidationError
 import unicodedata
+import base64
 
 
 def s(txt,lg):
-    if type(txt)!=unicode:
-        txt = unicode(txt,'utf-8')
-    txt = unicodedata.normalize('NFD', txt).encode('ascii', 'ignore')
-    txt = (txt+u'                                                             ')[:lg]
+    #if type(txt)!=unicode:
+    #    txt = unicode(txt,'utf-8')
+    txt = unicodedata.normalize('NFD', txt).encode('ascii', 'ignore').decode()
+    txt = (txt+'                                                             ')[:lg]
     return txt
 
 
@@ -25,7 +27,8 @@ class is_export_compta(models.Model):
     date_fin           = fields.Date("Date de fin")
     num_debut          = fields.Char("N° facture début")
     num_fin            = fields.Char("N° facture fin")
-    ligne_ids          = fields.One2many('is.export.compta.ligne', 'export_compta_id', u'Lignes')
+    ligne_ids          = fields.One2many('is.export.compta.ligne', 'export_compta_id', 'Lignes')
+    file_ids           = fields.Many2many('ir.attachment', 'is_export_compta_attachment_rel', 'export_id', 'attachment_id', 'Pièces jointes')
 
 
     @api.model
@@ -46,40 +49,40 @@ class is_export_compta(models.Model):
                 type_facture=['in_invoice', 'in_refund']
                 journal='AC'
             filter=[
-                ('state'       , 'in' , ['open','paid']),
-                ('type'        , 'in' , type_facture)
+                ('state'    , 'in' , ['posted']),
+                ('move_type', 'in' , type_facture)
             ]
             if obj.date_debut:
-                filter.append(('date_invoice', '>=', obj.date_debut))
+                filter.append(('invoice_date', '>=', obj.date_debut))
             if obj.date_fin:
-                filter.append(('date_invoice', '<=', obj.date_fin))
+                filter.append(('invoice_date', '<=', obj.date_fin))
             if obj.num_debut:
-                filter.append(('number', '>=', obj.num_debut))
+                filter.append(('name', '>=', obj.num_debut))
             if obj.num_fin:
-                filter.append(('number', '<=', obj.num_fin))
-            invoices = self.env['account.invoice'].search(filter, order="date_invoice,id")
+                filter.append(('name', '<=', obj.num_fin))
+            invoices = self.env['account.move'].search(filter, order="invoice_date,id")
             if len(invoices)==0:
-                raise Warning('Aucune facture à traiter')
+                raise ValidationError('Aucune facture à traiter')
             for invoice in invoices:
                 sql="""
                     SELECT  
-                        ai.date_invoice,
+                        ai.invoice_date,
                         aa.code, 
-                        ai.number, 
+                        ai.name, 
                         rp.name, 
-                        ai.type, 
+                        ai.move_type, 
                         rp.is_code_client,
                         sum(aml.debit), 
                         sum(aml.credit),
                         rp.id partner_id 
-                    FROM account_move_line aml inner join account_invoice ai             on aml.move_id=ai.move_id
-                                               inner join account_account aa             on aml.account_id=aa.id
-                                               inner join res_partner rp                 on ai.partner_id=rp.id
-                    WHERE ai.id="""+str(invoice.id)+"""
-                    GROUP BY ai.date_invoice, ai.number, rp.id, rp.name, aa.code, ai.type, rp.is_code_client, ai.date_due, rp.supplier
-                    ORDER BY ai.date_invoice, ai.number, rp.id, rp.name, aa.code, ai.type, rp.is_code_client, ai.date_due, rp.supplier
+                    FROM account_move_line aml inner join account_move ai      on aml.move_id=ai.id
+                                               inner join account_account aa   on aml.account_id=aa.id
+                                               inner join res_partner rp       on ai.partner_id=rp.id
+                    WHERE ai.id=%s
+                    GROUP BY ai.invoice_date, ai.name, rp.id, rp.name, aa.code, ai.move_type, rp.is_code_client, ai.invoice_date_due
+                    ORDER BY ai.invoice_date, ai.name, rp.id, rp.name, aa.code, ai.move_type, rp.is_code_client, ai.invoice_date_due
                 """
-                cr.execute(sql)
+                cr.execute(sql,[invoice.id])
                 for row in cr.fetchall():
                     compte=str(row[1])
                     if obj.type_interface=='ventes' and compte=='411100':
@@ -112,7 +115,7 @@ class is_export_compta(models.Model):
             attachments.unlink()
             name='export-compta.txt'
             dest     = '/tmp/'+name
-            f = open(dest,'wb')
+            f = open(dest,'w')
             for row in obj.ligne_ids:
                 compte=str(row.compte)
                 if compte=='None':
@@ -125,14 +128,14 @@ class is_export_compta(models.Model):
                 else:
                     montant=-montant
                     sens='D'
-                montant=(u'000000000000'+str(int(round(100*montant))))[-12:]
+                montant=('000000000000'+str(int(round(100*montant))))[-12:]
                 date_facture=row.date_facture
-                date_facture=datetime.datetime.strptime(date_facture, '%Y-%m-%d')
+                #date_facture=datetime.datetime.strptime(date_facture, '%Y-%m-%d')
                 date_facture=date_facture.strftime('%d%m%y')
                 libelle=s(row.libelle,20)
                 piece=(row.piece[-8:]+u'        ')[0:8]
                 f.write('M')
-                f.write((compte+u'00000000')[0:8])
+                f.write((compte+'00000000')[0:8])
                 f.write(row.journal)
                 f.write('000')
                 f.write(date_facture)
@@ -151,16 +154,18 @@ class is_export_compta(models.Model):
                 f.write(libelle)
                 f.write('\r\n')
             f.close()
-            r = open(dest,'rb').read().encode('base64')
+            r = open(dest,'rb').read()
+            r = base64.b64encode(r)
             vals = {
                 'name':        name,
-                'datas_fname': name,
+                #'datas_fname': name,
                 'type':        'binary',
                 'res_model':   model,
                 'res_id':      obj.id,
                 'datas':       r,
             }
-            id = self.env['ir.attachment'].create(vals)
+            attachment = self.env['ir.attachment'].create(vals)
+            obj.file_ids=[(6,0,[attachment.id])]
 
 
     def generer_fichier_ledonia(self):
@@ -170,13 +175,13 @@ class is_export_compta(models.Model):
             attachments = self.env['ir.attachment'].search([('res_model','=',model),('res_id','=',obj.id),('name','=',name)])
             attachments.unlink()
             dest     = '/tmp/'+name
-            f = open(dest,'wb')
+            f = open(dest,'w')
 
             f.write("ligne\tjournal_code\tecriture_num\tecriture_date\tcompte_num\tcomp_aux_num\tpiece_ref\tpiece_date\tecriture_lib\tdebit\tcredit\r\n")
             ligne=1
             for row in obj.ligne_ids:
                 date_facture = row.date_facture
-                date_facture = datetime.datetime.strptime(date_facture, '%Y-%m-%d')
+                #date_facture = datetime.datetime.strptime(date_facture, '%Y-%m-%d')
                 date_facture=date_facture.strftime('%Y%m%d')
                 f.write(str(ligne)+'\t')
                 f.write(row.journal+'\t')
@@ -192,10 +197,13 @@ class is_export_compta(models.Model):
                 f.write('\r\n')
                 ligne+=1
             f.close()
-            r = open(dest,'rb').read().encode('base64')
+            r = open(dest,'rb').read()
+            r = base64.b64encode(r)
+
+
             vals = {
                 'name':        name,
-                'datas_fname': name,
+                #'datas_fname': name,
                 'type':        'binary',
                 'res_model':   model,
                 'res_id':      obj.id,

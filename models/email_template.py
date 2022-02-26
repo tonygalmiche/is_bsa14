@@ -12,27 +12,27 @@ class ir_attachment_selection(models.TransientModel):
     compose_message_id = fields.Many2one('mail.compose.message','Message Id')
 
 
-# class mail_compose_message(models.TransientModel):
-#     _inherit = 'mail.compose.message'
+class mail_compose_message(models.TransientModel):
+    _inherit = 'mail.compose.message'
      
-#     attachment_selection_ids = fields.One2many('ir.attachment.selection','compose_message_id','Document')
+    attachment_selection_ids = fields.One2many('ir.attachment.selection','compose_message_id','Document')
 
-#     def send_mail(self):
-#         context=self._context
-#         attachment_ids = self.env['ir.attachment'].browse()
-#         for message in self:
-#             for selection in message.attachment_selection_ids:
-#                 attachment_ids += selection.attachment_ids
-#             message.attachment_ids = message.attachment_ids | attachment_ids
-#         res=super(mail_compose_message, self).send_mail()
+    def send_mail(self):
+        context=self._context
+        #attachment_ids = self.env['ir.attachment'].browse()
+        #for message in self:
+        #    for selection in message.attachment_selection_ids:
+        #        attachment_ids += selection.attachment_ids
+        #    message.attachment_ids = message.attachment_ids | attachment_ids
+        res=super(mail_compose_message, self).send_mail()
 
-#         #** Permet de supprimer les abonnés du document après l'envoi du mail **
-#         model=context.get('active_model')
-#         active_id=context.get('active_id')
-#         if model and active_id:
-#             obj = self.env[model].browse(active_id)
-#             if obj:
-#                 obj.message_follower_ids=[(6,0,[])]
-#         #***********************************************************************
+        #** Permet de supprimer les abonnés du document après l'envoi du mail **
+        model=context.get('active_model')
+        active_id=context.get('active_id')
+        if model and active_id:
+            obj = self.env[model].browse(active_id)
+            if obj:
+                obj.message_follower_ids=[(6,0,[])]
+        #***********************************************************************
 
-#         return res
+        return res

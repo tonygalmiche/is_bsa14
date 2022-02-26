@@ -74,6 +74,14 @@
             <field name="view_mode">tree,form</field>
         </record>
 
+
+        <record id="purchase.purchase_rfq" model="ir.actions.act_window">
+            <field name="domain">[('state', 'not in', ('purchase', 'done'))]</field>
+        </record>
+
+
+
+
         <!-- purchase.order.line -->
         <!-- <record id="is_purchase_order_line_form" model="ir.ui.view">
             <field name="name">is.purchase.order.line.form</field>

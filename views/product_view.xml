@@ -46,6 +46,17 @@
         </record>
 
         <!-- Recalcul du prix de revient -->
+
+        <record id="is_recalcul_prix_revient_action_server" model="ir.actions.server">
+            <field name="name">Recalcul du prix de revient</field>
+            <field name="model_id" ref="product.model_product_template"/>
+            <field name="binding_model_id" ref="product.model_product_template"/>
+            <field name="state">code</field>
+            <field name="code">action = records.recalcul_prix_revient_action()</field>
+        </record>
+
+
+
         <!-- <record id="is_recalcul_prix_revient_action_server" model="ir.actions.server">
              <field name="name">Recalcul du prix de revient</field>
             <field name="model_id" ref="model_product_template"/>

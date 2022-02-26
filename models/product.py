@@ -251,11 +251,14 @@ class product_template(models.Model):
 
 
     def recalcul_prix_revient_action(self):
-        cr , uid, context = self.env.args
-        prod_obj = self.pool.get('product.template')
+        cr,uid,context,su = self.env.args
+        prod_obj = self.env['product.template']
         for obj in self:
+            print(obj,obj.cost_method)
             if obj.cost_method=='standard' and obj.is_recalcul_prix_revient:
-                res=prod_obj.compute_price(cr, uid, [obj.id], template_ids=[obj.id], real_time_accounting=False, recursive=True, test=False, context=context)
+                res=obj.button_bom_cost()
+                print(res)
+                #res=prod_obj.compute_price(cr, uid, [obj.id], template_ids=[obj.id], real_time_accounting=False, recursive=True, test=False, context=context)
             if obj.cost_method=='real' and obj.is_recalcul_prix_revient:
                 SQL="""
                     SELECT pol.price_unit

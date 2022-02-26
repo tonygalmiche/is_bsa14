@@ -11,6 +11,8 @@
                         <group>
                             <field name="is_site"/>
                             <field name="is_nom_imprimante"/>
+                            <field name="is_seuil_validation_rsp_achat"/>
+                            <field name="is_seuil_validation_dir_finance"/>
                         </group>
                     </page>
                 </page>

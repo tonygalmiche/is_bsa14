@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api
+from odoo.exceptions import AccessError, UserError, ValidationError
 import datetime
 
 
@@ -24,11 +25,71 @@ class is_purchase_order_nomenclature(models.Model):
 class purchase_order(models.Model):
     _inherit = "purchase.order"
 
-    is_a_commander       = fields.Boolean("A commander", default=False)
-    is_arc               = fields.Boolean("ARC reçu"   , default=False)
-    is_article_vendu_id  = fields.Many2one("product.template", "Article vendu", help="Utilsé pour l'importation de la nomenclature")
-    is_quantite_vendue   = fields.Integer("Qt article vendu")
-    is_nomenclature_ids  = fields.One2many("is.purchase.order.nomenclature", "order_id", "Importation nomenclature")
+
+    def _compute_is_alerte(self):
+        for obj in self:
+            alerte1=alerte2=False
+            seuil1 = self.env.user.company_id.is_seuil_validation_rsp_achat
+            seuil2 = self.env.user.company_id.is_seuil_validation_dir_finance
+            montant = obj.amount_untaxed
+            if montant>=seuil1 and montant<seuil2:
+                alerte1="Cette commande de %.2f € dépasse le montant limite de %.0f €.\nLa validation par le responsable des achats est nécessaire."%(obj.amount_untaxed, seuil1)
+                if obj.is_montant_valide==montant:
+                    alerte1=False
+                else:
+                    if obj.is_montant_valide>0:
+                        alerte1="Le montant validé de %.2f € ne correspond plus au montant actuel de %.2f €.\nLa validation par le responsable des achats est nécessaire."%(obj.is_montant_valide, obj.amount_untaxed)
+            if montant>=seuil2:
+                alerte2="Cette commande de %.2f € dépasse le montant limite de %.0f €.\nLa validation par la direction financière est nécessaire."%(obj.amount_untaxed, seuil2)
+                if obj.is_montant_valide==montant:
+                    alerte2=False
+                else:
+                    if obj.is_montant_valide>0:
+                        alerte2="Le montant validé de %.2f € ne correspond plus au montant actuel de %.2f €.\nLa validation par la direction financière est nécessaire."%(obj.is_montant_valide, obj.amount_untaxed)
+            obj.is_alerte_rsp_achat   = alerte1
+            obj.is_alerte_dir_finance = alerte2
+
+    def _compute_is_alerte_dir_finance(self):
+        for obj in self:
+            alerte=''
+            alerte="Montant HT x 2 : %s"%(obj.amount_untaxed*2)
+            obj.is_alerte_dir_finance=alerte
+
+
+    is_a_commander        = fields.Boolean("A commander", default=False)
+    is_arc                = fields.Boolean("ARC reçu"   , default=False)
+    is_article_vendu_id   = fields.Many2one("product.template", "Article vendu", help="Utilsé pour l'importation de la nomenclature")
+    is_quantite_vendue    = fields.Integer("Qt article vendu")
+    is_nomenclature_ids   = fields.One2many("is.purchase.order.nomenclature", "order_id", "Importation nomenclature")
+    is_alerte_rsp_achat   = fields.Text('Alerte responsable des achats', compute=_compute_is_alerte)
+    is_alerte_dir_finance = fields.Text('Alerte direction financière'  , compute=_compute_is_alerte)
+    is_montant_valide     = fields.Float("Montant validé")
+    is_valideur_id        = fields.Many2one('res.users', 'Valideur')
+
+
+    def validation_action(self):
+        for obj in self:
+            obj.is_montant_valide = obj.amount_untaxed
+            obj.is_valideur_id    = self.env.user.id
+
+
+    def button_confirm(self):
+        for order in self:
+            if order.is_alerte_rsp_achat or order.is_alerte_dir_finance:
+                raise ValidationError("Cette commande doit-être validée")
+            #else:
+            #    self.write({'state': 'approved', 'date_approve': datetime.date.today()})
+        res = super(purchase_order, self).button_confirm()
+        return res
+
+
+    # def wkf_approve_order(self):
+    #     if self.is_alerte_rsp_achat or self.is_alerte_dir_finance:
+    #         raise Warning("Cette commande doit-être validée")
+    #     else:
+    #         self.write({'state': 'approved', 'date_approve': datetime.date.today()})
+    #     return True
+
 
     def import_nomenclature_action(self):
         for obj in self:

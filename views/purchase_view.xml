@@ -20,6 +20,41 @@
                         attrs="{'invisible': [('state','in',('draft','sent'))]}"
                     />
                 </field>
+
+
+                <notebook position="before">
+                    <div style="background:orange;font-weight:bold;padding-left:5pt" attrs="{'invisible':[('is_alerte_rsp_achat','=',False)]}">
+                        <field 
+                            name="is_alerte_rsp_achat"
+                            readonly="1" nolabel="1" 
+                            attrs="{'invisible': [('is_alerte_rsp_achat', '=', False)]}"
+                        />
+                    </div>
+                    <div style="background:red;color:white;font-weight:bold;padding-left:5pt" attrs="{'invisible':[('is_alerte_dir_finance','=',False)]}">
+                        <field 
+                            name="is_alerte_dir_finance"
+                            readonly="1" nolabel="1" 
+                            attrs="{'invisible': [('is_alerte_dir_finance', '=', False)]}"
+                        />
+                    </div>
+                    <button 
+                        name="validation_action" 
+                        string="Validation direction financière" type="object" 
+                        attrs="{'invisible':[('is_alerte_dir_finance','=',False)]}"
+                        groups="is_bsa14.is_validaton_direction_financier_group" 
+                    /> 
+                    <button 
+                        name="validation_action" 
+                        string="Validation responsable achat"    type="object" 
+                        attrs="{'invisible':[('is_alerte_rsp_achat','=',False)]}"
+                        groups="is_bsa14.is_validaton_responsable_achat_group" 
+                    /> 
+                    <group>
+                        <field name="is_montant_valide" readonly="1" attrs="{'invisible':[('is_montant_valide','=',0)]}"/>
+                        <field name="is_valideur_id"    readonly="1" attrs="{'invisible':[('is_valideur_id','=',False)]}"/>
+                    </group>
+                </notebook>
+
                 <field name="picking_type_id" position="after">
                     <field name="is_a_commander"/>
                     <field name="is_arc"/>

@@ -27,6 +27,7 @@ InfoSaône - Module Odoo 14 pour BSA
         "sale_crm",
     ],
     "data" : [
+        "security/res.groups.xml",
         "security/ir.model.access.csv",
         "views/assets.xml",
         "views/account_move_line_view.xml",

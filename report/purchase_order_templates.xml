@@ -15,6 +15,10 @@
             <h2 t-if="o.state in ['purchase', 'done']">Commande N°<span t-field="o.name"/></h2>
             <h2 t-if="o.state == 'cancel'">Commande annulée N°<span t-field="o.name"/></h2>
             <br />
+
+            <div t-if="o.is_alerte_rsp_achat"   style="background:orange         ;font-size:16pt;font-weight:bold;padding:5pt">Le responsable des achats doit valider cette commande</div>
+            <div t-if="o.is_alerte_dir_finance" style="background:red;color:white;font-size:16pt;font-weight:bold;padding:5pt">La direction financière doit valider cette commande</div>
+
             <table class="table table-condensed">
                 <tr>
                     <td t-if="o.name"> 

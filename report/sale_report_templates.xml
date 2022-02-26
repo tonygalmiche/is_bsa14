@@ -36,40 +36,39 @@
                 <span t-field="doc.name"/>
             </h2>
             <br />
-            <div class="row mt32 mb32" id="informations">
-                <div t-if="doc.client_order_ref" class="col-auto mw-100 mb-2">
-                    <strong>Votre Référence:</strong>
-                    <p class="m-0" t-field="doc.client_order_ref"/>
-                </div>
-                <div t-if="doc.date_order and doc.state not in ['draft','sent']" class="col-auto mw-100 mb-2">
-                    <strong>Date de commande:</strong>
-                    <p class="m-0" t-field="doc.date_order"/>
-                </div>
-                <div t-if="doc.date_order and doc.state in ['draft','sent']" class="col-auto mw-100 mb-2">
-                    <strong>Date du devis:</strong>
-                    <p class="m-0" t-field="doc.date_order" t-options='{"widget": "date"}'/>
-                </div>
-                <div t-if="doc.validity_date and doc.state in ['draft', 'sent']" class="col-auto mw-100 mb-2" name="expiration_date">
-                    <strong>Validité:</strong>
-                    <p class="m-0" t-field="doc.validity_date"/>
-                </div>
-                <div t-if="doc.user_id.name" class="col-auto mw-100 mb-2">
-                    <strong>Vendeur:</strong>
-                    <p class="m-0" t-field="doc.user_id"/>
-                </div>
-                <div t-if="doc.payment_term_id" class="col-xs-3">
-                    <strong>Conditions de règlement:</strong>
-                    <p t-field="doc.payment_term_id"/>
-                </div>
-            </div>
+            <table class="table table-sm o_main_table">
+                <thead style="display: table-row-group">
+                    <tr>
+                        <th t-if="doc.client_order_ref"                                 class="text-left">Votre Référence</th>
+                        <th t-if="doc.date_order and doc.state not in ['draft','sent']" class="text-left">Date de commande</th>
+                        <th t-if="doc.date_order and doc.state in ['draft','sent']"     class="text-left">Date du devis</th>
+                        <th t-if="doc.validity_date and doc.state in ['draft', 'sent']" class="text-left">Validité</th>
+                        <th t-if="doc.user_id"                                          class="text-left">Vendeur</th>
+                        <th t-if="doc.payment_term_id"                                  class="text-left">Conditions de règlement</th>
+                        <th t-if="doc.is_condition_livraison"                           class="text-left">Conditions de livraison</th>
+                     </tr>
+                </thead>
+                <tbody class="sale_tbody">
+                    <tr>
+                        <td t-if="doc.client_order_ref"                                 class="text-left"><span t-field="doc.client_order_ref"/></td>
+                        <td t-if="doc.date_order and doc.state not in ['draft','sent']" class="text-left"><span t-field="doc.date_order"/></td>
+                        <td t-if="doc.date_order and doc.state in ['draft','sent']"     class="text-left"><span t-field="doc.date_order"/></td>
+                        <td t-if="doc.validity_date and doc.state in ['draft', 'sent']" class="text-left"><span t-field="doc.validity_date"/></td>
+                        <td t-if="doc.user_id"                                          class="text-left"><span t-field="doc.user_id"/></td>
+                        <td t-if="doc.payment_term_id"                                  class="text-left"><span t-field="doc.payment_term_id"/></td>
+                        <td t-if="doc.is_condition_livraison"                           class="text-left"><span t-field="doc.is_condition_livraison"/></td>
+                     </tr>
+                </tbody>
+            </table>
             <br />
             <t t-set="display_discount" t-value="any(l.discount for l in doc.order_line)"/>
             <table class="table table-sm o_main_table">
                 <thead style="display: table-row-group">
                     <tr>
                         <th name="th_description" class="text-left">Description</th>
-                        <th name="th_quantity" class="text-right">Quantité</th>
-                        <th name="th_priceunit" class="text-right">Prix unitaire</th>
+                        <th name="th_quantity"    class="text-right">Quantité</th>
+                        <th name="th_priceunit"   class="text-right">Prix unitaire</th>
+                        <th name="th_date_prevue" class="text-center">Date prévue</th>
                         <th name="th_discount" t-if="display_discount" class="text-right" groups="product.group_discount_per_so_line">
                             <span>Remise</span>
                         </th>
@@ -94,6 +93,9 @@
                                 </td>
                                 <td name="td_priceunit" class="text-right">
                                     <span t-field="line.price_unit"/>
+                                </td>
+                                <td class="text-center">
+                                    <span t-field="line.is_date_prevue"/>
                                 </td>
                                 <td t-if="display_discount" class="text-right" groups="product.group_discount_per_so_line">
                                     <span t-field="line.discount"/>%
@@ -148,7 +150,7 @@
                                     <t t-if="amount_by_group[5] == 1 and doc.amount_untaxed == amount_by_group[2]">
                                         <td name="td_amount_by_group_label_3">
                                             <span t-esc="amount_by_group[0]"/>
-                                            <span>&amp;nbsp;<span>on</span>&amp;nbsp;<t t-esc="amount_by_group[2]" t-options='{"widget": "monetary", "display_currency": doc.pricelist_id.currency_id}'/></span>
+                                            <!-- <span>&amp;nbsp;<span>on</span>&amp;nbsp;<t t-esc="amount_by_group[2]" t-options='{"widget": "monetary", "display_currency": doc.pricelist_id.currency_id}'/></span> -->
                                         </td>
                                         <td name="td_amount_by_group_3" class="text-right o_price_total">
                                             <span t-esc="amount_by_group[1]"
@@ -181,10 +183,6 @@ Vous allez être recontacté rapidement par l'un de nos techniciens pour la réa
 Une fois les éventuelles modifications apportées et le plan validé par vos soins, nous lancerons la fabrication.<br />
 Merci de votre confiance.<br />
 L'équipe <span t-field="res_company.name"/><br />
-            </p>
-            <p t-if="doc.is_condition_livraison">
-                <strong>Conditions de livraison : </strong>
-                <span t-field="doc.is_condition_livraison"/>
             </p>
             <p t-field="doc.note" />
             <div class="oe_structure"/>

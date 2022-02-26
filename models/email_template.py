@@ -17,14 +17,14 @@ class mail_compose_message(models.TransientModel):
      
     attachment_selection_ids = fields.One2many('ir.attachment.selection','compose_message_id','Document')
 
-    def send_mail(self):
+    def send_mail(self, **kwargs):
         context=self._context
         #attachment_ids = self.env['ir.attachment'].browse()
         #for message in self:
         #    for selection in message.attachment_selection_ids:
         #        attachment_ids += selection.attachment_ids
         #    message.attachment_ids = message.attachment_ids | attachment_ids
-        res=super(mail_compose_message, self).send_mail()
+        res=super(mail_compose_message, self).send_mail(**kwargs)
 
         #** Permet de supprimer les abonnés du document après l'envoi du mail **
         model=context.get('active_model')
@@ -32,7 +32,6 @@ class mail_compose_message(models.TransientModel):
         if model and active_id:
             obj = self.env[model].browse(active_id)
             if obj:
-                obj.message_follower_ids=[(6,0,[])]
+                obj.message_follower_ids.unlink()
         #***********************************************************************
-
         return res

@@ -83,7 +83,11 @@
 
                                 <tr t-att-class="'bg-200 font-weight-bold o_line_section' if line.display_type == 'line_section' else 'font-italic o_line_note' if line.display_type == 'line_note' else ''">
                                     <t t-if="not line.display_type" name="account_invoice_line_accountable">
-                                        <td><span t-field="line.is_sale_order_id.client_order_ref"/></td>
+                                        <td>
+                                            <t t-foreach="line.sale_line_ids" t-as="l">
+                                                <div t-field="l.order_id.client_order_ref"/>
+                                            </t>
+                                        </td>
                                         <t t-if="res_company.is_site == 'bsa'">
                                             <td><span t-field="line.is_sale_order_id.name"/></td>
                                             <td name="account_invoice_line_name"><span t-field="line.name" t-options="{'widget': 'text'}"/></td>

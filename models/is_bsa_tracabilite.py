@@ -37,24 +37,25 @@ class is_tracabilite_reception(models.Model):
     
     @api.model
     def create(self, vals):
+        self.update_product(vals)
         vals['name'] = self.env['ir.sequence'].next_by_code('is.tracabilite.reception')
         res = super(is_tracabilite_reception, self).create(vals)
         return res
 
 
-    # def write(self, vals):
-    #     self.update_product(vals)
-    #     res = super(is_tracabilite_reception, self).write(vals)
-    #     return res
+    def write(self, vals):
+        self.update_product(vals)
+        res = super(is_tracabilite_reception, self).write(vals)
+        return res
 
 
-    # def update_product(self, vals):
-    #     if "move_id" in vals:
-    #         obj = self.pool.get('stock.move')
-    #         doc = obj.browse(cr, uid, vals["move_id"], context=context)
-    #         product_id=doc.product_id.product_tmpl_id.id
-    #         vals.update({'product_id': product_id})
-    #     return vals
+    def update_product(self, vals):
+        if "move_id" in vals:
+            obj = self.env['stock.move']
+            doc = obj.browse(vals["move_id"])
+            product_id=doc.product_id.product_tmpl_id.id
+            vals.update({'product_id': product_id})
+        return vals
 
 
     def imprimer_etiquette_direct(self):

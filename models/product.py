@@ -254,24 +254,26 @@ class product_template(models.Model):
         cr,uid,context,su = self.env.args
         prod_obj = self.env['product.template']
         for obj in self:
-            print(obj,obj.cost_method)
-            if obj.cost_method=='standard' and obj.is_recalcul_prix_revient:
-                res=obj.button_bom_cost()
-                print(res)
-                #res=prod_obj.compute_price(cr, uid, [obj.id], template_ids=[obj.id], real_time_accounting=False, recursive=True, test=False, context=context)
-            if obj.cost_method=='real' and obj.is_recalcul_prix_revient:
-                SQL="""
-                    SELECT pol.price_unit
-                    FROM purchase_order po join purchase_order_line pol on po.id=pol.order_id
-                                           join product_product pp on pol.product_id=pp.id
-                                           join product_template pt on pt.id=pp.product_tmpl_id
-                    WHERE pol.price_unit>0 and pt.id=%s and po.state in ('approved','done')
-                    ORDER BY pol.id desc 
-                    limit 1
-                """
-                cr.execute(SQL,[obj.id])
-                for row in cr.fetchall():
-                    obj.standard_price=row[0]
+            produire=False
+            for route in obj.route_ids:
+                if route.name=="Produire":
+                    produire=True
+            if obj.is_recalcul_prix_revient:
+                if produire:
+                    res=obj.button_bom_cost()
+                else:
+                    SQL="""
+                        SELECT pol.price_unit
+                        FROM purchase_order po join purchase_order_line pol on po.id=pol.order_id
+                                            join product_product pp on pol.product_id=pp.id
+                                            join product_template pt on pt.id=pp.product_tmpl_id
+                        WHERE pol.price_unit>0 and pt.id=%s and po.state in ('purchase')
+                        ORDER BY pol.id desc 
+                        limit 1
+                    """
+                    cr.execute(SQL,[obj.id])
+                    for row in cr.fetchall():
+                        obj.standard_price=row[0]
 
 
     def recalcul_all_prix_revient(self):

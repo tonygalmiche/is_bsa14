@@ -208,6 +208,13 @@
 
         <!-- Projets -->
         <menuitem   
+            name="Tâches"
+            action="is_project_task_tree_view"  
+            id="is_project_task_menu" 
+            parent="project.menu_project_management" 
+            sequence="10"
+        />
+        <menuitem   
             name="Cause retour plan"
             action="is_cause_retour_plan_action"  
             id="is_cause_retour_plan_menu" 

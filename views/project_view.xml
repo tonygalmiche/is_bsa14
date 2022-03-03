@@ -55,15 +55,13 @@
                     <field name="is_acompte_verse"/>
                     <field name="is_mise_en_place"/>
                 </field>
-                <field name="project_id" position="before">
+                <xpath expr="//field[@name='name']/.." position="after">
                     <div><b><t t-raw="record.is_description_html.raw_value"/></b></div>
-                </field>
-                <field name="project_id" position="after">
                     <div>Mise en plan:<field name="is_mise_en_place"/></div>
                     <div t-if="record.is_appro_specifique.raw_value" style="color:DarkGreen">Appro spécifique</div>
                     <div t-if="record.is_appro_standard.raw_value"   style="color:DarkGreen">Appro standard</div>
                     <div t-if="record.is_acompte_verse.raw_value"    style="color:DarkGreen">Acompte versé</div>
-                </field>
+                </xpath>
             </field>
         </record>
         <record id="is_view_task_search_form" model="ir.ui.view">
@@ -76,6 +74,16 @@
                 </field>
             </field>
         </record>
+
+
+        <record id="is_project_task_tree_view" model="ir.actions.act_window">
+            <field name="name">Tâches</field>
+            <field name="res_model">project.task</field>
+            <field name="view_mode">kanban,tree,form,calendar,pivot,graph,activity</field>
+        </record>
+
+
+
 
         <!-- is.cause.retour.plan -->
         <record id="is_cause_retour_plan_form_view" model="ir.ui.view">

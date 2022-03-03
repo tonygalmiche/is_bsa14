@@ -79,7 +79,7 @@
         <record id="is_project_task_tree_view" model="ir.actions.act_window">
             <field name="name">Tâches</field>
             <field name="res_model">project.task</field>
-            <field name="view_mode">kanban,tree,form,calendar,pivot,graph,activity</field>
+            <field name="view_mode">kanban,tree,form,calendar,timeline,pivot,graph,activity</field>
         </record>
 
 

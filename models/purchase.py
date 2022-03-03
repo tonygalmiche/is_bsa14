@@ -112,16 +112,18 @@ class purchase_order(models.Model):
                 sequence+=10
                 uom_id = product_id.uom_po_id.id
                 qty = lines[product_id]
-                res = self.env["purchase.order.line"].onchange_product_id(obj.pricelist_id.id,product_id.id,qty,uom_id,obj.partner_id.id,fiscal_position_id=obj.fiscal_position.id)
-                vals=res["value"]
-                taxes_id = vals["taxes_id"]
-                vals.update({
+                #res = self.env["purchase.order.line"].onchange_product_id(obj.pricelist_id.id,product_id.id,qty,uom_id,obj.partner_id.id,fiscal_position_id=obj.fiscal_position.id)
+                #vals=res["value"]
+                #taxes_id = vals["taxes_id"]
+                vals={
                     "order_id"   : obj.id,
                     "is_sequence": sequence,
                     "product_id" : product_id.id,
-                    "taxes_id"   : [(6,0,taxes_id)],
-                })
+                    "product_qty": qty,
+                    #"taxes_id"   : [(6,0,taxes_id)],
+                }
                 res = self.env["purchase.order.line"].create(vals)
+
 
     def mouvement_stock_action(self):
         for obj in self:

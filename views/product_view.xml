@@ -144,14 +144,17 @@
                 <tree>
                     <field name="name"/>
                     <field name="default_code"/>
-                    <field name="uom_id"/>
-                    <field name="list_price"/>
-                    <field name="standard_price"/>
-                    <field name="qty_available"                sum="Total" string="Quantité disponible"/>
-                    <field name="virtual_available"            sum="Total" string="Quantité prévue"/>
-                    <field name="is_stock_disponible_valorise" sum="Total"/>
-                    <field name="is_stock_prevu_valorise"      sum="Total"/>
-                    <field name="is_position_dans_produit_ids" widget="many2many_tags"/>
+                    <field name="is_stock_category_id" optional="hide"/>
+                    <field name="uom_id"               optional="show"/>
+                    <field name="list_price"           optional="show"/>
+                    <field name="standard_price"       optional="show"/>
+                    <field name="qty_available"                sum="Total" string="Quantité disponible" optional="show"/>
+                    <field name="virtual_available"            sum="Total" string="Quantité prévue"     optional="show"/>
+                    <field name="is_stock_disponible_valorise" sum="Total"                              optional="show"/>
+                    <field name="is_stock_prevu_valorise"      sum="Total" optional="show"/>
+                    <field name="is_position_dans_produit_ids" widget="many2many_tags"  optional="show"/>
+                    <field name="create_date" optional="hide"/>
+                    <field name="write_date"  optional="hide"/>
                 </tree>
             </field>
         </record>

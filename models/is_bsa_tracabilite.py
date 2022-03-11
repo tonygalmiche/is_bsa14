@@ -172,7 +172,7 @@ class is_tracabilite_livraison(models.Model):
         
     @api.model
     def create(self, vals):
-        #self.update_product(vals)
+        self.update_product(vals)
         vals['name'] = self.env['ir.sequence'].next_by_code('is.tracabilite.livraison')
         res = super(is_tracabilite_livraison, self).create(vals)
         self.ajouter_etiquette_of(res, vals['production_id'])
@@ -186,12 +186,22 @@ class is_tracabilite_livraison(models.Model):
 
 
     def update_product(self, vals):
+        print(self)
         if "production_id" in vals:
-            obj = self.pool.get('mrp.production')
-            doc = obj.browse(cr, uid, vals["production_id"], context=context)
+            obj = self.env['mrp.production']
+            doc = obj.browse(vals["production_id"])
             product_id=doc.product_id.product_tmpl_id.id
             vals.update({'product_id': product_id})
         return vals
+
+
+    # def update_product(self, vals):
+    #     if "production_id" in vals:
+    #         obj = self.pool.get('mrp.production')
+    #         doc = obj.browse(cr, uid, vals["production_id"], context=context)
+    #         product_id=doc.product_id.product_tmpl_id.id
+    #         vals.update({'product_id': product_id})
+    #     return vals
 
 
     def imprimer_etiquette_livraison_direct(self):
@@ -364,6 +374,10 @@ class sale_order(models.Model):
 
 
     def act_livraison(self,etiquettes):
+
+        print(self, etiquettes)
+
+
         err=""
         for obj in self:
             filtre=[
@@ -377,6 +391,11 @@ class sale_order(models.Model):
 
                 lines = self.env['is.tracabilite.livraison'].search([('id', 'in', etiquettes)])
                 for line in lines:
+                    #line.livraison = 
+                      #  'livraison': time.strftime('%Y-%m-%d %H:%M:%S',time.gmtime())
+
+
+
                     product = line.product_id
                     vals={
                         "picking_id"        : picking.id,
@@ -388,6 +407,12 @@ class sale_order(models.Model):
                         "qty_done"          : 1,
                     }
                     res = self.env['stock.move.line'].create(vals)
+
+                    line.sale_id   = obj.id
+                    line.move_id   = res.move_id.id
+                    line.livraison = res.move_id.date
+
+                    print("res=",res)
                 picking.button_validate()
         return {"err":err,"data":""}
 

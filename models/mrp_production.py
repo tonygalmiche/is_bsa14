@@ -89,18 +89,61 @@ class mrp_production(models.Model):
         wiz = wiz_obj.browse(cr, uid, new_id, context=context)
         return wiz
     
-    def is_act_mrp_declarer_produit(self, cr, uid, ids, context=None):
-        production = self.browse(cr, uid, ids[0], context=context)
-        if production.state == 'confirmed':
-            self.force_production(cr, uid, ids, {})
-        
-        wiz = self.get_wizard(cr, uid, production, context)
-        qt=1
-        if production.is_gestion_lot:
-            qt=production.product_qty
 
-        self.action_produce(cr, uid, ids[0], qt, 'consume_produce', wiz, context=context)
-        return {}
+
+
+    # def action_close_mo(self):
+    #     return self.mrp_production_ids.with_context(skip_backorder=True).button_mark_done()
+
+    # def action_backorder(self):
+    #     mo_ids_to_backorder = self.mrp_production_backorder_line_ids.filtered(lambda l: l.to_backorder).mrp_production_id.ids
+    #     return self.mrp_production_ids.with_context(skip_backorder=True, mo_ids_to_backorder=mo_ids_to_backorder).button_mark_done()
+
+
+    def is_act_mrp_declarer_produit(self):
+        err=""
+        for obj in self:
+            qt=1
+            if obj.is_gestion_lot:
+                qt=obj.product_qty
+            obj.qty_producing=qt
+
+            #res=obj.button_mark_done()
+            print(obj,obj.qty_producing)
+
+            for move in obj.move_raw_ids:
+                move.quantity_done = move.should_consume_qty
+                print(move, move.product_uom_qty, move.product_qty, move.quantity_done, move.should_consume_qty)
+
+            #Sans créer de relicat
+            res=obj.with_context(skip_backorder=True).button_mark_done()
+
+            #Avec un relicat
+            #mo_ids_to_backorder = self.mrp_production_backorder_line_ids.filtered(lambda l: l.to_backorder).mrp_production_id.ids
+            #return self.mrp_production_ids.with_context(skip_backorder=True, mo_ids_to_backorder=mo_ids_to_backorder).button_mark_done()
+
+            #res=obj.with_context(skip_backorder=True, mo_ids_to_backorder=[obj.id]).button_mark_done()
+
+            #res=obj.with_context(skip_backorder=True).button_mark_done()
+            #print("res=",res)
+
+        if err!="":
+            return {"err": err}
+        return True
+
+
+
+        # production = self.browse(cr, uid, ids[0], context=context)
+        # if production.state == 'confirmed':
+        #     self.force_production(cr, uid, ids, {})
+        
+        # wiz = self.get_wizard(cr, uid, production, context)
+        # qt=1
+        # if production.is_gestion_lot:
+        #     qt=production.product_qty
+
+        # self.action_produce(cr, uid, ids[0], qt, 'consume_produce', wiz, context=context)
+        # return {}
     
 
 

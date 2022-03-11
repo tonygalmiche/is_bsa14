@@ -3,34 +3,42 @@
     <data>
 
         <!-- Ventes -->
-        <menuitem 
-            name="Lignes de commandes"
-            id="is_menu_sale_order_line" 
-            parent="sale.sale_order_menu" 
-            action="is_action_sale_order_line" 
-            sequence="70"
-        />
-        <menuitem 
-            name="Statistique commandes"
-            id="is_sale_order_line_menu"
-            parent="sale.sale_order_menu"
-            action="is_sale_order_line_action"
-            sequence="80"
-        />
+        <record id="is_menu_sale_order_line" model="ir.ui.menu" >
+            <field name="name">Lignes de commandes</field>
+            <field name="sequence">70</field>
+            <field name="parent_id" eval="ref('sale.sale_order_menu')"/>
+            <field name="action"    ref="is_action_sale_order_line"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('sales_team.group_sale_manager'),
+            ])]"/>
+        </record>
+        <record id="is_sale_order_line_menu" model="ir.ui.menu" >
+            <field name="name">Statistique commandes</field>
+            <field name="sequence">80</field>
+            <field name="parent_id" eval="ref('sale.sale_order_menu')"/>
+            <field name="action"    ref="is_sale_order_line_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('sales_team.group_sale_manager'),
+            ])]"/>
+        </record>
         <menuitem 
             name="Catégorie client"
             id="is_categorie_client_menu"
-            parent="sale.sale_order_menu"
+            parent="sale.menu_sale_config"
             action="is_categorie_client_action"
-            sequence="90"
+            sequence="900"
         />
         <menuitem 
             name="Société commerciale"
             id="is_societe_commerciale_menu"
-            parent="sale.sale_order_menu"
+            parent="sale.menu_sale_config"
             action="is_societe_commerciale_action"
-            sequence="92"
+            sequence="910"
         />
+
+
+        
+
 
         <!-- <menuitem id="is_product_pricelist_item_menu" parent="product.menu_product_pricelist_main" action="is_product_pricelist_item_acion" sequence="90" /> -->
 
@@ -339,9 +347,13 @@
         />
 
         <!-- Déplacer les menus non utilsés -->
-        <menuitem id="menu_is_autre"           sequence="90" parent="base.menu_custom" name="Autre"/>
-        <menuitem id="mail.menu_root_discuss"  sequence="10" parent="menu_is_autre"/>
-        <menuitem id="mail.mail_feeds_main"    sequence="20" parent="menu_is_autre"/>
+        <menuitem id="menu_is_autre"               sequence="90" parent="base.menu_custom" name="Autre"/>
+        <menuitem id="mail.menu_root_discuss"      sequence="10" parent="menu_is_autre"/>
+        <menuitem id="mail.mail_feeds_main"        sequence="20" parent="menu_is_autre"/>
+        <menuitem id="calendar.mail_menu_calendar" sequence="30" parent="menu_is_autre"/>
+        <menuitem id="contacts.menu_contacts"      sequence="40" parent="menu_is_autre"/>
+
+
     </data>
 </odoo>
 

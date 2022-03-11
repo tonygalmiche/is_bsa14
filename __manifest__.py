@@ -66,6 +66,7 @@ InfoSaône - Module Odoo 14 pour BSA
         "views/stock_view.xml",
         "views/stock_picking_view.xml",
         "views/account_move_view.xml",
+        "report/external_layout_boxed.xml",
         "report/report_template.xml",
         "report/conditions_generales_de_vente_bressane_templates.xml",
         "report/conditions_generales_de_vente_bsa_templates.xml",

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+
+   <!-- <template id="is_external_layout_boxed" inherit_id="web.external_layout_boxed">
+        <div class="o_boxed_header" position="replace">
+            <div class="o_boxed_header">
+                <div class="row mb8">
+                    <div class="col-6">
+                        <img t-if="o.partner_id.is_enseigne_id.name.image_1920" t-att-src="image_data_uri(o.partner_id.is_enseigne_id.name.image_1920)" alt="Logo"/>
+                        
+                    </div>
+                    <div class="col-6 text-right mb4">
+                        <h4 class="mt0" t-field="res_company.report_header"/>
+                        <div name="res_company" class="mb4">
+                            <h5 style="font-weight:700 !important;" t-field="o.partner_id.is_enseigne_id.name.name"/>
+                            <br/>
+                            <span t-field="res_company.street"/>
+                            <br/>
+                            <span t-field="res_company.zip"/>
+                            <![CDATA[
+                            &nbsp;
+                            ]]>
+                            <span t-field="res_company.city"/>
+                            <br/>
+                            <span t-field="res_company.country_id"/>
+                            <div t-if="res_company.is_gln">
+                                GLN:<span t-field="res_company.is_gln"/>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> -->
+
+
+
+   <template id="is_external_layout_boxed" inherit_id="web.external_layout_boxed">
+        <div class="o_boxed_header" position="replace">
+            <div class="o_boxed_header">
+                <div class="row mb8">
+                    <div class="col-3">
+                        <t t-set="objet" t-value="str(o)[:11]"/>
+                        <t t-set="test"  t-value="1"/>
+                        <t t-if="objet=='sale.order('">
+                            <t t-if="o.is_societe_commerciale_id.id">
+                                <t t-set="test"  t-value="0"/>
+                                <img t-if="o.is_societe_commerciale_id.logo" t-att-src="image_data_uri(o.is_societe_commerciale_id.logo)" style="max-height: 45px;"/>
+                            </t>
+                        </t>
+                        <t t-if="test">
+                            <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" class="float-left" alt="Logo" style="max-height: 45px;"/>
+
+                        </t>
+                    </div>
+                    <div class="col-9 text-right" style="margin-top:20px;" t-field="company.report_header"/>
+                </div>
+                <div class="row zero_min_height">
+                    <div class="col-12">
+                        <div style="border-bottom: 1px solid black;"/>
+                    </div>
+                </div>
+                <div class="row mb8">
+                    <div class="col-5">
+                        <div style="border-bottom: 1px solid black;" class="pull-left">
+                            <div t-field="company.partner_id.street"/>
+                            <div t-field="company.partner_id.street2"/>
+                            <span t-field="company.partner_id.zip"/> <span t-field="company.partner_id.city"/><br />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+</odoo>

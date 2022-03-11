@@ -16,10 +16,10 @@ class is_societe_commerciale(models.Model):
 class sale_order(models.Model):
     _inherit = "sale.order"
 
-    def action_button_confirm(self):
-        for order in self:
-            order.signal_workflow("order_confirm")
-            name = order.name + " " + order.partner_id.name
+    def action_confirm(self):
+        res = super(sale_order, self).action_confirm()
+        for obj in self:
+            name = obj.name + " " + obj.partner_id.name
             vals={
                 "name": name,
             }
@@ -28,7 +28,7 @@ class sale_order(models.Model):
             except KeyError:
                 print("## project.task KeyError ##")
                 continue
-        return True
+        return res
 
 
     @api.depends("amount_untaxed","is_montant_commission", "is_pourcentage_commission")

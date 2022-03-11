@@ -75,6 +75,20 @@
                 </field>
             </field>
         </record>
+        <record id="is_view_invoice_tree" model="ir.ui.view">
+            <field name="name">is_view_invoice_tree</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_invoice_tree"/>
+            <field name="arch" type="xml">
+                <field name="invoice_date_due" position="before">
+                    <field name="invoice_payment_term_id" optional="show"/>
+                    <field name="invoice_date_due"        optional="show"/>
+                </field>
+            </field>
+        </record>
+
+
+
         <!-- <record id="is_invoice_supplier_form" model="ir.ui.view">
             <field name="name">is_invoice_supplier_form</field>
             <field name="model">account.invoice</field>

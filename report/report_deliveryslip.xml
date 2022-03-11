@@ -148,14 +148,13 @@
                         </tbody>
                     </table>
                 </t>
-
-                <table class="table table-condensed" t-if="o.etiquette_livraison_ids">
+                <table t-if="o.etiquette_livraison_ids" class="table table-sm mt48">
                     <thead>
                     <tr>
                         <th><strong>Produit</strong></th>
                         <th><strong>OF</strong></th>
                         <th><strong>Lot</strong></th>
-                        <th class="text-right"><strong>Code barre</strong></th>
+                        <th class="text-left"><strong>Code barre</strong></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -163,21 +162,19 @@
                         <td><span t-field="etiquette.product_id"/></td>
                         <td><span t-field="etiquette.production_id"/></td>
                         <td><span t-field="etiquette.name"/></td>
-                        <td><img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', etiquette.name, 200, 30)"/></td>
+                        <td style="background:white"><img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', etiquette.name, 200, 30)"/></td>
                     </tr>
                     </tbody>
                 </table>
-
                 <p t-if="o.is_commentaire"><b>Remarque : </b><span t-field="o.is_commentaire"/></p>
 
 
-<!-- 
                 <div style="page-break-before:always"/>
                 <div class="row">
-                    <t t-foreach="o.pack_operation_ids" t-as="pack_operation">
-                        <t t-if="pack_operation.product_id.is_ce_en1090">
+                    <t t-foreach="o.move_ids_without_package" t-as="line">
+                        <t t-if="line.product_id.is_ce_en1090">
                             <div 
-                                class="col-xs-4" 
+                                class="col-4" 
                                 style="
                                     padding:2mm;
                                     margin-top:1cm;
@@ -188,20 +185,20 @@
                                 "
                             >
                                 <p style="border-bottom:1pt solid black;margin-bottom:2mm;padding-bottom:2mm">
-                                    <img t-att-src="'/is_bsa/static/description/logoCE1166.png'" style="height:100px"/>
+                                    <img t-att-src="'/is_bsa14/static/description/logoCE1166.png'" style="height:100px"/>
                                 </p>
                                 BSA (Bouquerod Saint-Amour)  <br />
                                 BP 6 39160 Saint-Amour  <br />
                                 <div style="font-size:10pt;">
                                     <span t-field="o.date_done" t-field-options='{"format": "yy"}' />
                                     <br />
-                                    <span t-field="pack_operation.product_id.is_numero_certificat"/>
+                                    <span t-field="line.product_id.is_numero_certificat"/>
 
                                     <p style="border-bottom:1pt solid black;margin-bottom:2mm">
                                         EN 1090 -1:2009 + A1:2011  <br />
                                         LOTS : 
                                         <t t-foreach="o.etiquette_livraison_ids" t-as="etiquette">
-                                            <t t-if="pack_operation.product_id.product_tmpl_id.id==etiquette.product_id.id">
+                                            <t t-if="line.product_id.product_tmpl_id.id==etiquette.product_id.id">
                                                 <b><span t-field="etiquette.name"/> </b>
                                             </t>
                                         </t>
@@ -225,13 +222,13 @@
                                 Fabrication : selon la spécification  <br />
                                 de l’élément :  <br />
                                 <div style="font-size:10pt;">
-                                    <b><span t-field="pack_operation.product_id.product_tmpl_id.name"/></b>
+                                    <b><span t-field="line.product_id.product_tmpl_id.name"/></b>
                                 </div>
                                 et l’EN 1090-2, classe d’exécution EXC2  <br />
                             </div>
                         </t>
                     </t>
-                </div>  -->
+                </div>  
             </div>
         </xpath>
     </template>

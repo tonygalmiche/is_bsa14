@@ -369,15 +369,18 @@ class is_tracabilite_livraison(models.Model):
 
 
 
+
+
+
+
+
+
 class sale_order(models.Model):
     _inherit = "sale.order"
 
 
     def act_livraison(self,etiquettes):
-
         print(self, etiquettes)
-
-
         err=""
         for obj in self:
             filtre=[
@@ -387,15 +390,8 @@ class sale_order(models.Model):
             pickings = self.env['stock.picking'].search(filtre, limit=1)
             for picking in pickings:
                 picking.move_line_ids_without_package.unlink()
-
-
                 lines = self.env['is.tracabilite.livraison'].search([('id', 'in', etiquettes)])
                 for line in lines:
-                    #line.livraison = 
-                      #  'livraison': time.strftime('%Y-%m-%d %H:%M:%S',time.gmtime())
-
-
-
                     product = line.product_id
                     vals={
                         "picking_id"        : picking.id,
@@ -407,25 +403,12 @@ class sale_order(models.Model):
                         "qty_done"          : 1,
                     }
                     res = self.env['stock.move.line'].create(vals)
-
                     line.sale_id   = obj.id
                     line.move_id   = res.move_id.id
                     line.livraison = res.move_id.date
-
-                    print("res=",res)
+                picking.write({'etiquette_livraison_ids': [(6, 0, etiquettes)]})
                 picking.button_validate()
         return {"err":err,"data":""}
-
-
-        #     self.livrer_produits(cr, uid, picking, etiquettes, context)
-        #     for etiquette in etiquettes:
-        #         self.lier_etiquettes_mouvement(cr, uid, picking, etiquette, context)
-        #         etiquette_obj.write(cr, uid, etiquette.id, {'sale_id': sale_id})
-        #     etiquette_ids = [etiquette.id for etiquette in etiquettes]
-        #     err="Commande non livrable"
-        # return {"err":err,"data":""}
-
-
 
 
 class is_tracabilite_reception_line(models.Model):

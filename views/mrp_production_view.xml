@@ -47,18 +47,35 @@
             <field name="model">mrp.production</field>
             <field name="inherit_id" ref="mrp.mrp_production_form_view" />
             <field name="arch" type="xml">
-                <xpath expr="//button[@name='button_unbuild']" position="after">
-                    <button name="%(action_is_imprimer_etiquette_mrp)d"
+
+
+                 <xpath expr="//button[@name='action_cancel']" position="replace">
+                    <button 
+                        name="action_cancel" type="object" states="confirmed" string="Annuler la production" 
+                        confirm="Voulez-vous vraiment annuler cette production ?"
+                    />
+                    <button name="action_creer_etiquette_mrp"
+                        string="Créer les étiquette" 
+                        groups="base.group_user" type="object"
+                        attrs="{'invisible': ['|',('generer_etiquette','=', True),('state','=', 'draft')]}"
+                        confirm="Voulez-vous vraiment créer les étiquette ?"
+                    />
+                    <button name="action_creer_imprimer_etiquette_mrp"
+                        string="Créer et imprimer  les étiquette" 
+                        groups="base.group_user" type="object" class="oe_highlight"
+                        attrs="{'invisible': ['|',('generer_etiquette','=', True),('state','=', 'draft')]}"
+                        confirm="Voulez-vous vraiment créer et imprimer les étiquette ?"
+                    />
+                    <!-- <button name="%(action_is_imprimer_etiquette_mrp)d"
                         string="Créer et imprimer  les étiquette" 
                         groups="base.group_user" type="action" class="oe_highlight"
                         attrs="{'invisible': ['|',('generer_etiquette','=', True),('state','=', 'draft')]}"
-                    />
+                    /> -->
                 </xpath>
+
+
                 <page name="miscellaneous" position="before">
                     <page string="Etiquettes">
-
-
-
                         <field name="etiquette_ids">
                             <tree string="Etiquettes" >
                                 <field name="name" />
@@ -71,18 +88,6 @@
                         <field name="generer_etiquette" invisible="0"/>
                     </page>
                 </page>
-                 <xpath expr="//button[@name='action_cancel']" position="replace">
-                    <button 
-                        name="action_cancel" type="object" states="confirmed" string="Annuler la production" 
-                        confirm="Voulez-vous vraiment annuler cette production ?"
-                    />
-                    <button name="action_creer_etiquette_mrp"
-                        string="Créer les étiquette" 
-                        groups="base.group_user" type="object"
-                        attrs="{'invisible': ['|',('generer_etiquette','=', True),('state','=', 'draft')]}"
-                        confirm="Voulez-vous vraiment créer les étiquette ?"
-                    />
-                </xpath>
                 <!-- <field name="date_planned_start" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </field> -->

@@ -38,6 +38,15 @@ class mrp_production(models.Model):
                 obj.generer_etiquette=True
 
 
+    def action_creer_imprimer_etiquette_mrp(self):
+        self.action_creer_etiquette_mrp()
+        for obj in self:
+            for line in obj.etiquette_ids:
+                etiquettes=line.generer_etiquette_livraison()
+                self.env['is.tracabilite.reception'].imprimer_etiquette(etiquettes)
+
+
+
     def planifier_operation_action(self):
         for obj in self:
             if obj.state in ["confirmed","ready","in_production"]:

@@ -87,4 +87,18 @@
         <field name="binding_model_id" ref="model_is_personnel_present"/>
         <field name="binding_type">report</field>
     </record>
+
+
+    <record id="action_report_personnel_present" model="ir.actions.report">
+        <field name="name">Fiche utilisateur</field>
+        <field name="model">hr.employee</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">is_bsa14.report_fiche_utilisateur</field>
+        <field name="report_file">is_bsa14.report_fiche_utilisateur</field>
+        <field name="binding_model_id" ref="model_hr_employee"/>
+        <field name="binding_type">report</field>
+    </record>
+
+
+
 </odoo>

@@ -77,6 +77,7 @@ InfoSaône - Module Odoo 14 pour BSA
         "report/report_invoice.xml",
         # "report/report_mrporder.xml",
         "report/report_personnel_present.xml",
+        "report/report_fiche_utilisateur.xml",
         # "report/report_qweb_mrp.xml",
         "report/report_deliveryslip.xml",
         # "report/report_template2.xml",

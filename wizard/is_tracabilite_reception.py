@@ -73,9 +73,21 @@ class is_imprimer_etiquette(models.TransientModel):
                 etiquette_id=new_id
             i = 0
             while i < line.quantity:
+
+                #etiquettes=line.generer_etiquette()
+                #print(etiquettes)
+                #line.imprimer_etiquette(etiquettes)
+
+
                 #etiquettes=etiquettes+tracab_obj.generer_etiquette(cr, uid, [etiquette_id], context=context)
+                #line.
                 i += 1
         #self.pool.get('is.tracabilite.reception').imprimer_etiquette(cr, uid, etiquettes)
+
+        #print(res)
+
+
+
         return res
         
     def verifier_etiquettes_picking(self, etiquettes, picking):

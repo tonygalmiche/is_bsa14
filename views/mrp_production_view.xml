@@ -66,11 +66,19 @@
                         attrs="{'invisible': ['|',('generer_etiquette','=', True),('state','=', 'draft')]}"
                         confirm="Voulez-vous vraiment créer et imprimer les étiquette ?"
                     />
-                    <!-- <button name="%(action_is_imprimer_etiquette_mrp)d"
-                        string="Créer et imprimer  les étiquette" 
-                        groups="base.group_user" type="action" class="oe_highlight"
-                        attrs="{'invisible': ['|',('generer_etiquette','=', True),('state','=', 'draft')]}"
-                    /> -->
+                    <button name="liste_etiquettes_action"
+                        string="Liste des étiquettes" 
+                        groups="base.group_user" type="object"
+                    />
+
+
+                    <button name="declarer_une_fabrication_action"
+                        string="Déclarer 1 fabrication" 
+                        groups="base.group_user" type="object"
+                    />
+
+
+
                 </xpath>
 
 

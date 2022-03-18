@@ -14,10 +14,58 @@ class mrp_production(models.Model):
     is_sale_order_line_id = fields.Many2one("sale.order.line", "Ligne de commande")
     is_sale_order_id      = fields.Many2one("sale.order", "Commande", related="is_sale_order_line_id.order_id", readonly=True)
     generer_etiquette     = fields.Boolean('Etiquettes générées', default=False, copy=False)
-    etiquette_ids         = fields.Many2many('is.tracabilite.livraison', 'mrp_production_tacabilite_livraison_rel', 'production_id', 'etiquette_id', 'Etiquettes', readonly=True, copy=False)
+    #etiquette_ids        = fields.Many2many('is.tracabilite.livraison', 'mrp_production_tacabilite_livraison_rel', 'production_id', 'etiquette_id', 'Etiquettes', readonly=True, copy=False)
+    etiquette_ids         = fields.One2many('is.tracabilite.livraison', 'production_id', 'Etiquettes', copy=False)
     is_gestion_lot        = fields.Boolean('Gestion par lots')
     
- 
+
+    def declarer_une_fabrication_action(self):
+        err=""
+        for obj in self:
+            qt=1
+            if obj.is_gestion_lot:
+                qt=obj.product_qty
+            obj.qty_producing=qt
+            print(obj, qt, obj.qty_producing, obj.product_qty)
+            for move in obj.move_raw_ids:
+                move.quantity_done = move.should_consume_qty
+            if obj.qty_producing == obj.product_qty:
+                obj.with_context(skip_backorder=True).button_mark_done()
+            else:
+                obj.with_context(skip_backorder=True, mo_ids_to_backorder=obj.id).button_mark_done()
+
+        if err!="":
+            return {"err": err}
+        return True
+
+
+    def _generate_backorder_productions(self, close_mo=True):
+        res = super(mrp_production, self)._generate_backorder_productions(close_mo=close_mo)
+        for etiquette in self.etiquette_ids:
+            if not etiquette.fabrique:
+                etiquette.production_id = res.id
+        return res
+
+
+    def liste_etiquettes_action(self):
+        for obj in self:
+            productions = self.env["mrp.production"].search([("procurement_group_id","=", obj.procurement_group_id.id)])
+            ids=[]
+            for production in productions:
+                for etiquette in production.etiquette_ids:
+                    ids.append(etiquette.id)
+            return {
+                "name": "Etiquettes "+obj.procurement_group_id.name,
+                "view_mode": "tree,form",
+                "view_type": "form",
+                "res_model": "is.tracabilite.livraison",
+                "domain": [
+                    ("id","in",ids),
+                ],
+                "type": "ir.actions.act_window",
+            }
+
+
     def action_creer_etiquette_mrp(self):
         for obj in self:
             res = []
@@ -109,36 +157,36 @@ class mrp_production(models.Model):
     #     return self.mrp_production_ids.with_context(skip_backorder=True, mo_ids_to_backorder=mo_ids_to_backorder).button_mark_done()
 
 
-    def is_act_mrp_declarer_produit(self):
-        err=""
-        for obj in self:
-            qt=1
-            if obj.is_gestion_lot:
-                qt=obj.product_qty
-            obj.qty_producing=qt
+    # def is_act_mrp_declarer_produit(self):
+    #     err=""
+    #     for obj in self:
+    #         qt=1
+    #         if obj.is_gestion_lot:
+    #             qt=obj.product_qty
+    #         obj.qty_producing=qt
 
-            #res=obj.button_mark_done()
-            print(obj,obj.qty_producing)
+    #         #res=obj.button_mark_done()
+    #         print(obj,obj.qty_producing)
 
-            for move in obj.move_raw_ids:
-                move.quantity_done = move.should_consume_qty
-                print(move, move.product_uom_qty, move.product_qty, move.quantity_done, move.should_consume_qty)
+    #         for move in obj.move_raw_ids:
+    #             move.quantity_done = move.should_consume_qty
+    #             print(move, move.product_uom_qty, move.product_qty, move.quantity_done, move.should_consume_qty)
 
-            #Sans créer de relicat
-            res=obj.with_context(skip_backorder=True).button_mark_done()
+    #         #Sans créer de relicat
+    #         res=obj.with_context(skip_backorder=True).button_mark_done()
 
-            #Avec un relicat
-            #mo_ids_to_backorder = self.mrp_production_backorder_line_ids.filtered(lambda l: l.to_backorder).mrp_production_id.ids
-            #return self.mrp_production_ids.with_context(skip_backorder=True, mo_ids_to_backorder=mo_ids_to_backorder).button_mark_done()
+    #         #Avec un relicat
+    #         #mo_ids_to_backorder = self.mrp_production_backorder_line_ids.filtered(lambda l: l.to_backorder).mrp_production_id.ids
+    #         #return self.mrp_production_ids.with_context(skip_backorder=True, mo_ids_to_backorder=mo_ids_to_backorder).button_mark_done()
 
-            #res=obj.with_context(skip_backorder=True, mo_ids_to_backorder=[obj.id]).button_mark_done()
+    #         #res=obj.with_context(skip_backorder=True, mo_ids_to_backorder=[obj.id]).button_mark_done()
 
-            #res=obj.with_context(skip_backorder=True).button_mark_done()
-            #print("res=",res)
+    #         #res=obj.with_context(skip_backorder=True).button_mark_done()
+    #         #print("res=",res)
 
-        if err!="":
-            return {"err": err}
-        return True
+    #     if err!="":
+    #         return {"err": err}
+    #     return True
 
 
 

@@ -162,7 +162,13 @@
                         <td><span t-field="etiquette.product_id"/></td>
                         <td><span t-field="etiquette.production_id"/></td>
                         <td><span t-field="etiquette.name"/></td>
-                        <td style="background:white"><img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', etiquette.name, 200, 30)"/></td>
+                        <td style="background:white"><img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('EAN13', etiquette.name, 200, 30)"/></td>
+
+
+
+
+
+
                     </tr>
                     </tbody>
                 </table>

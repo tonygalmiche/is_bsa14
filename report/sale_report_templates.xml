@@ -187,12 +187,12 @@ L'équipe <span t-field="res_company.name"/><br />
             <p t-field="doc.note" />
             <div class="oe_structure"/>
 
-            <t t-if="res_company.is_site == 'bsa'">
+            <!-- <t t-if="res_company.is_site == 'bsa'">
                 <t t-call="is_bsa14.conditions_generales_de_vente_bsa" />
             </t>
             <t t-if="res_company.is_site != 'bsa'">
                 <t t-call="is_bsa14.conditions_generales_de_vente_bressane" />
-            </t>
+            </t> -->
         </div>
     </xpath>
 </template>

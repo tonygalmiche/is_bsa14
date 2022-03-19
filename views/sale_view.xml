@@ -82,6 +82,12 @@
                         }
                     </style>
                 </xpath>
+                <button name="action_cancel" position="before" >
+                   <button 
+                        name="mail_avec_cgv_action" 
+                        string="Mail avec CGV" type="object" 
+                    />
+                </button>
                 <field name="state" position="before" >
                     <button 
                         name="mouvement_stock_action" 

@@ -44,8 +44,11 @@ class is_affecter_etiquette_livraison(models.Model):
 class stock_move(models.Model):
     _inherit = "stock.move"
 
-    is_date_ar      = fields.Date(related="purchase_line_id.is_date_ar"  , string="Date AR")
-    is_date_planned = fields.Datetime(related="purchase_line_id.date_planned", string="Date prévue")
+
+    is_date_ar              = fields.Date(related="purchase_line_id.is_date_ar"  , string="Date AR")
+    is_date_planned         = fields.Datetime(related="purchase_line_id.date_planned", string="Date prévue")
+    is_account_move_line_id = fields.Many2one("account.move.line", "Ligne de facture" )
+
 
     def _create_invoice_line_from_vals(self, cr, uid, move, invoice_line_vals, context=None):
         invoice_line_vals["is_stock_move_id"]=move.id

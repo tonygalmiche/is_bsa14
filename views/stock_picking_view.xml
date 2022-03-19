@@ -86,8 +86,16 @@
                         </field>
                     </page>
                 </xpath>
+                <xpath expr="//page[@name='operations']/field/tree/field[@name='product_uom']" position="after">
+                    <field name="is_account_move_line_id" optional="hide"/>
+                </xpath>
+                <xpath expr="//page[@name='operations']/field/form/group/field[@name='product_uom']" position="after">
+                    <field name="is_account_move_line_id" optional="hide"/>
+                </xpath>
              </field>
         </record>
+
+
         <record id="is_vpicktree" model="ir.ui.view">
             <field name="name">is_stock.picking.tree</field>
             <field name="model">stock.picking</field>

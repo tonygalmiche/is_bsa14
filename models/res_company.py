@@ -12,3 +12,4 @@ class res_company(models.Model):
     ], "Site", default="bsa", help="Champ utilisé pour diférencier les sites de production (ex : CGV)")
     is_seuil_validation_rsp_achat   = fields.Integer('Seuil de validation par le responsable achat'   , default=5000)
     is_seuil_validation_dir_finance = fields.Integer('Seuil de validation par la direction financière', default=10000)
+    is_cgv_ids                      = fields.Many2many('ir.attachment', 'res_company_cgv_rel', 'company_id', 'attachment_id', 'CGV')

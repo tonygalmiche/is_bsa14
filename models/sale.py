@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
 from copy import copy
+from importlib.resources import path
 from odoo import models,fields,api
+from odoo.http import request
 from odoo.exceptions import Warning
 import datetime
+import base64
+import os
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class is_societe_commerciale(models.Model):
@@ -65,6 +71,78 @@ class sale_order(models.Model):
                     ],
                     "type": "ir.actions.act_window",
                 }
+
+
+    def _create_invoices(self, grouped=False, final=False, date=None):
+        invoices = super()._create_invoices(grouped=grouped, final=final, date=date)
+        for invoice in invoices:
+            for line in invoice.line_ids:
+                for sale_line in line.sale_line_ids:
+                    for move in sale_line.move_ids:
+                        if not move.is_account_move_line_id and move.state=="done":
+                            move.is_account_move_line_id = line.id
+        return invoices
+
+
+    def mail_avec_cgv_action(self):
+        for obj in self:
+            paths=[]
+            attachment_obj = self.env['ir.attachment']
+
+            #** Bon de commande ***********************************************
+            pdf = request.env.ref('sale.action_report_saleorder').sudo()._render_qweb_pdf([obj.id])[0]
+            path="/tmp/sale_order_%s_01.pdf"%(obj.name)
+            paths.append(path)
+            f = open(path,'wb')
+            f.write(pdf)
+            f.close()
+            #******************************************************************
+
+            #** CGV ***********************************************************
+            company = self.env.user.company_id
+            for attachment in company.is_cgv_ids:
+                pdf=base64.b64decode(attachment.datas)
+                path="/tmp/sale_order_%s_02_cgv.pdf"%(obj.name)
+                f = open(path,'wb')
+                f.write(pdf)
+                f.close()
+                paths.append(path)
+            #******************************************************************
+
+            # ** Merge des PDF *************************************************
+            path_merged = "/tmp/sale_order_%s_merged.pdf"%(obj.name)
+            cmd="export _JAVA_OPTIONS='-Xms16m -Xmx64m' && pdftk "+" ".join(paths)+" cat output "+path_merged+" 2>&1"
+            _logger.info(cmd)
+            stream = os.popen(cmd)
+            res = stream.read()
+            _logger.info("res pdftk = %s",res)
+            if not os.path.exists(path_merged):
+                raise Warning("PDF non généré\ncmd=%s"%(cmd))
+            pdfs = open(path_merged,'rb').read()
+            pdfs = base64.b64encode(pdfs)
+            # ******************************************************************
+
+            #** Ajout de la piece jointe marged ********************************
+            name="%s.pdf"%(obj.name)
+            model=self._name
+            attachments = attachment_obj.search([('res_model','=',model),('res_id','=',obj.id),('name','=',name)])
+            vals={
+                'name'       : name,
+                'type'       : 'binary', 
+                'res_id'     : obj.id,
+                'res_model'  : 'sale.order',
+                'datas'      : pdfs,
+                'mimetype'   : 'application/x-pdf',
+            }
+            attachment_id=False
+            if attachments:
+                for attachment in attachments:
+                    attachment.write(vals)
+                    attachment_id=attachment.id
+            else:
+                attachment = attachment_obj.create(vals)
+                attachment_id=attachment.id
+            # ******************************************************************
 
 
 class sale_order_line(models.Model):

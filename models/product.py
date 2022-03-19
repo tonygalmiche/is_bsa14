@@ -17,11 +17,6 @@ class is_position_dans_produit(models.Model):
     name = fields.Char(string='Position dans produit', size=32)
 
 
-
-class product_template(models.Model):
-    _inherit = "product.template"
-     
-
 class is_stock_category(models.Model):
     _name = "is.stock.category"
     _description="is_stock_category"

@@ -21,5 +21,10 @@
             <field name="comment">Donne accès aux FNC</field>
             <field name="category_id" ref="is_bsa_module_category"/>
         </record>
+        <record id="is_crm_group" model="res.groups">
+            <field name="name">CRM</field>
+            <field name="comment">Donne accès au menu CRM</field>
+            <field name="category_id" ref="is_bsa_module_category"/>
+        </record>
     </data>
 </openerp>

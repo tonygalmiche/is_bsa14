@@ -2,6 +2,17 @@
 <odoo>
     <data>
 
+
+","6
+
+        <!-- CRM -->
+        <record id="crm.crm_menu_root" model="ir.ui.menu" >
+            <field name="groups_id" eval="[(6,0,[
+                ref('is_bsa14.is_crm_group'),
+            ])]"/>
+        </record>
+
+
         <!-- Ventes -->
         <record id="is_menu_sale_order_line" model="ir.ui.menu" >
             <field name="name">Lignes de commandes</field>

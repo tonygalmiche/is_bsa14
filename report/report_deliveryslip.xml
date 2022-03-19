@@ -38,8 +38,8 @@
                 <table class="table table-sm" t-if="o.state!='done'" name="stock_move_table">
                     <thead>
                         <tr>
-                            <th name="th_sm_product"><strong>Product</strong></th>
-                            <th name="th_sm_quantity"><strong>Quantity</strong></th>
+                            <th name="th_sm_product"><strong>Article</strong></th>
+                            <th name="th_sm_quantity"><strong>Quantité</strong></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -63,13 +63,13 @@
                     <t t-set="has_serial_number" t-value="o.move_line_ids.mapped('lot_id')" groups="stock.group_lot_on_delivery_slip"/>
                     <thead>
                         <tr>
-                            <th name="th_sml_product"><strong>Product</strong></th>
+                            <th name="th_sml_product"><strong>Article</strong></th>
                             <t name="lot_serial" t-if="has_serial_number">
                                 <th>
-                                    Lot/Serial Number
+                                    Lot
                                 </th>
                             </t>
-                            <th name="th_sml_quantity" class="text-center"><strong>Quantity</strong></th>
+                            <th name="th_sml_quantity" class="text-center"><strong>Quantité</strong></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -117,7 +117,9 @@
                         </t>
                     </tbody>
                 </table>
-                <t t-set="backorders" t-value="o.backorder_ids.filtered(lambda x: x.state not in ('done', 'cancel'))"/>
+
+
+                <!-- <t t-set="backorders" t-value="o.backorder_ids.filtered(lambda x: x.state not in ('done', 'cancel'))"/>
                 <t t-if="o.backorder_ids and backorders">
                     <p>
                         <span>All items couldn't be shipped, the following items will be shipped as soon as they become available.</span>
@@ -147,11 +149,14 @@
                             </t>
                         </tbody>
                     </table>
-                </t>
+                </t> -->
+
+
+
                 <table t-if="o.etiquette_livraison_ids" class="table table-sm mt48">
                     <thead>
                     <tr>
-                        <th><strong>Produit</strong></th>
+                        <th><strong>Article</strong></th>
                         <th><strong>OF</strong></th>
                         <th><strong>Lot</strong></th>
                         <th class="text-left"><strong>Code barre</strong></th>

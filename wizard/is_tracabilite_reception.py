@@ -22,6 +22,7 @@ class is_imprimer_etiquette(models.TransientModel):
     num_bl          = fields.Char('Numéro du BL fournisseur', required=True)
     etiquette_lines = fields.One2many('is.etiquette.line', 'etiquette_id', required=True)
     
+
     def get_lines_picking(self, picking):
         res = []
         if picking:
@@ -35,6 +36,7 @@ class is_imprimer_etiquette(models.TransientModel):
                     res.append((0,0, vals))
         return res
     
+
     @api.model
     def default_get(self, fields_list):
         res={}
@@ -44,6 +46,7 @@ class is_imprimer_etiquette(models.TransientModel):
             res.update(etiquette_lines=lines)
         return res
     
+
     def exist_etiquette(self, move_id):
         tracab_obj = self.env['is.tracabilite.reception']
         ids = tracab_obj.search([('move_id','=',move_id)])
@@ -51,6 +54,7 @@ class is_imprimer_etiquette(models.TransientModel):
             return ids[0]
         else:
             return False
+        
         
     def create_etiquette(self, picking):
         tracab_obj = self.env['is.tracabilite.reception']
@@ -73,23 +77,14 @@ class is_imprimer_etiquette(models.TransientModel):
                 etiquette_id=new_id
             i = 0
             while i < line.quantity:
-
                 #etiquettes=line.generer_etiquette()
-                #print(etiquettes)
                 #line.imprimer_etiquette(etiquettes)
-
-
                 #etiquettes=etiquettes+tracab_obj.generer_etiquette(cr, uid, [etiquette_id], context=context)
-                #line.
                 i += 1
         #self.pool.get('is.tracabilite.reception').imprimer_etiquette(cr, uid, etiquettes)
-
-        #print(res)
-
-
-
         return res
         
+
     def verifier_etiquettes_picking(self, etiquettes, picking):
         tracab_obj = self.env['is.tracabilite.reception']
         res=[]
@@ -99,6 +94,7 @@ class is_imprimer_etiquette(models.TransientModel):
                 res.append(etiquette.id)
         return res
     
+
     def imprimer_etiquette(self):
         context = self._context
         picking_obj = self.env['stock.picking']
@@ -106,4 +102,7 @@ class is_imprimer_etiquette(models.TransientModel):
         etiquettes = self.create_etiquette(picking)
         etiquette_ids = self.verifier_etiquettes_picking(etiquettes, picking)
         picking.write({'etiquette_reception_ids': [(6, 0, etiquette_ids)]})
+        for etiquette in picking.etiquette_reception_ids:
+            for x in range(0, int(etiquette.quantity)):
+                etiquette.imprimer_etiquette_direct()
         return True

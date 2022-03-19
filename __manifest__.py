@@ -71,6 +71,7 @@ InfoSaône - Module Odoo 14 pour BSA
         "report/conditions_generales_de_vente_bressane_templates.xml",
         "report/conditions_generales_de_vente_bsa_templates.xml",
         "report/purchase_order_templates.xml",
+        "report/purchase_quotation_templates.xml",
         "report/report_bon_atelier.xml",
         "report/report_fiche_controle.xml",
         "report/report_fiche_travail.xml",

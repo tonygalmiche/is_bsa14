@@ -3,7 +3,14 @@
     <data>
 
 
-","6
+
+        <!-- Employés -->
+        <record id="hr.menu_hr_root" model="ir.ui.menu" >
+            <field name="groups_id" eval="[(6,0,[
+                ref('hr.group_hr_user'),
+            ])]"/>
+        </record>
+
 
         <!-- CRM -->
         <record id="crm.crm_menu_root" model="ir.ui.menu" >
@@ -267,13 +274,24 @@
 
 
         <!-- Ressources Humaines -->
-        <menuitem   
+
+
+        <record id="is_personnel_present_menu" model="ir.ui.menu" >
+            <field name="name">Personnel présent</field>
+            <field name="sequence">900</field>
+            <field name="parent_id" eval="ref('hr.menu_hr_main')"/>
+            <field name="action"    ref="is_personnel_present_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('hr.group_hr_user'),
+            ])]"/>
+        </record>
+        <!-- <menuitem   
             name="Personnel présent"
             action="is_personnel_present_action"  
             id="is_personnel_present_menu" 
             parent="hr.menu_hr_main"
             sequence="900"
-        />
+        /> -->
         <menuitem 
             id="is_accident_travail_menu"
             sequence="20" 

@@ -69,6 +69,7 @@
                                 </t>
                                 <th>Qte</th>
                                 <th class="text-right">P.U.HT</th>
+                                <th t-if="display_discount" class="text-right">Remise</th>
                                 <th class="text-right">TVA</th>
                                 <th class="text-right">Montant HT</th>
                             </tr>
@@ -103,7 +104,7 @@
                                             <span class="text-nowrap" t-field="line.price_unit"/>
                                         </td>
                                         <td t-if="display_discount" t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
-                                            <span class="text-nowrap" t-field="line.discount"/>
+                                            <span class="text-nowrap" t-field="line.discount"/>%
                                         </td>
                                         <td t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
                                             <span t-esc="', '.join(map(lambda x: (x.description or x.name), line.tax_ids))" id="line_tax_ids"/>

@@ -36,10 +36,10 @@
                                 <strong>Code client:</strong>
                                 <p t-field="o.partner_id.ref"/>
                             </td>
-                            <td t-if="o.payment_reference"> 
+                            <!-- <td t-if="o.payment_reference"> 
                                 <strong>Référence:</strong>
                                 <p t-field="o.payment_reference"/>
-                            </td>
+                            </td> -->
                             <td t-if="o.is_contact_id"> 
                                 <strong>Contact client:</strong>
                                 <p t-field="o.is_contact_id.name"/>
@@ -58,7 +58,7 @@
                     <table class="table table-sm o_main_table" name="invoice_line_table">
                         <thead>
                             <tr>
-                                <th>Commande</th>
+                                <th>Cde Client</th>
                                 <t t-if="res_company.is_site == 'bsa'">
                                     <th>Cde BSA</th>
                                     <th>Désignation</th>

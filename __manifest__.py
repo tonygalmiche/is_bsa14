@@ -89,6 +89,7 @@ InfoSaône - Module Odoo 14 pour BSA
         "wizard/is_mrp_workcenter_temps_ouverture_wiz.xml",
         #"wizard/stock_transfer_details.xml",
         "views/menu.xml",
+        "data/mail_data.xml",
     ],
     "installable": True,
     "active": False,

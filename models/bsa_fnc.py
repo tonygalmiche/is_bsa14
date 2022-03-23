@@ -93,7 +93,7 @@ class bsa_fnc(models.Model):
                 'default_res_id': obj.id,
                 'default_use_template': bool(template_id),
                 'default_template_id': template_id,
-                'default_attachment_selection_ids': attachment_selection_ids,
+                #'default_attachment_selection_ids': attachment_selection_ids,
                 'default_composition_mode': 'comment',
                 'mark_so_as_sent': True
             })

@@ -145,6 +145,82 @@ class sale_order(models.Model):
             # ******************************************************************
 
 
+            #** Ajout de la piece jointe marged au modèle de mail **************
+            template_id = self._find_mail_template()
+            print(template_id)
+            model="mail.template"
+            attachments = attachment_obj.search([('res_model','=',model),('res_id','=',template_id),('name','=',name)])
+
+            print(attachments)
+
+
+
+            vals={
+                'name'       : name,
+                'type'       : 'binary', 
+                'res_id'     : template_id,
+                'res_model'  : model,
+                'datas'      : pdfs,
+                'mimetype'   : 'application/x-pdf',
+            }
+            attachment_id=False
+            if attachments:
+                for attachment in attachments:
+                    attachment.write(vals)
+                    attachment_id=attachment.id
+            else:
+                attachment = attachment_obj.create(vals)
+                attachment_id=attachment.id
+            print("attachment_id =",attachment_id)
+            # ******************************************************************
+
+
+            #** wizard pour envoyer le mail ****************************************
+            lang = self.env.context.get('lang')
+            template = self.env['mail.template'].browse(template_id)
+
+            print(template, lang, template.attachment_ids)
+
+
+            if template.lang:
+                lang = template._render_lang(self.ids)[self.id]
+            ctx = {
+                'default_model': 'sale.order',
+                'default_res_id': self.ids[0],
+                'default_use_template': bool(template_id),
+                'default_template_id': template_id,
+                'default_composition_mode': 'comment',
+                'mark_so_as_sent': True,
+                'custom_layout': "mail.mail_notification_paynow",
+                'proforma': self.env.context.get('proforma', False),
+                'force_email': True,
+                'model_description': self.with_context(lang=lang).type_name,
+            }
+            return {
+                'type': 'ir.actions.act_window',
+                'view_mode': 'form',
+                'res_model': 'mail.compose.message',
+                'views': [(False, 'form')],
+                'view_id': False,
+                'target': 'new',
+                'context': ctx,
+            }
+            #**********************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class sale_order_line(models.Model):
     _name = "sale.order.line"
     _inherit = "sale.order.line"

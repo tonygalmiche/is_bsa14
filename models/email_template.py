@@ -32,6 +32,6 @@ class mail_compose_message(models.TransientModel):
         if model and active_id:
             obj = self.env[model].browse(active_id)
             if obj:
-                obj.message_follower_ids.unlink()
+                obj.sudo().message_follower_ids.unlink()
         #***********************************************************************
         return res

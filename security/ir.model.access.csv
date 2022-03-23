@@ -69,3 +69,9 @@ access_is_gamme_generique_manager,access_is_gamme_generique_manager,model_is_gam
 access_is_gamme_generique,access_is_gamme_generique,model_is_gamme_generique,base.group_user,1,0,0,0
 access_is_gamme_generique_ligne_manager,access_is_gamme_generique_ligne_manager,model_is_gamme_generique_ligne,mrp.group_mrp_manager,1,1,1,1
 access_is_gamme_generique_ligne,access_is_gamme_generique_ligne,model_is_gamme_generique_ligne,base.group_user,1,0,0,0
+
+
+
+access_bsa_stock_a_date_wizard,access_bsa_stock_a_date_wizard,model_bsa_stock_a_date_wizard,base.group_user,1,1,1,1
+
+

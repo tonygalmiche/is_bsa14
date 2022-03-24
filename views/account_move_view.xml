@@ -86,9 +86,21 @@
                 <field name="invoice_date_due" position="before">
                     <field name="invoice_payment_term_id" optional="show"/>
                     <field name="invoice_date_due"        optional="show"/>
+                    <field name="is_sale_order_id"        optional="hide"/>
                 </field>
             </field>
         </record>
+        <record id="is_view_account_invoice_filter" model="ir.ui.view">
+            <field name="name">is_view_account_invoice_filter</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_account_invoice_filter"/>
+            <field name="arch" type="xml">
+                <field name="invoice_user_id" position="before">
+                    <field name="is_sale_order_id"/>
+                </field>
+            </field>
+        </record>
+
 
 
 

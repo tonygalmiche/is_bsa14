@@ -7,9 +7,32 @@
             <field name="model">mrp.bom</field>
             <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
             <field name="arch" type="xml">
+
+                 <!-- <xpath expr="//sheet" position="before">
+                    <header>
+                        <button 
+                            name="actualiser_gammes_action" type="object" 
+                            string="Actualiser les opérations des nomenclatures"
+                            confirm="Voulez-vous vraiment remplacer les opérations des nomenclatures ?"
+                        />
+                    </header>
+                </xpath>
+ -->
+
                 <field name="type" position="after">
                     <field name="is_gamme_generique_id"/>
                 </field>
+
+
+                <field name="operation_ids" position="after">
+                    <button 
+                        name="actualiser_gammes_action" type="object" 
+                        string="Actualiser les opérations à partir de la gamme générique"
+                        confirm="Voulez-vous vraiment remplacer les opérations existantes ?"
+                    />
+                </field>
+
+
             </field>
         </record>
 

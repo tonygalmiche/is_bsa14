@@ -15,18 +15,10 @@
             <field name="model">is.gamme.generique</field>
             <field name="arch" type="xml">
                 <form>
-                    <header>
-                        <button 
-                            name="actualiser_gammes_action" type="object" 
-                            string="Actualiser les opérations des nomenclatures"
-                            confirm="Voulez-vous vraiment remplacer les opérations des nomenclatures ?"
-                        />
-                    </header>
                     <sheet>
                         <group>
                             <field name="name" />
                         </group>
-
                         <field name="ligne_ids" >
                             <tree editable="bottom">
                                 <field name="sequence" widget="handle"/>

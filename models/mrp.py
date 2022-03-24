@@ -78,6 +78,26 @@ class mrp_bom(models.Model):
         return result, result2
 
 
+    def actualiser_gammes_action(self):
+        for obj in self:
+            print(obj)
+            #boms = self.env['mrp.bom'].search([('is_gamme_generique_id','=',obj.id)])
+            #for bom in boms:
+            obj.operation_ids.unlink()
+            for line in obj.is_gamme_generique_id.ligne_ids:
+                vals={
+                    'bom_id'           : obj.id,
+                    'sequence'         : line.sequence,
+                    'name'             : line.name,
+                    'workcenter_id'    : line.workcenter_id.id,
+                    'time_cycle_manual': line.duree,
+                }
+                self.env['mrp.routing.workcenter'].create(vals)
+
+
+
+
+
 class mrp_routing_workcenter(models.Model):
     _inherit  = "mrp.routing.workcenter"
 

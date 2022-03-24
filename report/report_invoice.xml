@@ -205,6 +205,7 @@
                             </div>
                         </div>
                     </div>
+                    <div style="height:3mm"/>
                     <p t-if="o.invoice_payment_term_id.note">
                         <strong>Conditions de règlement: </strong>
                         <span t-field="o.invoice_payment_term_id.note"/>

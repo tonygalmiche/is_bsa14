@@ -147,41 +147,13 @@ class sale_order(models.Model):
 
             #** Ajout de la piece jointe marged au modèle de mail **************
             template_id = self._find_mail_template()
-            print(template_id)
-            model="mail.template"
-            attachments = attachment_obj.search([('res_model','=',model),('res_id','=',template_id),('name','=',name)])
-
-            print(attachments)
-
-
-
-            vals={
-                'name'       : name,
-                'type'       : 'binary', 
-                'res_id'     : template_id,
-                'res_model'  : model,
-                'datas'      : pdfs,
-                'mimetype'   : 'application/x-pdf',
-            }
-            attachment_id=False
-            if attachments:
-                for attachment in attachments:
-                    attachment.write(vals)
-                    attachment_id=attachment.id
-            else:
-                attachment = attachment_obj.create(vals)
-                attachment_id=attachment.id
-            print("attachment_id =",attachment_id)
+            template = self.env['mail.template'].browse(template_id)
+            template.attachment_ids= [(6, 0, [attachment_id])]
             # ******************************************************************
 
 
             #** wizard pour envoyer le mail ****************************************
             lang = self.env.context.get('lang')
-            template = self.env['mail.template'].browse(template_id)
-
-            print(template, lang, template.attachment_ids)
-
-
             if template.lang:
                 lang = template._render_lang(self.ids)[self.id]
             ctx = {
@@ -206,18 +178,6 @@ class sale_order(models.Model):
                 'context': ctx,
             }
             #**********************************************************************
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -60,7 +60,7 @@
                     <field name="is_arc"/>
                 </field>
                 <xpath expr="//page[@name='products']/field[@name='order_line']/tree/field[@name='date_planned']" position="after">
-                    <field name="is_date_ar" />
+                    <field name="is_date_ar" optional="show"/>
                 </xpath>
                 <notebook position="inside">
                     <page string="Importation nomenclature">

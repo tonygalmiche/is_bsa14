@@ -143,3 +143,49 @@ class stock_inventory(models.Model):
             quant['owner_id'] and quant['owner_id'][0] or False):
             quant['quantity'] for quant in quants
         }
+
+
+    def _get_exhausted_inventory_lines_vals(self, non_exhausted_set):
+        """Return the values of the inventory lines to create if the user
+        wants to include exhausted products. Exhausted products are products
+        without quantities or quantity equal to 0.
+
+        :param non_exhausted_set: set of tuple (product_id, location_id) of non exhausted product-location
+        :return: a list containing the `stock.inventory.line` values to create
+        :rtype: list
+        """
+        self.ensure_one()
+        if self.product_ids:
+            product_ids = self.product_ids.ids
+        else:
+            product_ids = self.env['product.product'].search_read([
+                '|', ('company_id', '=', self.company_id.id), ('company_id', '=', False),
+                ('type', '=', 'product'),
+                ('active', '=', True)], ['id'])
+            product_ids = [p['id'] for p in product_ids]
+
+
+        if self.product_stock_category_id:
+            templates=self.env['product.template'].search([("is_stock_category_id","=", self.product_stock_category_id.id)])
+            product_ids=[]
+            for template in templates:
+                for product in template.product_variant_ids:
+                    product_ids.append(product.id)
+
+
+        if self.location_ids:
+            location_ids = self.location_ids.ids
+        else:
+            location_ids = self.env['stock.warehouse'].search([('company_id', '=', self.company_id.id)]).lot_stock_id.ids
+
+        vals = []
+        for product_id in product_ids:
+            for location_id in location_ids:
+                if ((product_id, location_id) not in non_exhausted_set):
+                    vals.append({
+                        'inventory_id': self.id,
+                        'product_id': product_id,
+                        'location_id': location_id,
+                        'theoretical_qty': 0
+                    })
+        return vals

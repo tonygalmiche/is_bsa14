@@ -5,8 +5,8 @@
         <record id="is_bsa_tracabilite_reception_seq" model="ir.sequence">
             <field name="name">Tracabilité réception</field>
             <field name="code">is.tracabilite.reception</field>
-            <field name="prefix">TR</field>
-            <field name="padding">4</field>
+            <!-- <field name="prefix">TR</field> -->
+            <field name="padding">5</field>
             <field eval="False" name="company_id"/>
         </record>
         <record id="is_bsa_tracabilite_reception_tree" model="ir.ui.view">
@@ -72,8 +72,8 @@
         <record id="is_bsa_tracabilite_livraison_seq" model="ir.sequence">
             <field name="name">Tracabilité livraison</field>
             <field name="code">is.tracabilite.livraison</field>
-            <field name="prefix">TL</field>
-            <field name="padding">4</field>
+            <!-- <field name="prefix">TL</field> -->
+            <field name="padding">5</field>
             <field eval="False" name="company_id"/>
         </record>
         <record id="is_bsa_tracabilite_livraison_tree" model="ir.ui.view">

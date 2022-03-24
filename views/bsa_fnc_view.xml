@@ -46,8 +46,8 @@
         <record id="bsa_fnc_seq" model="ir.sequence">
             <field name="name">FNC</field>
             <field name="code">bsa.fnc</field>
-            <field name="prefix">FNC</field>
-            <field name="padding">4</field>
+            <!-- <field name="prefix">FNC</field> -->
+            <field name="padding">5</field>
             <field eval="False" name="company_id"/>
         </record>
         <record model="ir.ui.view" id="bsa_fnc_form_view">

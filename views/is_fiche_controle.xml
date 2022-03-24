@@ -5,8 +5,8 @@
         <record id="is_fiche_controle_seq" model="ir.sequence">
             <field name="name">Fiche contrôle</field>
             <field name="code">is.fiche.controle</field>
-            <field name="prefix">FC-</field>
-            <field name="padding">4</field>
+            <!-- <field name="prefix">FC-</field> -->
+            <field name="padding">5</field>
             <field eval="False" name="company_id"/>
         </record>
         <record id="is_fiche_controle_tree" model="ir.ui.view">

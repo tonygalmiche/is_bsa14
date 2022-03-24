@@ -75,8 +75,8 @@
         <record id="is_export_compta_seq" model="ir.sequence">
             <field name="name">Folio Export Compta</field>
             <field name="code">is.export.compta</field>
-            <field name="prefix">FOLIO-</field>
-            <field name="padding">4</field>
+            <!-- <field name="prefix">FOLIO-</field> -->
+            <!-- <field name="padding">4</field> -->
             <field eval="False" name="company_id"/>
         </record>
         <record id="is_export_compta_tree" model="ir.ui.view">

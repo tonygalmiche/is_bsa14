@@ -5,8 +5,8 @@
         <record id="is_accident_travail_seq" model="ir.sequence">
             <field name="name">Suivi accident du travail</field>
             <field name="code">is.accident.travail</field>
-            <field name="prefix"></field>
-            <field name="padding">4</field>
+            <!-- <field name="prefix"></field> -->
+            <field name="padding">5</field>
             <field eval="False" name="company_id"/>
         </record>
         <record model="ir.ui.view" id="is_accident_travail_form_view">

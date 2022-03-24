@@ -250,28 +250,7 @@
         />
 
 
-        <!-- Qualité -->
-        <menuitem   
-            name="Qualité"
-            id="is_qualite_menu" 
-            parent="mrp.menu_mrp_root"
-            sequence="3"
-        />
-        <menuitem   
-            name="Fiches de contrôle"
-            action="is_fiche_controle_action"  
-            id="is_fiche_controle_menu" 
-            parent="is_qualite_menu"
-            sequence="10"
-        />
-        <menuitem   
-            name="Points à contrôler"
-            action="is_fiche_controle_point_action"  
-            id="is_fiche_controle_point_menu" 
-            parent="is_qualite_menu"
-            sequence="20"
-        />
-
+ 
 
         <!-- Ressources Humaines -->
 
@@ -355,11 +334,37 @@
         <!--<menuitem action="hr.open_view_employee_list_my" id="is_menu_open_view_employee_list_my" sequence="10" parent="hr.menu_hr_main"/>-->
 
 
-        <!-- FNC -->
-        <menuitem id="bsa_fnc_main_menu"      sequence="85" name="FNC"/>
-        <menuitem id="bsa_fnc_menu"           sequence="2"  name="FNC"           parent="bsa_fnc_main_menu"/>
+       <!-- Qualité -->
+        <menuitem id="bsa_qualite_main_menu"      sequence="85" name="Qualité"/>
+        <menuitem id="bsa_fnc_menu"           sequence="10" name="FNC"           parent="bsa_qualite_main_menu"/>
         <menuitem id="bsa_fnc_menu_10"        sequence="10" name="FNC"           parent="bsa_fnc_menu" action="bsa_fnc_action"/>
         <menuitem id="bsa_fnc_categorie_menu" sequence="20" name="Catégorie FNC" parent="bsa_fnc_menu" action="bsa_fnc_categorie_action"/>
+
+        <menuitem   
+            name="Fiches de contrôle"
+            id="is_fiche_controle_main_menu" 
+            parent="bsa_qualite_main_menu"
+            sequence="20"
+        />
+        <menuitem   
+            name="Fiches de contrôle"
+            action="is_fiche_controle_action"  
+            id="is_fiche_controle_menu" 
+            parent="is_fiche_controle_main_menu"
+            sequence="10"
+        />
+        <menuitem   
+            name="Points à contrôler"
+            action="is_fiche_controle_point_action"  
+            id="is_fiche_controle_point_menu" 
+            parent="is_fiche_controle_main_menu"
+            sequence="20"
+        />
+
+
+
+
+
 
 
         <!-- Messages -->

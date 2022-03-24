@@ -16,7 +16,7 @@
 
 
         <!-- is.imprimer.etiquette.mrp -->
-        <record id="is_imprimer_etiquette_mrp_view" model="ir.ui.view">
+        <!-- <record id="is_imprimer_etiquette_mrp_view" model="ir.ui.view">
             <field name="name">is.imprimer.etiquette.view</field>
             <field name="model">is.imprimer.etiquette.mrp</field>
             <field name="arch" type="xml">
@@ -39,7 +39,7 @@
             <field name="view_mode">form</field>
             <field name="view_id" ref="is_imprimer_etiquette_mrp_view"/>
             <field name="target">new</field>
-        </record>
+        </record> -->
 
         <!-- mrp.production -->
         <record id="is_mrp_production_form_view" model="ir.ui.view">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <record id="is_etiquette_reception_form_view" model="ir.ui.view">
+        <!-- <record id="is_etiquette_reception_form_view" model="ir.ui.view">
             <field name="name">is_etiquette_reception_form_view</field>
             <field name="model">is.etiquette.reception</field>
             <field name="arch" type="xml">
@@ -23,6 +23,6 @@
             <field name="view_mode">tree,form</field>
             <field name="view_id" ref="is_etiquette_reception_form_view"/>
             <field name="target">new</field>
-        </record>
+        </record> -->
     </data>
 </odoo>

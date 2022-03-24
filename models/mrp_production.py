@@ -26,7 +26,6 @@ class mrp_production(models.Model):
             if obj.is_gestion_lot:
                 qt=obj.product_qty
             obj.qty_producing=qt
-            print(obj, qt, obj.qty_producing, obj.product_qty)
             for move in obj.move_raw_ids:
                 move.quantity_done = move.should_consume_qty
             if obj.qty_producing == obj.product_qty:
@@ -88,10 +87,11 @@ class mrp_production(models.Model):
 
     def action_creer_imprimer_etiquette_mrp(self):
         self.action_creer_etiquette_mrp()
+        res=""
         for obj in self:
             for line in obj.etiquette_ids:
-                etiquettes=line.generer_etiquette_livraison()
-                self.env['is.tracabilite.reception'].imprimer_etiquette(etiquettes)
+                res+=line.generer_etiquette_livraison()
+        self.env['is.tracabilite.reception'].imprimer_etiquette(res)
 
 
 

@@ -102,7 +102,13 @@ class is_imprimer_etiquette(models.TransientModel):
         etiquettes = self.create_etiquette(picking)
         etiquette_ids = self.verifier_etiquettes_picking(etiquettes, picking)
         picking.write({'etiquette_reception_ids': [(6, 0, etiquette_ids)]})
+
+
+        res=""
         for etiquette in picking.etiquette_reception_ids:
             for x in range(0, int(etiquette.quantity)):
-                etiquette.imprimer_etiquette_direct()
+                #etiquette.imprimer_etiquette_direct()
+                res+=etiquette.generer_etiquette()
+        #print(res)
+        self.env['is.tracabilite.reception'].imprimer_etiquette(res)
         return True

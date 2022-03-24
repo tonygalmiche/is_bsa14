@@ -186,7 +186,6 @@ class is_tracabilite_livraison(models.Model):
 
 
     def update_product(self, vals):
-        print(self)
         if "production_id" in vals:
             obj = self.env['mrp.production']
             doc = obj.browse(vals["production_id"])
@@ -380,7 +379,6 @@ class sale_order(models.Model):
 
 
     def act_livraison(self,etiquettes):
-        print(self, etiquettes)
         err=""
         for obj in self:
             filtre=[

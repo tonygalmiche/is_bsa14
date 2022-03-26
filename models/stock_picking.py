@@ -76,7 +76,7 @@ class stock_picking(models.Model):
                         account_id = move.product_id.property_account_income_id.id or move.product_id.categ_id.property_account_income_categ_id.id
                         vals={
                             "product_id"      : move.product_id.id,
-                            "name"            : move.picking_id.name,
+                            "name"            : move.sale_line_id.name,
                             "display_type"    : False,
                             "account_id"      : account_id,
                             "quantity"        : move.product_uom_qty,

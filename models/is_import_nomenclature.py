@@ -17,25 +17,24 @@ class is_import_nomenclature(models.Model):
     _order='name'
     _sql_constraints = [('name_uniq','UNIQUE(name)', 'Ce code existe déjà')]
 
-    name     =  fields.Many2one('product.template', 'Article', domain="[('type', '!=', 'service')]", required=True)
-    bom_id   =  fields.Many2one('mrp.bom', 'Nomenclature', readonly=True)
-    resultat =  fields.Text("Résultat de l'importation", readonly=True)
+    name           =  fields.Many2one('product.template', 'Article', domain="[('type', '!=', 'service')]", required=True)
+    bom_id         =  fields.Many2one('mrp.bom', 'Nomenclature', readonly=True)
+    resultat       =  fields.Text("Résultat de l'importation", readonly=True)
+    attachment_ids = fields.Many2many('ir.attachment', 'is_import_nomenclature_attachment_rel', 'import_id', 'attachment_id', 'Nomenclature à importer')
+
 
     def action_import_nomenclature(self):
         for obj in self:
             boms=self.env['mrp.bom'].search([('product_tmpl_id', '=', obj.name.id)])
             if len(boms)>0:
                 raise Warning("Il existe déja une nomenclature par cet article")
-            model='is.import.nomenclature'
-            attachments = self.env['ir.attachment'].search([('res_model','=',model),('res_id','=',obj.id)])
             err=[]
-            for attachment in attachments:
+            for attachment in obj.attachment_ids:
                 vals = {
                     'product_tmpl_id': obj.name.id,
-                    'name'           : obj.name.name,
                 }
                 bom_id = self.env['mrp.bom'].create(vals)
-                csv=base64.decodestring(attachments.datas)
+                csv=base64.b64decode(attachment.datas).decode('latin-1') # 'latin-1' cp1252
                 rows=csv.split("\r\n")
                 lig=0
                 for row in rows:
@@ -55,9 +54,9 @@ class is_import_nomenclature(models.Model):
                                         'product_qty': cols[2],
                                     }
                                     line_id = self.env['mrp.bom.line'].create(vals)
-                                    err.append(u'OK : '+cols[2]+u' x '+product.name)
+                                    err.append('OK : '+cols[2]+' x '+product.name)
                             if test:
-                                err.append(u'ERR : Composant '+cols[2]+u' (id='+(cols[1] or u'')+u') non trouvé ('+cols[3].decode('latin-1')+u')')
+                                err.append('ERR : Composant '+cols[2]+' (id='+(cols[1] or '')+') non trouvé ('+cols[3]+')')
                     lig=lig+1
             obj.bom_id=bom_id.id
             obj.resultat='\n'.join(err)

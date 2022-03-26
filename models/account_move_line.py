@@ -22,11 +22,12 @@ class account_move_line(models.Model):
     @api.depends('product_id')
     def _compute_is_picking_id(self):
         for obj in self:
-            picking_id = False
-            for line in obj.sale_line_ids:
-                for move in line.move_ids:
-                    picking_id = move.picking_id.id
-            obj.is_picking_id = picking_id
+            obj.is_picking_id = obj.is_stock_move_id.picking_id.id
+            # picking_id = False
+            # for line in obj.sale_line_ids:
+            #     for move in line.move_ids:
+            #         picking_id = move.picking_id.id
+            # obj.is_picking_id = picking_id
 
     is_solde         = fields.Float("Solde", store=True, readonly=True, compute='_compute_is_solde')
     is_stock_move_id = fields.Many2one('stock.move', string='Stock Move')

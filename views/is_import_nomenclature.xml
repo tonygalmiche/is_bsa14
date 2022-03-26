@@ -25,6 +25,9 @@
                             <field name="bom_id" />
                             <field name="resultat" />
                         </group>
+                        <group>
+                            <field name="attachment_ids" widget="many2many_binary"/>
+                        </group>
                     </sheet>
                 </form>
             </field>

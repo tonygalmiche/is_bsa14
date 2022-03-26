@@ -155,6 +155,17 @@
 
 
         <!-- stock.move -->
+        <record id="is_stock_view_move_form" model="ir.ui.view">
+            <field name="name">is_stock_view_move_form</field>
+            <field name="model">stock.move</field>
+            <field name="inherit_id" ref="stock.view_move_form"/>
+            <field name="arch" type="xml">
+                <field name="group_id" position="after">
+                    <field name="picking_id"/>
+                    <field name="is_account_move_line_id"/>
+                </field>
+            </field>
+        </record>
         <record id="is_view_move_tree_receipt_picking" model="ir.ui.view">
             <field name="name">is_view_move_tree_receipt_picking</field>
             <field name="model">stock.move</field>

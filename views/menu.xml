@@ -143,6 +143,20 @@
 
 
         <!-- Facturation -->
+        <record id="is_livraisons_a_facturer_action_server" model="ir.actions.server">
+            <field name="name">Livraisons à facturer</field>
+            <field name="model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_model_id" ref="stock.model_stock_picking"/>
+            <field name="state">code</field>
+            <field name="code">action = model.livraisons_a_facturer_action()</field>
+        </record>
+        <menuitem   
+            name="Livraisons à facturer"
+            action="is_livraisons_a_facturer_action_server"  
+            id="is_livraisons_a_facturer_menu" 
+            parent="account.menu_finance_receivables" 
+            sequence="800"
+        />
         <menuitem   
             action="is_export_vente_compta_action"  
             id="is_export_vente_compta_menu" 

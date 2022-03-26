@@ -81,6 +81,7 @@ class sale_order(models.Model):
                     for move in sale_line.move_ids:
                         if not move.is_account_move_line_id and move.state=="done":
                             move.is_account_move_line_id = line.id
+                            line.is_stock_move_id = move.id
         return invoices
 
 

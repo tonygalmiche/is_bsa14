@@ -38,6 +38,13 @@
 
 
         <!-- stock.picking -->
+        <record id="is_facturation_picking_action_server" model="ir.actions.server">
+            <field name="name">Créer les factures</field>
+            <field name="model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_model_id" ref="stock.model_stock_picking"/>
+            <field name="state">code</field>
+            <field name="code">action = records.facturation_picking_action()</field>
+        </record>
         <record id="is_view_picking_form" model="ir.ui.view">
             <field name="name">is_view_picking_form</field>
             <field name="model">stock.picking</field>

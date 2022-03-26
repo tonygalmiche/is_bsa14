@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
+
+        <record id="is_view_move_line_form" model="ir.ui.view">
+            <field name="name">is_view_move_line_form</field>
+            <field name="inherit_id" ref="account.view_move_line_form" />
+            <field name="model">account.move.line</field>
+            <field name="arch" type="xml">
+                <field name="product_id" position="after">
+                    <field name="is_stock_move_id" optional="hide"/>
+                </field>
+            </field>
+        </record>
+
         <record id="is_account_move_line_tree_view" model="ir.ui.view">
             <field name="name">is_account_move_line_tree_view</field>
             <field name="model">account.move.line</field>
@@ -18,13 +30,16 @@
                     <!-- <field name="account_tax_id" invisible="1"/> -->
                     <field name="analytic_account_id" invisible="1"/>
                     <field name="move_id"/>
-                    <field name="debit"    sum="Total"/>
-                    <field name="credit"   sum="Total"/>
-                    <field name="is_solde" sum="Total"/>
-                    <field name="date_maturity"/>
+                    <field name="debit"    sum="Total"  optional="show"/>
+                    <field name="credit"   sum="Total"  optional="show"/>
+                    <field name="is_solde" sum="Total"  optional="show"/>
+                    <field name="date_maturity"         optional="show"/>
                     <!-- <field name="reconcile_ref"/> -->
                     <!-- <field name="invoice"/> -->
                     <!-- <field name="state" invisible="1"/> -->
+
+                    <field name="is_stock_move_id" optional="hide"/>
+                    <field name="is_picking_id"    optional="hide"/>
                 </tree>
             </field>
         </record>

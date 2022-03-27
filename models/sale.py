@@ -181,6 +181,50 @@ class sale_order(models.Model):
             #**********************************************************************
 
 
+    def act_livraison(self,etiquettes):
+        err=""
+        for obj in self:
+            filtre=[
+                ('state'       , 'in' , ['assigned','waiting','confirmed']),
+                ('sale_id'        , '=' , obj.id)
+            ]
+            pickings = self.env['stock.picking'].search(filtre, limit=1)
+            for picking in pickings:
+                picking.move_line_ids_without_package.unlink()
+                lines = self.env['is.tracabilite.livraison'].search([('id', 'in', etiquettes)])
+                for line in lines:
+                    product = line.product_id
+                    vals={
+                        "picking_id"        : picking.id,
+                        "product_id"        : line.product_id.product_variant_id.id,
+                        "company_id"        : picking.company_id.id,
+                        "product_uom_id"    : line.product_id.uom_id.id,
+                        "location_id"       : picking.location_id.id,
+                        "location_dest_id"  : picking.location_dest_id.id,
+                        "qty_done"          : 1,
+                    }
+                    res = self.env['stock.move.line'].create(vals)
+                    line.sale_id   = obj.id
+                    line.move_id   = res.move_id.id
+                    line.livraison = res.move_id.date
+                picking.write({'etiquette_livraison_ids': [(6, 0, etiquettes)]})
+
+                picking.with_context(skip_backorder=True).button_validate()
+                #self.env['stock.picking'].browse(picking.id).with_context(skip_backorder=True).button_validate()
+                #picking.button_validate()
+        return {"err":err,"data":""}
+
+
+
+
+
+
+
+
+
+
+
+
 
 class sale_order_line(models.Model):
     _name = "sale.order.line"

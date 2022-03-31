@@ -284,86 +284,86 @@ class is_tracabilite_livraison(models.Model):
         return True
 
 
-    def livrer_produits(self, picking, etiquettes):
-        wiz_obj = self.pool.get('stock.transfer_details')
-        """ préparer le contenu de wizard de transfer de stock """
-        items = []
-        packs = []
-        if not picking.pack_operation_ids:
-            picking.do_prepare_partial()
-        for op in picking.pack_operation_ids:
-            etiquette_qty = self.existe_etiquette(cr, uid, etiquettes, op.product_id.id, context)
-            if etiquette_qty: 
-                item = {
-                    'packop_id': op.id,
-                    'product_id': op.product_id.id,
-                    'product_uom_id': op.product_uom_id.id,
-                    'quantity': etiquette_qty,
-                    'package_id': op.package_id.id,
-                    'lot_id': op.lot_id.id,
-                    'sourceloc_id': op.location_id.id,
-                    'destinationloc_id': op.location_dest_id.id,
-                    'result_package_id': op.result_package_id.id,
-                    'date': op.date, 
-                    'owner_id': op.owner_id.id,
-                }
-                if op.product_id:
-                    items.append([0, False, item])
-                elif op.package_id:
-                    packs.append([0, False, item])
-        vals = {'picking_id': picking.id,
-                'item_ids': items,
-                'packop_ids': packs}
-        wizard = wiz_obj.create(cr, uid, vals, context=context)
-        return wiz_obj.do_detailed_transfer(cr, uid, [wizard], context=context)
+    # def livrer_produits(self, picking, etiquettes):
+    #     wiz_obj = self.pool.get('stock.transfer_details')
+    #     """ préparer le contenu de wizard de transfer de stock """
+    #     items = []
+    #     packs = []
+    #     if not picking.pack_operation_ids:
+    #         picking.do_prepare_partial()
+    #     for op in picking.pack_operation_ids:
+    #         etiquette_qty = self.existe_etiquette(cr, uid, etiquettes, op.product_id.id, context)
+    #         if etiquette_qty: 
+    #             item = {
+    #                 'packop_id': op.id,
+    #                 'product_id': op.product_id.id,
+    #                 'product_uom_id': op.product_uom_id.id,
+    #                 'quantity': etiquette_qty,
+    #                 'package_id': op.package_id.id,
+    #                 'lot_id': op.lot_id.id,
+    #                 'sourceloc_id': op.location_id.id,
+    #                 'destinationloc_id': op.location_dest_id.id,
+    #                 'result_package_id': op.result_package_id.id,
+    #                 'date': op.date, 
+    #                 'owner_id': op.owner_id.id,
+    #             }
+    #             if op.product_id:
+    #                 items.append([0, False, item])
+    #             elif op.package_id:
+    #                 packs.append([0, False, item])
+    #     vals = {'picking_id': picking.id,
+    #             'item_ids': items,
+    #             'packop_ids': packs}
+    #     wizard = wiz_obj.create(cr, uid, vals, context=context)
+    #     return wiz_obj.do_detailed_transfer(cr, uid, [wizard], context=context)
 
 
-    def existe_etiquette(self, etiquettes, product_id):
-        lst = self.grouper_etiquettes_product(cr, uid, etiquettes, context)
-        for item in lst:
-            if item['product_id'] == product_id:
-                return item['qty']
-            else:
-                continue
-        return False
+    # def existe_etiquette(self, etiquettes, product_id):
+    #     lst = self.grouper_etiquettes_product(cr, uid, etiquettes, context)
+    #     for item in lst:
+    #         if item['product_id'] == product_id:
+    #             return item['qty']
+    #         else:
+    #             continue
+    #     return False
 
 
-    def grouper_etiquettes_product(self, etiquettes):
-        lst = []
-        for etiquette in etiquettes:
-            if not lst:
-                lst.append({'product_id': etiquette.production_id.product_id.id, 'qty':etiquette.quantity})
-            else:
-                item = self.etiquette_in_list(cr, uid, lst, etiquette.production_id.product_id.id, context)
-                if item:
-                    item['qty'] += etiquette.quantity
-                else:
-                    lst.append({'product_id': etiquette.production_id.product_id.id, 'qty':etiquette.quantity})
-        return lst
+    # def grouper_etiquettes_product(self, etiquettes):
+    #     lst = []
+    #     for etiquette in etiquettes:
+    #         if not lst:
+    #             lst.append({'product_id': etiquette.production_id.product_id.id, 'qty':etiquette.quantity})
+    #         else:
+    #             item = self.etiquette_in_list(cr, uid, lst, etiquette.production_id.product_id.id, context)
+    #             if item:
+    #                 item['qty'] += etiquette.quantity
+    #             else:
+    #                 lst.append({'product_id': etiquette.production_id.product_id.id, 'qty':etiquette.quantity})
+    #     return lst
 
 
-    def etiquette_in_list(self, list, product_id):
-        for item in list:
-            if item['product_id'] == product_id:
-                return item
-            else:
-                continue
-        return False
+    # def etiquette_in_list(self, list, product_id):
+    #     for item in list:
+    #         if item['product_id'] == product_id:
+    #             return item
+    #         else:
+    #             continue
+    #     return False
 
 
-    def lier_etiquettes_mouvement(self, picking, etiquette):
-        etiquette_obj = self.pool.get('is.tracabilite.livraison')
-        if picking.move_lines:
-            for move in picking.move_lines:
-                if move.product_id.id == etiquette.production_id.product_id.id:
-                    vals={
-                        'move_id':move.id,
-                        'livraison': time.strftime('%Y-%m-%d %H:%M:%S',time.gmtime())
-                    }
-                    etiquette_obj.write(cr, uid, etiquette.id, vals, context=context)
-                else:
-                    continue
-        return True
+    # def lier_etiquettes_mouvement(self, picking, etiquette):
+    #     etiquette_obj = self.pool.get('is.tracabilite.livraison')
+    #     if picking.move_lines:
+    #         for move in picking.move_lines:
+    #             if move.product_id.id == etiquette.production_id.product_id.id:
+    #                 vals={
+    #                     'move_id':move.id,
+    #                     'livraison': time.strftime('%Y-%m-%d %H:%M:%S',time.gmtime())
+    #                 }
+    #                 etiquette_obj.write(cr, uid, etiquette.id, vals, context=context)
+    #             else:
+    #                 continue
+    #     return True
                     
 
 

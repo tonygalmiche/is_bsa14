@@ -206,24 +206,13 @@ class sale_order(models.Model):
                     res = self.env['stock.move.line'].create(vals)
                     line.sale_id   = obj.id
                     line.move_id   = res.move_id.id
-                    line.livraison = res.move_id.date
                 picking.write({'etiquette_livraison_ids': [(6, 0, etiquettes)]})
-
                 picking.with_context(skip_backorder=True).button_validate()
+                for line in lines:
+                    line.livraison = line.move_id.date
                 #self.env['stock.picking'].browse(picking.id).with_context(skip_backorder=True).button_validate()
                 #picking.button_validate()
         return {"err":err,"data":""}
-
-
-
-
-
-
-
-
-
-
-
 
 
 class sale_order_line(models.Model):

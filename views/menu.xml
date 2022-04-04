@@ -398,7 +398,27 @@
             sequence="20"
         />
 
-
+        <!-- Qualité / Outillage -->
+        <menuitem   
+            name="Outillage"
+            id="is_outillage_main_menu" 
+            parent="bsa_qualite_main_menu"
+            sequence="30"
+        />
+        <menuitem   
+            name="Outillage"
+            action="is_outillage_action"  
+            id="is_outillage_menu" 
+            parent="is_outillage_main_menu"
+            sequence="10"
+        />
+       <menuitem   
+            name="Ligne d'outillage"
+            action="is_outillage_ligne_action"  
+            id="is_outillage_ligne_menu" 
+            parent="is_outillage_main_menu"
+            sequence="20"
+        />
 
 
 

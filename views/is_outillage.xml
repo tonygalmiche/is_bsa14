@@ -97,7 +97,7 @@
             </field>
         </record>
         <record model="ir.actions.act_window" id="is_outillage_ligne_action">
-            <field name="name">Outillage</field>
+            <field name="name">Ligne d'outillage</field>
             <field name="res_model">is.outillage.ligne</field>
             <field name="view_mode">tree,form</field>
         </record>

@@ -22,6 +22,15 @@
 
 
         <!-- Ventes -->
+        <record id="is_devis_parametrable_menu" model="ir.ui.menu" >
+            <field name="name">Devis paramètrable</field>
+            <field name="sequence">60</field>
+            <field name="parent_id" eval="ref('sale.sale_order_menu')"/>
+            <field name="action"    ref="is_devis_parametrable_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('sales_team.group_sale_manager'),
+            ])]"/>
+        </record>
         <record id="is_menu_sale_order_line" model="ir.ui.menu" >
             <field name="name">Lignes de commandes</field>
             <field name="sequence">70</field>
@@ -53,6 +62,13 @@
             parent="sale.menu_sale_config"
             action="is_societe_commerciale_action"
             sequence="910"
+        />
+        <menuitem 
+            name="Type d'équipement"
+            id="is_type_equipement_menu"
+            parent="sale.menu_sale_config"
+            action="is_type_equipement_action"
+            sequence="920"
         />
 
 

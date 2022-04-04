@@ -88,6 +88,10 @@
             <field name="model">product.template</field>
             <field name="inherit_id" ref="product.product_template_form_view" />
             <field name="arch" type="xml">
+                <field name="type" position="after">
+                    <field name="is_stock_category_id"/>
+                    <field name="is_type_equipement_id"/>
+                </field>                
                 <field name="list_price" position="replace">
                     <field name="list_price" attrs="{'invisible': [('sale_ok', '!=', True)]}" />
                 </field>
@@ -128,11 +132,12 @@
             <field name="model">product.template</field>
             <field name="inherit_id" ref="product.product_template_search_view" />
             <field name="arch" type="xml">
-
                 <field name="name" position="after">
                     <field name="seller_ids" string="Référence fournisseur" filter_domain="[('seller_ids.product_code','ilike',self)]"/>
                     <field name="is_position_dans_produit_ids"/>
                     <field name="id" />
+                    <field name="is_stock_category_id" />
+                    <field name="is_type_equipement_id" />
                 </field>
 
             </field>
@@ -144,11 +149,12 @@
                 <tree>
                     <field name="name"/>
                     <field name="default_code"/>
-                    <field name="id"                   optional="hide"/>
-                    <field name="is_stock_category_id" optional="hide"/>
-                    <field name="uom_id"               optional="show"/>
-                    <field name="list_price"           optional="show"/>
-                    <field name="standard_price"       optional="show"/>
+                    <field name="id"                    optional="hide"/>
+                    <field name="is_stock_category_id"  optional="hide"/>
+                    <field name="is_type_equipement_id" optional="hide"/>
+                    <field name="uom_id"                optional="show"/>
+                    <field name="list_price"            optional="show"/>
+                    <field name="standard_price"        optional="show"/>
                     <field name="qty_available"                sum="Total" string="Quantité disponible" optional="show"/>
                     <field name="virtual_available"            sum="Total" string="Quantité prévue"     optional="show"/>
                     <field name="is_stock_disponible_valorise" sum="Total"                              optional="show"/>

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 from . import res_company
 from . import res_partner
 from . import product
@@ -35,9 +34,7 @@ from . import is_badge
 from . import is_pointage
 from . import is_account_move_line
 from . import is_gamme_generique
-
-
-#from . import mail_thread
+from . import is_devis_parametrable
 
 
 

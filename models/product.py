@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from odoo import models,fields,api
 from lxml import etree
 import xml.etree.ElementTree as ET
@@ -36,10 +35,9 @@ class product_template(models.Model):
     is_import_par_mail           = fields.Boolean('Article importé par mail')
     is_masse_tole                = fields.Float('Masse tôle')
     is_stock_category_id         = fields.Many2one("is.stock.category", string="Catégorie de stock")
+    is_type_equipement_id        = fields.Many2one("is.type.equipement", string="Type d'équipement")
     is_trace_reception           = fields.Boolean('Traçabilité en réception')
     is_gestion_lot               = fields.Boolean('Gestion par lots', default=False)
-
-
 
 
     # x : Position x à partir de la gauche

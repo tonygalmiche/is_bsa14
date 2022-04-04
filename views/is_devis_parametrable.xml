@@ -43,7 +43,7 @@
                                 <field name="createur_id"/>
                             </group>
                         </group>
-                        <field name="equipement_ids"/>
+                        <field name="section_ids"/>
                         <field name="variante_ids">
                             <tree editable="bottom">
                                 <field name="devis_id" invisible="1"/>
@@ -82,22 +82,22 @@
         </record>
 
 
-        <!-- is.devis.parametrable.equipement -->
-        <record id="is_devis_parametrable_equipement_tree" model="ir.ui.view">
-            <field name="name">is.devis.parametrable.equipement.tree</field>
-            <field name="model">is.devis.parametrable.equipement</field>
+        <!-- is.devis.parametrable.section -->
+        <record id="is_devis_parametrable_section_tree" model="ir.ui.view">
+            <field name="name">is.devis.parametrable.section.tree</field>
+            <field name="model">is.devis.parametrable.section</field>
             <field name="arch" type="xml">
                 <tree >
                     <field name="devis_id" invisible="1"/>
-                    <field name="type_equipement_id"/>
+                    <field name="section_id"/>
                     <field name="montant_total" sum="Total"/>
                     <field name="tps_montage"   sum="Total"/>
                 </tree>
             </field>
         </record>
-        <record id="is_devis_parametrable_equipement_form" model="ir.ui.view">
-            <field name="name">is.devis.parametrable.equipement.form</field>
-            <field name="model">is.devis.parametrable.equipement</field>
+        <record id="is_devis_parametrable_section_form" model="ir.ui.view">
+            <field name="name">is.devis.parametrable.section.form</field>
+            <field name="model">is.devis.parametrable.section</field>
             <field name="arch" type="xml">
                 <form>
                     <sheet>
@@ -109,13 +109,14 @@
                         <group>
                             <group>
                                 <field name="devis_id" invisible="1"/>
-                                <field name="type_equipement_id"/>
+                                <field name="section_id"/>
                             </group>
                          </group>
                         <field name="product_ids">
                             <tree editable="bottom">
-                                <field name="equipement_id" invisible="1"/>
-                                <field name="product_id" domain="[('is_type_equipement_id', '=', parent.type_equipement_id)]"/>
+                                <field name="section_id" invisible="1"/>
+                                <field name="type_equipement_id"/>
+                                <field name="product_id" domain="[('is_type_equipement_id', '=', type_equipement_id)]"/>
                                 <field name="quantite"                   sum="Total"/>
                                 <field name="uom_po_id"   optional="hide"/>
                                 <field name="prix"        optional="show"/>
@@ -128,19 +129,19 @@
                 </form>
             </field>
         </record>
-        <record id="is_devis_parametrable_equipement_search" model="ir.ui.view">
-            <field name="name">is.devis.parametrable.equipement.search</field>
-            <field name="model">is.devis.parametrable.equipement</field>
+        <record id="is_devis_parametrable_section_search" model="ir.ui.view">
+            <field name="name">is.devis.parametrable.section.search</field>
+            <field name="model">is.devis.parametrable.section</field>
             <field name="arch" type="xml">
                 <search>
                     <field name="devis_id"/>
-                    <field name="type_equipement_id"/>
+                    <!-- <field name="section_devis type_equipement_id"/> -->
                </search>
             </field>
         </record>
-        <record id="is_devis_parametrable_equipement_action" model="ir.actions.act_window">
-            <field name="name">Equipements des devis</field>
-            <field name="res_model">is.devis.parametrable.equipement</field>
+        <record id="is_devis_parametrable_section_action" model="ir.actions.act_window">
+            <field name="name">Sections des devis</field>
+            <field name="res_model">is.devis.parametrable.section</field>
             <field name="view_mode">tree,form</field>
         </record>
 
@@ -188,5 +189,47 @@
             <field name="res_model">is.type.equipement</field>
             <field name="view_mode">tree,form</field>
         </record>
+
+
+        <!-- is.section.devis -->
+        <record id="is_section_devis_tree" model="ir.ui.view">
+            <field name="name">is.section.devis.tree</field>
+            <field name="model">is.section.devis</field>
+            <field name="arch" type="xml">
+                <tree >
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_section_devis_form" model="ir.ui.view">
+            <field name="name">is.section.devis.form</field>
+            <field name="model">is.section.devis</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" />
+                            </group>
+                         </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_section_devis_search" model="ir.ui.view">
+            <field name="name">is.section.devis.search</field>
+            <field name="model">is.section.devis</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+               </search>
+            </field>
+        </record>
+        <record id="is_section_devis_action" model="ir.actions.act_window">
+            <field name="name">Section devis</field>
+            <field name="res_model">is.section.devis</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
     </data>
 </odoo>

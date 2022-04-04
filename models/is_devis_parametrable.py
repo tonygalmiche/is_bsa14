@@ -9,11 +9,11 @@ class is_devis_parametrable(models.Model):
     _order='name desc'
 
 
-    @api.depends('equipement_ids')
+    @api.depends('section_ids')
     def _compute_montant(self):
         for obj in self:
             montant=0
-            for line in obj.equipement_ids:
+            for line in obj.section_ids:
                 montant+=line.montant_total
             obj.total_equipement = montant
 
@@ -22,7 +22,7 @@ class is_devis_parametrable(models.Model):
     date_creation      = fields.Date("Date de création"         , required=True, default=lambda *a: fields.Date.today())
     partner_id         = fields.Many2one('res.partner', 'Client', required=True)
     commentaire        = fields.Text("Commentaire")
-    equipement_ids     = fields.One2many('is.devis.parametrable.equipement', 'devis_id', 'Equipements', copy=True)
+    section_ids        = fields.One2many('is.devis.parametrable.section', 'devis_id', 'Sections', copy=True)
     total_equipement   = fields.Float("Total équipement", store=True, readonly=True, compute='_compute_montant')
     variante_ids       = fields.One2many('is.devis.parametrable.variante', 'devis_id', 'Variantes', copy=True)
 
@@ -34,9 +34,13 @@ class is_devis_parametrable(models.Model):
         return res
 
 
-class is_devis_parametrable_equipement(models.Model):
-    _name = 'is.devis.parametrable.equipement'
-    _description = "Equipements du devis paramètrable"
+
+
+
+
+class is_devis_parametrable_section(models.Model):
+    _name = 'is.devis.parametrable.section'
+    _description = "Sections du devis paramètrable"
 
 
     @api.depends('product_ids')
@@ -58,15 +62,15 @@ class is_devis_parametrable_equipement(models.Model):
 
 
     devis_id           = fields.Many2one('is.devis.parametrable', 'Devis', required=True, ondelete='cascade')
-    type_equipement_id = fields.Many2one('is.type.equipement', "Type d'équipement")
-    product_ids        = fields.One2many('is.devis.parametrable.equipement.product', 'equipement_id', 'Articles', copy=True)
+    section_id         = fields.Many2one('is.section.devis', "Section")
+    product_ids        = fields.One2many('is.devis.parametrable.section.product', 'section_id', 'Articles', copy=True)
     montant_total      = fields.Float("Total", store=True, readonly=True, compute='_compute_montant')
     tps_montage        = fields.Float("Tps", help="Temps de montatge (mn)", store=True, readonly=True, compute='_compute_tps_montage')
 
 
-class is_devis_parametrable_equipement_product(models.Model):
-    _name = 'is.devis.parametrable.equipement.product'
-    _description = "Lignes des équipements du devis paramètrable"
+class is_devis_parametrable_section_product(models.Model):
+    _name = 'is.devis.parametrable.section.product'
+    _description = "Lignes des sections du devis paramètrable"
 
 
     @api.onchange('product_id')
@@ -99,14 +103,15 @@ class is_devis_parametrable_equipement_product(models.Model):
             obj.tps_montage = tps
 
 
-    equipement_id = fields.Many2one('is.devis.parametrable.equipement', 'Equipement', required=True, ondelete='cascade')
-    product_id    = fields.Many2one('product.product', "Article")
-    uom_po_id     = fields.Many2one('uom.uom', "Unité", help="Unité de mesure d'achat", related="product_id.uom_po_id", readonly=True)
-    quantite      = fields.Float("Quantité")
-    prix          = fields.Float("Prix", help="Prix d'achat")
-    date_achat    = fields.Date("Date"    , store=True, readonly=True, compute='_compute_date_achat', help="Date du dernier achat")
-    montant       = fields.Float("Montant", store=True, readonly=True, compute='_compute_montant')
-    tps_montage   = fields.Float("Tps", help="Temps de montatge (mn)", store=True, readonly=True, compute='_compute_tps_montage')
+    section_id         = fields.Many2one('is.devis.parametrable.section', 'Section', required=True, ondelete='cascade')
+    type_equipement_id = fields.Many2one('is.type.equipement', "Type d'équipement")
+    product_id         = fields.Many2one('product.product', "Article")
+    uom_po_id          = fields.Many2one('uom.uom', "Unité", help="Unité de mesure d'achat", related="product_id.uom_po_id", readonly=True)
+    quantite           = fields.Float("Quantité")
+    prix               = fields.Float("Prix", help="Prix d'achat")
+    date_achat         = fields.Date("Date"    , store=True, readonly=True, compute='_compute_date_achat', help="Date du dernier achat")
+    montant            = fields.Float("Montant", store=True, readonly=True, compute='_compute_montant')
+    tps_montage        = fields.Float("Tps", help="Temps de montatge (mn)", store=True, readonly=True, compute='_compute_tps_montage')
 
 
 class is_devis_parametrable_variante(models.Model):
@@ -141,8 +146,12 @@ class is_type_equipement(models.Model):
     tps_montage = fields.Float("Temps de montatge (mn)")
 
 
+class is_section_devis(models.Model):
+    _name = 'is.section.devis'
+    _description = "Section devis"
+    _order='name'
 
-
+    name        = fields.Char("Section devis", required=True)
 
 
 

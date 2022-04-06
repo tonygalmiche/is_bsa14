@@ -441,6 +441,46 @@
         />
 
 
+        <!-- Qualité / Système de gestion -->
+        <menuitem   
+            name="Système de gestion"
+            id="is_systeme_gestion_main_menu" 
+            parent="bsa_qualite_main_menu"
+            sequence="40"
+        />
+        <menuitem   
+            name="Revues"
+            action="is_sg_revue_action"  
+            id="is_sg_revue_menu" 
+            parent="is_systeme_gestion_main_menu"
+            sequence="10"
+        />
+        <menuitem   
+            name="Audits"
+            action="is_sg_audit_action"  
+            id="is_sg_audit_menu" 
+            parent="is_systeme_gestion_main_menu"
+            sequence="20"
+        />
+        <menuitem   
+            name="Manuels"
+            action="is_sg_manuel_action"  
+            id="is_sg_manuel_menu" 
+            parent="is_systeme_gestion_main_menu"
+            sequence="30"
+        />
+        <menuitem   
+            name="Systèmes"
+            action="is_sg_systeme_action"  
+            id="is_sg_systeme_menu" 
+            parent="is_systeme_gestion_main_menu"
+            sequence="40"
+        />
+
+
+
+
+
 
 
 

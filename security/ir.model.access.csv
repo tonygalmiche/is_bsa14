@@ -82,3 +82,8 @@ access_is_devis_parametrable_section_product,access_is_devis_parametrable_sectio
 
 access_is_outillage,access_is_outillage,model_is_outillage,is_bsa14.is_qualite_group,1,1,1,1
 access_is_outillage_ligne,access_is_outillage_ligne,model_is_outillage_ligne,is_bsa14.is_qualite_group,1,1,1,1
+
+access_is_sg_revue,access_is_sg_revue,model_is_sg_revue,is_bsa14.is_qualite_group,1,1,1,1
+access_is_sg_audit,access_is_sg_audit,model_is_sg_audit,is_bsa14.is_qualite_group,1,1,1,1
+access_is_sg_systeme,access_is_sg_systeme,model_is_sg_systeme,is_bsa14.is_qualite_group,1,1,1,1
+access_is_sg_manuel,access_is_sg_manuel,model_is_sg_manuel,is_bsa14.is_qualite_group,1,1,1,1

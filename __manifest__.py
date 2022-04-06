@@ -56,6 +56,7 @@ InfoSaône - Module Odoo 14 pour BSA
         "views/is_pointage_commentaire.xml",
         "views/is_pointage.xml",
         "views/is_sale_order_line.xml",
+        "views/is_systeme_gestion.xml",
         "views/is_tracabilite_view.xml",
         "views/bsa_fnc_view.xml",
         "views/bsa_stock_a_date_view.xml",

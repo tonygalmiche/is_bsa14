@@ -36,6 +36,7 @@ from . import is_account_move_line
 from . import is_gamme_generique
 from . import is_devis_parametrable
 from . import is_outillage
+from . import is_systeme_gestion
 
 
 

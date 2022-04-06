@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- is.sg.revue -->
+        <record model="ir.ui.view" id="is_sg_revue_form_view">
+            <field name="name">is_sg_revue_form_view</field>
+            <field name="model">is.sg.revue</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>    
+                    <sheet>
+                        <group>
+                            <field name="name"/> 
+                            <field name="date"/> 
+                            <field name="reference"/> 
+                         </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_sg_revue_tree_view">
+            <field name="name">is_sg_revue_tree_view</field>
+            <field name="model">is.sg.revue</field>
+            <field name="type">tree</field>
+             <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/> 
+                    <field name="date"/> 
+                    <field name="reference"/> 
+                 </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_sg_revue_filter_view" >
+            <field name="name">is_sg_revue_filter_view</field>
+            <field name="model">is.sg.revue</field>
+            <field name="arch" type="xml">
+            <search string="Recherche">
+                   <field name="name"/> 
+                    <field name="date"/> 
+                    <field name="reference"/> 
+            </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_sg_revue_action">
+            <field name="name">Revues</field>
+            <field name="res_model">is.sg.revue</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- is.sg.audit -->
+        <record model="ir.ui.view" id="is_sg_audit_form_view">
+            <field name="name">is_sg_audit_form_view</field>
+            <field name="model">is.sg.audit</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>    
+                    <sheet>
+                        <group>
+                            <field name="name"/> 
+                            <field name="date"/> 
+                            <field name="reference"/> 
+                            <field name="systeme_id"/> 
+                            <field name="responsable_id"/> 
+                            <field name="auditeurs"/> 
+                         </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_sg_audit_tree_view">
+            <field name="name">is_sg_audit_tree_view</field>
+            <field name="model">is.sg.audit</field>
+            <field name="type">tree</field>
+             <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/> 
+                    <field name="date"/> 
+                    <field name="reference"/> 
+                    <field name="systeme_id"/> 
+                    <field name="responsable_id"/> 
+                    <field name="auditeurs"/> 
+                 </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_sg_audit_filter_view" >
+            <field name="name">is_sg_audit_filter_view</field>
+            <field name="model">is.sg.audit</field>
+            <field name="arch" type="xml">
+            <search string="Recherche">
+                    <field name="name"/> 
+                    <field name="reference"/> 
+                    <field name="systeme_id"/> 
+                    <field name="responsable_id"/> 
+                    <field name="auditeurs"/> 
+            </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_sg_audit_action">
+            <field name="name">Audits</field>
+            <field name="res_model">is.sg.audit</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- is.sg.systeme -->
+        <record model="ir.ui.view" id="is_sg_systeme_form_view">
+            <field name="name">is_sg_systeme_form_view</field>
+            <field name="model">is.sg.systeme</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>    
+                    <sheet>
+                        <group>
+                            <field name="name"/> 
+                         </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_sg_systeme_tree_view">
+            <field name="name">is_sg_systeme_tree_view</field>
+            <field name="model">is.sg.systeme</field>
+            <field name="type">tree</field>
+             <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/> 
+                 </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_sg_systeme_filter_view" >
+            <field name="name">is_sg_systeme_filter_view</field>
+            <field name="model">is.sg.systeme</field>
+            <field name="arch" type="xml">
+            <search string="Recherche">
+                    <field name="name"/> 
+            </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_sg_systeme_action">
+            <field name="name">Systèmes</field>
+            <field name="res_model">is.sg.systeme</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- is.sg.manuel -->
+        <record model="ir.ui.view" id="is_sg_manuel_form_view">
+            <field name="name">is_sg_manuel_form_view</field>
+            <field name="model">is.sg.manuel</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>    
+                    <sheet>
+                        <group>
+                            <field name="name"/> 
+                            <field name="parent_id"/> 
+                         </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_sg_manuel_tree_view">
+            <field name="name">is_sg_manuel_tree_view</field>
+            <field name="model">is.sg.manuel</field>
+            <field name="type">tree</field>
+             <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/> 
+                    <field name="parent_id"/> 
+                    <field name="write_uid"  string="Dernier contributeur"/> 
+                    <field name="write_date" string="Date de modification"/> 
+                 </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_sg_manuel_filter_view" >
+            <field name="name">is_sg_manuel_filter_view</field>
+            <field name="model">is.sg.manuel</field>
+            <field name="arch" type="xml">
+            <search string="Recherche">
+                    <field name="name"/> 
+                    <field name="parent_id"/> 
+            </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_sg_manuel_action">
+            <field name="name">Manuels</field>
+            <field name="res_model">is.sg.manuel</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+    </data>
+</odoo>

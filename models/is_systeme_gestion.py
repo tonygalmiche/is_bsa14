@@ -23,7 +23,7 @@ class is_sg_audit(models.Model):
     date           = fields.Date("Date")
     reference      = fields.Char("Référence")
     systeme_id     = fields.Many2one('is.sg.systeme', 'Système')
-    responsable_id = fields.Many2one('res.users', "Responsable de l'audit", required=True)
+    responsable_id = fields.Many2one('res.users', "Responsable de l'audit")
     auditeurs      = fields.Text("Auditeurs")
 
 

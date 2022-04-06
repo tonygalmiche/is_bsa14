@@ -83,12 +83,27 @@ class purchase_order(models.Model):
         return res
 
 
-    # def wkf_approve_order(self):
-    #     if self.is_alerte_rsp_achat or self.is_alerte_dir_finance:
-    #         raise Warning("Cette commande doit-être validée")
-    #     else:
-    #         self.write({'state': 'approved', 'date_approve': datetime.date.today()})
-    #     return True
+    def action_create_invoice(self):
+        """Permet de faire le lien entre la ligne de facture et la ligne de réception ce qui n'existe pas par défaut"""
+        res = super().action_create_invoice()
+        if res and "domain" in res:
+            ids=[]
+            domain = res["domain"][0]
+            if domain[0] == "id":
+                ids = domain[2]
+            else:
+                if "res_id" in res:
+                    if res["res_id"]>0:
+                        ids=[res["res_id"]]
+            invoices = self.env["account.move"].search([("id","in", ids)])
+            for invoice in invoices:
+                for line in invoice.line_ids:
+                    if line.purchase_line_id:
+                        for move in line.purchase_line_id.move_ids:
+                            if not move.is_account_move_line_id and move.state=="done":
+                                move.is_account_move_line_id = line.id
+                                line.is_stock_move_id = move.id
+        return res
 
 
     def import_nomenclature_action(self):
@@ -147,41 +162,47 @@ class purchase_order(models.Model):
 
 
 
-    #TODO : J"ai surchargé cette fonction le 28/11/19, car le modèle de mail de la demande de prix a été supprimée
-    def wkf_send_rfq(self, cr, uid, ids, context=None):
-        """
-        This function opens a window to compose an email, with the edi purchase template message loaded by default
-        """
-        if not context:
-            context= {}
-        ir_model_data = self.pool.get("ir.model.data")
-        try:
-            if context.get("send_rfq", False):
-                template_id = ir_model_data.get_object_reference(cr, uid, "is_bsa", "is_demande_de_prix_email_template")[1]
-            else:
-                template_id = ir_model_data.get_object_reference(cr, uid, "purchase", "email_template_edi_purchase_done")[1]
-        except ValueError:
-            template_id = False
-        try:
-            compose_form_id = ir_model_data.get_object_reference(cr, uid, "mail", "email_compose_message_wizard_form")[1]
-        except ValueError:
-            compose_form_id = False 
-        ctx = dict(context)
-        ctx.update({
-            "default_model": "purchase.order",
-            "default_res_id": ids[0],
-            "default_use_template": bool(template_id),
-            "default_template_id": template_id,
-            "default_composition_mode": "comment",
-        })
-        return {
-            "name": _("Compose Email"),
-            "type": "ir.actions.act_window",
-            "view_type": "form",
-            "view_mode": "form",
-            "res_model": "mail.compose.message",
-            "views": [(compose_form_id, "form")],
-            "view_id": compose_form_id,
-            "target": "new",
-            "context": ctx,
-        }
+
+
+
+
+
+
+    # #TODO : J"ai surchargé cette fonction le 28/11/19, car le modèle de mail de la demande de prix a été supprimée
+    # def wkf_send_rfq(self, cr, uid, ids, context=None):
+    #     """
+    #     This function opens a window to compose an email, with the edi purchase template message loaded by default
+    #     """
+    #     if not context:
+    #         context= {}
+    #     ir_model_data = self.pool.get("ir.model.data")
+    #     try:
+    #         if context.get("send_rfq", False):
+    #             template_id = ir_model_data.get_object_reference(cr, uid, "is_bsa", "is_demande_de_prix_email_template")[1]
+    #         else:
+    #             template_id = ir_model_data.get_object_reference(cr, uid, "purchase", "email_template_edi_purchase_done")[1]
+    #     except ValueError:
+    #         template_id = False
+    #     try:
+    #         compose_form_id = ir_model_data.get_object_reference(cr, uid, "mail", "email_compose_message_wizard_form")[1]
+    #     except ValueError:
+    #         compose_form_id = False 
+    #     ctx = dict(context)
+    #     ctx.update({
+    #         "default_model": "purchase.order",
+    #         "default_res_id": ids[0],
+    #         "default_use_template": bool(template_id),
+    #         "default_template_id": template_id,
+    #         "default_composition_mode": "comment",
+    #     })
+    #     return {
+    #         "name": _("Compose Email"),
+    #         "type": "ir.actions.act_window",
+    #         "view_type": "form",
+    #         "view_mode": "form",
+    #         "res_model": "mail.compose.message",
+    #         "views": [(compose_form_id, "form")],
+    #         "view_id": compose_form_id,
+    #         "target": "new",
+    #         "context": ctx,
+    #     }

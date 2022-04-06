@@ -165,52 +165,72 @@
         />
 
 
-        <!-- Facturation -->
+        <!-- Facturation / Client -->
         <record id="is_livraisons_a_facturer_action_server" model="ir.actions.server">
             <field name="name">Livraisons à facturer</field>
             <field name="model_id" ref="stock.model_stock_picking"/>
-            <field name="binding_model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_model_id" ref=""/>
             <field name="state">code</field>
             <field name="code">action = model.livraisons_a_facturer_action()</field>
         </record>
-        <menuitem   
-            name="Livraisons à facturer"
-            action="is_livraisons_a_facturer_action_server"  
-            id="is_livraisons_a_facturer_menu" 
-            parent="account.menu_finance_receivables" 
-            sequence="800"
-        />
-        <menuitem   
-            action="is_export_vente_compta_action"  
-            id="is_export_vente_compta_menu" 
-            parent="account.menu_finance_receivables" 
-            sequence="900"
-        />
-        <menuitem
-            action="is_balance_agee_action"         
-            id="is_balance_agee_menu"        
-            parent="account.menu_finance_receivables" 
-            sequence="910"
-        />
-        <menuitem  
-            action="is_export_achat_compta_action"  
-            id="is_export_achat_compta_menu" 
-            parent="account.menu_finance_payables" 
-            sequence="900"
-        />
-        <menuitem   
-            id="is_mode_reglement_menu" 
-            name="Mode de règlement"
-            action="is_mode_reglement_action"  
-            parent="account.menu_finance_configuration" 
-            sequence="90"
-        />
         <menuitem 
             name="Lignes de factures"
             id="is_account_invoice_line_menu"
             parent="account.menu_finance_receivables"
             action="is_account_invoice_line_action"
             sequence="800"
+        />
+        <menuitem   
+            name="Livraisons à facturer"
+            action="is_livraisons_a_facturer_action_server"  
+            id="is_livraisons_a_facturer_menu" 
+            parent="account.menu_finance_receivables" 
+            sequence="810"
+        />
+        <menuitem   
+            action="is_export_vente_compta_action"  
+            id="is_export_vente_compta_menu" 
+            parent="account.menu_finance_receivables" 
+            sequence="820"
+        />
+        <menuitem
+            action="is_balance_agee_action"         
+            id="is_balance_agee_menu"        
+            parent="account.menu_finance_receivables" 
+            sequence="830"
+        />
+
+        <!-- Facturation / Fournisseur -->
+        <record id="is_receptions_a_facturer_action_server" model="ir.actions.server">
+            <field name="name">Réceptions à facturer</field>
+            <field name="model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_model_id" ref=""/>
+            <field name="state">code</field>
+            <field name="code">action = model.receptions_a_facturer_action()</field>
+        </record>
+        <menuitem   
+            name="Réceptions à facturer"
+            action="is_receptions_a_facturer_action_server"  
+            id="is_receptions_a_facturer_menu" 
+            parent="account.menu_finance_payables" 
+            sequence="800"
+        />
+        <menuitem  
+            action="is_export_achat_compta_action"  
+            id="is_export_achat_compta_menu" 
+            parent="account.menu_finance_payables" 
+            sequence="810"
+        />
+
+
+
+        <!-- Facturation / Autre -->
+        <menuitem   
+            id="is_mode_reglement_menu" 
+            name="Mode de règlement"
+            action="is_mode_reglement_action"  
+            parent="account.menu_finance_configuration" 
+            sequence="90"
         />
         <menuitem   
             id="is_account_move_line_menu" 

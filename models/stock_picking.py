@@ -57,7 +57,130 @@ class stock_picking(models.Model):
         return action
 
 
+    def receptions_a_facturer_action(self):
+        filtre=[
+            ('picking_type_id', '=', 1),
+            ('state'          , '=', 'done')
+        ]
+        pickings=self.env['stock.picking'].search(filtre)
+        picking_ids=[]
+        for picking in pickings:
+            for move in picking.move_ids_without_package:
+                if not move.is_account_move_line_id:
+                    if move.picking_id.id not in picking_ids:
+                        picking_ids.append(move.picking_id.id)
+        action = self.env["ir.actions.actions"]._for_xml_id("stock.action_picking_tree_all")
+        action['domain'] = [('id', 'in',picking_ids)]
+        return action
+
+
     def facturation_picking_action(self):
+        action=False
+        picking_type_id=False
+        for obj in self:
+            picking_type_id = obj.picking_type_id.id
+        if picking_type_id==1:
+            action = self.facturation_reception_action()
+        if picking_type_id==2:
+            action = self.facturation_livraison_action()
+        return action
+
+
+    def facturation_reception_action(self):
+        cr=self._cr
+        partners=[]
+        invoice_ids=[]
+        for obj in self:
+            for move in obj.move_ids_without_package:
+                if not move.is_account_move_line_id:
+                    partner = move.picking_id.partner_id
+                    if partner not in partners:
+                        partners.append(partner)
+ 
+        for partner in partners:
+            lines=[]
+            for obj in self:
+                for move in obj.move_ids_without_package:
+                    if not move.is_account_move_line_id and move.state=="done" and partner == move.picking_id.partner_id:
+                        account_id = move.product_id.property_account_income_id.id or move.product_id.categ_id.property_account_income_categ_id.id
+                        vals={
+                            "product_id"       : move.product_id.id,
+                            "name"             : move.purchase_line_id.name,
+                            "display_type"     : False,
+                            "account_id"       : account_id,
+                            "quantity"         : move.product_uom_qty,
+                            "tax_ids"          : move.purchase_line_id.taxes_id,
+                            "price_unit"       : move.purchase_line_id.price_unit,
+                            "is_stock_move_id" : move.id, 
+                            "product_uom_id"   : move.product_uom.id,
+                            "purchase_line_id" : move.purchase_line_id.id,
+                            "purchase_order_id": move.purchase_line_id.order_id.id,
+                        }
+
+
+                        
+                        lines.append((0, 0, vals))
+            vals={
+                "partner_id": partner.id,
+                "move_type" : "in_invoice",
+                "journal_id": 2,
+                "invoice_line_ids": lines,
+            }
+            if len(lines)>0:
+                invoice = self.env['account.move'].create(vals)
+                invoice._onchange_partner_id()
+                invoice_ids.append(invoice.id)
+                for line in invoice.invoice_line_ids:
+                    line.is_stock_move_id.is_account_move_line_id = line.id
+                #     order_id   = line.is_stock_move_id.purchase_line_id.order_id.id
+                #     invoice_id = line.move_id.id
+                #     SQL="""
+                #         INSERT INTO account_move_purchase_order_rel (purchase_order_id, account_move_id) VALUES (%s, %s)
+                #         ON CONFLICT DO NOTHING
+                #     """
+                #     res = cr.execute(SQL,[order_id, invoice_id])
+                for line in invoice.invoice_line_ids:
+                    line.is_stock_move_id.purchase_line_id._compute_qty_invoiced()
+
+
+
+        # Affichage des factures **********************************************
+        action = self.env["ir.actions.actions"]._for_xml_id("account.action_move_in_invoice_type")
+        if len(invoice_ids) > 1:
+            action['domain'] = [('id', 'in',invoice_ids)]
+        elif len(invoice_ids) == 1:
+            form_view = [(self.env.ref('account.view_move_form').id, 'form')]
+            if 'views' in action:
+                action['views'] = form_view + [(state,view) for state,view in action['views'] if view != 'form']
+            else:
+                action['views'] = form_view
+            action['res_id'] = invoice_ids[0]
+        else:
+            action = {'type': 'ir.actions.act_window_close'}
+
+        context = {
+            'default_move_type': 'in_invoice',
+        }
+        if len(self) == 1:
+            context.update({
+                'default_partner_id': invoice.partner_id.id,
+                'default_partner_shipping_id': invoice.partner_shipping_id.id,
+                'default_invoice_payment_term_id': invoice.invoice_payment_term_id.id or invoice.partner_id.property_payment_term_id.id or invoice.env['account.move'].default_get(['invoice_payment_term_id']).get('invoice_payment_term_id'),
+                'default_invoice_origin': invoice.mapped('name'),
+                'default_user_id': invoice.user_id.id,
+            })
+        action['context'] = context
+        return action
+
+
+
+
+
+
+
+
+
+    def facturation_livraison_action(self):
         cr=self._cr
         partners=[]
         invoice_ids=[]
@@ -130,7 +253,7 @@ class stock_picking(models.Model):
             context.update({
                 'default_partner_id': invoice.partner_id.id,
                 'default_partner_shipping_id': invoice.partner_shipping_id.id,
-                'default_invoice_payment_term_id': invoice.payment_term_id.id or invoice.partner_id.property_payment_term_id.id or invoice.env['account.move'].default_get(['invoice_payment_term_id']).get('invoice_payment_term_id'),
+                'default_invoice_payment_term_id': invoice.invoice_payment_term_id.id or invoice.partner_id.property_payment_term_id.id or invoice.env['account.move'].default_get(['invoice_payment_term_id']).get('invoice_payment_term_id'),
                 'default_invoice_origin': invoice.mapped('name'),
                 'default_user_id': invoice.user_id.id,
             })

@@ -88,16 +88,6 @@
 
 
 
- <!-- <form>
-                                        <sheet>
-                                            <field name="product_uom_category_id" invisible="1"/>
-                                            <field name="display_type" invisible="1"/>
-                                            <field name="parent_state" invisible="1"/>
-                                            <group>
-                                                <field name="partner_id" invisible="1"/>
-                                                <field name="company_id" invisible="1"/>
-                                                <field name="product_id" widget="many2one_barcode"/> -->
-
 
 
         <record id="is_view_invoice_tree" model="ir.ui.view">
@@ -123,19 +113,5 @@
             </field>
         </record>
 
-
-
-
-        <!-- <record id="is_invoice_supplier_form" model="ir.ui.view">
-            <field name="name">is_invoice_supplier_form</field>
-            <field name="model">account.invoice</field>
-            <field name="inherit_id" ref="account.invoice_supplier_form" />
-            <field name="arch" type="xml">
-                <field name="fiscal_position" position="before">
-                    <field name="is_contact_id" domain="[('parent_id','=',partner_id)]" />
-                    <field name="is_imputation_partenaire"/>
-                </field>
-            </field>
-        </record> -->
     </data>
 </odoo>

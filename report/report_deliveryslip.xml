@@ -35,7 +35,7 @@
                 </table>
                 <br/>
 
-                <table class="table table-sm" t-if="o.state!='done'" name="stock_move_table">
+                <table class="table table-sm" name="stock_move_table">
                     <thead>
                         <tr>
                             <th name="th_sm_product"><strong>Article</strong></th>
@@ -59,6 +59,9 @@
                         </tr>
                     </tbody>
                 </table>
+
+
+<!--                 
                 <table class="table table-sm mt48" t-if="o.move_line_ids and o.state=='done'" name="stock_move_line_table">
                     <t t-set="has_serial_number" t-value="False"/>
                     <t t-set="has_serial_number" t-value="o.move_line_ids.mapped('lot_id')" groups="stock.group_lot_on_delivery_slip"/>
@@ -117,7 +120,7 @@
                             </t>
                         </t>
                     </tbody>
-                </table>
+                </table> -->
 
 
                 <!-- <t t-set="backorders" t-value="o.backorder_ids.filtered(lambda x: x.state not in ('done', 'cancel'))"/>

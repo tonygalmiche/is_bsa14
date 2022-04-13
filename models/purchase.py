@@ -6,7 +6,7 @@ import datetime
 
 class purchase_order_line(models.Model):
     _inherit = "purchase.order.line"
-    _order = "is_sequence,id"
+    #_order = "is_sequence,id"
 
     is_sequence   = fields.Integer("Séquence")
     is_date_ar    = fields.Date("Date AR")

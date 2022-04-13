@@ -5,6 +5,7 @@ import datetime
 
 class is_fiche_controle(models.Model):
     _name='is.fiche.controle'
+    _inherit = ['mail.thread', 'mail.activity.mixin', 'portal.mixin']
     _description = "Fiche contrôle"
     _order='name desc'
 

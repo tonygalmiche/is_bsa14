@@ -27,6 +27,18 @@
             <field name="model">is.devis.parametrable</field>
             <field name="arch" type="xml">
                 <form>
+                    <header>
+                        <button
+                            name="creation_section_action"
+                            type="object"
+                            string="Nouvelle section"
+                        />
+                        <button
+                            name="creation_variante_action"
+                            type="object"
+                            string="Nouvelle variante"
+                        />
+                    </header>
                     <sheet>
                         <style>
                             .o_form_view .o_form_sheet_bg > .o_form_sheet{
@@ -41,22 +53,51 @@
                            <group>
                                 <field name="date_creation" />
                                 <field name="createur_id"/>
+                                <field name="tps_montage" invisible="1"/>
                             </group>
                         </group>
-                        <field name="section_ids"/>
-                        <field name="variante_ids">
-                            <tree editable="bottom">
-                                <field name="devis_id" invisible="1"/>
-                                <field name="quantite"          optional="show"/>
-                                <field name="marge_matiere"     optional="show"/>
-                                <field name="marge_equipement"  optional="show"/>
-                                <field name="marge_montage"     optional="show"/>
-                                <field name="tps_be"            optional="show" widget="float_time"/>
-                                <field name="marge_be"          optional="show"/>
-                                <field name="marge_revendeur"   optional="show"/>
-                                <field name="gain_productivite" optional="show"/>
-                            </tree>
-                        </field>
+
+                        <group string="Matière">
+                            <group>
+                                <field name="matiere_id"/>
+                                <field name="uom_po_id" invisible="1"/>
+                                <field name="poids_matiere"/>
+                            </group>
+                            <group>
+                                <field name="prix_matiere"/>
+                                <field name="date_achat_matiere"/>
+                                <field name="montant_matiere"/>
+                            </group>
+                        </group>
+
+                        <group string="Sections">
+                            <field name="section_ids" nolabel="1">
+                                <tree>
+                                    <button title="Section" name="acceder_section_action" type="object" icon="fa-search-plus"/>
+                                    <field name="devis_id" invisible="1"/>
+                                    <field name="section_id"/>
+                                    <field name="montant_total" sum="Total"/>
+                                    <field name="tps_montage"   sum="Total" widget="float_time"/>
+                                </tree>
+                            </field>
+                        </group>
+                        <group string="Variantes">
+                            <field name="variante_ids" nolabel="1">
+                                <tree>
+                                    <button title="Variante" name="acceder_variante_action" type="object" icon="fa-search-plus"/>
+                                    <field name="devis_id" invisible="1"/>
+                                    <field name="name"              optional="show"/>
+                                    <field name="quantite"          optional="show"/>
+                                    <field name="marge_matiere"     optional="show"/>
+                                    <field name="marge_equipement"  optional="show"/>
+                                    <field name="marge_montage"     optional="show"/>
+                                    <field name="tps_be"            optional="show" widget="float_time"/>
+                                    <field name="marge_be"          optional="show"/>
+                                    <field name="marge_revendeur"   optional="show"/>
+                                    <field name="gain_productivite" optional="show"/>
+                                </tree>
+                            </field>
+                        </group>
                         <group>
                             <field name="commentaire"/>
                         </group>
@@ -82,6 +123,65 @@
         </record>
 
 
+
+        <!-- is.devis.parametrable.variante -->
+        <record id="is_devis_parametrable_variante_form" model="ir.ui.view">
+            <field name="name">is.devis.parametrable.variante.form</field>
+            <field name="model">is.devis.parametrable.variante</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button
+                            name="creer_devis_action"
+                            type="object"
+                            string="Créer le devis"
+                        />
+                    </header>
+                    <sheet>
+                        <style>
+                            .o_form_view .o_form_sheet_bg > .o_form_sheet{
+                                max-width: 1800px;
+                            }
+                        </style>
+                        <group string="Paramètres">
+                            <group>
+                                <field name="devis_id" readonly="1"/>
+                                <field name="name"/>
+                                <field name="quantite"/>
+                                <field name="tps_be" widget="float_time"/>
+                                <field name="order_id"/>
+                            </group>
+                            <group>
+                                <field name="marge_matiere"/>
+                                <field name="marge_equipement"/>
+                                <field name="marge_montage"/>
+                                <field name="marge_be"/>
+                                <field name="marge_revendeur"/>
+                                <field name="gain_productivite"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Prix de revient">
+                                <field name="montant_matiere"/>
+                                <field name="montant_equipement"/>
+                                <field name="tps_montage" widget="float_time"/>
+                                <field name="montant_montage"/>
+                                <field name="montant_montage_productivite"/>
+                                <field name="montant_be"/>
+                                <field name="montant_total"/>
+                                <field name="montant_unitaire"/>
+                            </group>
+                            <group string="Prix de vente">
+                                <field name="prix_vente"/>
+                                <field name="prix_vente_revendeur"/>
+                            </group>
+                         </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
         <!-- is.devis.parametrable.section -->
         <record id="is_devis_parametrable_section_tree" model="ir.ui.view">
             <field name="name">is.devis.parametrable.section.tree</field>
@@ -91,7 +191,7 @@
                     <field name="devis_id" invisible="1"/>
                     <field name="section_id"/>
                     <field name="montant_total" sum="Total"/>
-                    <field name="tps_montage"   sum="Total"/>
+                    <field name="tps_montage"   sum="Total" widget="float_time"/>
                 </tree>
             </field>
         </record>
@@ -110,6 +210,7 @@
                             <group>
                                 <field name="devis_id" invisible="1"/>
                                 <field name="section_id"/>
+                                <field name="tps_montage"/>
                             </group>
                          </group>
                         <field name="product_ids">
@@ -117,12 +218,13 @@
                                 <field name="section_id" invisible="1"/>
                                 <field name="type_equipement_id"/>
                                 <field name="product_id" domain="[('is_type_equipement_id', '=', type_equipement_id)]"/>
+                                <field name="description"/>
                                 <field name="quantite"                   sum="Total"/>
                                 <field name="uom_po_id"   optional="hide"/>
                                 <field name="prix"        optional="show"/>
                                 <field name="date_achat"  optional="hide"/>
                                 <field name="montant"     optional="show" sum="Total"/>
-                                <field name="tps_montage" optional="show" sum="Total"/>
+                                <field name="tps_montage" optional="show" sum="Total" widget="float_time"/>
                             </tree>
                         </field>
                     </sheet>

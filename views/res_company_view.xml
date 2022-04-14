@@ -17,6 +17,10 @@
                         <group>
                             <field name="is_cgv_ids" widget="many2many_binary"/>
                         </group>
+                        <group string="Coûts horaires">
+                            <field name="is_cout_horaire_montage"/>
+                            <field name="is_cout_horaire_be"/>
+                        </group>
                     </page>
                 </page>
             </field>

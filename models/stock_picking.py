@@ -187,7 +187,8 @@ class stock_picking(models.Model):
         for obj in self:
             for move in obj.move_ids_without_package:
                 if not move.is_account_move_line_id:
-                    partner = move.picking_id.partner_id
+                    #partner = move.picking_id.partner_id
+                    partner = move.sale_line_id.order_id.partner_invoice_id or move.picking_id.partner_id
                     if partner not in partners:
                         partners.append(partner)
  
@@ -195,7 +196,12 @@ class stock_picking(models.Model):
             lines=[]
             for obj in self:
                 for move in obj.move_ids_without_package:
-                    if not move.is_account_move_line_id and move.state=="done" and partner == move.picking_id.partner_id:
+                    partner_invoice = move.sale_line_id.order_id.partner_invoice_id or move.picking_id.partner_id
+
+                    #if not move.is_account_move_line_id and move.state=="done" and partner == move.picking_id.partner_id:
+                    if not move.is_account_move_line_id and move.state=="done" and partner == partner_invoice:
+
+
                         account_id = move.product_id.property_account_income_id.id or move.product_id.categ_id.property_account_income_categ_id.id
                         vals={
                             "product_id"      : move.product_id.id,
@@ -205,6 +211,7 @@ class stock_picking(models.Model):
                             "quantity"        : move.product_uom_qty,
                             "tax_ids"         : move.sale_line_id.tax_id,
                             "price_unit"      : move.sale_line_id.price_unit,
+                            "discount"        : move.sale_line_id.discount,
                             "is_stock_move_id": move.id, 
                             "product_uom_id"  : move.product_uom.id,
                         }

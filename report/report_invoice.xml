@@ -88,18 +88,17 @@
                                             <t t-foreach="line.sale_line_ids" t-as="l">
                                                 <div t-field="l.order_id.client_order_ref"/>
                                             </t>
+                                            <div t-if="o.is_sale_order_id" t-field="o.is_sale_order_id.client_order_ref"/>
                                         </td>
                                         <t t-if="res_company.is_site == 'bsa'">
-                                            <td><span t-field="line.is_sale_order_id.name"/></td>
+                                            <td>
+                                                <div t-field="line.is_sale_order_id.name"/>
+                                                <div t-if="o.is_sale_order_id" t-field="o.is_sale_order_id.name"/>
+                                            </td>
                                             <td name="account_invoice_line_name"><span t-field="line.name" t-options="{'widget': 'text'}"/></td>
                                         </t>
-
-
                                         <!-- <td><span t-field="line.is_picking_id.note"/></td> -->
                                         <td><span t-field="line.is_stock_move_id.picking_id.name"/></td>
-
-
-
                                         <t t-if="res_company.is_site != 'bsa'">
                                             <td name="account_invoice_line_name"><span t-field="line.name" t-options="{'widget': 'text'}"/></td>
                                         </t>

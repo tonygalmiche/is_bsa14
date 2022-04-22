@@ -49,9 +49,10 @@ class stock_picking(models.Model):
         picking_ids=[]
         for picking in pickings:
             for move in picking.move_ids_without_package:
-                if not move.is_account_move_line_id:
-                    if move.picking_id.id not in picking_ids:
-                        picking_ids.append(move.picking_id.id)
+                if move.state=='done':
+                    if not move.is_account_move_line_id:
+                        if move.picking_id.id not in picking_ids:
+                            picking_ids.append(move.picking_id.id)
         action = self.env["ir.actions.actions"]._for_xml_id("stock.action_picking_tree_all")
         action['domain'] = [('id', 'in',picking_ids)]
         return action
@@ -194,13 +195,16 @@ class stock_picking(models.Model):
  
         for partner in partners:
             lines=[]
+            partner_shipping_id=partner
             for obj in self:
                 for move in obj.move_ids_without_package:
+                    partner_shipping_id = move.sale_line_id.order_id.partner_shipping_id
                     partner_invoice = move.sale_line_id.order_id.partner_invoice_id or move.picking_id.partner_id
 
                     #if not move.is_account_move_line_id and move.state=="done" and partner == move.picking_id.partner_id:
                     if not move.is_account_move_line_id and move.state=="done" and partner == partner_invoice:
 
+                        partner_shipping_id = obj.partner_id
 
                         account_id = move.product_id.property_account_income_id.id or move.product_id.categ_id.property_account_income_categ_id.id
                         vals={
@@ -217,10 +221,11 @@ class stock_picking(models.Model):
                         }
                         lines.append((0, 0, vals))
             vals={
-                "partner_id": partner.id,
-                "move_type" : "out_invoice",
-                "journal_id": 1,
-                "invoice_line_ids": lines,
+                "partner_id"         : partner.id,
+                #"partner_shipping_id": partner_shipping_id.id,
+                "move_type"          : "out_invoice",
+                "journal_id"         : 1,
+                "invoice_line_ids"   : lines,
             }
             if len(lines)>0:
                 invoice = self.env['account.move'].create(vals)
@@ -237,6 +242,8 @@ class stock_picking(models.Model):
                     res = cr.execute(SQL,[invoice_line_id, order_line_id])
                 for line in invoice.invoice_line_ids:
                     line.is_stock_move_id.sale_line_id._get_invoice_qty()
+                invoice.partner_shipping_id = partner_shipping_id.id
+
 
 
         # Affichage des factures **********************************************

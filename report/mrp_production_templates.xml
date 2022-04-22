@@ -53,6 +53,10 @@
                         <strong>Numéro de commande:</strong><br/>
                         <span t-field="o.is_sale_order_id"/>
                     </div>
+                   <div class="col-3" t-if="o.is_ref_client">
+                        <strong>Référence client:</strong><br/>
+                        <span t-field="o.is_ref_client"/>
+                    </div>
                 </div>
 
 

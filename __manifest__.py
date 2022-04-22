@@ -30,6 +30,7 @@ InfoSaône - Module Odoo 14 pour BSA
         "security/res.groups.xml",
         "security/ir.model.access.csv",
         "views/assets.xml",
+        "views/account_invoice_report_view.xml",
         "views/account_move_line_view.xml",
         "views/is_fiche_controle.xml",
         "views/is_fiche_travail.xml",

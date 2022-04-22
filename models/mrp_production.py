@@ -17,7 +17,8 @@ class mrp_production(models.Model):
     #etiquette_ids        = fields.Many2many('is.tracabilite.livraison', 'mrp_production_tacabilite_livraison_rel', 'production_id', 'etiquette_id', 'Etiquettes', readonly=True, copy=False)
     etiquette_ids         = fields.One2many('is.tracabilite.livraison', 'production_id', 'Etiquettes', copy=False)
     is_gestion_lot        = fields.Boolean('Gestion par lots')
-    
+    is_ref_client = fields.Char("Référence client")
+
 
     def declarer_une_fabrication_action(self):
         err=""

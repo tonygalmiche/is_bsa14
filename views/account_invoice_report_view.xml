@@ -8,20 +8,20 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="move_id"/>
-                    <field name="journal_id"/>
+                    <field name="journal_id" optional="hide"/>
                     <field name="partner_id"/>
-                    <field name="commercial_partner_id"/>
-                    <field name="invoice_user_id"/>
+                    <field name="commercial_partner_id" optional="hide"/>
+                    <field name="invoice_user_id" optional="hide"/>
                     <field name="move_type"/>
                     <field name="product_id"/>
                     <field name="quantity"/>
-                    <field name="product_uom_id"/>
-                    <field name="product_categ_id"/>
+                    <field name="product_uom_id" optional="hide"/>
+                    <field name="product_categ_id" optional="hide"/>
                     <field name="invoice_date_due"/>
                     <field name="account_id"/>
                     <field name="price_subtotal"/>
-                    <field name="price_average"/>
-                     <field name="fiscal_position_id"/>
+                    <field name="price_average" optional="hide"/>
+                     <field name="fiscal_position_id" optional="hide"/>
                     <field name="payment_state"/>
                     <field name="state"/>
                  </tree>

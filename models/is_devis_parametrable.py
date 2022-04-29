@@ -4,6 +4,7 @@ from odoo import models,fields,api
 import datetime
 
 
+
 class is_devis_parametrable(models.Model):
     _name='is.devis.parametrable'
     _description = "Devis paramètrable"
@@ -21,29 +22,25 @@ class is_devis_parametrable(models.Model):
             obj.tps_montage      = tps_montage
 
 
-    @api.depends('matiere_id','poids_matiere','prix_matiere')
-    def _compute_montant_matiere(self):
-        for obj in self:
-            montant=obj.prix_matiere*obj.poids_matiere
-            obj.montant_matiere = montant
-
-
     name               = fields.Char("N°", readonly=True)
+    designation        = fields.Char("Désignation")
+    capacite           = fields.Integer("Capacité")
+    unite              = fields.Selection([
+            ('Litre', 'Litre'),
+            ('m3'   , 'm3'),
+            ('HL'   , 'HL'),
+        ], "Unité")
+    type_cuve_id       = fields.Many2one('is.type.cuve', 'Type de cuve', required=True)
     createur_id        = fields.Many2one('res.users', 'Créateur', required=True, default=lambda self: self.env.user.id)
     date_creation      = fields.Date("Date de création"         , required=True, default=lambda *a: fields.Date.today())
+    date_actualisation = fields.Datetime("Date d'actualisation"                , default=fields.Datetime.now)
     partner_id         = fields.Many2one('res.partner', 'Client', required=True)
-
-    matiere_id         = fields.Many2one('product.product', 'Matière', required=True)
-    uom_po_id          = fields.Many2one('uom.uom', "Unité", help="Unité de mesure d'achat", related="matiere_id.uom_po_id", readonly=True)
-    poids_matiere      = fields.Float("Poids matière")
-    prix_matiere       = fields.Float("Prix"     , help="Prix d'achat")
-    date_achat_matiere = fields.Date("Date achat", help="Date du dernier achat")
-    montant_matiere    = fields.Float("Montant", store=True, readonly=True, compute='_compute_montant_matiere')
-
-    section_ids        = fields.One2many('is.devis.parametrable.section', 'devis_id', 'Sections', copy=True)
+    matiere_ids        = fields.One2many('is.devis.parametrable.matiere'  , 'devis_id', 'Matières'  , copy=True)
+    dimension_ids      = fields.One2many('is.devis.parametrable.dimension', 'devis_id', 'Dimensions', copy=True)
+    section_ids        = fields.One2many('is.devis.parametrable.section'  , 'devis_id', 'Sections'  , copy=True)
+    variante_ids       = fields.One2many('is.devis.parametrable.variante' , 'devis_id', 'Variantes' , copy=True)
     total_equipement   = fields.Float("Total équipement"                     , store=False, readonly=True, compute='_compute_montant')
-    tps_montage        = fields.Float("Tps", help="Temps de montatge (HH:MM)", store=False, readonly=True, compute='_compute_montant')
-    variante_ids       = fields.One2many('is.devis.parametrable.variante', 'devis_id', 'Variantes', copy=True)
+    tps_montage        = fields.Float("Tps (HH:MM)", help="Temps de montatge (HH:MM)", store=False, readonly=True, compute='_compute_montant')
     commentaire        = fields.Text("Commentaire")
 
 
@@ -78,9 +75,19 @@ class is_devis_parametrable(models.Model):
             return res
 
 
+    def actualiser_prix_action(self):
+        for obj in self:
+            obj.date_actualisation = datetime.datetime.now()
+            for section in obj.section_ids:
+                for line in section.product_ids:
+                    res = self.get_prix_achat(line.product_id)
+                    line.prix       = res[0]
+                    line.date_achat = res[1]
+
+
     def get_prix_achat(self, product):
         cr = self._cr
-        prix=False
+        prix=product.standard_price
         date_achat = False
         if product:
             SQL="""
@@ -100,19 +107,29 @@ class is_devis_parametrable(models.Model):
         return[prix, date_achat]
 
 
-    @api.onchange('matiere_id')
-    def onchange_matiere_id(self):
-        for obj in self:
-            res = obj.get_prix_achat(obj.matiere_id)
-            obj.prix_matiere       = res[0]
-            obj.date_achat_matiere = res[1]
+class is_devis_parametrable_matiere(models.Model):
+    _name = 'is.devis.parametrable.matiere'
+    _description = "Matieres du devis paramètrable"
 
+    devis_id   = fields.Many2one('is.devis.parametrable', 'Devis', required=True, ondelete='cascade')
+    section_id = fields.Many2one('is.section.devis', "Section")
+    matiere_id = fields.Many2one('is.matiere', "Matière")
+    poids      = fields.Float("Poids (Kg)")
+
+
+class is_devis_parametrable_dimension(models.Model):
+    _name = 'is.devis.parametrable.dimension'
+    _description = "Dimensions du devis paramètrable"
+
+    devis_id     = fields.Many2one('is.devis.parametrable', 'Devis', required=True, ondelete='cascade')
+    dimension_id = fields.Many2one('is.dimension', 'Dimension')
+    description  = fields.Char("Description"   , help="Information pour le client")
+    valeur       = fields.Integer("Valeur (mm)", help="Utilisée dans les calculs")
 
 
 class is_devis_parametrable_section(models.Model):
     _name = 'is.devis.parametrable.section'
     _description = "Sections du devis paramètrable"
-
 
     @api.depends('product_ids')
     def _compute_montant(self):
@@ -122,7 +139,6 @@ class is_devis_parametrable_section(models.Model):
                 montant+=line.montant
             obj.montant_total = montant
 
-
     @api.depends('product_ids')
     def _compute_tps_montage(self):
         for obj in self:
@@ -131,12 +147,11 @@ class is_devis_parametrable_section(models.Model):
                 tps+=line.tps_montage
             obj.tps_montage = tps
 
-
     devis_id           = fields.Many2one('is.devis.parametrable', 'Devis', required=True, ondelete='cascade')
     section_id         = fields.Many2one('is.section.devis', "Section")
     product_ids        = fields.One2many('is.devis.parametrable.section.product', 'section_id', 'Articles', copy=True)
     montant_total      = fields.Float("Total", store=True, readonly=True, compute='_compute_montant')
-    tps_montage        = fields.Float("Tps", help="Temps de montatge (HH:MM)", store=True, readonly=True, compute='_compute_tps_montage')
+    tps_montage        = fields.Float("Tps (HH:MM)", help="Temps de montatge (HH:MM)", store=True, readonly=True, compute='_compute_tps_montage')
 
 
 
@@ -164,8 +179,9 @@ class is_devis_parametrable_section_product(models.Model):
     def onchange_product_id(self):
         for obj in self:
             res = self.env['is.devis.parametrable'].get_prix_achat(obj.product_id)
-            obj.prix       = res[0]
-            obj.date_achat = res[1]
+            obj.prix        = res[0]
+            obj.date_achat  = res[1]
+            obj.description = obj.product_id.is_description_devis
 
 
     @api.depends('product_id','quantite','prix')
@@ -201,7 +217,7 @@ class is_devis_parametrable_section_product(models.Model):
     prix               = fields.Float("Prix", help="Prix d'achat")
     date_achat         = fields.Date("Date"    , store=True, readonly=True, compute='_compute_date_achat', help="Date du dernier achat")
     montant            = fields.Float("Montant", store=True, readonly=True, compute='_compute_montant')
-    tps_montage        = fields.Float("Tps", help="Temps de montatge (HH:MM)", store=True, readonly=True, compute='_compute_tps_montage')
+    tps_montage        = fields.Float("Tps (HH:MM)", help="Temps de montatge (HH:MM)", store=True, readonly=True, compute='_compute_tps_montage')
 
 
 class is_devis_parametrable_variante(models.Model):
@@ -222,7 +238,7 @@ class is_devis_parametrable_variante(models.Model):
 
     montant_matiere    = fields.Float("Montant matière"    , readonly=True, compute='_compute_montants')
     montant_equipement = fields.Float("Montant equipements", readonly=True, compute='_compute_montants')
-    tps_montage        = fields.Float("Tps montage"        , readonly=True, compute='_compute_montants')
+    tps_montage        = fields.Float("Tps montage (HH:MM)"        , readonly=True, compute='_compute_montants')
     montant_montage    = fields.Float("Montant montage"    , readonly=True, compute='_compute_montants')
     montant_montage_productivite = fields.Float("Montant montage avec productivité", readonly=True, compute='_compute_montants')
     montant_be         = fields.Float("Montant BE"         , readonly=True, compute='_compute_montants')
@@ -232,7 +248,7 @@ class is_devis_parametrable_variante(models.Model):
     prix_vente           = fields.Float("Prix de vente"          , readonly=True, compute='_compute_montants')
     prix_vente_revendeur = fields.Float("Prix de vente revendeur", readonly=True, compute='_compute_montants')
 
-    order_id = fields.Many2one('sale.order', 'Devis', readonly="1")
+    #order_id = fields.Many2one('sale.order', 'Devis', readonly="1")
 
 
 
@@ -241,7 +257,7 @@ class is_devis_parametrable_variante(models.Model):
         company = self.env.user.company_id
         for obj in self:
             tps_montage        = obj.devis_id.tps_montage*obj.quantite
-            montant_matiere    = obj.devis_id.montant_matiere
+            montant_matiere    = 123
             montant_equipement = obj.devis_id.total_equipement*obj.quantite
             montant_montage    = tps_montage*company.is_cout_horaire_montage
             montant_montage_productivite = montant_montage-montant_montage*obj.gain_productivite/100
@@ -284,73 +300,69 @@ class is_devis_parametrable_variante(models.Model):
             return res
 
 
-    def creer_devis_action(self):
-        for obj in self:
-            print(obj)
-
-            if obj.order_id:
-                order = obj.order_id
-                order.order_line.unlink()
-            else:
-                vals={
-                    "partner_id": obj.devis_id.partner_id.id,
-                }
-                order = self.env['sale.order'].create(vals)
-                obj.order_id = order.id
-
-            lig=1
-            vals={
-                "order_id"    : order.id,
-                "sequence"    : lig,
-                "name"        : "Matière",
-                "display_type": "line_section",
-                "product_uom_qty" : 0,
-            }
-            line = self.env['sale.order.line'].create(vals)
-
-            lig+=1
-            vals={
-                "order_id"   : order.id,
-                "sequence"   : lig,
-                "product_id" : obj.devis_id.matiere_id.id,
-                "product_uom_qty": obj.devis_id.poids_matiere,
-                "price_unit" : obj.devis_id.prix_matiere,
-            }
-            line = self.env['sale.order.line'].create(vals)
-
-            for section in obj.devis_id.section_ids:
-                lig+=1
-                vals={
-                    "order_id"    : order.id,
-                    "sequence"    : lig,
-                    "name"        : section.section_id.name,
-                    "display_type": "line_section",
-                    "product_uom_qty" : 0,
-                }
-                line = self.env['sale.order.line'].create(vals)
 
 
-                for line in section.product_ids:
-                    lig+=1
-                    vals={
-                        "order_id"   : order.id,
-                        "sequence"   : lig,
-                        "product_id" : line.product_id.id,
-                        "product_uom_qty": line.quantite,
-                        "price_unit" : line.prix,
-                    }
-                    if line.description:
-                        vals["name"] = line.description
-                    line = self.env['sale.order.line'].create(vals)
-                    print(line)
+    # def creer_devis_action(self):
+    #     for obj in self:
+    #         print(obj)
+
+    #         if obj.order_id:
+    #             order = obj.order_id
+    #             order.order_line.unlink()
+    #         else:
+    #             vals={
+    #                 "partner_id": obj.devis_id.partner_id.id,
+    #             }
+    #             order = self.env['sale.order'].create(vals)
+    #             obj.order_id = order.id
+
+    #         lig=1
+    #         vals={
+    #             "order_id"    : order.id,
+    #             "sequence"    : lig,
+    #             "name"        : "Matière",
+    #             "display_type": "line_section",
+    #             "product_uom_qty" : 0,
+    #         }
+    #         line = self.env['sale.order.line'].create(vals)
+
+    #         lig+=1
+    #         vals={
+    #             "order_id"   : order.id,
+    #             "sequence"   : lig,
+    #             "product_id" : obj.devis_id.matiere_id.id,
+    #             "product_uom_qty": obj.devis_id.poids_matiere,
+    #             "price_unit" : obj.devis_id.prix_matiere,
+    #         }
+    #         line = self.env['sale.order.line'].create(vals)
+
+    #         for section in obj.devis_id.section_ids:
+    #             lig+=1
+    #             vals={
+    #                 "order_id"    : order.id,
+    #                 "sequence"    : lig,
+    #                 "name"        : section.section_id.name,
+    #                 "display_type": "line_section",
+    #                 "product_uom_qty" : 0,
+    #             }
+    #             line = self.env['sale.order.line'].create(vals)
 
 
-# Note : j’ajouterais une variable, si possible (ou dans un 2ème temps), soit la dégressivité des prix en fonction des quantités en jouant sur :
-#     Les NRC (non recurring costs), soit les temps BE (dossier technique et/ ou coûts outillage)
-#     Les gains de productivité – temps MO (Main d’œuvre) décroissant en fonction de la quantité (effet proto vs série) (p.ex. dégressivité de 10 à 15% sur temps MO)
-#     Les gains de productivité – optimisation des débits matière (idem)
-# Enfi
-#     Le taux de marge dégressif, soit linéaire sur l’ensemble des taux de marges à appliquer
+    #             for line in section.product_ids:
+    #                 lig+=1
+    #                 vals={
+    #                     "order_id"   : order.id,
+    #                     "sequence"   : lig,
+    #                     "product_id" : line.product_id.id,
+    #                     "product_uom_qty": line.quantite,
+    #                     "price_unit" : line.prix,
+    #                 }
+    #                 if line.description:
+    #                     vals["name"] = line.description
+    #                 line = self.env['sale.order.line'].create(vals)
+    #                 print(line)
+
+
 
 
 class is_type_equipement(models.Model):
@@ -370,4 +382,32 @@ class is_section_devis(models.Model):
     name        = fields.Char("Section devis", required=True)
 
 
+class is_type_cuve(models.Model):
+    _name='is.type.cuve'
+    _description = "Type de cuve"
+    _order='name'
+
+    name          = fields.Char("Type de cuve", required=True)
+    perte_decoupe = fields.Integer("Perte à la découpe (%)")
+
+
+class is_matiere(models.Model):
+    _name='is.matiere'
+    _description = "Matière"
+    _order='name'
+
+    name               = fields.Char("Matière", required=True)
+    prix_achat         = fields.Float("Prix d'achat au Kg")
+    epaisseur          = fields.Float("Épaisseur")
+    type_matiere       = fields.Char("Type")
+    finition_interieur = fields.Char("Finition intérieur")
+    finition           = fields.Char("Finition")
+
+
+class is_dimension(models.Model):
+    _name='is.dimension'
+    _description = "Dimension"
+    _order='name'
+
+    name = fields.Char("Dimension", required=True)
 

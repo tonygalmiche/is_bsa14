@@ -45,24 +45,29 @@ class assistent_report1(models.TransientModel):
 
 
     def assistent_report1(self):
-        report_data = self.browse(cr, uid, ids[0])
-        report_link = "http://odoo-rh.bsa-inox.fr/rapport1.php"
-        url = str(report_link)  + '?' \
-            + '&dbname='        + str(cr.dbname) \
-            + '&type_rapport='  + str(report_data.type_rapport) \
-            + '&date_jour='     + str(report_data.date_jour) \
-            + '&date_mois='     + str(report_data.date_mois) \
-            + '&detail='        + str(report_data.detail) \
-            + '&department_id=' + str(report_data.department_id.id) \
-            + '&employee='      + str(report_data.employee.id) \
-            + '&interimaire='   + str(report_data.interimaire) \
-            + '&saut_page='     + str(report_data.saut_page) \
-            + '&date_debut='    + str(report_data.date_debut) \
-            + '&date_fin='      + str(report_data.date_fin)
-        return {
-            'name'     : 'Go to website',
-            'res_model': 'ir.actions.act_url',
-            'type'     : 'ir.actions.act_url',
-            'target'   : 'current',
-            'url'      : url
-        }
+        for obj in self:
+            print(obj)
+
+            cr = self._cr
+            #report_data = self.browse(cr, uid, ids[0])
+            report_link = "https://odoo14-acier-scan.bsa-inox.fr/rh/rapport1.php"
+            url = str(report_link)  + '?' \
+                + '&dbname='        + str(cr.dbname) \
+                + '&type_rapport='  + str(obj.type_rapport) \
+                + '&date_jour='     + str(obj.date_jour) \
+                + '&date_mois='     + str(obj.date_mois) \
+                + '&detail='        + str(obj.detail) \
+                + '&department_id=' + str(obj.department_id.id) \
+                + '&employee='      + str(obj.employee.id) \
+                + '&interimaire='   + str(obj.interimaire) \
+                + '&saut_page='     + str(obj.saut_page) \
+                + '&date_debut='    + str(obj.date_debut) \
+                + '&date_fin='      + str(obj.date_fin)
+            print(url)
+            return {
+                'name'     : 'Go to website',
+                'res_model': 'ir.actions.act_url',
+                'type'     : 'ir.actions.act_url',
+                'target'   : 'current',
+                'url'      : url
+            }

@@ -38,6 +38,7 @@ class product_template(models.Model):
     is_type_equipement_id        = fields.Many2one("is.type.equipement", string="Type d'équipement")
     is_trace_reception           = fields.Boolean('Traçabilité en réception')
     is_gestion_lot               = fields.Boolean('Gestion par lots', default=False)
+    is_description_devis         = fields.Text('Description devis')
 
 
     # x : Position x à partir de la gauche

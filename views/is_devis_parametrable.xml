@@ -14,7 +14,11 @@
             <field name="arch" type="xml">
                 <tree >
                     <field name="name"/>
-                    <field name="createur_id"/>
+                    <field name="designation"/>
+                    <field name="capacite"/>
+                    <field name="unite"/>
+                    <field name="type_cuve_id"/>
+                    <field name="createur_id"      optional="show" />
                     <field name="date_creation" />
                     <field name="partner_id"/>
                     <field name="commentaire"      optional="hide"/>
@@ -38,6 +42,11 @@
                             type="object"
                             string="Nouvelle variante"
                         />
+                        <button
+                            name="actualiser_prix_action"
+                            type="object"
+                            string="Actualiser les prix"
+                        />
                     </header>
                     <sheet>
                         <style>
@@ -47,31 +56,42 @@
                         </style>
                         <group>
                             <group>
-                                <field name="name" />
-                                <field name="partner_id" />
+                                <field name="name"/>
+                                <field name="designation"/>
+                                <field name="capacite"/>
+                                <field name="unite"/>
+                                <field name="type_cuve_id"/>
+                                <field name="partner_id"/>
                             </group>
                            <group>
-                                <field name="date_creation" />
+                                <field name="date_creation"/>
+                                <field name="date_actualisation" readonly="1"/>
                                 <field name="createur_id"/>
-                                <field name="tps_montage" invisible="1"/>
+                                <field name="tps_montage" invisible="1" widget="float_time"/>
                             </group>
                         </group>
-
-                        <group string="Matière">
-                            <group>
-                                <field name="matiere_id"/>
-                                <field name="uom_po_id" invisible="1"/>
-                                <field name="poids_matiere"/>
-                            </group>
-                            <group>
-                                <field name="prix_matiere"/>
-                                <field name="date_achat_matiere"/>
-                                <field name="montant_matiere"/>
-                            </group>
+                        <group string="Matières">
+                            <field name="matiere_ids" nolabel="1">
+                                <tree editable="bottom">
+                                    <field name="devis_id" invisible="1"/>
+                                    <field name="section_id"/>
+                                    <field name="matiere_id"/>
+                                    <field name="poids" sum="Total"/>
+                                </tree>
+                            </field>
                         </group>
-
+                        <group string="Dimensions">
+                            <field name="dimension_ids" nolabel="1">
+                                <tree editable="bottom">
+                                    <field name="devis_id" invisible="1"/>
+                                    <field name="dimension_id"/>
+                                    <field name="description"/>
+                                    <field name="valeur"/>
+                                </tree>
+                            </field>
+                        </group>
                         <group string="Sections">
-                            <field name="section_ids" nolabel="1">
+                            <field name="section_ids" nolabel="1" readonly="1">
                                 <tree>
                                     <button title="Section" name="acceder_section_action" type="object" icon="fa-search-plus"/>
                                     <field name="devis_id" invisible="1"/>
@@ -82,7 +102,7 @@
                             </field>
                         </group>
                         <group string="Variantes">
-                            <field name="variante_ids" nolabel="1">
+                            <field name="variante_ids" nolabel="1" readonly="1">
                                 <tree>
                                     <button title="Variante" name="acceder_variante_action" type="object" icon="fa-search-plus"/>
                                     <field name="devis_id" invisible="1"/>
@@ -111,6 +131,7 @@
             <field name="arch" type="xml">
                 <search>
                     <field name="name"/>
+                    <field name="designation"/>
                     <field name="partner_id"/>
                     <field name="createur_id"/>
                </search>
@@ -130,13 +151,6 @@
             <field name="model">is.devis.parametrable.variante</field>
             <field name="arch" type="xml">
                 <form>
-                    <header>
-                        <button
-                            name="creer_devis_action"
-                            type="object"
-                            string="Créer le devis"
-                        />
-                    </header>
                     <sheet>
                         <style>
                             .o_form_view .o_form_sheet_bg > .o_form_sheet{
@@ -149,7 +163,6 @@
                                 <field name="name"/>
                                 <field name="quantite"/>
                                 <field name="tps_be" widget="float_time"/>
-                                <field name="order_id"/>
                             </group>
                             <group>
                                 <field name="marge_matiere"/>
@@ -210,7 +223,7 @@
                             <group>
                                 <field name="devis_id" invisible="1"/>
                                 <field name="section_id"/>
-                                <field name="tps_montage"/>
+                                <field name="tps_montage" widget="float_time"/>
                             </group>
                          </group>
                         <field name="product_ids">
@@ -332,6 +345,143 @@
             <field name="res_model">is.section.devis</field>
             <field name="view_mode">tree,form</field>
         </record>
+
+
+        <!-- is.type.cuve -->
+        <record id="is_type_cuve_tree" model="ir.ui.view">
+            <field name="name">is.type.cuve.tree</field>
+            <field name="model">is.type.cuve</field>
+            <field name="arch" type="xml">
+                <tree >
+                    <field name="name"/>
+                    <field name="perte_decoupe"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_type_cuve_form" model="ir.ui.view">
+            <field name="name">is.type.cuve.form</field>
+            <field name="model">is.type.cuve</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" />
+                                <field name="perte_decoupe"/>
+                            </group>
+                         </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_type_cuve_search" model="ir.ui.view">
+            <field name="name">is.type.cuve.search</field>
+            <field name="model">is.type.cuve</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+               </search>
+            </field>
+        </record>
+        <record id="is_type_cuve_action" model="ir.actions.act_window">
+            <field name="name">Type de cuve</field>
+            <field name="res_model">is.type.cuve</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- is.matiere -->
+        <record id="is_matiere_tree" model="ir.ui.view">
+            <field name="name">is.matiere.tree</field>
+            <field name="model">is.matiere</field>
+            <field name="arch" type="xml">
+                <tree >
+                    <field name="name"/>
+                    <field name="prix_achat"/>
+                    <field name="epaisseur"/>
+                    <field name="type_matiere" />
+                    <field name="finition_interieur" />
+                    <field name="finition" />
+                </tree>
+            </field>
+        </record>
+        <record id="is_matiere_form" model="ir.ui.view">
+            <field name="name">is.matiere.form</field>
+            <field name="model">is.matiere</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" />
+                                <field name="prix_achat"/>
+                                <field name="epaisseur"/>
+                                <field name="type_matiere" />
+                                <field name="finition_interieur" />
+                                <field name="finition" />
+                            </group>
+                         </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_matiere_search" model="ir.ui.view">
+            <field name="name">is.matiere.search</field>
+            <field name="model">is.matiere</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+               </search>
+            </field>
+        </record>
+        <record id="is_matiere_action" model="ir.actions.act_window">
+            <field name="name">Matière</field>
+            <field name="res_model">is.matiere</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+
+        <!-- is.dimension -->
+        <record id="is_dimension_tree" model="ir.ui.view">
+            <field name="name">is.dimension.tree</field>
+            <field name="model">is.dimension</field>
+            <field name="arch" type="xml">
+                <tree >
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_dimension_form" model="ir.ui.view">
+            <field name="name">is.dimension.form</field>
+            <field name="model">is.dimension</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" />
+                            </group>
+                         </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_dimension_search" model="ir.ui.view">
+            <field name="name">is.dimension.search</field>
+            <field name="model">is.dimension</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+               </search>
+            </field>
+        </record>
+        <record id="is_dimension_action" model="ir.actions.act_window">
+            <field name="name">Dimensions</field>
+            <field name="res_model">is.dimension</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
 
     </data>
 </odoo>

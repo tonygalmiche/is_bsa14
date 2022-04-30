@@ -67,7 +67,8 @@
                                 <field name="date_creation"/>
                                 <field name="date_actualisation" readonly="1"/>
                                 <field name="createur_id"/>
-                                <field name="tps_montage" invisible="1" widget="float_time"/>
+                                <field name="tps_montage"     invisible="1" widget="float_time"/>
+                                <field name="montant_matiere" invisible="1"/>
                             </group>
                         </group>
                         <group string="Matières">
@@ -77,6 +78,8 @@
                                     <field name="section_id"/>
                                     <field name="matiere_id"/>
                                     <field name="poids" sum="Total"/>
+                                    <field name="prix_achat"/>
+                                    <field name="montant" sum="Total"/>
                                 </tree>
                             </field>
                         </group>
@@ -115,6 +118,15 @@
                                     <field name="marge_be"          optional="show"/>
                                     <field name="marge_revendeur"   optional="show"/>
                                     <field name="gain_productivite" optional="show"/>
+
+                                    <field name="prix_vente_lot"              optional="show"/>
+                                    <field name="prix_vente_revendeur_lot"    optional="hide"/>
+                                    <field name="montant_marge_lot"           optional="hide"/>
+                                    <field name="montant_marge_revendeur_lot" optional="hide"/>
+                                    <field name="prix_vente"                  optional="show"/>
+                                    <field name="prix_vente_revendeur"        optional="hide"/>
+                                    <field name="montant_marge"               optional="hide"/>
+                                    <field name="montant_marge_revendeur"     optional="hide"/>
                                 </tree>
                             </field>
                         </group>
@@ -174,7 +186,7 @@
                             </group>
                         </group>
                         <group>
-                            <group string="Prix de revient">
+                            <group string="Prix de revient lot">
                                 <field name="montant_matiere"/>
                                 <field name="montant_equipement"/>
                                 <field name="tps_montage" widget="float_time"/>
@@ -182,11 +194,21 @@
                                 <field name="montant_montage_productivite"/>
                                 <field name="montant_be"/>
                                 <field name="montant_total"/>
+                            </group>
+                            <group string="Prix de revient">
                                 <field name="montant_unitaire"/>
                             </group>
-                            <group string="Prix de vente">
+                            <group string="Prix de vente Lot">
+                                <field name="prix_vente_lot"/>
+                                <field name="prix_vente_revendeur_lot"/>
+                                <field name="montant_marge_lot"/>
+                                <field name="montant_marge_revendeur_lot"/>
+                            </group>
+                            <group string="Prix de vente Unitaire">
                                 <field name="prix_vente"/>
                                 <field name="prix_vente_revendeur"/>
+                                <field name="montant_marge"/>
+                                <field name="montant_marge_revendeur"/>
                             </group>
                          </group>
                     </sheet>

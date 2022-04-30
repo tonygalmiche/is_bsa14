@@ -11,6 +11,15 @@ class is_devis_parametrable(models.Model):
     _order='name desc'
 
 
+    @api.depends('matiere_ids')
+    def _compute_montant_matiere(self):
+        for obj in self:
+            montant=0
+            for line in obj.matiere_ids:
+                montant+=line.montant
+            obj.montant_matiere = montant
+
+
     @api.depends('section_ids')
     def _compute_montant(self):
         for obj in self:
@@ -40,7 +49,8 @@ class is_devis_parametrable(models.Model):
     section_ids        = fields.One2many('is.devis.parametrable.section'  , 'devis_id', 'Sections'  , copy=True)
     variante_ids       = fields.One2many('is.devis.parametrable.variante' , 'devis_id', 'Variantes' , copy=True)
     total_equipement   = fields.Float("Total équipement"                     , store=False, readonly=True, compute='_compute_montant')
-    tps_montage        = fields.Float("Tps (HH:MM)", help="Temps de montatge (HH:MM)", store=False, readonly=True, compute='_compute_montant')
+    tps_montage        = fields.Float("Tps (HH:MM)"    , help="Temps de montatge (HH:MM)", store=False, readonly=True, compute='_compute_montant')
+    montant_matiere    = fields.Float("Montant matière", store=False, readonly=True, compute='_compute_montant_matiere')
     commentaire        = fields.Text("Commentaire")
 
 
@@ -111,10 +121,24 @@ class is_devis_parametrable_matiere(models.Model):
     _name = 'is.devis.parametrable.matiere'
     _description = "Matieres du devis paramètrable"
 
+    @api.depends('prix_achat', 'matiere_id', 'poids')
+    def _compute_montant(self):
+        for obj in self:
+            obj.montant = obj.prix_achat * obj.poids
+
+
+    @api.onchange('matiere_id')
+    def onchange_matiere_id(self):
+        for obj in self:
+            obj.prix_achat = obj.matiere_id.prix_achat
+
+
     devis_id   = fields.Many2one('is.devis.parametrable', 'Devis', required=True, ondelete='cascade')
     section_id = fields.Many2one('is.section.devis', "Section")
     matiere_id = fields.Many2one('is.matiere', "Matière")
     poids      = fields.Float("Poids (Kg)")
+    prix_achat = fields.Float("Prix d'achat au Kg")
+    montant    = fields.Float("Montant", store=True, readonly=True, compute='_compute_montant')
 
 
 class is_devis_parametrable_dimension(models.Model):
@@ -245,28 +269,32 @@ class is_devis_parametrable_variante(models.Model):
     montant_total      = fields.Float("Montant Total"      , readonly=True, compute='_compute_montants')
     montant_unitaire   = fields.Float("Montant Unitaire"   , readonly=True, compute='_compute_montants')
 
-    prix_vente           = fields.Float("Prix de vente"          , readonly=True, compute='_compute_montants')
-    prix_vente_revendeur = fields.Float("Prix de vente revendeur", readonly=True, compute='_compute_montants')
+    prix_vente_lot              = fields.Float("Prix de vente lot"          , readonly=True, compute='_compute_montants')
+    prix_vente_revendeur_lot    = fields.Float("Prix de vente revendeur lot", readonly=True, compute='_compute_montants')
+    montant_marge_lot           = fields.Float("Marge lot"                  , readonly=True, compute='_compute_montants')
+    montant_marge_revendeur_lot = fields.Float("Marge revendeur lot"        , readonly=True, compute='_compute_montants')
 
-    #order_id = fields.Many2one('sale.order', 'Devis', readonly="1")
-
+    prix_vente               = fields.Float("Prix de vente"          , readonly=True, compute='_compute_montants')
+    prix_vente_revendeur     = fields.Float("Prix de vente revendeur", readonly=True, compute='_compute_montants')
+    montant_marge            = fields.Float("Marge"                  , readonly=True, compute='_compute_montants')
+    montant_marge_revendeur  = fields.Float("Marge revendeur"        , readonly=True, compute='_compute_montants')
 
 
     @api.depends('quantite','marge_matiere','marge_equipement','marge_montage','tps_be','marge_be','marge_revendeur','gain_productivite')
     def _compute_montants(self):
         company = self.env.user.company_id
         for obj in self:
-            tps_montage        = obj.devis_id.tps_montage*obj.quantite
-            montant_matiere    = 123
-            montant_equipement = obj.devis_id.total_equipement*obj.quantite
+            quantite = obj.quantite or 1
+
+            tps_montage        = obj.devis_id.tps_montage*quantite
+            montant_matiere    = obj.devis_id.montant_matiere
+            montant_equipement = obj.devis_id.total_equipement*quantite
             montant_montage    = tps_montage*company.is_cout_horaire_montage
             montant_montage_productivite = montant_montage-montant_montage*obj.gain_productivite/100
             montant_be         = obj.tps_be * company.is_cout_horaire_be
             montant_total      = montant_matiere + montant_equipement + montant_montage_productivite + montant_be
 
-            montant_unitaire = 0
-            if obj.quantite>0:
-                montant_unitaire = montant_total/obj.quantite
+            montant_unitaire = montant_total/quantite
 
             prix_vente  = montant_matiere*(1+obj.marge_matiere/100)
             prix_vente += montant_equipement*(1+obj.marge_equipement/100)
@@ -284,8 +312,16 @@ class is_devis_parametrable_variante(models.Model):
             obj.montant_total      = montant_total
             obj.montant_unitaire   = montant_unitaire
 
-            obj.prix_vente           = prix_vente
-            obj.prix_vente_revendeur = prix_vente_revendeur
+            obj.prix_vente_lot              = prix_vente
+            obj.prix_vente_revendeur_lot    = prix_vente_revendeur
+            obj.montant_marge_lot           = prix_vente - montant_total
+            obj.montant_marge_revendeur_lot = prix_vente_revendeur - prix_vente
+
+            obj.prix_vente              = prix_vente/quantite
+            obj.prix_vente_revendeur    = prix_vente_revendeur/quantite
+            obj.montant_marge           = (prix_vente - montant_total)/quantite
+            obj.montant_marge_revendeur = (prix_vente_revendeur - prix_vente)/quantite
+
 
 
     def acceder_variante_action(self):

@@ -61,10 +61,11 @@ class is_heure_effective(models.Model):
 
 
     def write(self, vals):
-        if "effectif_reel" in vals:
-            obj = self.browse(cr, uid, ids[0], context=context)
-            vals["balance_reelle"]=vals["effectif_reel"]-obj.theorique
-        res = super(is_heure_effective, self).write(cr, uid, ids, vals, context=context)
+        for obj in self:
+            if "effectif_reel" in vals:
+                #obj = self.browse(cr, uid, ids[0], context=context)
+                vals["balance_reelle"]=vals["effectif_reel"]-obj.theorique
+        res = super(is_heure_effective, self).write(vals)
         return res
 
 

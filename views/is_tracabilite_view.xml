@@ -73,7 +73,7 @@
             <field name="name">Tracabilité livraison</field>
             <field name="code">is.tracabilite.livraison</field>
             <!-- <field name="prefix">TL</field> -->
-            <field name="padding">6</field>
+            <!-- <field name="padding">6</field> -->
             <field eval="False" name="company_id"/>
         </record>
         <record id="is_bsa_tracabilite_livraison_tree" model="ir.ui.view">

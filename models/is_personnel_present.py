@@ -54,7 +54,7 @@ class is_personnel_present(models.Model):
                 name = row[1]+' : '+str(pointage)
                 if pointage:
                     create_date = pointage[0]
-                    create_date = datetime.datetime.strptime(create_date, '%Y-%m-%d %H:%M:%S.%f')
+                    #create_date = datetime.datetime.strptime(create_date, '%Y-%m-%d %H:%M:%S.%f')
                     create_date = create_date.strftime('%d/%m/%Y %H:%M')
                     employes.append({
                         'name'       : row[1],

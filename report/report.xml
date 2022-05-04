@@ -89,7 +89,7 @@
     </record>
 
 
-    <record id="action_report_personnel_present" model="ir.actions.report">
+    <record id="action_report_fiche_utilisateur" model="ir.actions.report">
         <field name="name">Fiche utilisateur</field>
         <field name="model">hr.employee</field>
         <field name="report_type">qweb-pdf</field>

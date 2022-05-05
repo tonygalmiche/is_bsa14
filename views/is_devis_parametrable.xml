@@ -1,6 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+
+
+        <!-- is.devis.parametrable.affaire -->
+        <record id="is_devis_parametrable_affaire_tree" model="ir.ui.view">
+            <field name="name">is.devis.parametrable.affaire.tree</field>
+            <field name="model">is.devis.parametrable.affaire</field>
+            <field name="arch" type="xml">
+                <tree >
+                    <field name="name"/>
+                    <field name="partner_id"/>
+                    <field name="revendeur_id"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_devis_parametrable_affaire_form" model="ir.ui.view">
+            <field name="name">is.devis.parametrable.affaire.form</field>
+            <field name="model">is.devis.parametrable.affaire</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" />
+                                <field name="partner_id"/>
+                                <field name="revendeur_id"/>
+                            </group>
+                        </group>
+                        <group string="Variantes des devis">
+                            <field name="variante_ids" nolabel="1">
+                                <tree editable="bottom">
+                                    <field name="affaire_id" invisible="1"/>
+                                    <field 
+                                        name="variante_id"
+                                        domain="[('partner_id','=',parent.partner_id)]"
+                                    />
+                                </tree>
+                            </field>
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        <record id="is_devis_parametrable_affaire_search" model="ir.ui.view">
+            <field name="name">is.devis.parametrable.affaire.search</field>
+            <field name="model">is.devis.parametrable.affaire</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="partner_id"/>
+                    <field name="revendeur_id"/>
+               </search>
+            </field>
+        </record>
+        <record id="is_devis_parametrable_affaire_action" model="ir.actions.act_window">
+            <field name="name">Affaire</field>
+            <field name="res_model">is.devis.parametrable.affaire</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
         <!-- is.devis.parametrable -->
         <record id="is_devis_parametrable_seq" model="ir.sequence">
             <field name="name">Devis paramètrable</field>
@@ -33,6 +98,8 @@
             <field name="model">is.devis.parametrable</field>
             <field name="arch" type="xml">
                 <form>
+
+
                     <header>
                         <button
                             name="creation_section_action"
@@ -69,23 +136,31 @@
                                 <field name="unite"/>
                                 <field name="type_cuve_id"/>
                                 <field name="partner_id"/>
-                            </group>
-                           <group>
+
                                 <field name="date_creation"/>
                                 <field name="date_actualisation" readonly="1"/>
                                 <field name="createur_id"/>
                                 <field name="tps_montage"     invisible="1" widget="float_time"/>
                                 <field name="montant_matiere" invisible="1"/>
                             </group>
-                        </group>
+
+                            <group>
+                                    <field 
+                                        name="image" widget='image' class="oe_center oe_avatar" nolabel="1"
+                                        options='{"preview_image": "image", "size": [600, 600]}'
+                                    />
+                            </group>
+                       </group>
                         <group string="Matières">
                             <field name="matiere_ids" nolabel="1">
                                 <tree editable="bottom">
                                     <field name="devis_id" invisible="1"/>
                                     <field name="section_id"/>
                                     <field name="matiere_id"/>
+                                    <field name="epaisseur"/>
                                     <field name="poids" sum="Total"/>
                                     <field name="prix_achat"/>
+                                    <field name="date_actualisation"/>
                                     <field name="montant" sum="Total"/>
                                 </tree>
                             </field>
@@ -95,12 +170,12 @@
                                 <tree editable="bottom">
                                     <field name="devis_id" invisible="1"/>
                                     <field name="dimension_id"/>
-                                    <field name="description"/>
                                     <field name="valeur"/>
+                                    <field name="description"/>
                                 </tree>
                             </field>
                         </group>
-                        <group string="Sections">
+                        <group string="Sections des équipements">
                             <field name="section_ids" nolabel="1" readonly="1">
                                 <tree>
                                     <button title="Section" name="acceder_section_action" type="object" icon="fa-search-plus"/>
@@ -141,6 +216,11 @@
                             <field name="commentaire"/>
                         </group>
                     </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
                 </form>
             </field>
         </record>
@@ -182,7 +262,8 @@
                         </style>
                         <group string="Paramètres">
                             <group>
-                                <field name="devis_id" readonly="1"/>
+                                <field name="devis_id"   readonly="1"/>
+                                <field name="partner_id" readonly="1"/>
                                 <field name="name"/>
                                 <field name="quantite"/>
                                 <field name="tps_be" widget="float_time"/>
@@ -197,25 +278,46 @@
                             </group>
                         </group>
                         <group>
-                            <group string="Prix de revient lot">
-                                <field name="montant_matiere"/>
-                                <field name="montant_equipement"/>
-                                <field name="tps_montage" widget="float_time"/>
-                                <field name="montant_montage"/>
-                                <field name="montant_montage_productivite"/>
-                                <field name="montant_be"/>
+                            <group string="Prix de revient de l'affaire">
+                                <field name="currency_id" invisible="1"/>
+                                <!-- <field name="tps_montage" widget="float_time"/> -->
+
+                                <label for="montant_matiere"/>
+                                <div class="o_row no-gutters d-flex">
+                                    <field name="montant_matiere_pourcent" widget="progressbar" class="oe_inline"/>
+                                    <field name="montant_matiere" class="oe_inline"/>
+                                </div>
+
+                                <label for="montant_equipement"/>
+                                <div class="o_row no-gutters d-flex">
+                                    <field name="montant_equipement_pourcent" widget="progressbar" class="oe_inline"/>
+                                    <field name="montant_equipement" class="oe_inline"/>
+                                </div>
+
+                                <label for="montant_montage_productivite"/>
+                                <div class="o_row no-gutters d-flex">
+                                    <field name="montant_montage_productivite_pourcent" widget="progressbar" class="oe_inline"/>
+                                    <field name="montant_montage_productivite" class="oe_inline"/>
+                                </div>
+
+                                <label for="montant_be"/>
+                                <div class="o_row no-gutters d-flex">
+                                    <field name="montant_be_pourcent" widget="progressbar" class="oe_inline"/>
+                                    <field name="montant_be" class="oe_inline"/>
+                                </div>
+
                                 <field name="montant_total"/>
                             </group>
-                            <group string="Prix de revient">
+                            <group string="Prix de revient unitaire">
                                 <field name="montant_unitaire"/>
                             </group>
-                            <group string="Prix de vente Lot">
+                            <group string="Prix de vente de l'affaire">
                                 <field name="prix_vente_lot"/>
                                 <field name="prix_vente_revendeur_lot"/>
                                 <field name="montant_marge_lot"/>
                                 <field name="montant_marge_revendeur_lot"/>
                             </group>
-                            <group string="Prix de vente Unitaire">
+                            <group string="Prix de vente unitaire">
                                 <field name="prix_vente"/>
                                 <field name="prix_vente_revendeur"/>
                                 <field name="montant_marge"/>
@@ -434,7 +536,7 @@
                 <tree >
                     <field name="name"/>
                     <field name="prix_achat"/>
-                    <field name="epaisseur"/>
+                    <field name="date_actualisation"/>
                     <field name="type_matiere" />
                     <field name="finition_interieur" />
                     <field name="finition" />
@@ -456,7 +558,7 @@
                             <group>
                                 <field name="name" />
                                 <field name="prix_achat"/>
-                                <field name="epaisseur"/>
+                                <field name="date_actualisation"/>
                                 <field name="type_matiere" />
                                 <field name="finition_interieur" />
                                 <field name="finition" />

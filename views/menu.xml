@@ -22,15 +22,6 @@
 
 
         <!-- Ventes -->
-        <record id="is_devis_parametrable_menu" model="ir.ui.menu" >
-            <field name="name">Devis paramètrable</field>
-            <field name="sequence">60</field>
-            <field name="parent_id" eval="ref('sale.sale_order_menu')"/>
-            <field name="action"    ref="is_devis_parametrable_action"/>
-            <field name="groups_id" eval="[(6,0,[
-                ref('sales_team.group_sale_manager'),
-            ])]"/>
-        </record>
         <record id="is_menu_sale_order_line" model="ir.ui.menu" >
             <field name="name">Lignes de commandes</field>
             <field name="sequence">70</field>
@@ -63,47 +54,88 @@
             action="is_societe_commerciale_action"
             sequence="910"
         />
+
+
+        <!-- is.devis.parametrable -->
+        <record id="is_devis_parametrable_main_menu" model="ir.ui.menu" >
+            <field name="name">Devis paramètrable</field>
+            <field name="sequence">2</field>
+            <field name="parent_id" eval="ref('sale.sale_menu_root')"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('sales_team.group_sale_manager'),
+            ])]"/>
+        </record>
+
+
+        <record id="is_devis_parametrable_affaire_menu" model="ir.ui.menu" >
+            <field name="name">Affaire</field>
+            <field name="sequence">10</field>
+            <field name="parent_id" eval="ref('is_devis_parametrable_main_menu')"/>
+            <field name="action"    ref="is_devis_parametrable_affaire_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('sales_team.group_sale_manager'),
+            ])]"/>
+        </record>
+
+        <record id="is_devis_parametrable_menu" model="ir.ui.menu" >
+            <field name="name">Devis paramètrable</field>
+            <field name="sequence">20</field>
+            <field name="parent_id" eval="ref('is_devis_parametrable_main_menu')"/>
+            <field name="action"    ref="is_devis_parametrable_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('sales_team.group_sale_manager'),
+            ])]"/>
+        </record>
+
+
+        <record id="is_devis_parametrable_configuration_menu" model="ir.ui.menu" >
+            <field name="name">Configuration</field>
+            <field name="sequence">90</field>
+            <field name="parent_id" eval="ref('is_devis_parametrable_main_menu')"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('sales_team.group_sale_manager'),
+            ])]"/>
+        </record>
+
+
         <menuitem 
             name="Type d'équipement"
             id="is_type_equipement_menu"
-            parent="sale.menu_sale_config"
+            parent="is_devis_parametrable_configuration_menu"
             action="is_type_equipement_action"
             sequence="920"
         />
         <menuitem 
             name="Section devis"
             id="is_section_devis_menu"
-            parent="sale.menu_sale_config"
+            parent="is_devis_parametrable_configuration_menu"
             action="is_section_devis_action"
             sequence="930"
         />
         <menuitem 
             name="Type de cuve"
             id="is_type_cuve_menu"
-            parent="sale.menu_sale_config"
+            parent="is_devis_parametrable_configuration_menu"
             action="is_type_cuve_action"
             sequence="940"
         />
         <menuitem 
             name="Matière"
             id="is_matiere_menu"
-            parent="sale.menu_sale_config"
+            parent="is_devis_parametrable_configuration_menu"
             action="is_matiere_action"
             sequence="950"
         />
         <menuitem 
             name="Dimensions"
             id="is_dimension_menu"
-            parent="sale.menu_sale_config"
+            parent="is_devis_parametrable_configuration_menu"
             action="is_dimension_action"
             sequence="960"
         />
 
 
         
-
-
-        <!-- <menuitem id="is_product_pricelist_item_menu" parent="product.menu_product_pricelist_main" action="is_product_pricelist_item_acion" sequence="90" /> -->
 
         <!-- Achats -->
         <menuitem 

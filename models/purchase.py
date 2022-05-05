@@ -11,6 +11,16 @@ class purchase_order_line(models.Model):
     is_sequence   = fields.Integer("Séquence")
     is_date_ar    = fields.Date("Date AR")
     is_masse_tole = fields.Float("Masse tôle", related="product_id.is_masse_tole", readonly=True)
+    is_num_ligne  = fields.Integer("N°", help="Numéro de ligne automatique", compute="_compute_is_num_ligne", readonly=True, store=False)
+
+
+    @api.depends("order_id","order_id.order_line")
+    def _compute_is_num_ligne(self):
+        for obj in self:
+            lig = 1
+            for line in obj.order_id.order_line:
+                line.is_num_ligne = lig
+                lig+=1
 
 
 class is_purchase_order_nomenclature(models.Model):

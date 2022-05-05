@@ -31,11 +31,22 @@ class account_move(models.Model):
             obj.is_alerte_acompte = alerte
 
 
+    @api.depends('invoice_line_ids')
+    def _compute_is_sale_order_compute_id(self):
+        for obj in self:
+            order_id = False
+            for line in obj.invoice_line_ids:
+                for l in line.sale_line_ids:
+                    order_id = l.order_id.id
+            obj.is_sale_order_compute_id = order_id
+
+
     is_acompte               = fields.Float("Acompte")
     is_imputation_partenaire = fields.Char("Imputation partenaire")
     is_contact_id            = fields.Many2one('res.partner', string='Contact')
     is_mode_reglement_id     = fields.Many2one('is.mode.reglement', string='Mode de règlement')
     is_sale_order_id         = fields.Many2one('sale.order', string="Facture d'acompte sur la commande")
+    is_sale_order_compute_id = fields.Many2one('sale.order', string="Commande client", store=False, readonly=True, compute='_compute_is_sale_order_compute_id')
     is_account_invoice_id    = fields.Many2one('account.move', string="Acompte traité sur la facture")
     is_alerte_acompte        = fields.Char("Alerte acompte", store=False, compute='_alerte_acompte')
 

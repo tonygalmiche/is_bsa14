@@ -80,6 +80,9 @@
                          .o_form_view .o_form_sheet_bg > .o_form_sheet{
                             max-width: 1800px;
                         }
+                        .o_form_label{
+                            white-space: nowrap;
+                        }
                     </style>
                 </xpath>
                 <button name="action_cancel" position="before" >
@@ -106,14 +109,17 @@
                 <xpath expr="//sheet" position="attributes">
                     <attribute name="class">oe_form_sheet_width_wider</attribute>
                 </xpath>
+                <xpath expr="//sheet/notebook/page/field[@name='order_line']/tree/field[@name='product_id']" position="before">
+                    <field name="is_num_ligne" optional="hide"/>
+                </xpath>
                 <xpath expr="//sheet/notebook/page/field[@name='order_line']/tree/field[@name='price_unit']" position="after">
-                    <field name="is_date_demandee"/>
-                    <field name="is_date_prevue"/>
-                    <field name="is_derniere_date_prevue" />
+                    <field name="is_date_demandee"         optional="show"/>
+                    <field name="is_date_prevue"           optional="show"/>
+                    <field name="is_derniere_date_prevue"  optional="show"/>
                 </xpath>
                 <xpath expr="//sheet/notebook/page/field[@name='order_line']/tree/field[@name='discount']" position="before">
-                    <field name="is_remise1" on_change="onchange_remise(is_remise1,is_remise2)"/>
-                    <field name="is_remise2" on_change="onchange_remise(is_remise1,is_remise2)"/>
+                    <field name="is_remise1" on_change="onchange_remise(is_remise1,is_remise2)" optional="show"/>
+                    <field name="is_remise2" on_change="onchange_remise(is_remise1,is_remise2)" optional="show"/>
                 </xpath>
                 <field name="currency_id" position="before">
                     <field name="is_apporteur_affaire_id"/>

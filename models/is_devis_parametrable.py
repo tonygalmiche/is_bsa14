@@ -31,10 +31,12 @@ class is_devis_parametrable(models.Model):
             obj.tps_montage      = tps_montage
 
 
-    name               = fields.Char("N°", readonly=True)
-    designation        = fields.Char("Désignation")
-    capacite           = fields.Integer("Capacité")
-    unite              = fields.Selection([
+    name                       = fields.Char("N°", readonly=True)
+    code_devis                 = fields.Char("Code devis")
+    designation                = fields.Char("Désignation")
+    designation_complementaire = fields.Char("Désignation complémentaire")
+    capacite                   = fields.Integer("Capacité")
+    unite                      = fields.Selection([
             ('Litre', 'Litre'),
             ('m3'   , 'm3'),
             ('HL'   , 'HL'),
@@ -279,6 +281,8 @@ class is_devis_parametrable_variante(models.Model):
     montant_marge            = fields.Float("Marge"                  , readonly=True, compute='_compute_montants')
     montant_marge_revendeur  = fields.Float("Marge revendeur"        , readonly=True, compute='_compute_montants')
 
+    commentaire              = fields.Text("Commentaire")
+
 
     @api.depends('quantite','marge_matiere','marge_equipement','marge_montage','tps_be','marge_be','marge_revendeur','gain_productivite')
     def _compute_montants(self):
@@ -436,8 +440,8 @@ class is_matiere(models.Model):
     prix_achat         = fields.Float("Prix d'achat au Kg")
     epaisseur          = fields.Float("Épaisseur")
     type_matiere       = fields.Char("Type")
-    finition_interieur = fields.Char("Finition intérieur")
-    finition           = fields.Char("Finition")
+    finition_interieur = fields.Char("Finition intérieure")
+    finition           = fields.Char("Finition extérieure")
 
 
 class is_dimension(models.Model):

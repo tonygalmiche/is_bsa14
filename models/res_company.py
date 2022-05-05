@@ -5,7 +5,8 @@ from odoo import api, fields, models, _
 class res_company(models.Model):
     _inherit = "res.company"
 
-    is_nom_imprimante = fields.Char('Nom imprimante Etiquettes')
+    is_nom_imprimante = fields.Char('Imprimante Etiquettes')
+    is_imprimante_bl  = fields.Char('Imprimante BL')
     is_site = fields.Selection([
         ("bsa"     , "BSA"),
         ("bressane", "Bressane"),

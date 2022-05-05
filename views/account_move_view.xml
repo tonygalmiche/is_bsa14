@@ -53,6 +53,9 @@
                          .o_form_view .o_form_sheet_bg > .o_form_sheet{
                             max-width: 1800px;
                         }
+                        .o_form_label{
+                            white-space: nowrap;
+                        }
                     </style>
                 </xpath>
                 <field name="payment_reference" position="attributes">
@@ -60,7 +63,8 @@
                 </field>
                  <field name="invoice_date" position="after">
                     <field style="background:orange" name="is_alerte_acompte" readonly="1" attrs="{'invisible':[('is_alerte_acompte','=',False)]}"/>
-                    <field name="is_sale_order_id"/>
+                    <field name="is_sale_order_compute_id" attrs="{'invisible':[('is_sale_order_compute_id','=',False)]}"/>
+                    <field name="is_sale_order_id"         attrs="{'invisible':[('is_sale_order_compute_id','!=',False)]}"/>
                     <field 
                         name="is_account_invoice_id"
                         attrs="{
@@ -68,7 +72,7 @@
                         }" 
                     />
                     <field name="is_mode_reglement_id"/>
-                    <field name="is_acompte"/>
+                    <!-- <field name="is_acompte"/> -->
                 </field>
                 <field name="payment_reference" position="after">
                     <field name="is_contact_id" domain="[('parent_id','=',partner_id)]" />
@@ -86,10 +90,6 @@
             </field>
         </record>
 
-
-
-
-
         <record id="is_view_invoice_tree" model="ir.ui.view">
             <field name="name">is_view_invoice_tree</field>
             <field name="model">account.move</field>
@@ -98,6 +98,7 @@
                 <field name="invoice_date_due" position="before">
                     <field name="invoice_payment_term_id" optional="show"/>
                     <field name="invoice_date_due"        optional="show"/>
+                    <field name="is_sale_order_compute_id"        optional="hide"/>
                     <field name="is_sale_order_id"        optional="hide"/>
                 </field>
             </field>

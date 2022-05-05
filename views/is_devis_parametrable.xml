@@ -14,12 +14,14 @@
             <field name="arch" type="xml">
                 <tree >
                     <field name="name"/>
+                    <field name="code_devis"/>
                     <field name="designation"/>
-                    <field name="capacite"/>
-                    <field name="unite"/>
-                    <field name="type_cuve_id"/>
-                    <field name="createur_id"      optional="show" />
-                    <field name="date_creation" />
+                    <field name="designation_complementaire" optional="show"/>
+                    <field name="capacite"         optional="show"/>
+                    <field name="unite"            optional="show"/>
+                    <field name="type_cuve_id"     optional="show"/>
+                    <field name="createur_id"      optional="show"/>
+                    <field name="date_creation"    optional="show"/>
                     <field name="partner_id"/>
                     <field name="commentaire"      optional="hide"/>
                     <field name="total_equipement" optional="show" sum="Total"/>
@@ -53,11 +55,16 @@
                             .o_form_view .o_form_sheet_bg > .o_form_sheet{
                                 max-width: 1800px;
                             }
+                            .o_form_label{
+                                white-space: nowrap;
+                            }
                         </style>
                         <group>
                             <group>
                                 <field name="name"/>
+                                <field name="code_devis"/>
                                 <field name="designation"/>
+                                <field name="designation_complementaire"/>
                                 <field name="capacite"/>
                                 <field name="unite"/>
                                 <field name="type_cuve_id"/>
@@ -143,6 +150,7 @@
             <field name="arch" type="xml">
                 <search>
                     <field name="name"/>
+                    <field name="code_devis"/>
                     <field name="designation"/>
                     <field name="partner_id"/>
                     <field name="createur_id"/>
@@ -167,6 +175,9 @@
                         <style>
                             .o_form_view .o_form_sheet_bg > .o_form_sheet{
                                 max-width: 1800px;
+                            }
+                            .o_form_label{
+                                white-space: nowrap;
                             }
                         </style>
                         <group string="Paramètres">
@@ -211,6 +222,9 @@
                                 <field name="montant_marge_revendeur"/>
                             </group>
                          </group>
+                        <group>
+                            <field name="commentaire"/>
+                        </group>
                     </sheet>
                 </form>
             </field>
@@ -433,6 +447,11 @@
             <field name="arch" type="xml">
                 <form>
                     <sheet>
+                        <style>
+                            .o_form_label{
+                                white-space: nowrap;
+                            }
+                        </style>
                         <group>
                             <group>
                                 <field name="name" />

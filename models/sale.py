@@ -212,6 +212,33 @@ class sale_order(models.Model):
                     line.livraison = line.move_id.date
                 #self.env['stock.picking'].browse(picking.id).with_context(skip_backorder=True).button_validate()
                 #picking.button_validate()
+
+
+                # Impression automatique du BL en PDF *****************************
+                user  = self.env['res.users'].browse(self._uid)
+                imprimante = user.company_id.is_imprimante_bl
+                if imprimante:
+
+                    #** Enregistrement du PDF du BL *******************************
+                    pdf = request.env.ref('stock.report_deliveryslip').sudo()._render_qweb_pdf([picking.id])[0]
+                    path="/tmp/%s.pdf"%(picking.name)
+                    f = open(path,'wb')
+                    f.write(pdf)
+                    f.close()
+                    #**************************************************************
+
+                    cmd="lp -o sides=two-sided-long-edge -d "+imprimante+" "+path
+                    print(cmd)
+                    os.system(cmd)
+
+                    #1139  2022-05-04 : 15:41:01 : man lp
+                    #1140  2022-05-04 : 15:42:02 : lp -P 1 -d C3720i BL.pdf 
+    
+
+
+                #******************************************************************
+
+
         return {"err":err,"data":""}
 
 

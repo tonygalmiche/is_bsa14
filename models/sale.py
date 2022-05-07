@@ -218,6 +218,8 @@ class sale_order(models.Model):
                 user  = self.env['res.users'].browse(self._uid)
                 imprimante = user.company_id.is_imprimante_bl
                 if imprimante:
+                    print(picking, picking.state)
+
                     #** Enregistrement du PDF du BL *******************************
                     pdf = request.env.ref('stock.action_report_delivery').sudo()._render_qweb_pdf([picking.id])[0]
                     path="/tmp/%s.pdf"%(picking.name)
@@ -225,6 +227,7 @@ class sale_order(models.Model):
                     f.write(pdf)
                     f.close()
                     #**************************************************************
+
 
                     # Impression en recto-verso
                     cmd="lp -o sides=two-sided-long-edge -d "+imprimante+" "+path

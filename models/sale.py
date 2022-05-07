@@ -220,7 +220,7 @@ class sale_order(models.Model):
                 if imprimante:
 
                     #** Enregistrement du PDF du BL *******************************
-                    pdf = request.env.ref('stock.report_deliveryslip').sudo()._render_qweb_pdf([picking.id])[0]
+                    pdf = request.env.ref('stock.action_report_delivery').sudo()._render_qweb_pdf([picking.id])[0]
                     path="/tmp/%s.pdf"%(picking.name)
                     f = open(path,'wb')
                     f.write(pdf)

@@ -218,7 +218,7 @@ class sale_order(models.Model):
                 user  = self.env['res.users'].browse(self._uid)
                 imprimante = user.company_id.is_imprimante_bl
                 if imprimante:
-                    print(picking, picking.state)
+                    print(picking, picking.state, picking.etiquette_livraison_ids)
 
                     #** Enregistrement du PDF du BL *******************************
                     pdf = request.env.ref('stock.action_report_delivery').sudo()._render_qweb_pdf([picking.id])[0]

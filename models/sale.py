@@ -261,7 +261,7 @@ class sale_order(models.Model):
                 f.write(pdf)
                 f.close()
                 #**************************************************************
-
+        return {"err":"","data":""}
 
 
 

@@ -256,7 +256,7 @@ class sale_order(models.Model):
 
                 #** Enregistrement du PDF du BL *******************************
                 pdf = request.env.ref('stock.action_report_delivery').sudo()._render_qweb_pdf([picking_id])[0]
-                path="/tmp/.pdf"%(picking_id)
+                path="/tmp/%s.pdf"%(picking_id)
                 f = open(path,'wb')
                 f.write(pdf)
                 f.close()

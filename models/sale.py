@@ -218,7 +218,6 @@ class sale_order(models.Model):
                 user  = self.env['res.users'].browse(self._uid)
                 imprimante = user.company_id.is_imprimante_bl
                 if imprimante:
-
                     #** Enregistrement du PDF du BL *******************************
                     pdf = request.env.ref('stock.action_report_delivery').sudo()._render_qweb_pdf([picking.id])[0]
                     path="/tmp/%s.pdf"%(picking.name)
@@ -227,15 +226,15 @@ class sale_order(models.Model):
                     f.close()
                     #**************************************************************
 
+                    # Impression en recto-verso
                     cmd="lp -o sides=two-sided-long-edge -d "+imprimante+" "+path
                     print(cmd)
                     os.system(cmd)
 
-                    #1139  2022-05-04 : 15:41:01 : man lp
-                    #1140  2022-05-04 : 15:42:02 : lp -P 1 -d C3720i BL.pdf 
-    
-
-
+                    # Impression premiere page uniquement
+                    cmd="lp -P 1 -d "+imprimante+" "+path
+                    print(cmd)
+                    os.system(cmd)
                 #******************************************************************
 
 

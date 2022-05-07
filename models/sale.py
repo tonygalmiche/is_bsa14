@@ -244,6 +244,28 @@ class sale_order(models.Model):
         return {"err":err,"data":""}
 
 
+
+    def save_bl_pdf(self, picking_id):
+        for obj in self:
+
+            # Impression automatique du BL en PDF *****************************
+            user  = self.env['res.users'].browse(self._uid)
+            imprimante = user.company_id.is_imprimante_bl
+            if imprimante:
+                print(obj, imprimante, picking_id)
+
+                #** Enregistrement du PDF du BL *******************************
+                pdf = request.env.ref('stock.action_report_delivery').sudo()._render_qweb_pdf([picking_id])[0]
+                path="/tmp/.pdf"%(picking_id)
+                f = open(path,'wb')
+                f.write(pdf)
+                f.close()
+                #**************************************************************
+
+
+
+
+
 class sale_order_line(models.Model):
     _name = "sale.order.line"
     _inherit = "sale.order.line"

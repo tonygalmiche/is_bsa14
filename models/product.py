@@ -283,3 +283,14 @@ class product_template(models.Model):
 
 
 
+class product_product(models.Model):
+    _inherit = 'product.product'
+
+
+    is_production_count          = fields.Integer('# Productions', compute='_compute_is_production_count', compute_sudo=False)
+
+
+    def _compute_is_production_count(self):
+        for product in self:
+            product.is_production_count = self.env['mrp.production'].search_count([('product_id', '=', product.id)])
+

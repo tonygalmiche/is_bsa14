@@ -266,5 +266,10 @@
             <field name="view_id" ref="bsa_mrp_production_tree_view3" />
             <field name="act_window_id" ref="bsa_mrp_production_action" />
         </record>
+
+
+
+
+
     </data>
 </odoo>

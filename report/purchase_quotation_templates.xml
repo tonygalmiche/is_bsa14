@@ -25,7 +25,7 @@
                                     [<span t-field="order_line.is_num_ligne"/>] <span t-field="order_line.name"/>
                                 </td>
                                 <td class="text-center">
-                                    <span t-field="order_line.date_planned"/>
+                                    <span t-field="order_line.date_planned" t-options="{'widget': 'date'}"/>
                                 </td>
                                 <td class="text-right">
                                     <span t-field="order_line.product_qty"/>

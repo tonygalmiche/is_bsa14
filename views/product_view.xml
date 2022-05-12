@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-
-
-        <!-- Vue liste par défaut -->
-
         <!-- is.position.dans.produit --> 
         <record model="ir.ui.view" id="is_position_dans_produit_form_view">
             <field name="name">is_position_dans_produit_form_view</field>
@@ -46,7 +42,6 @@
         </record>
 
         <!-- Recalcul du prix de revient -->
-
         <record id="is_recalcul_prix_revient_action_server" model="ir.actions.server">
             <field name="name">Recalcul du prix de revient</field>
             <field name="model_id" ref="product.model_product_template"/>
@@ -57,30 +52,64 @@
 
 
 
-        <!-- <record id="is_recalcul_prix_revient_action_server" model="ir.actions.server">
-             <field name="name">Recalcul du prix de revient</field>
-            <field name="model_id" ref="model_product_template"/>
-            <field name="code">action = self.recalcul_prix_revient_action(cr, uid, context.get('active_ids', []), context=context)</field>
-        </record>
-        <record id="is_recalcul_prix_revient_ir_value" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'product.template'" name="model"/>
-            <field name="name">Recalcul du prix de revient</field>
-            <field eval="'ir.actions.server,%d'%is_recalcul_prix_revient_action_server" name="value"/>
-        </record>
-        <record forcecreate="True" id="recalcul_prix_revient_scheduler_action" model="ir.cron">
-            <field name="name">Calcul prix de revient</field>
-            <field name="active" eval="True" />
-            <field name="user_id" ref="base.user_root"/>
-            <field name="interval_number">1</field>
-            <field name="interval_type">days</field>
-            <field name="numbercall">-1</field>
-            <field eval="False" name="doall"/>
-            <field eval="'product.template'" name="model"/>
-            <field eval="'recalcul_prix_revient_scheduler_action'" name="function"/>
-            <field eval="'(True,)'" name="args"/>
-        </record> -->
+<!-- 
 
+    <record id="product_template_only_form_view" model="ir.ui.view">
+        <field name="name">product.template.product.form</field>
+        <field name="model">product.template</field>
+        <field name="mode">primary</field>
+        <field name="priority" eval="8" />
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="attributes">
+                <attribute name="name">Product Template</attribute>
+            </xpath>
+            <field name="categ_id" position="after">
+                <field name="default_code" attrs="{'invisible': [('product_variant_count', '>', 1)]}"/>
+                <field name="barcode" attrs="{'invisible': [('product_variant_count', '>', 1)]}"/>
+            </field>
+
+            <div name="button_box" position="inside">
+                <button name="%(product.product_variant_action)d" type="action"
+                    icon="fa-sitemap" class="oe_stat_button"
+                    attrs="{'invisible': [('product_variant_count', '&lt;=', 1)]}"
+                    groups="product.group_product_variant">
+                    <field string="Variants" name="product_variant_count" widget="statinfo" />
+                </button>
+            </div>
+
+ -->
+
+
+        <record id="is_product_template_only_form_view" model="ir.ui.view">
+            <field name="name">is_product_template_only_form_view</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_only_form_view" />
+            <field name="arch" type="xml">
+
+                <!-- <xpath expr="//button" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath> -->
+
+                <!-- <xpath expr="//button" position="replace"/> -->
+
+                <button name="%(product.product_variant_action)d" position="attributes">
+                    <attribute name="attrs">{}</attribute>
+                </button>
+
+
+            <!-- <div name="button_box" position="inside">
+                <button name="%(product.product_variant_action)d" type="action"
+                    icon="fa-sitemap" class="oe_stat_button"
+                    attrs="{'invisible': [('product_variant_count', '&lt;=', 1)]}"
+                    groups="product.group_product_variant">
+                    <field string="Variants" name="product_variant_count" widget="statinfo" />
+                </button>
+            </div>
+ -->
+
+            </field>
+        </record>
 
         <!-- product.template -->
         <record id="is_product_inherit_view" model="ir.ui.view">
@@ -115,41 +144,20 @@
                          <field name="is_gestion_lot"/>
                      </group>
                 </xpath>
-
-
-
-
             </field>
         </record>
-
-
         <record id="is_view_product_supplier_inherit" model="ir.ui.view">
             <field name="name">is_view_product_supplier_inherit</field>
             <field name="model">product.template</field>
             <field name="inherit_id" ref="purchase.view_product_supplier_inherit" />
             <field name="arch" type="xml">
-
-
-    <!-- <page name="purchase" position="inside">
-                    <group string="Purchase Description">
-                       <field name=" -->
-
                 <xpath expr="//page[@name='purchase']/group[1]" position="before">
-
-
                     <group string="Description devis" name="description_devis">
                         <field name="is_description_devis" nolabel="1" placeholder="Description pour les devis paramètrables"/>
                     </group>
                 </xpath>
-
-
             </field>
-
         </record>
-
-
-
-
         <record model="ir.ui.view" id="is_product_template_form_view_procurement_button">
             <field name="name">is_product_template_form_view_procurement_button</field>
             <field name="model">product.template</field>
@@ -230,13 +238,22 @@
 
 
         <!-- product.product -->
+        <record id="is_product_normal_form_view" model="ir.ui.view">
+            <field name="name">is_product_normal_form_view</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_normal_form_view" />
+            <field name="arch" type="xml">
+                <field name="type" position="before">
+                    <field name="product_tmpl_id"/>
+                </field>                
+            </field>
+        </record>
         <record id="is_product_product_tree_view" model="ir.ui.view">
             <field name="name">is_product_product_tree_view</field>
             <field name="model">product.product</field>
             <field name="arch" type="xml">
                 <tree>
                     <field name="name"/>
-                    <!-- <field name="attribute_value_ids" widget="many2many_tags"/> -->
                     <field name="default_code"/>
                     <field name="uom_id"/>
                     <field name="list_price"/>

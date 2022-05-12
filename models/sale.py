@@ -215,13 +215,13 @@ class sale_order(models.Model):
 
 
                 # Impression automatique du BL en PDF *****************************
-                user  = self.env['res.users'].browse(self._uid)
+                user    = self.env['res.users'].browse(self._uid)
                 imprimante = user.company_id.is_imprimante_bl
                 if imprimante:
                     print(picking, picking.state, picking.etiquette_livraison_ids)
 
                     #** Enregistrement du PDF du BL *******************************
-                    pdf = request.env.ref('stock.action_report_delivery').sudo()._render_qweb_pdf([picking.id])[0]
+                    pdf = request.env.ref('stock.action_report_delivery').sudo().with_context(tz=user.tz)._render_qweb_pdf([picking.id])[0]
                     path="/tmp/%s.pdf"%(picking.name)
                     f = open(path,'wb')
                     f.write(pdf)
@@ -250,12 +250,17 @@ class sale_order(models.Model):
 
             # Impression automatique du BL en PDF *****************************
             user  = self.env['res.users'].browse(self._uid)
+
+            user_tz = user.tz 
+            print("## TEST ##",user, user_tz)
+
+
             imprimante = user.company_id.is_imprimante_bl
             if imprimante:
                 print(obj, imprimante, picking_id)
 
                 #** Enregistrement du PDF du BL *******************************
-                pdf = request.env.ref('stock.action_report_delivery').sudo()._render_qweb_pdf([picking_id])[0]
+                pdf = request.env.ref('stock.action_report_delivery').sudo().with_context(tz=user_tz)._render_qweb_pdf([picking_id])[0]
                 path="/tmp/%s.pdf"%(picking_id)
                 f = open(path,'wb')
                 f.write(pdf)

@@ -124,7 +124,8 @@ class sale_order(models.Model):
             # ******************************************************************
 
             #** Ajout de la piece jointe marged ********************************
-            name="%s.pdf"%(obj.name)
+            #name="%s.pdf"%(obj.name)
+            name="BSA AR Commande %s.pdf"%(obj.name)
             model=self._name
             attachments = attachment_obj.search([('res_model','=',model),('res_id','=',obj.id),('name','=',name)])
             vals={
@@ -149,7 +150,8 @@ class sale_order(models.Model):
             #** Ajout de la piece jointe marged au modèle de mail **************
             template_id = self._find_mail_template()
             template = self.env['mail.template'].browse(template_id)
-            template.attachment_ids= [(6, 0, [attachment_id])]
+            #template.attachment_ids= [(6, 0, [attachment_id])]
+            print("attachment_id =",attachment_id, name)
             # ******************************************************************
 
 
@@ -163,12 +165,17 @@ class sale_order(models.Model):
                 'default_use_template': bool(template_id),
                 'default_template_id': template_id,
                 'default_composition_mode': 'comment',
+                'default_attachment_ids': [(6, 0, [attachment_id])],
                 'mark_so_as_sent': True,
                 'custom_layout': "mail.mail_notification_paynow",
                 'proforma': self.env.context.get('proforma', False),
                 'force_email': True,
                 'model_description': self.with_context(lang=lang).type_name,
             }
+
+
+            print(ctx)
+
             return {
                 'type': 'ir.actions.act_window',
                 'view_mode': 'form',

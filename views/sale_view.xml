@@ -85,6 +85,18 @@
                         }
                     </style>
                 </xpath>
+                <xpath expr="//header/button[@name='action_quotation_send'][1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//header/button[@name='action_quotation_send'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//header/button[@name='action_quotation_send'][3]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//header/button[@name='action_quotation_send'][4]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
                 <button name="action_cancel" position="before" >
                    <button 
                         name="mail_avec_cgv_action" 

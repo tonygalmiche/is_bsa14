@@ -2,6 +2,12 @@
 from pickle import OBJ
 from odoo import models,fields,api
 import datetime
+from odoo.http import request
+import base64
+import os
+from glob import glob
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class is_devis_parametrable_affaire(models.Model):
@@ -14,6 +20,94 @@ class is_devis_parametrable_affaire(models.Model):
     partner_id   = fields.Many2one('res.partner', 'Client', required=True)
     revendeur_id = fields.Many2one('res.partner', 'Revendeur')
     variante_ids = fields.One2many('is.devis.parametrable.affaire.variante', 'affaire_id', 'Variantes', copy=True)
+    entete_ids   = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_entete_rel', 'affaire_id', 'attachment_id', 'Entête')
+    pied_ids     = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_pied_rel'  , 'affaire_id', 'attachment_id', 'Pied')
+    devis_ids    = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_devis_rel' , 'affaire_id', 'attachment_id', 'Devis')
+
+    def generer_pdf_action(self):
+        for obj in self:
+
+            ct = 1
+            paths = []
+            attachment_obj = self.env['ir.attachment']
+
+            # #** delete files ************************************************
+            path="/tmp/affaire_%s_*.pdf"%(obj.id)
+            for file in glob(path):
+                os.remove(file)
+
+            #** Entête ********************************************************
+            for attachment in obj.entete_ids:
+                pdf=base64.b64decode(attachment.datas)
+                path="/tmp/affaire_%s_%02d_entete.pdf"%(obj.id,ct)
+                f = open(path,'wb')
+                f.write(pdf)
+                f.close()
+                paths.append(path)
+                ct+=1
+
+            #** Variantes *****************************************************
+            for line in obj.variante_ids:
+                pdf = request.env.ref('is_bsa14.action_report_variante_devis_parametrable').sudo()._render_qweb_pdf([line.variante_id.id])[0]
+                path="/tmp/affaire_%s_%02d_variante.pdf"%(obj.id,ct)
+                paths.append(path)
+                f = open(path,'wb')
+                f.write(pdf)
+                f.close()
+                ct+=1
+
+            #** Pied ********************************************************
+            for attachment in obj.pied_ids:
+                pdf=base64.b64decode(attachment.datas)
+                path="/tmp/affaire_%s_%02d_pied.pdf"%(obj.id,ct)
+                f = open(path,'wb')
+                f.write(pdf)
+                f.close()
+                paths.append(path)
+                ct+=1
+
+
+            # ** Merge des PDF *************************************************
+            path_merged="/tmp/affaire_%s.pdf"%(obj.id)
+            cmd="export _JAVA_OPTIONS='-Xms16m -Xmx64m' && pdftk "+" ".join(paths)+" cat output "+path_merged+" 2>&1"
+            _logger.info(cmd)
+            stream = os.popen(cmd)
+            res = stream.read()
+            _logger.info("res pdftk = %s",res)
+            if not os.path.exists(path_merged):
+                raise Warning("PDF non généré\ncmd=%s"%(cmd))
+            pdfs = open(path_merged,'rb').read()
+            pdfs = base64.b64encode(pdfs)
+            # ******************************************************************
+
+
+            #** Ajout de la piece jointe marged ********************************
+            name="Devis-%s.pdf"%(obj.id)
+            model=self._name
+            attachments = attachment_obj.search([('res_model','=',model),('res_id','=',obj.id),('name','=',name)])
+            vals={
+                'name'       : name,
+                'type'       : 'binary', 
+                'res_id'     : obj.id,
+                'res_model'  : model,
+                'datas'      : pdfs,
+                'mimetype'   : 'application/x-pdf',
+            }
+            attachment_id=False
+            if attachments:
+                for attachment in attachments:
+                    attachment.write(vals)
+                    attachment_id=attachment.id
+            else:
+                attachment = attachment_obj.create(vals)
+                attachment_id=attachment.id
+            obj.devis_ids = [(6, 0, [attachment_id])]
+
+
+
+
+
+
 
 
 class is_devis_parametrable_affaire_variante(models.Model):
@@ -24,6 +118,17 @@ class is_devis_parametrable_affaire_variante(models.Model):
     affaire_id  = fields.Many2one('is.devis.parametrable.affaire', 'Affaire', required=True, ondelete='cascade')
     variante_id = fields.Many2one('is.devis.parametrable.variante', 'Variante')
 
+
+    def acceder_variante_action(self):
+        for obj in self:
+            res={
+                'name': 'Variante',
+                'view_mode': 'form',
+                'res_model': 'is.devis.parametrable.variante',
+                'res_id': obj.variante_id.id,
+                'type': 'ir.actions.act_window',
+            }
+            return res
 
 
 class is_devis_parametrable(models.Model):
@@ -260,10 +365,19 @@ class is_devis_parametrable_section_product(models.Model):
             obj.tps_montage = tps
 
 
+    @api.depends('description','quantite')
+    def _compute_description_report(self):
+        for obj in self:
+            description = obj.description or obj.product_id.name
+            description = str(int(obj.quantite))+" x "+description
+            obj.description_report = description
+
+
     section_id         = fields.Many2one('is.devis.parametrable.section', 'Section', required=True, ondelete='cascade')
     type_equipement_id = fields.Many2one('is.type.equipement', "Type d'équipement")
     product_id         = fields.Many2one('product.product', "Article")
     description        = fields.Text("Description")
+    description_report = fields.Text("Description pour le rapport PDF", compute='_compute_description_report',)
     uom_po_id          = fields.Many2one('uom.uom', "Unité", help="Unité de mesure d'achat", related="product_id.uom_po_id", readonly=True)
     quantite           = fields.Float("Quantité", default=1)
     prix               = fields.Float("Prix", help="Prix d'achat")
@@ -314,6 +428,7 @@ class is_devis_parametrable_variante(models.Model):
     montant_marge_revendeur_lot = fields.Monetary("Marge revendeur de l'affaire"        , readonly=True, compute='_compute_montants', currency_field='currency_id')
 
     prix_vente               = fields.Monetary("Prix de vente"          , readonly=True, compute='_compute_montants', currency_field='currency_id')
+    prix_vente_int           = fields.Integer("Prix de vente (arrondi)" , readonly=True, compute='_compute_montants')
     prix_vente_revendeur     = fields.Monetary("Prix de vente revendeur", readonly=True, compute='_compute_montants', currency_field='currency_id')
     montant_marge            = fields.Monetary("Marge"                  , readonly=True, compute='_compute_montants', currency_field='currency_id')
     montant_marge_revendeur  = fields.Monetary("Marge revendeur"        , readonly=True, compute='_compute_montants', currency_field='currency_id')
@@ -366,6 +481,7 @@ class is_devis_parametrable_variante(models.Model):
             obj.montant_marge_revendeur_lot = prix_vente_revendeur - prix_vente
 
             obj.prix_vente              = prix_vente/quantite
+            obj.prix_vente_int          = round(obj.prix_vente)
             obj.prix_vente_revendeur    = prix_vente_revendeur/quantite
             obj.montant_marge           = (prix_vente - montant_total)/quantite
             obj.montant_marge_revendeur = (prix_vente_revendeur - prix_vente)/quantite
@@ -428,76 +544,4 @@ class is_dimension(models.Model):
     _order='name'
 
     name = fields.Char("Dimension", required=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-    # def creer_devis_action(self):
-    #     for obj in self:
-    #         print(obj)
-
-    #         if obj.order_id:
-    #             order = obj.order_id
-    #             order.order_line.unlink()
-    #         else:
-    #             vals={
-    #                 "partner_id": obj.devis_id.partner_id.id,
-    #             }
-    #             order = self.env['sale.order'].create(vals)
-    #             obj.order_id = order.id
-
-    #         lig=1
-    #         vals={
-    #             "order_id"    : order.id,
-    #             "sequence"    : lig,
-    #             "name"        : "Matière",
-    #             "display_type": "line_section",
-    #             "product_uom_qty" : 0,
-    #         }
-    #         line = self.env['sale.order.line'].create(vals)
-
-    #         lig+=1
-    #         vals={
-    #             "order_id"   : order.id,
-    #             "sequence"   : lig,
-    #             "product_id" : obj.devis_id.matiere_id.id,
-    #             "product_uom_qty": obj.devis_id.poids_matiere,
-    #             "price_unit" : obj.devis_id.prix_matiere,
-    #         }
-    #         line = self.env['sale.order.line'].create(vals)
-
-    #         for section in obj.devis_id.section_ids:
-    #             lig+=1
-    #             vals={
-    #                 "order_id"    : order.id,
-    #                 "sequence"    : lig,
-    #                 "name"        : section.section_id.name,
-    #                 "display_type": "line_section",
-    #                 "product_uom_qty" : 0,
-    #             }
-    #             line = self.env['sale.order.line'].create(vals)
-
-
-    #             for line in section.product_ids:
-    #                 lig+=1
-    #                 vals={
-    #                     "order_id"   : order.id,
-    #                     "sequence"   : lig,
-    #                     "product_id" : line.product_id.id,
-    #                     "product_uom_qty": line.quantite,
-    #                     "price_unit" : line.prix,
-    #                 }
-    #                 if line.description:
-    #                     vals["name"] = line.description
-    #                 line = self.env['sale.order.line'].create(vals)
-    #                 print(line)
 

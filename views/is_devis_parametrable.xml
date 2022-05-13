@@ -20,6 +20,12 @@
             <field name="model">is.devis.parametrable.affaire</field>
             <field name="arch" type="xml">
                 <form>
+                    <header>
+                        <button 
+                            name="generer_pdf_action" 
+                            string="Générer le PDF complet" type="object" 
+                        />
+                    </header>
                     <sheet>
                         <group>
                             <group>
@@ -31,6 +37,7 @@
                         <group string="Variantes des devis">
                             <field name="variante_ids" nolabel="1">
                                 <tree editable="bottom">
+                                    <button title="Variante" name="acceder_variante_action" type="object" icon="fa-search-plus"/>
                                     <field name="affaire_id" invisible="1"/>
                                     <field 
                                         name="variante_id"
@@ -38,6 +45,13 @@
                                     />
                                 </tree>
                             </field>
+                        </group>
+                        <group string="Entête et pied à ajouter">
+                            <field name="entete_ids" widget="many2many_binary"/>
+                            <field name="pied_ids"   widget="many2many_binary"/>
+                        </group>
+                        <group string="Devis généré">
+                            <field name="devis_ids" widget="many2many_binary" readonly="1"/>
                         </group>
                     </sheet>
                     <div class="oe_chatter">

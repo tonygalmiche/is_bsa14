@@ -8,6 +8,8 @@ import codecs
 import unicodedata
 import os
 import time
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class is_position_dans_produit(models.Model):
@@ -270,16 +272,26 @@ class product_template(models.Model):
                         obj.standard_price=row[0]
 
 
-    def recalcul_all_prix_revient(self):
+    # def recalcul_all_prix_revient(self):
+    #     products=self.env['product.template'].search([])
+    #     for product in products:
+    #         product.recalcul_prix_revient_action()
+
+
+    #def recalcul_prix_revient_scheduler_action(self, cr, uid, use_new_cursor=False, company_id = False, context=None):
+    #    self.recalcul_all_prix_revient(cr, uid, context)
+
+
+    @api.model
+    def recalcul_prix_revient_ir_cron(self):
         products=self.env['product.template'].search([])
+        nb = len(products)
+        ct=1
         for product in products:
+            _logger.info("%s/%s recalcul_prix_revient_ir_cron : %s"%(ct,nb,product.name))
             product.recalcul_prix_revient_action()
-
-
-    def recalcul_prix_revient_scheduler_action(self, cr, uid, use_new_cursor=False, company_id = False, context=None):
-        self.recalcul_all_prix_revient(cr, uid, context)
-
-
+            ct+=1
+        return True
 
 
 

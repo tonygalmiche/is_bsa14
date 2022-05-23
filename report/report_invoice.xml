@@ -2,6 +2,11 @@
 <odoo>
     <data>
         <template id="is_report_invoice_document" name="is_report_invoice_document" inherit_id="account.report_invoice_document">
+            <xpath expr="//t[2]/address" position="after">
+                <div t-if="o.partner_id.siret" class="mt16">
+                    SIRET: <span t-field="o.partner_id.siret"/>
+                </div>
+            </xpath>
             <xpath expr="//div[hasclass('page')]" position="replace">
                 <div class="page">
                     <h2>

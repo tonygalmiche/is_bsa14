@@ -165,6 +165,16 @@
                 </field>
             </field>
         </record>
+        <record id="is_view_move_tree" model="ir.ui.view">
+            <field name="name">is_view_move_tree_receipt_picking</field>
+            <field name="model">stock.move</field>
+            <field name="inherit_id" ref="stock.view_move_tree"/>
+            <field name="arch" type="xml">
+                <field name="reference" position="after">
+                    <field name="origin"/>
+                </field>
+            </field>
+        </record>
 
 
         <!-- stock.move.line -->

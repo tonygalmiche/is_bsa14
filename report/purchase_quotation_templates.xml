@@ -12,6 +12,7 @@
             <table class="table table-sm o_main_table">
                 <thead>
                     <tr>
+                        <th name="th_is_num_ligne" class="text-center"><strong>N°</strong></th>
                         <th name="th_description"><strong>Description</strong></th>
                         <th name="th_expected_date" class="text-center"><strong>Date prévue</strong></th>
                         <th name="th_quantity" class="text-right"><strong>Quantité</strong></th>
@@ -21,8 +22,11 @@
                     <t t-foreach="o.order_line" t-as="order_line">
                         <tr style="border-bottom: 1px solid black;" t-att-class="'bg-200 font-weight-bold o_line_section' if order_line.display_type == 'line_section' else 'font-italic o_line_note' if order_line.display_type == 'line_note' else ''">
                             <t t-if="not order_line.display_type">
+                                <td id="is_num_ligne" class="text-center">
+                                    <span t-field="order_line.is_num_ligne"/>
+                                </td>
                                 <td id="product">
-                                    [<span t-field="order_line.is_num_ligne"/>] <span t-field="order_line.name"/>
+                                    <span t-field="order_line.name"/>
                                 </td>
                                 <td class="text-center">
                                     <span t-field="order_line.date_planned" t-options="{'widget': 'date'}"/>

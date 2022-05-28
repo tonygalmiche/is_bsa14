@@ -306,3 +306,14 @@ class product_product(models.Model):
         for product in self:
             product.is_production_count = self.env['mrp.production'].search_count([('product_id', '=', product.id)])
 
+
+
+
+class ProductTemplateAttributeValue(models.Model):
+    _inherit = "product.template.attribute.value"
+
+    def _get_combination_name(self):
+        """Permet de retourner les attribtus des variantes même si une seule variante"""
+        res = ", ".join([ptav.name for ptav in self._without_no_variant_attributes()])
+        return res
+

@@ -19,8 +19,12 @@ class purchase_order_line(models.Model):
         for obj in self:
             lig = 1
             for line in obj.order_id.order_line:
-                line.is_num_ligne = lig
-                lig+=1
+                if not line.display_type:
+                    num = lig
+                    lig+=1
+                else:
+                    num=False
+                line.is_num_ligne = num
 
 
 class is_purchase_order_nomenclature(models.Model):

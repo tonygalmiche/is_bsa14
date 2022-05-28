@@ -98,3 +98,6 @@ access_is_sg_revue,access_is_sg_revue,model_is_sg_revue,is_bsa14.is_qualite_grou
 access_is_sg_audit,access_is_sg_audit,model_is_sg_audit,is_bsa14.is_qualite_group,1,1,1,1
 access_is_sg_systeme,access_is_sg_systeme,model_is_sg_systeme,is_bsa14.is_qualite_group,1,1,1,1
 access_is_sg_manuel,access_is_sg_manuel,model_is_sg_manuel,is_bsa14.is_qualite_group,1,1,1,1
+
+access_is_contrat_fournisseur,access_is_contrat_fournisseur,model_is_contrat_fournisseur,purchase.group_purchase_manager,1,1,1,1
+access_is_contrat_fournisseur_ligne,access_is_contrat_fournisseur_ligne,model_is_contrat_fournisseur_ligne,purchase.group_purchase_manager,1,1,1,1

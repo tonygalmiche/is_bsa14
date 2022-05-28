@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- is.contrat.fournisseur.ligne -->
+        <record id="is_contrat_fournisseur_ligne_tree" model="ir.ui.view">
+            <field name="name">is.contrat.fournisseur.ligne.tree</field>
+            <field name="model">is.contrat.fournisseur.ligne</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="contrat_id"/>
+                    <field name="product_id"/>
+                    <field name="qt_contrat"  sum="Total"/>
+                    <field name="qt_commande" sum="Total"/>
+                    <field name="qt_reste"    sum="Total"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_contrat_fournisseur_ligne_form" model="ir.ui.view">
+            <field name="name">is.contrat.fournisseur.ligne.form</field>
+            <field name="model">is.contrat.fournisseur.ligne</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="contrat_id"/>
+                            <field name="product_id"/>
+                            <field name="qt_contrat"/>
+                            <field name="qt_commande"/>
+                            <field name="qt_reste"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_contrat_fournisseur_ligne_search" model="ir.ui.view">
+            <field name="name">is.contrat.fournisseur.ligne.search</field>
+            <field name="model">is.contrat.fournisseur.ligne</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="contrat_id"/>
+                    <field name="product_id"/>
+               </search>
+            </field>
+        </record>
+       <record  id="is_contrat_fournisseur_ligne_action" model="ir.actions.act_window">
+            <field name="name">Lignes contrat</field>
+            <field name="res_model">is.contrat.fournisseur.ligne</field>
+            <field name="limit">1000</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('contrat_id','=',active_id)]</field>
+            <field name="context">{'contrat_id': active_id}</field>
+        </record>
+
+
+                = fields.Char("N°", readonly=True)
+         = fields.Many2one('res.users', 'Créateur', required=True, default=lambda self: self.env.user.id)
+       = fields.Date("Date de création"         , required=True, default=lambda *a: fields.Date.today())
+          = fields.Many2one('res.partner', 'Fournisseur')
+          = fields.Date("Date de début")
+            = fields.Date("Date de fin")
+         = fields.Char("Référence contrat", help="Référence contrat du fournisseur")
+    ligne_ids       = fields.One2many('is.contrat.fournisseur.ligne', 'contrat_id', 'Lignes')
+
+
+
+        <!-- is.contrat.fournisseur -->
+        <record id="is_contrat_fournisseur_seq" model="ir.sequence">
+            <field name="name">Contrat Fournisseur</field>
+            <field name="code">is.contrat.fournisseur</field>
+            <field name="padding">5</field>
+            <field eval="False" name="company_id"/>
+        </record>
+        <record id="is_contrat_fournisseur_tree" model="ir.ui.view">
+            <field name="name">is.contrat.fournisseur.tree</field>
+            <field name="model">is.contrat.fournisseur</field>
+            <field name="arch" type="xml">
+                <tree >
+                    <field name="name" />
+                    <field name="createur_id" />
+                    <field name="date_creation" />
+                    <field name="partner_id" />
+                    <field name="date_debut" />
+                    <field name="date_fin" />
+                    <field name="ref_contrat" />
+                </tree>
+            </field>
+        </record>
+        <record id="is_contrat_fournisseur_form" model="ir.ui.view">
+            <field name="name">is.contrat.fournisseur.form</field>
+            <field name="model">is.contrat.fournisseur</field>
+            <field name="arch" type="xml">
+                <form>
+                    <style>
+                         .o_form_view .o_form_sheet_bg > .o_form_sheet{
+                            max-width: 1800px;
+                        }
+                        .o_form_label{
+                            white-space: nowrap;
+                        }
+                    </style>
+                    <!-- <header>
+                        <button name="generer_lignes_action"            type="object" string="Générer les lignes"/>
+                        <button name="%(is_contrat_fournisseur_ligne_action)d" type="action" string="Voir les lignes"/>
+                    </header> -->
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" />
+                                <field name="partner_id" />
+                                <field name="date_debut" />
+                                <field name="date_fin" />
+                                <field name="ref_contrat" />
+                            </group>
+                            <group>
+                                <field name="date_creation" readonly="1"/>
+                                <field name="createur_id"   readonly="1"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="ligne_ids" nolabel="1">
+                                <tree editable="bottom">
+                                    <!-- <button title="Variante" name="acceder_variante_action" type="object" icon="fa-search-plus"/> -->
+                                    <field name="contrat_id" invisible="1"/>
+                                    <field name="product_id" style="white-space:normal"/>
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="qt_contrat"  sum="Total"/>
+                                    <field name="prix_unitaire"/>
+                                    <field name="montant"  sum="Total"/>
+                                    <field name="qt_commande" sum="Total"/>
+                                    <button name="liste_commandes_action" type="object" icon="fa-list-alt" title="Liste des commandes"/>
+                                    <field name="qt_reste"    sum="Total"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        <record id="is_contrat_fournisseur_search" model="ir.ui.view">
+            <field name="name">is.contrat.fournisseur.search</field>
+            <field name="model">is.contrat.fournisseur</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name" />
+                    <field name="partner_id" />
+                    <field name="ref_contrat" />
+               </search>
+            </field>
+        </record>
+        <record id="is_contrat_fournisseur_action" model="ir.actions.act_window">
+            <field name="name">Contrats commandes ouvertes</field>
+            <field name="res_model">is.contrat.fournisseur</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>

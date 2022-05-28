@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_contrat_fournisseur">
+           <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <style>
+                            .page{
+                                font-size:10pt;
+                            }
+                            .table th, .table td {
+                                padding: 0.2rem;
+                                border-bottom: 1px solid;
+                            }
+                            tr{
+                                border: 1px solid;
+                            }
+                            th, td {
+                                padding: 0.2rem;
+                            }
+                        </style>
+                        <div class="page">
+                             <h2>Contrat commande ouverte fournisseur <span t-field="o.name"/></h2>
+                            <table style="width:50%">
+                              <tbody>
+                                  <tr><th><strong>N°Contrat         </strong></th><td><span t-field="o.name"/></td></tr>
+                                  <tr><th><strong>Fournisseur       </strong></th><td><span t-field="o.partner_id.name"/></td></tr>
+                                  <tr><th><strong>Date de début     </strong></th><td><span t-field="o.date_debut"/></td></tr>
+                                  <tr><th><strong>Date de fin       </strong></th><td><span t-field="o.date_fin"/></td></tr>
+                                  <tr><th><strong>Référence contrat </strong></th><td><span t-field="o.ref_contrat"/></td></tr>
+                              </tbody>
+                            </table>
+                            <br/>
+                            <table class="table table-condensed">
+                              <thead>
+                                <tr>
+                                    <th class="text-left"><strong>Article</strong></th>
+                                    <th class="text-right"><strong>Qt prévue</strong></th>
+                                    <th class="text-right"><strong>Prix unitaire</strong></th>
+                                    <th class="text-right"><strong>Montant</strong></th>
+                                    <th class="text-right"><strong>Qt commandée</strong></th>
+                                    <th class="text-right"><strong>Reste à commander</strong></th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr t-foreach="o.ligne_ids" t-as="l" style="border-bottom: 1px solid;" >
+                                    <td class="text-left"><span t-field="l.product_id"/></td>
+                                    <td class="text-right"><span t-field="l.qt_contrat"/></td>
+                                    <td class="text-right"><span t-field="l.prix_unitaire"/></td>
+                                    <td class="text-right"><span t-field="l.montant"/></td>
+                                    <td class="text-right"><span t-field="l.qt_commande"/></td>
+                                    <td class="text-right"><span t-field="l.qt_reste"/></td>
+                                </tr>
+                              </tbody>
+                            </table>
+                        </div>
+                    </t>
+                 </t>
+             </t>
+        </template>
+    </data>
+</odoo>

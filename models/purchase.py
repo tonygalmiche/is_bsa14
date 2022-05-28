@@ -12,6 +12,64 @@ class purchase_order_line(models.Model):
     is_date_ar    = fields.Date("Date AR")
     is_masse_tole = fields.Float("Masse tôle", related="product_id.is_masse_tole", readonly=True)
     is_num_ligne  = fields.Integer("N°", help="Numéro de ligne automatique", compute="_compute_is_num_ligne", readonly=True, store=False)
+    is_contrat_id = fields.Many2one('is.contrat.fournisseur', 'Contrat')
+    is_qt_cde     = fields.Float("Qt cde"       , compute='_compute_qt', readonly=True)
+    is_qt_contrat = fields.Float("Qt contrat"   , compute='_compute_qt', readonly=True)
+    is_qt_reste   = fields.Float("Reste contrat", compute='_compute_qt', readonly=True)
+
+
+
+    def get_qt_cde(self, partner_id, product_id, contrat_id):
+        cr,uid,context,su = self.env.args
+        qt_cde = 0
+        if product_id and contrat_id and partner_id:
+            SQL="""
+                SELECT sum(pol.product_qty)
+                FROM purchase_order_line pol join purchase_order po on pol.order_id=po.id
+                WHERE 
+                    pol.product_id=%s and 
+                    pol.is_contrat_id=%s and
+                    po.partner_id=%s and
+                    po.state='purchase'
+                limit 1
+            """
+            cr.execute(SQL,[product_id,contrat_id,partner_id])
+            for row in cr.fetchall():
+                qt_cde = row[0] or 0
+        return qt_cde
+
+
+    @api.depends('product_id','product_qty','is_contrat_id')
+    def _compute_qt(self):
+        cr,uid,context,su = self.env.args
+        for obj in self:
+            qt_cde = qt_contrat = 0
+            partner_id = obj.order_id.partner_id.id
+            product_id = obj.product_id.id
+            contrat_id = obj.is_contrat_id.id
+            if product_id and contrat_id and partner_id:
+                qt_cde = self.get_qt_cde(partner_id, product_id, contrat_id)
+                # SQL="""
+                #     SELECT sum(pol.product_qty)
+                #     FROM purchase_order_line pol join purchase_order po on pol.order_id=po.id
+                #     WHERE 
+                #         pol.product_id=%s and 
+                #         pol.is_contrat_id=%s and
+                #         po.partner_id=%s and
+                #         po.state='purchase'
+                #     limit 1
+                # """
+                # cr.execute(SQL,[product_id,contrat_id,partner_id])
+                # for row in cr.fetchall():
+                #     qt_cde = row[0]
+            if obj.is_contrat_id:
+                for line in obj.is_contrat_id.ligne_ids:
+                    if line.product_id.id==product_id:
+                        qt_contrat = line.qt_contrat
+            qt_reste = qt_contrat - qt_cde
+            obj.is_qt_cde     = qt_cde
+            obj.is_qt_contrat = qt_contrat
+            obj.is_qt_reste   = qt_reste
 
 
     @api.depends("order_id","order_id.order_line")
@@ -25,6 +83,29 @@ class purchase_order_line(models.Model):
                 else:
                     num=False
                 line.is_num_ligne = num
+
+
+    @api.onchange('product_id')
+    def onchange_is_contrat_id(self):
+        cr,uid,context,su = self.env.args
+        contrat_id = False
+        product_id = self.product_id.id
+        partner_id = self.order_id.partner_id.id
+        if product_id and partner_id:
+            SQL="""
+                SELECT l.contrat_id
+                FROM is_contrat_fournisseur_ligne l join is_contrat_fournisseur c on l.contrat_id=c.id
+                WHERE 
+                    l.product_id=%s and 
+                    c.partner_id=%s and
+                    c.date_debut<=now() and
+                    c.date_fin>=now()
+                limit 1
+            """
+            cr.execute(SQL,[product_id,partner_id])
+            for row in cr.fetchall():
+                contrat_id = row[0]
+        self.is_contrat_id=contrat_id
 
 
 class is_purchase_order_nomenclature(models.Model):

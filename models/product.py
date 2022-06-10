@@ -41,6 +41,7 @@ class product_template(models.Model):
     is_trace_reception           = fields.Boolean('Traçabilité en réception')
     is_gestion_lot               = fields.Boolean('Gestion par lots', default=False)
     is_description_devis         = fields.Text('Description devis')
+    is_simulation_livrable       = fields.Boolean('Simulation livrable', help="Sera utilisé dans le calcul des besoins de la simulation livrable des ventes")
 
 
     # x : Position x à partir de la gauche

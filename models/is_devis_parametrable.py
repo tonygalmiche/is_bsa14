@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
-from pickle import OBJ
 from odoo import models,fields,api
 import datetime
 from odoo.http import request
 import base64
 import os
+import re
+import openpyxl
 from glob import glob
 import logging
+from math import pi,tan
 _logger = logging.getLogger(__name__)
 
 
@@ -104,12 +106,6 @@ class is_devis_parametrable_affaire(models.Model):
             obj.devis_ids = [(6, 0, [attachment_id])]
 
 
-
-
-
-
-
-
 class is_devis_parametrable_affaire_variante(models.Model):
     _name='is.devis.parametrable.affaire.variante'
     _description = "Variantes des affaires"
@@ -170,6 +166,9 @@ class is_devis_parametrable(models.Model):
             ('HL'   , 'HL'),
         ], "Unité")
     type_cuve_id       = fields.Many2one('is.type.cuve', 'Type de cuve', required=True)
+
+    calcul_ids         = fields.One2many('is.type.cuve.calcul', 'devis_parametrable_id', 'Calculs', copy=True)
+
     createur_id        = fields.Many2one('res.users', 'Créateur', required=True, default=lambda self: self.env.user.id)
     date_creation      = fields.Date("Date de création"         , required=True, default=lambda *a: fields.Date.today())
     date_actualisation = fields.Datetime("Date d'actualisation"                , default=fields.Datetime.now)
@@ -189,6 +188,18 @@ class is_devis_parametrable(models.Model):
         vals['name'] = self.env['ir.sequence'].next_by_code('is.devis.parametrable')
         res = super(is_devis_parametrable, self).create(vals)
         return res
+
+
+    def write(self, vals):
+        res = super(is_devis_parametrable, self).write(vals)
+        self.recalculer_action()
+        return res
+
+
+    def recalculer_action(self):
+        for obj in self:
+            for line in obj.calcul_ids:
+                line._compute_resultat(obj)
 
 
     def creation_section_action(self):
@@ -245,6 +256,29 @@ class is_devis_parametrable(models.Model):
                 prix       = line[0]
                 date_achat = line[1]
         return[prix, date_achat]
+
+
+    @api.onchange('type_cuve_id')
+    def onchange_type_cuve_id(self):
+        for obj in self:
+            lines = []
+            obj.calcul_ids=False
+            commentaire=False
+            if obj.type_cuve_id:
+                for line in obj.type_cuve_id.calcul_ids:
+                    vals = {
+                        'devis_parametrable_id': obj.id,
+                        'name'                 : line.name,
+                        'description'          : line.description,
+                        'formule'              : line.formule,
+                        'formule_odoo'         : line.formule_odoo,
+                        'resultat'             : line.resultat,
+                        'unite'                : line.unite,
+                    }
+                    lines.append([0,False,vals])
+                    commentaire = line.formule
+            obj.calcul_ids=lines
+            obj.commentaire = commentaire
 
 
 class is_devis_parametrable_matiere(models.Model):
@@ -322,9 +356,6 @@ class is_devis_parametrable_section(models.Model):
                 'type': 'ir.actions.act_window',
             }
             return res
-
-
-
 
 
 class is_devis_parametrable_section_product(models.Model):
@@ -522,7 +553,263 @@ class is_type_cuve(models.Model):
     _order='name'
 
     name          = fields.Char("Type de cuve", required=True)
+    image         = fields.Binary("Image")
     perte_decoupe = fields.Integer("Perte à la découpe (%)")
+    import_ids    = fields.Many2many('ir.attachment', 'is_type_cuve_import_ids_rel', 'type_cuve_id', 'attachment_id', 'Import xlsx')
+    calcul_ids    = fields.One2many('is.type.cuve.calcul', 'type_cuve_id', 'Calculs', copy=True)
+
+
+    def import_fichier_xlsx_action(self):
+        for obj in self:
+            obj.calcul_ids.unlink()
+            for attachment in obj.import_ids:
+                #xlsxfile = base64.decodestring(attachment.datas)
+
+                xlsxfile=base64.b64decode(attachment.datas)  #.decode('latin-1') # 'latin-1' cp1252
+
+
+
+                path = '/tmp/is_type_cuve-'+str(obj.id)+'.xlsx'
+                f = open(path,'wb')
+                f.write(xlsxfile)
+                f.close()
+                #*******************************************************************
+
+                #** Test si fichier est bien du xlsx *******************************
+                try:
+                    #wb = openpyxl.load_workbook(filename = path)
+                    wb_value    = openpyxl.load_workbook(filename = path, data_only=True)
+                    ws_value    = wb_value.active
+                    cells_value = list(ws_value)
+
+                    wb_formula    = openpyxl.load_workbook(filename = path, data_only=False)
+                    ws_formula    = wb_formula.active
+                    cells_formula = list(ws_formula)
+                except:
+                    raise Warning(u"Le fichier "+attachment.name+u" n'est pas un fichier xlsx")
+                #*******************************************************************
+
+
+                #** Recherche de la colonne contenant les reperes des formules *****
+                lig=0
+                x={}
+                for row in ws_value.rows:
+                    col=0
+                    for column in ws_value.columns:
+                        if col not in x:
+                            x[col]=0
+                        val = cells_value[lig][col].value
+                        if re.match(r"[A-Z][0-9]+", str(val)):
+                            x[col]+=1
+                        col+=1
+                    lig+=1
+                col=-1
+                max=0
+                for k in x:
+                    if x[k]>max:
+                        max=x[k]
+                        col=k
+                #*******************************************************************
+
+                if col>=0:
+                    lig=0
+                    for row in ws_value.rows:
+                        name = cells_value[lig][col].value
+                        if re.match(r"[A-Z][0-9]+", str(name)):
+                            if cells_formula[lig][col+2].value:
+                                vals={
+                                    "type_cuve_id": obj.id,
+                                    "sequence"    : lig,
+                                    "name"        : name,
+                                    "description" : cells_value[lig][col+1].value,
+                                    "formule"     : cells_formula[lig][col+2].value,
+                                    "unite"       : cells_value[lig][col+3].value,
+                                }
+                                res = self.env['is.type.cuve.calcul'].create(vals)
+                        lig+=1
+            obj.recalculer_action()
+
+    def recalculer_action(self):
+        for obj in self:
+            for line in obj.calcul_ids:
+                line._compute_resultat(obj)
+
+
+    def write(self, vals):
+        res = super(is_type_cuve, self).write(vals)
+        self.recalculer_action()
+        return res
+
+
+class is_type_cuve_calcul(models.Model):
+    _name='is.type.cuve.calcul'
+    _description = "Lignes de calcul du type de cuve"
+    _order='sequence,id'
+
+    type_cuve_id = fields.Many2one('is.type.cuve', 'Type de cuve')
+    devis_parametrable_id = fields.Many2one('is.devis.parametrable', 'Devis paramètrable')
+    sequence     = fields.Integer("Sequence")
+    name         = fields.Char("Code")
+    description  = fields.Char("Description")
+    formule      = fields.Text("Formule")
+    formule_odoo = fields.Text("Formule Odoo") #, compute='_compute_resultat', store=True, readonly=True)
+    resultat     = fields.Float("Résultat")    #, compute='_compute_resultat', store=True, readonly=True)
+    unite        = fields.Char("Unité")
+    proteger     = fields.Boolean("Protéger", default=True)
+    proteger_formule = fields.Boolean("Protéger Formule", compute='_compute_proteger_formule', store=False, readonly=True)
+
+
+    @api.depends('formule','proteger')
+    def _compute_proteger_formule(self):
+        for obj in self:
+            proteger=False
+            formule = obj.formule
+            if formule and formule[:1]=="=" and obj.proteger:
+                proteger=True
+            obj.proteger_formule=proteger
+
+
+    def str2float(self,x):
+        try:
+            resultat = float(x)
+        except:
+            return 0
+        return resultat
+
+
+    def str2eval(self,x):
+        try:
+            resultat = self.str2float(eval(x))
+        except:
+            return 0
+        return resultat
+
+
+    @api.depends('formule')
+    def _compute_resultat(self, parent):
+        for obj in self:
+            formule  = obj.formule
+            resultat = 0
+            resultats={}
+            #for line in obj.type_cuve_id.calcul_ids:
+            for line in parent.calcul_ids:
+                resultats[line.name]=line.resultat
+            if formule and formule[:1]=="=":
+                # ** Traitement fonction SUM **********************************
+                pattern = re.compile(r'(SUM\([A-Z][0-9]+:[A-Z][0-9]+\))')
+                res = pattern.findall(obj.formule)
+                for line in res:
+                    val=0
+                    pattern2 = re.compile(r'([A-Z][0-9]+)')
+                    res2 = pattern2.findall(line)
+                    if len(res2)==2:
+                        start=False
+                        #for l in obj.type_cuve_id.calcul_ids:
+                        for l in parent.calcul_ids:
+                            if l.name==res2[0]:
+                                start=True
+                            if start:
+                                val+=obj.str2float(l.resultat)
+                            if l.name==res2[1]:
+                                start=False
+                    formule=formule.replace(line,str(val))
+                # *************************************************************
+
+                # ** Traitement fonction MAX **********************************
+                pattern = re.compile(r'(MAX\([A-Z][0-9]+:[A-Z][0-9]+\))')
+                res = pattern.findall(obj.formule)
+                for line in res:
+                    max=0
+                    pattern2 = re.compile(r'([A-Z][0-9]+)')
+                    res2 = pattern2.findall(line)
+                    if len(res2)==2:
+                        start=False
+                        #for l in obj.type_cuve_id.calcul_ids:
+                        for l in parent.calcul_ids:
+                            val = obj.str2float(l.resultat)
+                            if l.name==res2[0]:
+                                start=True
+                                max=val
+                            if start:
+                                if val>max:
+                                    max=val
+                            if l.name==res2[1]:
+                                start=False
+                    formule=formule.replace(line,str(max))
+                # *************************************************************
+
+
+                # ** Traitement fonction AVERAGE **********************************
+                pattern = re.compile(r'(AVERAGE\([A-Z][0-9]+:[A-Z][0-9]+\))')
+                res = pattern.findall(obj.formule)
+                for line in res:
+                    average=0
+                    pattern2 = re.compile(r'([A-Z][0-9]+)')
+                    res2 = pattern2.findall(line)
+                    if len(res2)==2:
+                        start=False
+                        total=nb=0
+                        #for l in obj.type_cuve_id.calcul_ids:
+                        for l in parent.calcul_ids:
+                            val = obj.str2float(l.resultat)
+                            if l.name==res2[0]:
+                                start=True
+                            if start:
+                                total+=val
+                                nb+=1
+                            if l.name==res2[1]:
+                                start=False
+                        if nb>0:
+                            average=total/nb
+                    formule=formule.replace(line,str(average))
+                # *************************************************************
+
+
+
+                pattern = re.compile(r'([A-Z][0-9]+)')
+                res = pattern.findall(obj.formule)
+                for line in res:
+                    x = "0"
+                    if line in resultats:
+                        x = str(resultats[line])
+                    formule=formule.replace(line,x)
+
+
+                formule=formule.replace("PI()",str(pi))
+                formule=formule.replace("TAN(","tan(")
+                formule=formule.replace("^","**")
+
+
+                # ** Traitement fonction IF ***********************************
+                pattern = re.compile(r'(IF\(.*\))')
+                res = pattern.findall(formule)
+                for line in res:
+                    pattern2 = re.compile(r'IF\((.*)\)')
+                    res2 = pattern2.findall(line)
+                    for line2 in res2:
+                        t=line2.split(",")
+                        if len(t)==3:
+                            r1=obj.str2eval(t[0])
+                            r2=obj.str2eval(t[1])
+                            r3=obj.str2eval(t[2])
+                            if r1:
+                                resultat=r2
+                            else:
+                                resultat=r3
+                            formule=formule.replace(line,str(resultat))
+                # *************************************************************
+
+
+                resultat = obj.str2eval(formule[1:])
+            else:
+                resultat=obj.str2float(formule)  
+            obj.formule_odoo = formule
+            obj.resultat = resultat
+
+
+
+
+
 
 
 class is_matiere(models.Model):

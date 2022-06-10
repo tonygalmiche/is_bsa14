@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- is.simulation.livrable.ligne -->
+        <record id="is_simulation_livrable_ligne_tree" model="ir.ui.view">
+            <field name="name">is.simulation.livrable.ligne.tree</field>
+            <field name="model">is.simulation.livrable.ligne</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="simulation_id"/>
+                    <field name="type_ligne"/>
+                    <field name="demande_id"/>
+                    <field name="niv"/>
+                    <field name="niv_txt"/>
+                    <field name="product_id"/>
+                    <field name="qt" sum="Total"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_simulation_livrable_ligne_form" model="ir.ui.view">
+            <field name="name">is.simulation.livrable.ligne.form</field>
+            <field name="model">is.simulation.livrable.ligne</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="simulation_id"/>
+                            <field name="type_ligne"/>
+                            <field name="demande_id"/>
+                            <field name="niv"/>
+                            <field name="niv_txt"/>
+                            <field name="product_id"/>
+                            <field name="qt" sum="Total"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_simulation_livrable_ligne_search" model="ir.ui.view">
+            <field name="name">is.simulation.livrable.ligne.search</field>
+            <field name="model">is.simulation.livrable.ligne</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="simulation_id"/>
+                    <field name="type_ligne"/>
+                    <field name="product_id"/>
+               </search>
+            </field>
+        </record>
+       <record  id="is_simulation_livrable_ligne_action" model="ir.actions.act_window">
+            <field name="name">Lignes simulation</field>
+            <field name="res_model">is.simulation.livrable.ligne</field>
+            <field name="limit">1000</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('simulation_id','=',active_id)]</field>
+            <field name="context">{'default_simulation_id': active_id}</field>
+        </record>
+
+
+        <!-- is.simulation.livrable -->
+        <record id="is_simulation_livrable_seq" model="ir.sequence">
+            <field name="name">Simulation livrable</field>
+            <field name="code">is.simulation.livrable</field>
+            <field name="padding">5</field>
+            <field eval="False" name="company_id"/>
+        </record>
+        <record id="is_simulation_livrable_tree" model="ir.ui.view">
+            <field name="name">is.simulation.livrable.tree</field>
+            <field name="model">is.simulation.livrable</field>
+            <field name="arch" type="xml">
+                <tree >
+                    <field name="name" />
+                    <field name="commentaire" />
+                    <field name="createur_id" />
+                    <field name="date_creation" />
+                </tree>
+            </field>
+        </record>
+        <record id="is_simulation_livrable_form" model="ir.ui.view">
+            <field name="name">is.simulation.livrable.form</field>
+            <field name="model">is.simulation.livrable</field>
+            <field name="arch" type="xml">
+                <form>
+                    <style>
+                         .o_form_view .o_form_sheet_bg > .o_form_sheet{
+                            max-width: 1800px;
+                        }
+                        .o_form_label{
+                            white-space: nowrap;
+                        }
+                    </style>
+                    <header>
+                        <button name="calcul_besoins_action" type="object" string="Calcul des besoins"/>
+                        <button name="%(is_simulation_livrable_ligne_action)d" type="action" string="Voir les lignes"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="commentaire"/>
+                            </group>
+                            <group>
+                                <field name="date_creation" readonly="1"/>
+                                <field name="createur_id"   readonly="1"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="demande_ids" nolabel="1">
+                                <tree editable="bottom">
+                                    <field name="simulation_id" invisible="1"/>
+                                    <field name="product_id" style="white-space:normal"/>
+                                    <field name="qt" sum="Total"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_simulation_livrable_search" model="ir.ui.view">
+            <field name="name">is.simulation.livrable.search</field>
+            <field name="model">is.simulation.livrable</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name" />
+                    <field name="commentaire" />
+               </search>
+            </field>
+        </record>
+        <record id="is_simulation_livrable_action" model="ir.actions.act_window">
+            <field name="name">Simulation livrable</field>
+            <field name="res_model">is.simulation.livrable</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>

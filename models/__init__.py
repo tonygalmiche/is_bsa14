@@ -38,6 +38,7 @@ from . import is_gamme_generique
 from . import is_devis_parametrable
 from . import is_outillage
 from . import is_systeme_gestion
+from . import is_simulation_livrable
 
 
 

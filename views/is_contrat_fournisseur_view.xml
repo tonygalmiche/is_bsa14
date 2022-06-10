@@ -51,18 +51,6 @@
             <field name="context">{'contrat_id': active_id}</field>
         </record>
 
-
-                = fields.Char("N°", readonly=True)
-         = fields.Many2one('res.users', 'Créateur', required=True, default=lambda self: self.env.user.id)
-       = fields.Date("Date de création"         , required=True, default=lambda *a: fields.Date.today())
-          = fields.Many2one('res.partner', 'Fournisseur')
-          = fields.Date("Date de début")
-            = fields.Date("Date de fin")
-         = fields.Char("Référence contrat", help="Référence contrat du fournisseur")
-    ligne_ids       = fields.One2many('is.contrat.fournisseur.ligne', 'contrat_id', 'Lignes')
-
-
-
         <!-- is.contrat.fournisseur -->
         <record id="is_contrat_fournisseur_seq" model="ir.sequence">
             <field name="name">Contrat Fournisseur</field>
@@ -98,10 +86,6 @@
                             white-space: nowrap;
                         }
                     </style>
-                    <!-- <header>
-                        <button name="generer_lignes_action"            type="object" string="Générer les lignes"/>
-                        <button name="%(is_contrat_fournisseur_ligne_action)d" type="action" string="Voir les lignes"/>
-                    </header> -->
                     <sheet>
                         <group>
                             <group>

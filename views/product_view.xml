@@ -74,6 +74,13 @@
             <field name="model">product.template</field>
             <field name="inherit_id" ref="product.product_template_form_view" />
             <field name="arch" type="xml">
+                <xpath expr="//sheet[1]" position="inside">
+                    <style>
+                        .o_form_label{
+                            white-space: nowrap;
+                        }
+                    </style>
+                </xpath>
                 <field name="type" position="after">
                     <field name="is_stock_category_id"/>
                     <field name="is_type_equipement_id"/>
@@ -94,6 +101,9 @@
                 </field>
                 <field name="uom_po_id" position="before">
                     <field name="is_masse_tole" />
+                </field>
+                <field name="uom_po_id" position="after">
+                    <field name="is_simulation_livrable" />
                 </field>
                 <xpath expr="//page/group[@name='inventory']" position="after">
                      <group name="is_tracabilte" string='Traçabilité'>

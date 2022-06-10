@@ -40,6 +40,16 @@
                 ref('sales_team.group_sale_manager'),
             ])]"/>
         </record>
+        <record id="is_simulation_livrable_menu" model="ir.ui.menu" >
+            <field name="name">Simulation livrable</field>
+            <field name="sequence">90</field>
+            <field name="parent_id" eval="ref('sale.sale_order_menu')"/>
+            <field name="action"    ref="is_simulation_livrable_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('sales_team.group_sale_manager'),
+            ])]"/>
+        </record>
+
         <menuitem 
             name="Catégorie client"
             id="is_categorie_client_menu"

@@ -195,11 +195,11 @@
             </field>
         </record>
         <record id="sale.action_quotations_with_onboarding" model="ir.actions.act_window">
-            <field name="domain">[('state', 'not in', ('sale', 'sent', 'done'))]</field>
+            <field name="domain">[('state', 'not in', ('sale', 'done'))]</field>
         </record>
 
         <record id="sale.action_orders" model="ir.actions.act_window">
-            <field name="domain">[('state', 'not in', ('draft', 'cancel'))]</field>
+            <field name="domain">[('state', 'not in', ('draft', 'cancel', 'sent'))]</field>
         </record>
 
 

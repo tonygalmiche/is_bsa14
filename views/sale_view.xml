@@ -16,6 +16,12 @@
                     <field name="is_date_prevue"               optional="show"/>
                     <field name="is_derniere_date_prevue"      optional="show"/>
                     <field name="product_uom_qty" string="Qt commandée" readonly="True" optional="show"/>
+
+                    <field name="qty_to_deliver" readonly="True" optional="show"/>
+
+
+
+
                     <field name="is_fabrication_prevue" optional="show"/>
                     <field name="is_reste"              optional="show"/>
                     <!-- <button

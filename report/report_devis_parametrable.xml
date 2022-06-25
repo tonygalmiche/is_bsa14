@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_variante_devis_parametrable">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h1><span t-field="o.devis_id.designation"/></h1>
+                        <h2><span t-field="o.devis_id.designation_complementaire"/></h2>
+                    
+                        <table class="table table-sm o_main_table">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">Inox</th>
+                                    <th class="text-center">Type</th>
+                                    <th class="text-center">Finition intérieur</th>
+                                    <th class="text-center">Finition exterieur</th>
+                                    <th class="text-center">Ep.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="o.devis_id.matiere_ids" t-as="l">
+                                    <tr>
+                                        <td class="text-left">  <span t-field="l.section_id.name"/></td>
+                                        <td class="text-center"><span t-field="l.matiere_id.type_matiere"/></td>
+                                        <td class="text-center"><span t-field="l.matiere_id.finition_interieur"/></td>
+                                        <td class="text-center"><span t-field="l.matiere_id.finition"/></td>
+                                        <td class="text-right"> <span t-field="l.epaisseur"/>mm</td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <h3>Dimensions : </h3>
+                        <table class="table table-sm o_main_table">
+                            <tbody>
+                                <t t-foreach="o.devis_id.dimension_ids" t-as="l">
+                                    <tr>
+                                        <td class="text-left">  <span t-field="l.dimension_id.name"/></td>
+                                        <td class="text-left"><span t-field="l.description"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+
+
+                        <h3>Equipements : </h3>
+                        <table class="table table-sm o_main_table">
+                            <tbody>
+                                <t t-foreach="o.devis_id.section_ids" t-as="section">
+                                    <tr style="border-bottom: 1px solid;">
+                                        <td class="text-left"><span t-field="section.section_id.name"/></td>
+                                        <td class="text-left">
+
+                                            <t t-foreach="section.product_ids" t-as="l">
+                                                <div t-field="l.description_report"/>
+                                            </t>
+                                        
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                        <div class="row">
+                            <div class="col-6 ml-auto">
+                                <table class="table table-sm o_main_table" style="page-break-inside: avoid;">
+                                    <tr>
+                                        <td><strong>Prix unitaire hors taxes</strong></td>
+                                        <td class="text-right"><span t-field="o.prix_vente_int"/> €</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>TVA</strong></td>
+                                        <td class="text-right"><span t-field="o.montant_tva"/> €</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Prix unitaire TTC</strong></td>
+                                        <td class="text-right"><span t-field="o.prix_vente_ttc"/> €</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+    <template id="report_devis_parametrable_affaire">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h3>Récapitulatif de l'offre</h3>
+                        <table class="table table-sm o_main_table">
+                            <thead>
+                                <tr>
+                                    <th class="text-left">Description</th>
+                                    <th class="text-right">Prix unitaire</th>
+                                    <th class="text-center">Quantité prévue</th>
+                                    <th class="text-right">Montant HT</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="o.variante_ids" t-as="variante">
+                                    <tr style="border-bottom: 1px solid;">
+                                        <td class="text-left"><span t-field="variante.variante_id.name"/></td>
+                                        <td class="text-right"><span t-field="variante.variante_id.prix_vente_int"/> €</td>
+                                        <td class="text-center"><span t-field="variante.variante_id.quantite"/></td>
+                                        <td class="text-right"><span t-field="variante.variante_id.prix_vente_lot"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                        <div class="row">
+                            <div class="col-6 ml-auto">
+                                <table class="table table-sm o_main_table" style="page-break-inside: avoid;">
+                                    <tr>
+                                        <td><strong>Total HT</strong></td>
+                                        <td class="text-right"><span t-field="o.montant_ht"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>TVA</strong></td>
+                                        <td class="text-right"><span t-field="o.montant_tva"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Total TTC</strong></td>
+                                        <td class="text-right"><span t-field="o.montant_ttc"/></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <h3>Délais</h3>
+                        <div t-field="o.delais"/>
+                        <br />
+                        <h3>Durée de validité de l'offre</h3>
+                        <div t-field="o.duree_validite"/>
+                        <br />
+                        <h3>Conditions générales de ventes</h3>
+                        <div t-field="o.conditions_generales"/>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

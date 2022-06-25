@@ -88,7 +88,7 @@ InfoSaône - Module Odoo 14 pour BSA
         "report/report_personnel_present.xml",
         "report/report_fiche_utilisateur.xml",
         "report/report_deliveryslip.xml",
-        "report/report_variante_devis_parametrable.xml",
+        "report/report_devis_parametrable.xml",
         "report/report.xml", 
         "report/sale_report_templates.xml",
         "wizard/assistent_report_view.xml",

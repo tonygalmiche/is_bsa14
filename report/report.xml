@@ -49,6 +49,18 @@
     </record>
 
 
+
+    <record id="action_report_contrat_fournisseur" model="ir.actions.report">
+        <field name="name">Contrat</field>
+        <field name="model">is.contrat.fournisseur</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">is_bsa14.report_contrat_fournisseur</field>
+        <field name="report_file">is_bsa14.report_contrat_fournisseur</field>
+        <field name="binding_model_id" ref="model_is_contrat_fournisseur"/>
+        <field name="binding_type">report</field>
+    </record>
+
+
     <record id="action_report_variante_devis_parametrable" model="ir.actions.report">
         <field name="name">Variante devis paramètrable</field>
         <field name="model">is.devis.parametrable.variante</field>
@@ -59,13 +71,13 @@
         <field name="binding_type">report</field>
     </record>
 
-    <record id="action_report_contrat_fournisseur" model="ir.actions.report">
-        <field name="name">Contrat</field>
-        <field name="model">is.contrat.fournisseur</field>
+    <record id="action_report_devis_parametrable_affaire" model="ir.actions.report">
+        <field name="name">Affaire devis paramètrable</field>
+        <field name="model">is.devis.parametrable.affaire</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">is_bsa14.report_contrat_fournisseur</field>
-        <field name="report_file">is_bsa14.report_contrat_fournisseur</field>
-        <field name="binding_model_id" ref="model_is_contrat_fournisseur"/>
+        <field name="report_name">is_bsa14.report_devis_parametrable_affaire</field>
+        <field name="report_file">is_bsa14.report_devis_parametrable_affaire</field>
+        <field name="binding_model_id" ref="model_is_devis_parametrable_affaire"/>
         <field name="binding_type">report</field>
     </record>
 

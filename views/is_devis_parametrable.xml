@@ -12,6 +12,8 @@
                     <field name="name"/>
                     <field name="partner_id"/>
                     <field name="revendeur_id"/>
+                    <field name="delais"/>
+                    <field name="duree_validite"/>
                 </tree>
             </field>
         </record>
@@ -27,12 +29,18 @@
                         />
                     </header>
                     <sheet>
+                        <style>
+                            .o_form_label{
+                                white-space: nowrap;
+                            }
+                        </style>
                         <group>
-                            <group>
-                                <field name="name" />
-                                <field name="partner_id"/>
-                                <field name="revendeur_id"/>
-                            </group>
+                            <field name="name" />
+                            <field name="partner_id"/>
+                            <field name="revendeur_id"/>
+                            <field name="delais"/>
+                            <field name="duree_validite"/>
+                            <field name="conditions_generales"/>
                         </group>
                         <group string="Variantes des devis">
                             <field name="variante_ids" nolabel="1">
@@ -45,6 +53,12 @@
                                     />
                                 </tree>
                             </field>
+                        </group>
+                        <group>
+                            <field name="montant_ht" />
+                            <field name="tax_id"/>
+                            <field name="montant_tva"/>
+                            <field name="montant_ttc"/>
                         </group>
                         <group string="Entête et pied à ajouter">
                             <field name="entete_ids" widget="many2many_binary"/>
@@ -139,6 +153,10 @@
                             .o_form_label{
                                 white-space: nowrap;
                             }
+                            .o_form_view .oe_avatar > img {
+                                max-width : 500px;
+                                max-height: 500px;
+                            }
                         </style>
                         <group>
                             <group>
@@ -146,102 +164,119 @@
                                 <field name="code_devis"/>
                                 <field name="designation"/>
                                 <field name="designation_complementaire"/>
-                                <field name="capacite"/>
+                                <field name="capacite" readonly="1"/>
                                 <field name="unite"/>
                                 <field name="type_cuve_id"/>
                                 <field name="partner_id"/>
-
+                                <field name="tax_id"/>
                                 <field name="date_creation"/>
                                 <field name="date_actualisation" readonly="1"/>
                                 <field name="createur_id"/>
-                                <field name="tps_montage"     invisible="1" widget="float_time"/>
                                 <field name="montant_matiere" invisible="1"/>
                             </group>
-
                             <group>
-                                    <field 
-                                        name="image" widget='image' class="oe_center oe_avatar" nolabel="1"
-                                        options='{"preview_image": "image", "size": [600, 600]}'
-                                    />
+                                <field name="image" widget='image' class="oe_center oe_avatar" nolabel="1"/>
                             </group>
-                       </group>
-                        <group string="Calculs"/>
-                        <field name="calcul_ids" nolabel="1">
-                            <tree editable="bottom" limit="200">
-                                <field name="sequence" widget="handle" />
-                                <field name="devis_parametrable_id" invisible="1"/>
-                                <field name="name"/>
-                                <field name="description"/>
-                                <field name="formule"/>
-                                <field name="formule_odoo" optional="hide"/>
-                                <field name="resultat"/>
-                                <field name="unite"/>
-                            </tree>
-                        </field>
-                        <group string="Matières">
-                            <field name="matiere_ids" nolabel="1">
-                                <tree editable="bottom">
-                                    <field name="devis_id" invisible="1"/>
-                                    <field name="section_id"/>
-                                    <field name="matiere_id"/>
-                                    <field name="epaisseur"/>
-                                    <field name="poids" sum="Total"/>
-                                    <field name="prix_achat"/>
-                                    <field name="date_actualisation"/>
-                                    <field name="montant" sum="Total"/>
-                                </tree>
-                            </field>
                         </group>
-                        <group string="Dimensions">
-                            <field name="dimension_ids" nolabel="1">
-                                <tree editable="bottom">
-                                    <field name="devis_id" invisible="1"/>
-                                    <field name="dimension_id"/>
-                                    <field name="valeur"/>
-                                    <field name="description"/>
-                                </tree>
-                            </field>
-                        </group>
-                        <group string="Sections des équipements">
-                            <field name="section_ids" nolabel="1" readonly="1">
-                                <tree>
-                                    <button title="Section" name="acceder_section_action" type="object" icon="fa-search-plus"/>
-                                    <field name="devis_id" invisible="1"/>
-                                    <field name="section_id"/>
-                                    <field name="montant_total" sum="Total"/>
-                                    <field name="tps_montage"   sum="Total" widget="float_time"/>
-                                </tree>
-                            </field>
-                        </group>
-                        <group string="Variantes">
-                            <field name="variante_ids" nolabel="1" readonly="1">
-                                <tree>
-                                    <button title="Variante" name="acceder_variante_action" type="object" icon="fa-search-plus"/>
-                                    <field name="devis_id" invisible="1"/>
-                                    <field name="name"              optional="show"/>
-                                    <field name="quantite"          optional="show"/>
-                                    <field name="marge_matiere"     optional="show"/>
-                                    <field name="marge_equipement"  optional="show"/>
-                                    <field name="marge_montage"     optional="show"/>
-                                    <field name="tps_be"            optional="show" widget="float_time"/>
-                                    <field name="marge_be"          optional="show"/>
-                                    <field name="marge_revendeur"   optional="show"/>
-                                    <field name="gain_productivite" optional="show"/>
+                        <notebook>
+                            <page string="Devis">
+                                <group>
+                                    <group string="Temps">
+                                        <field name="tps_montage"    widget="float_time" readonly="1" />
+                                        <field name="tps_assemblage" widget="float_time"/>
+                                        <field name="tps_majoration" widget="float_time"/>
+                                        <field name="tps_minoration" widget="float_time"/>
+                                        <field name="tps_total"      widget="float_time"/>
+                                        <field name="tps_be"         widget="float_time"/>
+                                    </group>
+                                </group>
+                                <group string="Matières">
+                                    <field name="matiere_ids" nolabel="1">
+                                        <tree editable="bottom">
+                                            <field name="sequence" widget="handle" />
+                                            <field name="devis_id" invisible="1"/>
+                                            <field name="section_id"/>
+                                            <field name="matiere_id"/>
+                                            <field name="epaisseur"/>
+                                            <field name="poids" sum="Total" readonly="1"/>
+                                            <field name="prix_achat"/>
+                                            <field name="date_actualisation"/>
+                                            <field name="montant" sum="Total"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                                <group string="Dimensions">
+                                    <field name="dimension_ids" nolabel="1">
+                                        <tree editable="bottom">
+                                            <field name="sequence" widget="handle" />
+                                            <field name="devis_id" invisible="1"/>
+                                            <field name="dimension_id"/>
+                                            <field name="valeur"/>
+                                            <field name="description"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                                <group string="Sections des équipements">
+                                    <field name="section_ids" nolabel="1" readonly="0">
+                                        <tree>
+                                            <field name="sequence" widget="handle" />
+                                            <button title="Section" name="acceder_section_action" type="object" icon="fa-search-plus"/>
+                                            <field name="devis_id" invisible="1"/>
+                                            <field name="section_id"/>
+                                            <field name="montant_total" sum="Total"/>
+                                            <field name="tps_montage"   sum="Total" widget="float_time"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                                <group string="Variantes">
+                                    <field name="variante_ids" nolabel="1" readonly="1">
+                                        <tree>
+                                            <button title="Variante" name="acceder_variante_action" type="object" icon="fa-search-plus"/>
+                                            <field name="devis_id" invisible="1"/>
+                                            <field name="name"              optional="show"/>
+                                            <field name="quantite"          optional="show"/>
+                                            <field name="marge_matiere"     optional="show"/>
+                                            <field name="marge_equipement"  optional="show"/>
+                                            <field name="marge_montage"     optional="show"/>
+                                            <field name="tps_be"            optional="show" widget="float_time"/>
+                                            <field name="marge_be"          optional="show"/>
+                                            <field name="marge_revendeur"   optional="show"/>
+                                            <field name="gain_productivite" optional="show"/>
 
-                                    <field name="prix_vente_lot"              optional="show"/>
-                                    <field name="prix_vente_revendeur_lot"    optional="hide"/>
-                                    <field name="montant_marge_lot"           optional="hide"/>
-                                    <field name="montant_marge_revendeur_lot" optional="hide"/>
-                                    <field name="prix_vente"                  optional="show"/>
-                                    <field name="prix_vente_revendeur"        optional="hide"/>
-                                    <field name="montant_marge"               optional="hide"/>
-                                    <field name="montant_marge_revendeur"     optional="hide"/>
-                                </tree>
-                            </field>
-                        </group>
-                        <group>
-                            <field name="commentaire"/>
-                        </group>
+                                            <field name="prix_vente_lot"              optional="show"/>
+                                            <field name="prix_vente_revendeur_lot"    optional="hide"/>
+                                            <field name="montant_marge_lot"           optional="hide"/>
+                                            <field name="montant_marge_revendeur_lot" optional="hide"/>
+                                            <field name="prix_vente"                  optional="show"/>
+                                            <field name="prix_vente_revendeur"        optional="hide"/>
+                                            <field name="montant_marge"               optional="hide"/>
+                                            <field name="montant_marge_revendeur"     optional="hide"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                                <group>
+                                    <field name="commentaire"/>
+                                </group>
+                            </page>
+                            <page string="Calculs">
+                                <group string="Calculs"/>
+                                <field name="calcul_ids" nolabel="1">
+                                    <tree editable="bottom" limit="200">
+                                        <field name="sequence" widget="handle" />
+                                        <field name="devis_parametrable_id" invisible="1"/>
+                                        <field name="name"/>
+                                        <field name="description"/>
+                                        <field name="formule"/>
+                                        <field name="formule_odoo" optional="hide"/>
+                                        <field name="resultat"/>
+                                        <field name="unite"/>
+                                        <field name="lien_id" optional="hide"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+
+
                     </sheet>
                     <div class="oe_chatter">
                         <field name="message_follower_ids"/>
@@ -280,28 +315,48 @@
                 <form>
                     <sheet>
                         <style>
+                            body{
+                                line-height:1.2;
+                            }
+                            .o_form_view .o_group{
+                                margin-top: 0px;
+                            }
                             .o_form_view .o_form_sheet_bg > .o_form_sheet{
                                 max-width: 1800px;
                             }
                             .o_form_label{
                                 white-space: nowrap;
                             }
+                            .description{
+                                font-weight: bold;
+                                font-size: 12pt;
+                            }
                         </style>
-                        <group string="Paramètres">
-                            <group>
+                        <group>
+                            <field name="description" nolabel="1" class="description"/>
+                        </group>
+                        <group>
+                            <group string="Paramètres">
                                 <field name="devis_id"   readonly="1"/>
                                 <field name="partner_id" readonly="1"/>
                                 <field name="name"/>
                                 <field name="quantite"/>
-                                <field name="tps_be" widget="float_time"/>
-                            </group>
-                            <group>
+                                <field name="cout_horaire_montage"/>
+                                <field name="cout_horaire_be"/>
                                 <field name="marge_matiere"/>
                                 <field name="marge_equipement"/>
                                 <field name="marge_montage"/>
                                 <field name="marge_be"/>
                                 <field name="marge_revendeur"/>
                                 <field name="gain_productivite"/>
+                            </group>
+                            <group string="Temps unitaire">
+                                <field name="tps_montage"    widget="float_time"/>
+                                <field name="tps_assemblage" widget="float_time"/>
+                                <field name="tps_majoration" widget="float_time"/>
+                                <field name="tps_minoration" widget="float_time"/>
+                                <field name="tps_total"      widget="float_time"/>
+                                <field name="tps_be"         widget="float_time"/>
                             </group>
                         </group>
                         <group>
@@ -478,6 +533,8 @@
             <field name="arch" type="xml">
                 <tree >
                     <field name="name"/>
+                    <field name="epaisseur_matiere_id"/>
+                    <field name="poids_matiere_id"/>
                 </tree>
             </field>
         </record>
@@ -490,6 +547,8 @@
                         <group>
                             <group>
                                 <field name="name" />
+                                <field name="epaisseur_matiere_id"/>
+                                <field name="poids_matiere_id"/>
                             </group>
                          </group>
                     </sheet>
@@ -563,7 +622,8 @@
                                     <field name="formule" attrs="{'readonly': [('proteger_formule','=',True)]}"/>
                                     <field name="formule_odoo" readonly="1" optional="hide"/>
                                     <field name="resultat"     readonly="1"/>
-                                    <field name="unite" attrs="{'readonly': [('proteger','=',True)]}"/>
+                                    <field name="unite"    attrs="{'readonly': [('proteger','=',True)]}"/>
+                                    <field name="lien_id"  attrs="{'readonly': [('proteger','=',True)]}"/>
                                     <field name="proteger"         optional="hide"/>
                                     <field name="proteger_formule" invisible="1"/>
                                 </tree>
@@ -658,6 +718,7 @@
             <field name="arch" type="xml">
                 <tree >
                     <field name="name"/>
+                    <field name="lien_id"/>
                 </tree>
             </field>
         </record>
@@ -670,6 +731,7 @@
                         <group>
                             <group>
                                 <field name="name" />
+                                <field name="lien_id" />
                             </group>
                          </group>
                     </sheet>
@@ -690,6 +752,56 @@
             <field name="res_model">is.dimension</field>
             <field name="view_mode">tree,form</field>
         </record>
+
+
+
+        <!-- is.lien.odoo.excel -->
+        <record id="is_lien_odoo_excel_tree" model="ir.ui.view">
+            <field name="name">is.lien.odoo.excel.tree</field>
+            <field name="model">is.lien.odoo.excel</field>
+            <field name="arch" type="xml">
+                <tree >
+                    <field name="name"/>
+                    <field name="type_lien"/>
+                    <field name="commentaire"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_lien_odoo_excel_form" model="ir.ui.view">
+            <field name="name">is.lien.odoo.excel.form</field>
+            <field name="model">is.lien.odoo.excel</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="type_lien"/>
+                                <field name="commentaire"/>
+                            </group>
+                         </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_lien_odoo_excel_search" model="ir.ui.view">
+            <field name="name">is.lien.odoo.excel.search</field>
+            <field name="model">is.lien.odoo.excel</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="type_lien"/>
+                    <field name="commentaire"/>
+               </search>
+            </field>
+        </record>
+        <record id="is_lien_odoo_excel_action" model="ir.actions.act_window">
+            <field name="name">Liens Odoo/Excel</field>
+            <field name="res_model">is.lien.odoo.excel</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
 
 
     </data>

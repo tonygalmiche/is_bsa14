@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from email.policy import default
 from odoo import models,fields,api
 import datetime
 from odoo.http import request
@@ -18,13 +19,44 @@ class is_devis_parametrable_affaire(models.Model):
     _description = "Affaire - Devis paramètrable"
     _order='name'
 
-    name         = fields.Char("Affaire", required=True)
-    partner_id   = fields.Many2one('res.partner', 'Client', required=True)
-    revendeur_id = fields.Many2one('res.partner', 'Revendeur')
+    name                 = fields.Char("Affaire", required=True)
+    partner_id           = fields.Many2one('res.partner', 'Client', required=True)
+    revendeur_id         = fields.Many2one('res.partner', 'Revendeur')
+    delais               = fields.Char("Délais")
+    duree_validite       = fields.Char("Durée de validité de l'offre")
+    conditions_generales = fields.Text("Conditions générales")
+
     variante_ids = fields.One2many('is.devis.parametrable.affaire.variante', 'affaire_id', 'Variantes', copy=True)
+
+    tax_id      = fields.Many2one('account.tax', 'TVA à appliquer', readonly=True)
+    currency_id = fields.Many2one('res.currency', "Devise", readonly=True, compute='_compute_montants')
+    montant_ht  = fields.Monetary("Montant HT" , readonly=True, compute='_compute_montants')
+    montant_tva = fields.Monetary("TVA"        , readonly=True, compute='_compute_montants')
+    montant_ttc = fields.Monetary("Montant TTC", readonly=True, compute='_compute_montants')
+
     entete_ids   = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_entete_rel', 'affaire_id', 'attachment_id', 'Entête')
     pied_ids     = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_pied_rel'  , 'affaire_id', 'attachment_id', 'Pied')
     devis_ids    = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_devis_rel' , 'affaire_id', 'attachment_id', 'Devis')
+
+    @api.depends('variante_ids')
+    def _compute_montants(self):
+        company = self.env.user.company_id
+        for obj in self:
+            obj.currency_id = company.currency_id.id
+            ht=tva=ttc=0
+            tax_id = False
+            for line in obj.variante_ids:
+                tax_id = line.variante_id.devis_id.tax_id.id
+                qt = line.variante_id.quantite
+                prix_vente=line.variante_id.prix_vente_int
+                ht+=prix_vente*qt
+                tva+=line.variante_id.montant_tva*qt
+                ttc+=line.variante_id.prix_vente_ttc*qt
+            obj.montant_ht  = ht
+            obj.montant_tva = tva
+            obj.montant_ttc = ttc
+            obj.tax_id      = tax_id
+
 
     def generer_pdf_action(self):
         for obj in self:
@@ -57,6 +89,15 @@ class is_devis_parametrable_affaire(models.Model):
                 f.write(pdf)
                 f.close()
                 ct+=1
+
+            #** Récapitulatif *************************************************
+            pdf = request.env.ref('is_bsa14.action_report_devis_parametrable_affaire').sudo()._render_qweb_pdf([obj.id])[0]
+            path="/tmp/affaire_%s_%02d_recapitulatif.pdf"%(obj.id,ct)
+            paths.append(path)
+            f = open(path,'wb')
+            f.write(pdf)
+            f.close()
+            ct+=1
 
             #** Pied ********************************************************
             for attachment in obj.pied_ids:
@@ -143,7 +184,7 @@ class is_devis_parametrable(models.Model):
             obj.montant_matiere = montant
 
 
-    @api.depends('section_ids')
+    @api.depends('section_ids',"tps_assemblage","tps_majoration","tps_minoration")
     def _compute_montant(self):
         for obj in self:
             montant=tps_montage=0
@@ -152,10 +193,10 @@ class is_devis_parametrable(models.Model):
                 tps_montage+=line.tps_montage
             obj.total_equipement = montant
             obj.tps_montage      = tps_montage
-
+            obj.tps_total = tps_montage + obj.tps_assemblage + obj.tps_majoration - obj.tps_minoration
 
     name                       = fields.Char("N°", readonly=True)
-    image                      = fields.Binary("Image")
+    image                      = fields.Binary("Image", related="type_cuve_id.image")
     code_devis                 = fields.Char("Code devis")
     designation                = fields.Char("Désignation")
     designation_complementaire = fields.Char("Désignation complémentaire")
@@ -173,12 +214,19 @@ class is_devis_parametrable(models.Model):
     date_creation      = fields.Date("Date de création"         , required=True, default=lambda *a: fields.Date.today())
     date_actualisation = fields.Datetime("Date d'actualisation"                , default=fields.Datetime.now)
     partner_id         = fields.Many2one('res.partner', 'Client', required=True)
+    tax_id             = fields.Many2one('account.tax', 'TVA à appliquer')
+    tps_montage        = fields.Float("Tps montage (HH:MM)", help="Temps de montatge (HH:MM)", store=False, readonly=True, compute='_compute_montant')
+    tps_assemblage     = fields.Float("Tps assemblage (HH:MM)")
+    tps_majoration     = fields.Float("Tps majoration (HH:MM)")
+    tps_minoration     = fields.Float("Tps minoration (HH:MM)")
+    tps_total          = fields.Float("Tps total hors BE (HH:MM)", store=False, readonly=True, compute='_compute_montant')
+    tps_be             = fields.Float("Tps BE (HH:MM)", help="Le temps BE sera divisé par la quantité prévue dans les calculs")
+
     matiere_ids        = fields.One2many('is.devis.parametrable.matiere'  , 'devis_id', 'Matières'  , copy=True)
     dimension_ids      = fields.One2many('is.devis.parametrable.dimension', 'devis_id', 'Dimensions', copy=True)
     section_ids        = fields.One2many('is.devis.parametrable.section'  , 'devis_id', 'Sections'  , copy=True)
     variante_ids       = fields.One2many('is.devis.parametrable.variante' , 'devis_id', 'Variantes' , copy=True)
     total_equipement   = fields.Float("Total équipement"                     , store=False, readonly=True, compute='_compute_montant')
-    tps_montage        = fields.Float("Tps (HH:MM)"    , help="Temps de montatge (HH:MM)", store=False, readonly=True, compute='_compute_montant')
     montant_matiere    = fields.Float("Montant matière", store=False, readonly=True, compute='_compute_montant_matiere')
     commentaire        = fields.Text("Commentaire")
 
@@ -192,14 +240,45 @@ class is_devis_parametrable(models.Model):
 
     def write(self, vals):
         res = super(is_devis_parametrable, self).write(vals)
-        self.recalculer_action()
+        if "capacite" not in vals:
+            self.recalculer_action()
         return res
 
 
     def recalculer_action(self):
         for obj in self:
+            #** Initialiser les données d'entrées *****************************
+            for matiere in obj.matiere_ids:
+                lien_id = matiere.section_id.epaisseur_matiere_id
+                if lien_id:
+                    for line in obj.calcul_ids:
+                        if line.lien_id==lien_id:
+                            line.formule=matiere.epaisseur
+            for dimension in obj.dimension_ids:
+                lien_id = dimension.dimension_id.lien_id
+                if lien_id:
+                    for line in obj.calcul_ids:
+                        if line.lien_id==lien_id:
+                            line.formule=dimension.valeur
+            #******************************************************************
+
             for line in obj.calcul_ids:
                 line._compute_resultat(obj)
+
+            #** Récupératon des données de sortie *****************************
+            for matiere in obj.matiere_ids:
+                lien_id = matiere.section_id.poids_matiere_id
+                if lien_id:
+                    for line in obj.calcul_ids:
+                        if line.lien_id==lien_id:
+                            matiere.poids=line.resultat
+            #******************************************************************
+
+            #** Récupératon capacite ******************************************
+            for line in obj.calcul_ids:
+                if line.lien_id.name=="capacite":
+                    obj.capacite = line.resultat
+            #******************************************************************
 
 
     def creation_section_action(self):
@@ -263,7 +342,6 @@ class is_devis_parametrable(models.Model):
         for obj in self:
             lines = []
             obj.calcul_ids=False
-            commentaire=False
             if obj.type_cuve_id:
                 for line in obj.type_cuve_id.calcul_ids:
                     vals = {
@@ -274,16 +352,29 @@ class is_devis_parametrable(models.Model):
                         'formule_odoo'         : line.formule_odoo,
                         'resultat'             : line.resultat,
                         'unite'                : line.unite,
+                        'lien_id'              : line.lien_id,
                     }
                     lines.append([0,False,vals])
                     commentaire = line.formule
             obj.calcul_ids=lines
-            obj.commentaire = commentaire
+
+
+class is_lien_odoo_excel(models.Model):
+    _name = 'is.lien.odoo.excel'
+    _description = "Codes pour déterminer les entrées et les sorties entre le devis et le calculateur"
+
+    name = fields.Char("Code", help="Code du lien entre le devis et le calculateur")
+    type_lien = fields.Selection([
+            ('entree', "Donnée d'entrée"),
+            ('sortie', "Donnée de sortie"),
+        ], "Type de lien")
+    commentaire = fields.Text("Commentaire")
 
 
 class is_devis_parametrable_matiere(models.Model):
     _name = 'is.devis.parametrable.matiere'
     _description = "Matieres du devis paramètrable"
+    _order='sequence,id'
 
     @api.depends('prix_achat', 'matiere_id', 'poids')
     def _compute_montant(self):
@@ -299,6 +390,7 @@ class is_devis_parametrable_matiere(models.Model):
 
 
     devis_id   = fields.Many2one('is.devis.parametrable', 'Devis', required=True, ondelete='cascade')
+    sequence   = fields.Integer("Sequence")
     section_id = fields.Many2one('is.section.devis', "Section")
     matiere_id = fields.Many2one('is.matiere', "Matière")
     epaisseur  = fields.Float("Épaisseur")
@@ -311,16 +403,24 @@ class is_devis_parametrable_matiere(models.Model):
 class is_devis_parametrable_dimension(models.Model):
     _name = 'is.devis.parametrable.dimension'
     _description = "Dimensions du devis paramètrable"
+    _order='sequence,id'
+
 
     devis_id     = fields.Many2one('is.devis.parametrable', 'Devis', required=True, ondelete='cascade')
+    sequence     = fields.Integer("Sequence")
     dimension_id = fields.Many2one('is.dimension', 'Dimension')
     description  = fields.Char("Description"   , help="Information pour le client")
     valeur       = fields.Integer("Valeur (mm)", help="Utilisée dans les calculs")
 
 
+
+
+
 class is_devis_parametrable_section(models.Model):
     _name = 'is.devis.parametrable.section'
     _description = "Sections du devis paramètrable"
+    _order='sequence,id'
+
 
     @api.depends('product_ids')
     def _compute_montant(self):
@@ -338,11 +438,12 @@ class is_devis_parametrable_section(models.Model):
                 tps+=line.tps_montage
             obj.tps_montage = tps
 
-    devis_id           = fields.Many2one('is.devis.parametrable', 'Devis', required=True, ondelete='cascade')
-    section_id         = fields.Many2one('is.section.devis', "Section")
-    product_ids        = fields.One2many('is.devis.parametrable.section.product', 'section_id', 'Articles', copy=True)
-    montant_total      = fields.Float("Total", store=True, readonly=True, compute='_compute_montant')
-    tps_montage        = fields.Float("Tps (HH:MM)", help="Temps de montatge (HH:MM)", store=True, readonly=True, compute='_compute_tps_montage')
+    devis_id      = fields.Many2one('is.devis.parametrable', 'Devis', required=True, ondelete='cascade')
+    sequence      = fields.Integer("Sequence")
+    section_id    = fields.Many2one('is.section.devis', "Section")
+    product_ids   = fields.One2many('is.devis.parametrable.section.product', 'section_id', 'Articles', copy=True)
+    montant_total = fields.Float("Total", store=True, readonly=True, compute='_compute_montant')
+    tps_montage   = fields.Float("Tps (HH:MM)", help="Temps de montatge (HH:MM)", store=True, readonly=True, compute='_compute_tps_montage')
 
 
 
@@ -424,30 +525,37 @@ class is_devis_parametrable_variante(models.Model):
 
     devis_id          = fields.Many2one('is.devis.parametrable', 'Devis paramètrable', required=True, ondelete='cascade')
     name              = fields.Char("Nom", required=True)
+    description       = fields.Text("Description", readonly=True, compute='_compute_description')
     partner_id        = fields.Many2one('res.partner', "Client", related="devis_id.partner_id", readonly=True)
 
-
-
     quantite          = fields.Integer("Qt prévue")
+
+    tps_montage       = fields.Float("Tps montage (HH:MM)"      , related="devis_id.tps_montage"   , readonly=True)
+    tps_assemblage    = fields.Float("Tps assemblage (HH:MM)"   , related="devis_id.tps_assemblage", readonly=True)
+    tps_majoration    = fields.Float("Tps majoration (HH:MM)"   , related="devis_id.tps_majoration", readonly=True)
+    tps_minoration    = fields.Float("Tps minoration (HH:MM)"   , related="devis_id.tps_minoration", readonly=True)
+    tps_total         = fields.Float("Tps total hors BE (HH:MM)", related="devis_id.tps_total"     , readonly=True)
+    tps_be            = fields.Float("Tps BE (HH:MM)"           , related="devis_id.tps_be"        , readonly=True)
+
     marge_matiere     = fields.Float("Marge matière (%)")
     marge_equipement  = fields.Float("Marge équipement (%)")
     marge_montage     = fields.Float("Marge MO (%)")
-    tps_be            = fields.Float("Tps BE (HH:MM)", help="Le temps BE sera divisé par la quantité prévue dans les calculs")
     marge_be          = fields.Float("Marge BE (%)")
     marge_revendeur   = fields.Float("Marge revendeur (%)")
     gain_productivite = fields.Float("Gain de productivé (%)", help="En fonction de la quantité prévue, vous pouvez ajouter un gain de productivité sur le temps de montage des équipements")
 
     currency_id        = fields.Many2one('res.currency', "Devise", readonly=True, compute='_compute_montants')
 
+    cout_horaire_montage = fields.Float('Coût horaire montage', default=lambda self: self.env.user.company_id.is_cout_horaire_montage)
+    cout_horaire_be      = fields.Float('Coût horaire BE'     , default=lambda self: self.env.user.company_id.is_cout_horaire_be)
+
     montant_matiere    = fields.Monetary("Montant matière" , readonly=True, compute='_compute_montants', currency_field='currency_id')
     montant_equipement = fields.Monetary("Montant equipements", readonly=True, compute='_compute_montants', currency_field='currency_id')
-    tps_montage        = fields.Float("Tps montage (HH:MM)"        , readonly=True, compute='_compute_montants')
     montant_montage    = fields.Monetary("Montant MO sans productivité"    , readonly=True, compute='_compute_montants', currency_field='currency_id')
     montant_montage_productivite = fields.Monetary("Montant MO", readonly=True, compute='_compute_montants', currency_field='currency_id')
-    montant_be         = fields.Monetary("Montant BE"         , readonly=True, compute='_compute_montants', currency_field='currency_id')
-    montant_total      = fields.Monetary("Montant Total"      , readonly=True, compute='_compute_montants', currency_field='currency_id')
-    montant_unitaire   = fields.Monetary("Montant Unitaire"   , readonly=True, compute='_compute_montants', currency_field='currency_id')
-
+    montant_be         = fields.Monetary("Montant BE"          , readonly=True, compute='_compute_montants', currency_field='currency_id')
+    montant_total      = fields.Monetary("Montant Total"       , readonly=True, compute='_compute_montants', currency_field='currency_id')
+    montant_unitaire   = fields.Monetary("Montant Unitaire HT" , readonly=True, compute='_compute_montants', currency_field='currency_id')
     montant_matiere_pourcent              = fields.Float("% Montant matière"                  , readonly=True, compute='_compute_montants')
     montant_equipement_pourcent           = fields.Float("% Montant equipements"              , readonly=True, compute='_compute_montants')
     montant_montage_productivite_pourcent = fields.Float("% Montant MO avec productivité", readonly=True, compute='_compute_montants')
@@ -458,8 +566,11 @@ class is_devis_parametrable_variante(models.Model):
     montant_marge_lot           = fields.Monetary("Marge de l'affaire"                  , readonly=True, compute='_compute_montants', currency_field='currency_id')
     montant_marge_revendeur_lot = fields.Monetary("Marge revendeur de l'affaire"        , readonly=True, compute='_compute_montants', currency_field='currency_id')
 
-    prix_vente               = fields.Monetary("Prix de vente"          , readonly=True, compute='_compute_montants', currency_field='currency_id')
-    prix_vente_int           = fields.Integer("Prix de vente (arrondi)" , readonly=True, compute='_compute_montants')
+    prix_vente               = fields.Monetary("Prix de vente HT"          , readonly=True, compute='_compute_montants', currency_field='currency_id')
+    prix_vente_int           = fields.Integer("Prix de vente HT (arrondi)" , readonly=True, compute='_compute_montants')
+    montant_tva              = fields.Integer("TVA"                        , readonly=True, compute='_compute_montants')
+    prix_vente_ttc           = fields.Integer("Prix de vente TTC"          , readonly=True, compute='_compute_montants')
+
     prix_vente_revendeur     = fields.Monetary("Prix de vente revendeur", readonly=True, compute='_compute_montants', currency_field='currency_id')
     montant_marge            = fields.Monetary("Marge"                  , readonly=True, compute='_compute_montants', currency_field='currency_id')
     montant_marge_revendeur  = fields.Monetary("Marge revendeur"        , readonly=True, compute='_compute_montants', currency_field='currency_id')
@@ -467,26 +578,46 @@ class is_devis_parametrable_variante(models.Model):
     commentaire              = fields.Text("Commentaire")
 
 
-    @api.depends('quantite','marge_matiere','marge_equipement','marge_montage','tps_be','marge_be','marge_revendeur','gain_productivite')
+    @api.depends('name')
+    def _compute_description(self):
+        for obj in self:
+            d = obj.devis_id
+            r="%s - %s - %s %s %s"%(d.designation, d.designation_complementaire, d.capacite, d.unite, d.type_cuve_id.name)
+            # r+=devis.designation+"\n"
+            # r+=devis.designation_complementaire+"\n"
+            # r+=str(devis.capacite)+" "+devis.unite+" "+devis.type_cuve_id.name
+
+            obj.description=r
+
+
+    @api.depends('quantite','marge_matiere','marge_equipement','marge_montage','tps_be','marge_be','marge_revendeur','gain_productivite','cout_horaire_montage','cout_horaire_be')
     def _compute_montants(self):
         company = self.env.user.company_id
         for obj in self:
             obj.currency_id = company.currency_id.id
             quantite = obj.quantite or 1
 
-            tps_montage        = obj.devis_id.tps_montage*quantite
+            tps_montage        = obj.devis_id.tps_total*quantite
             montant_matiere    = obj.devis_id.montant_matiere*quantite
             montant_equipement = obj.devis_id.total_equipement*quantite
-            montant_montage    = tps_montage*company.is_cout_horaire_montage
+            montant_montage    = tps_montage*obj.cout_horaire_montage
             montant_montage_productivite = montant_montage-montant_montage*obj.gain_productivite/100
-            montant_be         = obj.tps_be * company.is_cout_horaire_be
+            montant_be         = obj.tps_be * obj.cout_horaire_be
             montant_total      = montant_matiere + montant_equipement + montant_montage_productivite + montant_be
 
+            montant_matiere_pourcent = 0
+            montant_equipement_pourcent = 0
+            montant_montage_productivite_pourcent = 0
+            montant_be_pourcent = 0
             if montant_total>0:
-                obj.montant_matiere_pourcent              = 100 * montant_matiere / montant_total
-                obj.montant_equipement_pourcent           = 100 * montant_equipement / montant_total
-                obj.montant_montage_productivite_pourcent = 100 * montant_montage_productivite / montant_total
-                obj.montant_be_pourcent                   = 100 * montant_be / montant_total
+                montant_matiere_pourcent              = 100 * montant_matiere / montant_total
+                montant_equipement_pourcent           = 100 * montant_equipement / montant_total
+                montant_montage_productivite_pourcent = 100 * montant_montage_productivite / montant_total
+                montant_be_pourcent                   = 100 * montant_be / montant_total
+            obj.montant_matiere_pourcent = montant_matiere_pourcent
+            obj.montant_equipement_pourcent = montant_equipement_pourcent
+            obj.montant_montage_productivite_pourcent = montant_montage_productivite_pourcent
+            obj.montant_be_pourcent = montant_be_pourcent
 
             montant_unitaire = montant_total/quantite
 
@@ -506,16 +637,29 @@ class is_devis_parametrable_variante(models.Model):
             obj.montant_total      = montant_total
             obj.montant_unitaire   = montant_unitaire
 
-            obj.prix_vente_lot              = prix_vente
             obj.prix_vente_revendeur_lot    = prix_vente_revendeur
             obj.montant_marge_lot           = prix_vente - montant_total
             obj.montant_marge_revendeur_lot = prix_vente_revendeur - prix_vente
+            obj.prix_vente                  = prix_vente/quantite
 
-            obj.prix_vente              = prix_vente/quantite
-            obj.prix_vente_int          = round(obj.prix_vente)
+            prix_vente_int = round(obj.prix_vente)
+            obj.prix_vente_int = prix_vente_int
+            obj.prix_vente_lot = prix_vente_int * quantite
+
+            tva = obj.devis_id.tax_id.amount
+            obj.montant_tva = obj.prix_vente_int * (tva/100)
+            obj.prix_vente_ttc =  obj.prix_vente_int + obj.montant_tva
+
             obj.prix_vente_revendeur    = prix_vente_revendeur/quantite
             obj.montant_marge           = (prix_vente - montant_total)/quantite
             obj.montant_marge_revendeur = (prix_vente_revendeur - prix_vente)/quantite
+
+
+    # prix_vente_int           = fields.Integer("Prix de vente HT (arrondi)" , readonly=True, compute='_compute_montants')
+    # montant_tva              = fields.Monetary("TVA"                       , readonly=True, compute='_compute_montants', currency_field='currency_id')
+    # prix_vente_ttc           = fields.Monetary("Prix de vente TTC"         , readonly=True, compute='_compute_montants', currency_field='currency_id')
+
+
 
 
     def acceder_variante_action(self):
@@ -544,7 +688,9 @@ class is_section_devis(models.Model):
     _description = "Section devis"
     _order='name'
 
-    name        = fields.Char("Section devis", required=True)
+    name                 = fields.Char("Section devis", required=True)
+    epaisseur_matiere_id = fields.Many2one('is.lien.odoo.excel', 'Epaisseur matière')
+    poids_matiere_id     = fields.Many2one('is.lien.odoo.excel', 'Poids matière')
 
 
 class is_type_cuve(models.Model):
@@ -614,6 +760,11 @@ class is_type_cuve(models.Model):
                 if col>=0:
                     lig=0
                     for row in ws_value.rows:
+                        lien_id=False
+                        lien = cells_value[lig][col+4].value
+                        liens =  self.env['is.lien.odoo.excel'].search([('name','=',lien)])
+                        for l in liens:
+                            lien_id = l.id
                         name = cells_value[lig][col].value
                         if re.match(r"[A-Z][0-9]+", str(name)):
                             if cells_formula[lig][col+2].value:
@@ -624,6 +775,7 @@ class is_type_cuve(models.Model):
                                     "description" : cells_value[lig][col+1].value,
                                     "formule"     : cells_formula[lig][col+2].value,
                                     "unite"       : cells_value[lig][col+3].value,
+                                    "lien_id"     : lien_id,
                                 }
                                 res = self.env['is.type.cuve.calcul'].create(vals)
                         lig+=1
@@ -655,6 +807,7 @@ class is_type_cuve_calcul(models.Model):
     formule_odoo = fields.Text("Formule Odoo") #, compute='_compute_resultat', store=True, readonly=True)
     resultat     = fields.Float("Résultat")    #, compute='_compute_resultat', store=True, readonly=True)
     unite        = fields.Char("Unité")
+    lien_id      = fields.Many2one('is.lien.odoo.excel', 'Lien Odoo Excel')
     proteger     = fields.Boolean("Protéger", default=True)
     proteger_formule = fields.Boolean("Protéger Formule", compute='_compute_proteger_formule', store=False, readonly=True)
 
@@ -830,5 +983,6 @@ class is_dimension(models.Model):
     _description = "Dimension"
     _order='name'
 
-    name = fields.Char("Dimension", required=True)
+    name    = fields.Char("Dimension", required=True)
+    lien_id = fields.Many2one('is.lien.odoo.excel', 'Lien Odoo Excel')
 

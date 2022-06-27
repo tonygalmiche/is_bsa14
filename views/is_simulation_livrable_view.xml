@@ -6,14 +6,17 @@
             <field name="name">is.simulation.livrable.ligne.tree</field>
             <field name="model">is.simulation.livrable.ligne</field>
             <field name="arch" type="xml">
-                <tree>
+                <tree decoration-danger="besoin &lt; 0">
                     <field name="simulation_id"/>
                     <field name="type_ligne"/>
-                    <field name="demande_id"/>
-                    <field name="niv"/>
-                    <field name="niv_txt"/>
+                    <field name="demande_id"           optional="show"/>
+                    <field name="niv"                  optional="show"/>
+                    <field name="niv_txt"              optional="show"/>
                     <field name="product_id"/>
-                    <field name="qt" sum="Total"/>
+                    <field name="simulation_livrable"  optional="show"/>
+                    <field name="demande" sum="Total"  optional="show"/>
+                    <field name="stock"   sum="Total"  optional="show"/>
+                    <field name="besoin"  sum="Total"/>
                 </tree>
             </field>
         </record>
@@ -30,7 +33,10 @@
                             <field name="niv"/>
                             <field name="niv_txt"/>
                             <field name="product_id"/>
-                            <field name="qt" sum="Total"/>
+                            <field name="simulation_livrable"/>
+                            <field name="demande" sum="Total"/>
+                            <field name="stock"   sum="Total"/>
+                            <field name="besoin"  sum="Total"/>
                         </group>
                     </sheet>
                 </form>
@@ -44,6 +50,15 @@
                     <field name="simulation_id"/>
                     <field name="type_ligne"/>
                     <field name="product_id"/>
+                    <field name="simulation_livrable"/>
+                    <filter string="Demande"         name="demande"         domain="[('type_ligne','=','demande')]" />
+                    <filter string="Besoin détaillé" name="besoin_detaille" domain="[('type_ligne','=','besoin_detaille')]" />
+                    <filter string="Besoin regroupé" name="besoin_regroupe" domain="[('type_ligne','=','besoin_regroupe')]" />
+                    <filter string="Besoin regroupé + Simulation livrable" name="besoin_regroupe_livrable" domain="[('type_ligne','=','besoin_regroupe'),('simulation_livrable','=',True)]" />
+                    <group expand="0" string="Regroupé par...">
+                        <filter name="type_ligne" string="Type"    context="{'group_by':'type_ligne'}"/>
+                        <filter name="product_id" string="Article" context="{'group_by':'product_id'}"/>
+                    </group>
                </search>
             </field>
         </record>
@@ -53,7 +68,10 @@
             <field name="limit">1000</field>
             <field name="view_mode">tree,form</field>
             <field name="domain">[('simulation_id','=',active_id)]</field>
-            <field name="context">{'default_simulation_id': active_id}</field>
+            <field name="context">{
+                    "default_simulation_id"   : active_id, 
+                    "search_default_besoin_regroupe_livrable":1
+                }</field>
         </record>
 
 
@@ -109,7 +127,7 @@
                                 <tree editable="bottom">
                                     <field name="simulation_id" invisible="1"/>
                                     <field name="product_id" style="white-space:normal"/>
-                                    <field name="qt" sum="Total"/>
+                                    <field name="demande" sum="Total"/>
                                 </tree>
                             </field>
                         </group>

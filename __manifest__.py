@@ -53,6 +53,7 @@ InfoSaône - Module Odoo 14 pour BSA
         "views/is_mrp_bom_line.xml",
         "views/is_mrp_bom_line.xml",
         "views/is_outillage.xml",
+        "views/is_paye_view.xml",
         "views/is_personnel_present.xml",
         "views/is_picking_line.xml",
         "views/is_pointage_commentaire.xml",

@@ -73,11 +73,11 @@
                         <th name="th_discount" t-if="display_discount" class="text-right" groups="product.group_discount_per_so_line">
                             <span>Remise</span>
                         </th>
-                        <th name="th_taxes" class="text-center">Taxes</th>
                         <th name="th_subtotal" class="text-right">
                             <span groups="account.group_show_line_subtotals_tax_excluded">Montant</span>
                             <span groups="account.group_show_line_subtotals_tax_included">Total Price</span>
                         </th>
+                        <th name="th_taxes" class="text-center">Taxes</th>
                     </tr>
                 </thead>
                 <tbody class="sale_tbody">
@@ -102,12 +102,12 @@
                                 <td t-if="display_discount" class="text-right" groups="product.group_discount_per_so_line">
                                     <span t-field="line.discount"/>%
                                 </td>
-                                <td name="td_taxes" class="text-center">
-                                    <span t-esc="', '.join(map(lambda x: (x.description or x.name), line.tax_id))"/>
-                                </td>
-                                <td name="td_subtotal" class="text-right o_price_total">
+                                 <td name="td_subtotal" class="text-right o_price_total">
                                     <span t-field="line.price_subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
                                     <span t-field="line.price_total" groups="account.group_show_line_subtotals_tax_included"/>
+                                </td>
+                                <td name="td_taxes" class="text-center">
+                                    <span t-esc="', '.join(map(lambda x: (x.description or x.name), line.tax_id))"/>
                                 </td>
                             </t>
                             <t t-if="line.display_type == 'line_section'">

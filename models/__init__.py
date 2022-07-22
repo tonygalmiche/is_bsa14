@@ -18,6 +18,7 @@ from . import is_fiche_controle
 from . import is_balance_agee
 from . import is_contrat_fournisseur
 from . import is_liste_manquants
+from . import is_paye
 from . import is_sale_order_line
 from . import is_picking_line
 from . import is_mrp_bom_line

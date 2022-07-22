@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+     <data>
+          <!-- is.paye -->
+          <record model="ir.ui.view" id="is_paye_form_view">
+               <field name="name">is_paye_form_view</field>
+               <field name="model">is.paye</field>
+               <field name="type">form</field>
+               <field name="arch" type="xml">
+                    <form>   
+                         <header>
+                              <button name="preparation_action" string="Lancer la préparation" type="object" />
+                         </header>
+                         <sheet>
+                              <group>
+                                   <field name="date_debut"/> 
+                                   <field name="date_fin"/>
+                              </group>
+                              <group>
+                                   <field name="employe_ids" nolabel="1" readonly="1">
+                                        <tree limit="200">
+                                             <field name="paye_id" invisible="1"/>
+                                             <button title="Fiche" name="acceder_employe_action" type="object" icon="fa-search-plus"/>
+                                             <field name="employee_id"/>
+                                         </tree>
+                                   </field>
+                              </group>
+                         </sheet>
+                    </form>
+               </field>
+          </record>
+          <record model="ir.ui.view" id="is_paye_tree_view">
+               <field name="name">is_paye_tree_view</field>
+               <field name="model">is.paye</field>
+               <field name="type">tree</field>
+                <field name="arch" type="xml">
+                    <tree>
+                         <field name="date_debut"/>
+                         <field name="date_fin"/>
+                    </tree>
+               </field>
+          </record>
+          <record model="ir.ui.view" id="is_paye_search_view" >
+               <field name="name">is_paye_search_view</field>
+               <field name="model">is.paye</field>
+               <field name="arch" type="xml">
+               <search>
+                    <field name="date_debut"/>
+               </search>
+               </field>
+          </record>
+          <record model="ir.actions.act_window" id="is_paye_action">
+               <field name="name">Préparation salaires</field>
+               <field name="res_model">is.paye</field>
+               <field name="view_mode">tree,form</field>
+          </record>
+
+
+
+          <!-- is.paye.employe -->
+          <record model="ir.ui.view" id="is_paye_employe_form_view">
+               <field name="name">is_paye_employe_form_view</field>
+               <field name="model">is.paye.employe</field>
+               <field name="type">form</field>
+               <field name="arch" type="xml">
+                    <form>   
+                         <style>
+                              .o_form_view .o_form_sheet_bg > .o_form_sheet{
+                              max-width: 1800px;
+                         }
+                         .o_form_label{
+                              white-space: nowrap;
+                         }
+                         </style>
+                         <sheet>
+                              <group>
+                                   <field name="employee_id"/> 
+                              </group>
+                              <group>
+                                   <field name="jour_ids" nolabel="1">
+                                        <tree editable="bottom" decoration-danger="jour==False">
+                                             <field name="employe_id" invisible="1"/>
+                                             <field name="jour"                readonly="1" optional="hide"/>
+                                             <field name="jour_char"           readonly="1"/>
+                                             <field name="heures_semaine"      readonly="1"/>
+                                             <field name="balance"             readonly="1"/>
+                                             <field name="info_id"             readonly="1"/>
+                                             <field name="info_complementaire" readonly="1" optional="hide"/>
+                                             <field name="hs25"/>
+                                             <field name="hs50"/>
+                                             <field name="cp_heure"/>
+                                             <field name="cp_jour"/>
+                                             <field name="maladie"/>
+                                             <field name="at"/>
+                                             <field name="abs"/>
+                                             <field name="ecole"/>
+                                         </tree>
+                                   </field>
+                              </group>
+                              <group>
+                                   <group>
+                                        <field name="heures_semaine"/>
+                                        <field name="balance"/>
+                                        <field name="hs25"/>
+                                        <field name="hs50"/>
+                                        <field name="cp_heure"/>
+                                        <field name="cp_jour"/>
+                                        <field name="maladie"/>
+                                        <field name="at"/>
+                                        <field name="abs"/>
+                                        <field name="ecole"/>
+                                   </group>
+                                   <group>
+                                        <field name="intitule_ids" nolabel="1">
+                                             <tree editable="bottom">
+                                                  <field name="employe_id" invisible="1"/>
+                                                  <field name="intitule_id"/>
+                                                  <field name="heure"/>
+                                             </tree>
+                                        </field>
+                                   </group>
+                              </group>
+                         </sheet>
+                    </form>
+               </field>
+          </record>
+          <record model="ir.ui.view" id="is_paye_employe_tree_view">
+               <field name="name">is_paye_employe_tree_view</field>
+               <field name="model">is.paye.employe</field>
+               <field name="type">tree</field>
+                <field name="arch" type="xml">
+                    <tree>
+                         <field name="employee_id"/>
+                    </tree>
+               </field>
+          </record>
+          <record model="ir.ui.view" id="is_paye_employe_search_view" >
+               <field name="name">is_paye_employe_search_view</field>
+               <field name="model">is.paye.employe</field>
+               <field name="arch" type="xml">
+               <search>
+                    <field name="employee_id"/>
+               </search>
+               </field>
+          </record>
+          <record model="ir.actions.act_window" id="is_paye_employe_action">
+               <field name="name">Employés</field>
+               <field name="res_model">is.paye.employe</field>
+               <field name="view_mode">tree,form</field>
+          </record>
+
+
+     </data>
+</odoo>

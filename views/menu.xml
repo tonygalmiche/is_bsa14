@@ -460,6 +460,14 @@
             parent="menu_is_pointage" 
             action="is_jour_ferie_action"
         />
+        <menuitem 
+            id="is_paye_menu"     
+            sequence="50" 
+            name="Préparation salaires"      
+            parent="menu_is_pointage" 
+            action="is_paye_action"
+        />
+
         <menuitem id="menu_is_pointage_report" sequence="25" parent="hr.menu_hr_root" name="Rapport" />
         <menuitem id="menu_is_pointage_report1" sequence="10" action="is_pointage_report1_action" parent="menu_is_pointage_report"/>
         <!--<menuitem action="hr.open_view_employee_list_my" id="is_menu_open_view_employee_list_my" sequence="10" parent="hr.menu_hr_main"/>-->

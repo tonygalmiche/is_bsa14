@@ -104,6 +104,7 @@
                 </field>
                 <field name="uom_po_id" position="after">
                     <field name="is_simulation_livrable" />
+                    <field name="is_article_pour_devis" />
                 </field>
                 <xpath expr="//page/group[@name='inventory']" position="after">
                      <group name="is_tracabilte" string='Traçabilité'>

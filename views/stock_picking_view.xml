@@ -101,9 +101,17 @@
 
                 <xpath expr="//page[@name='operations']/field/tree/field[@name='product_uom']" position="after">
                     <field name="is_account_move_line_id" optional="hide"/>
+                    <field name="state" optional="hide"/>
                 </xpath>
                 <xpath expr="//page[@name='operations']/field/form/group/field[@name='product_uom']" position="after">
                     <field name="is_account_move_line_id" optional="hide"/>
+                </xpath>
+                <xpath expr="//page[@name='operations']/field/form/group/field[@name='description_picking']" position="after">
+                    <button 
+                        name="annuler_mouvement_action" 
+                        string="Annuler ce mouvement de stock" type="object"
+                        attrs="{'invisible': [('state', 'in', ['done','cancel'])]}" 
+                    />
                 </xpath>
              </field>
         </record>

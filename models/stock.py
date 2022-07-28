@@ -83,6 +83,14 @@ class stock_move(models.Model):
             }
 
 
+    def annuler_mouvement_action(self):
+        for obj in self:
+            print(obj)
+            obj._action_cancel()
+ 
+
+
+
 class stock_quant(models.Model):
     _inherit = "stock.quant"
      

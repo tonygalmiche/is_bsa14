@@ -253,6 +253,7 @@ class product_template(models.Model):
         for obj in self:
             produire=False
             for route in obj.route_ids:
+                _logger.info("recalcul_prix_revient_action : %s (id=%s : route=%s)"%(obj.display_name,obj.id, route.name))
                 if route.name=="Produire":
                     produire=True
             if obj.is_recalcul_prix_revient:
@@ -273,6 +274,10 @@ class product_template(models.Model):
                         obj.standard_price=row[0]
 
 
+            _logger.info("recalcul_prix_revient_action : %s (id=%s : produire=%s) => %s"%(obj.display_name,obj.id, produire, obj.standard_price))
+
+
+
     # def recalcul_all_prix_revient(self):
     #     products=self.env['product.template'].search([])
     #     for product in products:
@@ -289,8 +294,8 @@ class product_template(models.Model):
         nb = len(products)
         ct=1
         for product in products:
-            _logger.info("%s/%s recalcul_prix_revient_ir_cron : %s"%(ct,nb,product.name))
             product.recalcul_prix_revient_action()
+            _logger.info("%s/%s recalcul_prix_revient_ir_cron : %s (id=%s) => %s"%(ct,nb,product.display_name,product.id,product.standard_price))
             ct+=1
         return True
 

@@ -46,6 +46,7 @@
                                     </td>
                                     <td>
                                         <!-- <span t-field="o.document_id.client_order_ref"/> -->
+                                        <span t-field="o.sale_id.client_order_ref"/>
                                     </td>
                                     <td>
                                         <t t-if="o.is_date_bl">

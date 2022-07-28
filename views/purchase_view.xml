@@ -184,6 +184,8 @@
                     <field name="is_qt_reste"    optional="show"/>
                     <field name="price_unit"     optional="show" readonly="1" />
                     <field name="product_qty"    optional="show" readonly="1" sum="Total"/>
+                    <field name="qty_received"   optional="hide" readonly="1" sum="Total"/>
+                    <field name="qty_invoiced"   optional="hide" readonly="1" sum="Total"/>
                     <field name="product_uom"    optional="show" readonly="1" />
                     <field name="price_subtotal" optional="show" readonly="1" sum="Total"/>
                     <field name="date_planned"   optional="show" widget="date"/>

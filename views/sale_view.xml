@@ -131,6 +131,8 @@
                     <field name="is_condition_livraison"/>
                     <field name="user_id"/>
                     <field name="client_order_ref"/>
+                    <field name="is_notre_ref_devis"/>
+                    <field name="is_nom_affaire"/>
                 </field>
                 <xpath expr="//sheet" position="attributes">
                     <attribute name="class">oe_form_sheet_width_wider</attribute>

@@ -39,7 +39,7 @@
             <table class="table table-sm o_main_table">
                 <thead style="display: table-row-group">
                     <tr>
-                        <th t-if="doc.client_order_ref"                                 class="text-left">Votre Référence</th>
+                        <th                                                             class="text-left">Référence</th>
                         <th t-if="doc.date_order and doc.state not in ['draft','sent']" class="text-left">Date de commande</th>
                         <th t-if="doc.date_order and doc.state in ['draft','sent']"     class="text-left">Date du devis</th>
                         <th t-if="doc.validity_date and doc.state in ['draft', 'sent']" class="text-left">Validité</th>
@@ -50,7 +50,11 @@
                 </thead>
                 <tbody class="sale_tbody">
                     <tr>
-                        <td t-if="doc.client_order_ref"                                 class="text-left"><span t-field="doc.client_order_ref"/></td>
+                        <td class="text-left">
+                            <div t-if="doc.client_order_ref">Votre référence de commande : <span  t-field="doc.client_order_ref"/></div>
+                            <div t-if="doc.is_notre_ref_devis">Notre référence de devis :  <span  t-field="doc.is_notre_ref_devis"/></div>
+                            <div t-if="doc.is_nom_affaire">Nom de l'affaire :              <span  t-field="doc.is_nom_affaire"/></div>
+                        </td>
                         <td t-if="doc.date_order and doc.state not in ['draft','sent']" class="text-left"><span t-field="doc.date_order"/></td>
                         <td t-if="doc.date_order and doc.state in ['draft','sent']"     class="text-left"><span t-field="doc.date_order"/></td>
                         <td t-if="doc.validity_date and doc.state in ['draft', 'sent']" class="text-left"><span t-field="doc.validity_date"/></td>

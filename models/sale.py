@@ -51,6 +51,9 @@ class sale_order(models.Model):
     is_montant_hors_commission = fields.Float("Montant hors commission"     , digits=(14,2), compute="_compute_montant_hors_commission", readonly=True, store=True)
     is_arc_a_faire             = fields.Boolean("ARC à faire")
     is_date_ar                 = fields.Date("Date AR")
+    is_notre_ref_devis         = fields.Char("Notre référence de devis")
+    is_nom_affaire             = fields.Char("Nom de l'affaire")
+
 
     def mouvement_stock_action(self):
         for obj in self:

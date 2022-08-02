@@ -63,6 +63,9 @@
                                 <field name="is_jour7"/>
                             </group>
                         </group>
+                        <group>
+                            <field name="is_observation"/>
+                        </group>
                     </page>
                 </page>
             </field>

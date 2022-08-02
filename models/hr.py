@@ -25,6 +25,8 @@ class hr_employee(models.Model):
     is_jour6 = fields.Float('Samedi')
     is_jour7 = fields.Float('Dimanche')
 
+    is_observation = fields.Text('Observations')
+
 
     def _badge_count(self):
         for obj in self:

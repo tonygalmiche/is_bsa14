@@ -467,6 +467,15 @@
             parent="menu_is_pointage" 
             action="is_paye_action"
         />
+        <menuitem 
+            id="is_paye_intitule_menu"
+            sequence="60" 
+            name="Préparation salaires - Intitulés"
+            parent="menu_is_pointage" 
+            action="is_paye_intitule_action"
+        />
+
+
 
         <menuitem id="menu_is_pointage_report" sequence="25" parent="hr.menu_hr_root" name="Rapport" />
         <menuitem id="menu_is_pointage_report1" sequence="10" action="is_pointage_report1_action" parent="menu_is_pointage_report"/>

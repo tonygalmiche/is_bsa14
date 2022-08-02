@@ -81,6 +81,13 @@
         <field name="binding_type">report</field>
     </record>
 
-
-
+    <record id="action_report_is_paye" model="ir.actions.report">
+        <field name="name">Préparation paye</field>
+        <field name="model">is.paye.employe</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">is_bsa14.report_is_paye_employe</field>
+        <field name="report_file">is_bsa14.report_is_paye_employe</field>
+        <field name="binding_model_id" ref="model_is_paye_employe"/>
+        <field name="binding_type">report</field>
+    </record>
 </odoo>

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_is_paye_employe">
+           <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                           <style>
+                                .o_boxed_footer, .o_boxed_header, .o_report_layout_boxed {
+                                    color: #495057;
+                                    font-size: 14pt;
+                                }
+                                table th, .table td {
+                                    padding: 0.1rem;
+                                    padding-bottom: 0.2rem;
+                                    line-height: 1.1;
+                                }
+                                .table td {
+                                    white-space: nowrap;
+                                }
+
+
+
+                                .gris{
+                                    background-color : Gainsboro;
+                                }
+
+                            </style>
+                            <h2>Préparation paye <span t-field="o.employee_id.name"/></h2>
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center"><strong>Date/Semaine</strong></th>
+                                        <th class="text-center"><strong>Heures semaine</strong></th>
+                                        <th class="text-center"><strong>Balance</strong></th>
+                                        <th class="text-center"><strong>Information</strong></th>
+                                        <th class="text-center"><strong>HS 25</strong></th>
+                                        <th class="text-center"><strong>HS 50</strong></th>
+                                        <th class="text-center"><strong>CP Heure</strong></th>
+                                        <th class="text-center"><strong>CP Jour</strong></th>
+                                        <th class="text-center"><strong>Maladie</strong></th>
+                                        <th class="text-center"><strong>AT</strong></th>
+                                        <th class="text-center"><strong>Abs Injustifiée</strong></th>
+                                        <th class="text-center"><strong>Ecole</strong></th>
+                                        <th style="display:none"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="o.jour_ids" t-as="line" style="border-bottom: 1px solid;" t-att-class="(not line.jour and 'gris' or '')">
+                                        <td class="text-center"><span t-field="line.jour_char"/></td>
+                                        <td class="text-right"><span t-field="line.heures_semaine"/></td>
+                                        <td class="text-right"><span t-field="line.balance"/></td>
+                                        <td class="text-left"><span t-field="line.info_id.name"/></td>
+                                        <td class="text-right"><span t-field="line.hs25"/></td>
+                                        <td class="text-right"><span t-field="line.hs50"/></td>
+                                        <td class="text-right"><span t-field="line.cp_heure"/></td>
+                                        <td class="text-right"><span t-field="line.cp_jour"/></td>
+                                        <td class="text-right"><span t-field="line.maladie"/></td>
+                                        <td class="text-right"><span t-field="line.at"/></td>
+                                        <td class="text-right"><span t-field="line.abs"/></td>
+                                        <td class="text-right"><span t-field="line.ecole"/></td>
+                                        <td style="display:none"></td>
+                                    </tr>
+
+                                    <tr>
+                                        <td></td>
+                                        <td class="text-right"><b><span t-field="o.heures_semaine"/></b></td>
+                                        <td class="text-right"><b><span t-field="o.balance"/></b></td>
+                                        <td></td>
+                                        <td class="text-right"><b><span t-field="o.hs25"/></b></td>
+                                        <td class="text-right"><b><span t-field="o.hs50"/></b></td>
+                                        <td class="text-right"><b><span t-field="o.cp_heure"/></b></td>
+                                        <td class="text-right"><b><span t-field="o.cp_jour"/></b></td>
+                                        <td class="text-right"><b><span t-field="o.maladie"/></b></td>
+                                        <td class="text-right"><b><span t-field="o.at"/></b></td>
+                                        <td class="text-right"><b><span t-field="o.abs"/></b></td>
+                                        <td class="text-right"><b><span t-field="o.ecole"/></b></td>
+                                        <td style="display:none"></td>
+                                    </tr>
+                                </tbody>
+
+
+
+                            </table>
+                            <!-- <br /> -->
+
+
+                            <table style="width:100%;border:0">
+                                <tr>
+                                    <td style="width:50%;border:0">
+                                        <table class="table table-condensed">
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-center"><strong>Intitulé</strong></th>
+                                                    <th class="text-center"><strong>Valeur</strong></th>
+                                                    <th class="text-center"><strong>Commentaire</strong></th>
+                                                    <th style="display:none"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr t-foreach="o.intitule_ids" t-as="line" style="border-bottom: 1px solid;">
+                                                    <td class="text-left"><span t-field="line.intitule_id.name"/></td>
+                                                    <td class="text-right"><span t-field="line.heure"/></td>
+                                                    <td class="text-left"><span t-field="line.commentaire"/></td>
+                                                    <td style="display:none"></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                    <td style="width:50%;padding:1em;border:0">
+                                        <span t-field="o.commentaire"/>
+                                    </td>
+                                    <td style="display:none"></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </t>
+                 </t>
+             </t>
+        </template>
+    </data>
+</odoo>

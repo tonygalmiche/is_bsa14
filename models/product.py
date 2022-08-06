@@ -301,6 +301,19 @@ class product_template(models.Model):
         return True
 
 
+    def ligne_commande_action(self):
+        for obj in self:
+            filtre=[
+                ('product_tmpl_id', '=', obj.id),
+            ]
+            products=self.env['product.product'].search(filtre)
+            ids=[]
+            for product in products:
+                ids.append(product.id)
+            action = self.env["ir.actions.actions"]._for_xml_id("is_bsa14.is_purchase_order_line_acion")
+            action['domain'] = [('product_id', 'in',ids)]
+            return action
+
 
 class product_product(models.Model):
     _inherit = 'product.product'

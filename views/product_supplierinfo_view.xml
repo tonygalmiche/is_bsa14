@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="is_product_supplierinfo_tree" model="ir.ui.view">
+            <field name="name">is_product_supplierinfo_tree</field>
+            <field name="model">product.supplierinfo</field>
+            <field name="priority" eval="99"/>
+            <field name="arch" type="xml">
+                <tree string="Vendor Information" create="0" editable="bottom">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name" readonly="1"/>
+                    <field name="product_tmpl_id" string="Article" readonly="1"/>
+                    <field name="product_name" optional="show"/>
+                    <field name="product_code" optional="show"/>
+                    <field name="currency_id" groups="base.group_multi_currency"/>
+                    <field name="date_start" optional="show"/>
+                    <field name="date_end" optional="show"/>
+                    <field name="company_id" readonly="1" groups="base.group_multi_company"/>
+                    <field name="min_qty"/>
+                    <field name="product_uom" groups="uom.group_uom"/>
+                    <field name="price" string="Price"/>
+                    <field name="delay" optional="hide"/>
+                </tree> 
+            </field>
+        </record>
+        <record id="is_product_supplierinfo_search_view" model="ir.ui.view">
+            <field name="name">is_product_supplierinfo_search_view</field>
+            <field name="model">product.supplierinfo</field>
+            <field name="inherit_id" ref="product.product_supplierinfo_search_view" />
+            <field name="arch" type="xml">
+                <field name="product_tmpl_id" position="after">
+                    <field name="product_name"/>
+                    <field name="product_code"/>
+                </field>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_product_supplierinfo_action">
+            <field name="name">Tarif fournisseur</field>
+            <field name="res_model">product.supplierinfo</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="is_product_supplierinfo_tree"/>
+        </record>
+    </data>
+</odoo>

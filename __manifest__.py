@@ -49,6 +49,7 @@ InfoSaône - Module Odoo 14 pour BSA
         "views/is_devis_parametrable.xml",
         "views/is_export_compta.xml",
         "views/is_gamme_generique_view.xml",
+        "views/is_historique_achat_view.xml",
         "views/is_jour_ferie.xml",
         "views/is_liste_manquants.xml",
         "views/is_mrp_bom_line.xml",

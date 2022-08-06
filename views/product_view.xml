@@ -82,6 +82,7 @@
                     </style>
                 </xpath>
                 <field name="type" position="after">
+                    <field name="is_famille_id"/>
                     <field name="is_stock_category_id"/>
                     <field name="is_type_equipement_id"/>
                 </field>                
@@ -149,6 +150,7 @@
                     <field name="seller_ids" string="Référence fournisseur" filter_domain="[('seller_ids.product_code','ilike',self)]"/>
                     <field name="is_position_dans_produit_ids"/>
                     <field name="id" />
+                    <field name="is_famille_id" />
                     <field name="is_stock_category_id" />
                     <field name="is_type_equipement_id" />
                 </field>
@@ -163,6 +165,7 @@
                     <field name="name"/>
                     <field name="default_code"/>
                     <field name="id"                    optional="hide"/>
+                    <field name="is_famille_id"         optional="hide"/>
                     <field name="is_stock_category_id"  optional="hide"/>
                     <field name="is_type_equipement_id" optional="hide"/>
                     <field name="uom_id"                optional="show"/>

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- is.historique.achat -->
+        <record id="is_historique_achat_tree" model="ir.ui.view">
+            <field name="name">is.historique.achat.tree</field>
+            <field name="model">is.historique.achat</field>
+            <field name="arch" type="xml">
+                <tree >
+                    <field name="famille_id" />
+                </tree>
+            </field>
+        </record>
+        <record id="is_historique_achat_form" model="ir.ui.view">
+            <field name="name">is.historique.achat.form</field>
+            <field name="model">is.historique.achat</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="actualiser_action" type="object" string="Actualiser les lignes"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <field name="famille_id"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_historique_achat_search" model="ir.ui.view">
+            <field name="name">is.historique.achat.search</field>
+            <field name="model">is.historique.achat</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="famille_id" />
+               </search>
+            </field>
+        </record>
+        <record id="is_historique_achat_action" model="ir.actions.act_window">
+            <field name="name">Historique des achats</field>
+            <field name="res_model">is.historique.achat</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+
+        <!-- is.historique.achat.annee -->
+        <record id="is_historique_achat_annee_tree" model="ir.ui.view">
+            <field name="name">is.historique.achat.annee.tree</field>
+            <field name="model">is.historique.achat.annee</field>
+            <field name="arch" type="xml">
+                <tree >
+                    <field name="annee"/>
+                    <field name="product_id"/>
+                    <field name="masse_tole"/>
+                    <field name="qt_recue_importee"       optional="hide"/>
+                    <field name="qt_recue_correction"     optional="hide"/>
+                    <field name="qt_recue"/>
+                    <field name="qt_recue_kg"/>
+                    <field name="qt_consommee_importee"   optional="hide"/>
+                    <field name="qt_consommee_correction" optional="hide"/>
+                    <field name="qt_consommee"/>
+                    <field name="qt_consommee_kg"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_historique_achat_annee_form" model="ir.ui.view">
+            <field name="name">is.historique.achat.annee.form</field>
+            <field name="model">is.historique.achat.annee</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <style>
+                            .o_form_label{
+                                white-space: nowrap;
+                            }
+                        </style>
+                        <group>
+                            <field name="annee"/>
+                            <field name="product_id"/>
+                            <field name="masse_tole"/>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="qt_recue_importee"/>
+                                <field name="qt_recue_correction"/>
+                                <field name="qt_recue"/>
+                                <field name="qt_recue_kg"/>
+                            </group>
+                            <group>
+                                <field name="qt_consommee_importee"/>
+                                <field name="qt_consommee_correction"/>
+                                <field name="qt_consommee"/>
+                                <field name="qt_consommee_kg"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_historique_achat_annee_search" model="ir.ui.view">
+            <field name="name">is.historique.achat.annee.search</field>
+            <field name="model">is.historique.achat.annee</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="annee" />
+                    <field name="product_id" />
+               </search>
+            </field>
+        </record>
+        <record id="is_historique_achat_annee_action" model="ir.actions.act_window">
+            <field name="name">Historique des achats</field>
+            <field name="res_model">is.historique.achat.annee</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+
+        <!-- is.annee -->
+        <record id="is_annee_tree" model="ir.ui.view">
+            <field name="name">is.annee.tree</field>
+            <field name="model">is.annee</field>
+            <field name="arch" type="xml">
+                <tree >
+                    <field name="annee" />
+                </tree>
+            </field>
+        </record>
+        <record id="is_annee_form" model="ir.ui.view">
+            <field name="name">is.annee.form</field>
+            <field name="model">is.annee</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="annee"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_annee_search" model="ir.ui.view">
+            <field name="name">is.annee.search</field>
+            <field name="model">is.annee</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="annee" />
+               </search>
+            </field>
+        </record>
+        <record id="is_annee_action" model="ir.actions.act_window">
+            <field name="name">Années</field>
+            <field name="res_model">is.annee</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>

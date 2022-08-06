@@ -170,7 +170,6 @@
             sequence="7"
         />
 
-
         <!-- Achats / Articles -->
         <menuitem 
             name="Lignes tarifs fournisseurs"
@@ -180,7 +179,34 @@
             sequence="100"
         />
 
-
+        <!-- Achats / Historique -->
+        <menuitem 
+            name="Historique des achats"
+            id="is_historique_achat_main_menu" 
+            parent="purchase.menu_purchase_root" 
+            sequence="6"
+        />
+        <menuitem 
+            name="Actualiser"
+            id="is_historique_achat_menu" 
+            parent="is_historique_achat_main_menu" 
+            action="is_historique_achat_action" 
+            sequence="10"
+        />
+        <menuitem 
+            name="Historique des achats"
+            id="is_historique_achat_annee_menu" 
+            parent="is_historique_achat_main_menu" 
+            action="is_historique_achat_annee_action" 
+            sequence="20"
+        />
+        <menuitem 
+            name="Années"
+            id="is_annee_menu" 
+            parent="is_historique_achat_main_menu" 
+            action="is_annee_action" 
+            sequence="900"
+        />
 
 
 

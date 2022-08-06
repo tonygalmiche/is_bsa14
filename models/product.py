@@ -24,6 +24,12 @@ class is_stock_category(models.Model):
     name = fields.Char(string="Code", size=32)
 
 
+class is_famille(models.Model):
+    _name = "is.famille"
+    _description="Famille d'article"
+    name = fields.Char(string="Famille")
+
+
 class product_template(models.Model):
     _inherit = 'product.template'
     
@@ -36,6 +42,7 @@ class product_template(models.Model):
     is_doublon                   = fields.Char('Doublon', store=False, compute='_compute_doublon')
     is_import_par_mail           = fields.Boolean('Article importé par mail')
     is_masse_tole                = fields.Float('Masse tôle')
+    is_famille_id                = fields.Many2one("is.famille", string="Famille")
     is_stock_category_id         = fields.Many2one("is.stock.category", string="Catégorie de stock")
     is_type_equipement_id        = fields.Many2one("is.type.equipement", string="Type d'équipement")
     is_trace_reception           = fields.Boolean('Traçabilité en réception')
@@ -221,33 +228,6 @@ class product_template(models.Model):
             obj.is_stock_prevu_valorise      = is_stock_prevu_valorise
 
 
-    # def write(self, vals):
-    #     vals = vals or {}
-    #     res=super(product_template, self).write(vals)
-    #     if 'stop_write_recursion' not in self.env.context:
-    #         champs=['name','description','description_purchase','description_sale']
-    #         for champ in champs:
-    #             if vals.get(champ):
-    #                 translatons = self.env["ir.translation"].search([('name','=','product.template,'+champ),('res_id','=',self.id)])
-    #                 for t in translatons:
-    #                     t.with_context(stop_write_recursion=1).write({'source':t.value})
-    #     return res
-
-
-    # def copy(self,vals):
-    #     for obj in self:
-    #         vals['purchase_line_warn'] = u'warning'
-    #         vals['purchase_line_warn_msg'] = u'Article non validé'
-    #         res=super(product_template, self).copy(vals)
-    #         for line in obj.seller_ids:
-    #             v = {
-    #                 'product_tmpl_id': res.id,
-    #                 'name'      : line.name.id,
-    #             }
-    #             id = self.env['product.supplierinfo'].create(v)
-    #         return res
-
-
     def recalcul_prix_revient_action(self):
         cr,uid,context,su = self.env.args
         prod_obj = self.env['product.template']
@@ -276,17 +256,6 @@ class product_template(models.Model):
 
 
             _logger.info("recalcul_prix_revient_action : %s (id=%s : produire=%s) => %s"%(obj.display_name,obj.id, produire, obj.standard_price))
-
-
-
-    # def recalcul_all_prix_revient(self):
-    #     products=self.env['product.template'].search([])
-    #     for product in products:
-    #         product.recalcul_prix_revient_action()
-
-
-    #def recalcul_prix_revient_scheduler_action(self, cr, uid, use_new_cursor=False, company_id = False, context=None):
-    #    self.recalcul_all_prix_revient(cr, uid, context)
 
 
     @api.model
@@ -318,15 +287,11 @@ class product_template(models.Model):
 class product_product(models.Model):
     _inherit = 'product.product'
 
-
     is_production_count          = fields.Integer('# Productions', compute='_compute_is_production_count', compute_sudo=False)
-
 
     def _compute_is_production_count(self):
         for product in self:
             product.is_production_count = self.env['mrp.production'].search_count([('product_id', '=', product.id)])
-
-
 
 
 class ProductTemplateAttributeValue(models.Model):

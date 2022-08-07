@@ -188,18 +188,50 @@
         />
         <menuitem 
             name="Actualiser"
-            id="is_historique_achat_menu" 
+            id="is_historique_achat_actualiser_menu" 
             parent="is_historique_achat_main_menu" 
-            action="is_historique_achat_action" 
+            action="is_historique_achat_actualiser_action" 
             sequence="10"
         />
         <menuitem 
-            name="Historique des achats"
+            name="Historique par année"
             id="is_historique_achat_annee_menu" 
             parent="is_historique_achat_main_menu" 
             action="is_historique_achat_annee_action" 
             sequence="20"
         />
+
+        <menuitem 
+            name="Historique (qté+kg)"
+            id="is_historique_achat_menu" 
+            parent="is_historique_achat_main_menu" 
+            action="is_historique_achat_action" 
+            sequence="30"
+        />
+       <menuitem 
+            name="Historique (qté)"
+            id="is_historique_achat_qte_menu" 
+            parent="is_historique_achat_main_menu" 
+            action="is_historique_achat_qte_action" 
+            sequence="40"
+        />
+       <menuitem 
+            name="Historique (kg)"
+            id="is_historique_achat_kg_menu" 
+            parent="is_historique_achat_main_menu" 
+            action="is_historique_achat_kg_action" 
+            sequence="50"
+        />
+      <menuitem 
+            name="Historique (Année N)"
+            id="is_historique_achat_n0_menu" 
+            parent="is_historique_achat_main_menu" 
+            action="is_historique_achat_n0_action" 
+            sequence="60"
+        />
+
+
+
         <menuitem 
             name="Années"
             id="is_annee_menu" 

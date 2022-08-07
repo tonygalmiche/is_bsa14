@@ -1,23 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- is.historique.achat -->
-        <record id="is_historique_achat_tree" model="ir.ui.view">
-            <field name="name">is.historique.achat.tree</field>
-            <field name="model">is.historique.achat</field>
+
+        <!-- is.historique.achat.actualiser -->
+        <record id="is_historique_achat_actualiser_tree" model="ir.ui.view">
+            <field name="name">is.historique.achat.actualiser.tree</field>
+            <field name="model">is.historique.achat.actualiser</field>
             <field name="arch" type="xml">
                 <tree >
                     <field name="famille_id" />
                 </tree>
             </field>
         </record>
-        <record id="is_historique_achat_form" model="ir.ui.view">
-            <field name="name">is.historique.achat.form</field>
-            <field name="model">is.historique.achat</field>
+        <record id="is_historique_achat_actualiser_form" model="ir.ui.view">
+            <field name="name">is.historique.achat.actualiser.form</field>
+            <field name="model">is.historique.achat.actualiser</field>
             <field name="arch" type="xml">
                 <form>
                     <header>
-                        <button name="actualiser_action" type="object" string="Actualiser les lignes"/>
+                        <button name="actualiser_action"      type="object" string="Actualiser les lignes"/>
+                        <button name="voir_les_lignes_action" type="object" string="Voir les lignes"/>
                     </header>
                     <sheet>
                         <group>
@@ -27,21 +29,20 @@
                 </form>
             </field>
         </record>
-        <record id="is_historique_achat_search" model="ir.ui.view">
-            <field name="name">is.historique.achat.search</field>
-            <field name="model">is.historique.achat</field>
+        <record id="is_historique_achat_actualiser_search" model="ir.ui.view">
+            <field name="name">is.historique.achat.actualiser.search</field>
+            <field name="model">is.historique.achat.actualiser</field>
             <field name="arch" type="xml">
                 <search>
                     <field name="famille_id" />
                </search>
             </field>
         </record>
-        <record id="is_historique_achat_action" model="ir.actions.act_window">
+        <record id="is_historique_achat_actualiser_action" model="ir.actions.act_window">
             <field name="name">Historique des achats</field>
-            <field name="res_model">is.historique.achat</field>
+            <field name="res_model">is.historique.achat.actualiser</field>
             <field name="view_mode">tree,form</field>
         </record>
-
 
 
         <!-- is.historique.achat.annee -->
@@ -49,10 +50,11 @@
             <field name="name">is.historique.achat.annee.tree</field>
             <field name="model">is.historique.achat.annee</field>
             <field name="arch" type="xml">
-                <tree >
+                <tree editable="bottom" create="0">
                     <field name="annee"/>
                     <field name="product_id"/>
-                    <field name="masse_tole"/>
+                    <field name="famille_id" optional="show"/>
+                    <field name="masse_tole" optional="show"/>
                     <field name="qt_recue_importee"       optional="hide"/>
                     <field name="qt_recue_correction"     optional="hide"/>
                     <field name="qt_recue"/>
@@ -78,6 +80,7 @@
                         <group>
                             <field name="annee"/>
                             <field name="product_id"/>
+                            <field name="famille_id"/>
                             <field name="masse_tole"/>
                         </group>
                         <group>
@@ -103,8 +106,9 @@
             <field name="model">is.historique.achat.annee</field>
             <field name="arch" type="xml">
                 <search>
-                    <field name="annee" />
-                    <field name="product_id" />
+                    <field name="annee"/>
+                    <field name="product_id"/>
+                    <field name="famille_id"/>
                </search>
             </field>
         </record>
@@ -113,7 +117,6 @@
             <field name="res_model">is.historique.achat.annee</field>
             <field name="view_mode">tree,form</field>
         </record>
-
 
 
         <!-- is.annee -->
@@ -153,5 +156,172 @@
             <field name="res_model">is.annee</field>
             <field name="view_mode">tree,form</field>
         </record>
+
+
+        <!-- is.historique.achat -->
+        <record id="is_historique_achat_form" model="ir.ui.view">
+            <field name="name">is.historique.achat.form</field>
+            <field name="model">is.historique.achat</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <style>
+                            .o_form_label{
+                                white-space: nowrap;
+                            }
+                        </style>
+                        <group>
+                            <field name="product_id" />
+                            <field name="masse_tole" />
+
+                            <field name="qt_recue_n2" />
+                            <field name="qt_recue_kg_n2" />
+                            <field name="qt_consommee_n2" />
+                            <field name="qt_consommee_kg_n2" />
+
+                            <field name="qt_recue_n1" />
+                            <field name="qt_recue_kg_n1" />
+                            <field name="qt_consommee_n1" />
+                            <field name="qt_consommee_kg_n1" />
+
+                            <field name="qt_recue_n0" />
+                            <field name="qt_recue_kg_n0" />
+                            <field name="qt_consommee_n0" />
+                            <field name="qt_consommee_kg_n0" />
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="is_historique_achat_search" model="ir.ui.view">
+            <field name="name">is.historique.achat.search</field>
+            <field name="model">is.historique.achat</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="product_id" />
+               </search>
+            </field>
+        </record>
+
+
+        <record id="is_historique_achat_tree" model="ir.ui.view">
+            <field name="name">is.historique.achat.tree</field>
+            <field name="model">is.historique.achat</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom" create="0">
+                    <field name="product_id" />
+                    <field name="famille_id" optional="show"/>
+                    <field name="masse_tole" optional="show"/>
+
+                    <field name="qt_recue_n2" sum="Total"/>
+                    <field name="qt_recue_kg_n2" sum="Total" />
+                    <field name="qt_consommee_n2" sum="Total" />
+                    <field name="qt_consommee_kg_n2" sum="Total" />
+
+                    <field name="qt_recue_n1" sum="Total" />
+                    <field name="qt_recue_kg_n1" sum="Total" />
+                    <field name="qt_consommee_n1" sum="Total" />
+                    <field name="qt_consommee_kg_n1" sum="Total" />
+
+                    <field name="qt_recue_n0" sum="Total" />
+                    <field name="qt_recue_kg_n0" sum="Total" />
+                    <field name="qt_consommee_n0" sum="Total" />
+                    <field name="qt_consommee_kg_n0" sum="Total" />
+                </tree>
+            </field>
+        </record>
+        <record id="is_historique_achat_action" model="ir.actions.act_window">
+            <field name="name">Historique (qté+kg)</field>
+            <field name="res_model">is.historique.achat</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="is_historique_achat_tree"/>
+        </record>
+
+
+
+        <record id="is_historique_achat_qte_tree" model="ir.ui.view">
+            <field name="name">is_historique_achat_qte_tree</field>
+            <field name="model">is.historique.achat</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom" create="0">
+                    <field name="product_id" />
+                    <field name="famille_id" optional="show"/>
+                    <field name="masse_tole" optional="show"/>
+
+                    <field name="qt_recue_n2" sum="Total"/>
+                    <field name="qt_consommee_n2" sum="Total" />
+
+                    <field name="qt_recue_n1" sum="Total" />
+                    <field name="qt_consommee_n1" sum="Total" />
+
+                    <field name="qt_recue_n0" sum="Total" />
+                    <field name="qt_consommee_n0" sum="Total" />
+                </tree>
+            </field>
+        </record>
+        <record id="is_historique_achat_qte_action" model="ir.actions.act_window">
+            <field name="name">Historique (qté)</field>
+            <field name="res_model">is.historique.achat</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="is_historique_achat_qte_tree"/>
+        </record>
+
+
+
+
+        <record id="is_historique_achat_kg_tree" model="ir.ui.view">
+            <field name="name">is_historique_achat_kg_tree</field>
+            <field name="model">is.historique.achat</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom" create="0">
+                    <field name="product_id" />
+                    <field name="famille_id" optional="show"/>
+                    <field name="masse_tole" optional="show"/>
+
+                    <field name="qt_recue_kg_n2" sum="Total" />
+                    <field name="qt_consommee_kg_n2" sum="Total" />
+
+                    <field name="qt_recue_kg_n1" sum="Total" />
+                    <field name="qt_consommee_kg_n1" sum="Total" />
+
+                    <field name="qt_recue_kg_n0" sum="Total" />
+                    <field name="qt_consommee_kg_n0" sum="Total" />
+                </tree>
+            </field>
+        </record>
+        <record id="is_historique_achat_kg_action" model="ir.actions.act_window">
+            <field name="name">Historique (kg)</field>
+            <field name="res_model">is.historique.achat</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="is_historique_achat_kg_tree"/>
+        </record>
+
+
+
+        <record id="is_historique_achat_n0_tree" model="ir.ui.view">
+            <field name="name">is_historique_achat_n0_tree</field>
+            <field name="model">is.historique.achat</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom" create="0">
+                    <field name="product_id" />
+                    <field name="famille_id" optional="show"/>
+                    <field name="masse_tole" optional="show"/>
+                    <field name="qt_recue_n0" sum="Total" />
+                    <field name="qt_recue_kg_n0" sum="Total" />
+                    <field name="qt_consommee_n0" sum="Total" />
+                    <field name="qt_consommee_kg_n0" sum="Total" />
+                </tree>
+            </field>
+        </record>
+        <record id="is_historique_achat_n0_action" model="ir.actions.act_window">
+            <field name="name">Historique (Année N)</field>
+            <field name="res_model">is.historique.achat</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="is_historique_achat_n0_tree"/>
+        </record>
+
+
+        
     </data>
 </odoo>

@@ -12,7 +12,7 @@ class is_historique_achat_actualiser(models.Model):
 
     famille_id = fields.Many2one('is.famille', 'Famille', required=True)
 
-    def get_qt(self, annee, product_id, picking_type_id=0):
+    def get_qt(self, annee, product_id, picking_type_id=0, where=False):
         cr=self._cr
         date_debut = annee+'-01-01 00:00:00'
         date_fin   = annee+'-12-31 23:59:59'
@@ -23,9 +23,11 @@ class is_historique_achat_actualiser(models.Model):
                 sm.product_id=%s  and 
                 date>=%s and 
                 date<=%s and 
-                sm.state='done' and
                 sm.picking_type_id=%s
         """
+        if where:
+            SQL+=" and " + where
+
         cr.execute(SQL,[product_id, date_debut, date_fin, picking_type_id])
         moves = cr.fetchall()
         qt = 0
@@ -50,16 +52,15 @@ class is_historique_achat_actualiser(models.Model):
                         historique=self.env['is.historique.achat.annee'].create(vals)
                     else:
                         historique=historiques[0]
-                    qt = self.get_qt(line.annee, product.id, picking_type_id=1)
+                    qt = self.get_qt(line.annee, product.id, picking_type_id=1, where="sm.state='done'")
                     historique.qt_recue_importee = qt
-                    qt = self.get_qt(line.annee, product.id, picking_type_id=8)
+                    qt = self.get_qt(line.annee, product.id, picking_type_id=8, where="sm.state='done'")
                     historique.qt_consommee_importee = qt
 
             # ** is.historique.achat ******************************************
             annees=self.env['is.annee'].search([],limit=3)
             ct=0
             for a in annees:
-                print(a.annee)
                 products=self.env['product.product'].search([('is_famille_id', '=', obj.famille_id.id)])
                 for product in products:
                     lines=self.env['is.historique.achat'].search([('product_id', '=', product.id)])
@@ -71,21 +72,36 @@ class is_historique_achat_actualiser(models.Model):
                     else:
                         line=lines[0]
                     historiques=self.env['is.historique.achat.annee'].search([('annee', '=', a.annee),('product_id', '=', product.id)])
-                    print(historiques)
                     if len(historiques)>0:
                         historique = historiques[0]
                         if ct==0:
                             line.qt_recue_n0 = historique.qt_recue
                             line.qt_consommee_n0 = historique.qt_consommee
+
+                            line.en_cours_livraison = self.get_qt(a.annee, product.id, picking_type_id=1, where="sm.state not in ('done', 'cancel')")
+                            line.conso_prevue       = self.get_qt(a.annee, product.id, picking_type_id=8, where="sm.state not in ('done', 'cancel')")
+
+
+
                         if ct==1:
                             line.qt_recue_n1 = historique.qt_recue
                             line.qt_consommee_n1 = historique.qt_consommee
                         if ct==2:
                             line.qt_recue_n2 = historique.qt_recue
                             line.qt_consommee_n2 = historique.qt_consommee
+                    line.cout       = product.standard_price
+                    line.stock_reel = product.qty_available
+
                 ct+=1
 
             return obj.voir_les_lignes_action()
+
+
+    def effacer_prevision_action(self):
+        for obj in self:
+            lines=self.env['is.historique.achat'].search([('famille_id', '=', obj.famille_id.id)])
+            for line in lines:
+                line.prevision_appro = 0
 
 
     def voir_les_lignes_action(self):
@@ -156,7 +172,7 @@ class is_historique_achat(models.Model):
 
     qt_recue_n1             = fields.Float("Qt reçue N-1", readonly=True)
     qt_recue_kg_n1          = fields.Float("Qt reçue (Kg) N-1"    , store=True, readonly=True, compute='_compute_qt')
-    qt_consommee_n1         = fields.Float("Qt consommée (unité) N-1", readonly=True)
+    qt_consommee_n1         = fields.Float("Qt consommée N-1", readonly=True)
     qt_consommee_kg_n1      = fields.Float("Qt consommée (Kg) N-1", store=True, readonly=True, compute='_compute_qt')
 
     qt_recue_n2             = fields.Float("Qt reçue N-2", readonly=True)
@@ -164,14 +180,40 @@ class is_historique_achat(models.Model):
     qt_consommee_n2         = fields.Float("Qt consommée N-2", readonly=True)
     qt_consommee_kg_n2      = fields.Float("Qt consommée (Kg) N-2", store=True, readonly=True, compute='_compute_qt')
 
+    stock_reel            = fields.Float("Stock réel", readonly=True)
+    stock_reel_kg         = fields.Float("Stock réel (Kg)"            , store=True, readonly=True, compute='_compute_qt')
+    en_cours_livraison    = fields.Float("En cours de livraison", readonly=True)
+    en_cours_livraison_kg = fields.Float("En cours de livraison (Kg)" , store=True, readonly=True, compute='_compute_qt')
+    conso_prevue          = fields.Float("Conso prévue", readonly=True)
+    conso_prevue_kg       = fields.Float("Conso prévue (Kg)"          , store=True, readonly=True, compute='_compute_qt')
+    stock_final           = fields.Float("Stock après mouvements"     , store=True, readonly=True, compute='_compute_qt')
+    stock_final_kg        = fields.Float("Stock après mouvements (Kg)", store=True, readonly=True, compute='_compute_qt')
+    stock_secu            = fields.Float("Stock sécu", readonly=True)
+    stock_secu_kg         = fields.Float("Stock sécu (Kg)"            , store=True, readonly=True, compute='_compute_qt')
+    prevision_appro       = fields.Float("Prévision d'appro")
+    prevision_appro_kg    = fields.Float("Prévision d'appro (Kg)"     , store=True, readonly=True, compute='_compute_qt')
+    cout                  = fields.Float("Coût (€/Kg)", readonly=True)
+    montant_total         = fields.Float("Montant total (€)", store=True, readonly=True, compute='_compute_qt')
 
-    @api.depends('qt_recue_n0','qt_consommee_n0','qt_recue_n1','qt_consommee_n1','qt_recue_n2','qt_consommee_n2')
+    @api.depends('qt_recue_n0','qt_consommee_n0','qt_recue_n1','qt_consommee_n1','qt_recue_n2','qt_consommee_n2', 'stock_reel', 'en_cours_livraison', 'conso_prevue', 'stock_final', 'prevision_appro', 'cout')
     def _compute_qt(self):
         for obj in self:
-            obj.qt_recue_kg_n0 = (obj.qt_recue_n0 or 0) * (obj.masse_tole or 0)
-            obj.qt_recue_kg_n1 = (obj.qt_recue_n1 or 0) * (obj.masse_tole or 0)
-            obj.qt_recue_kg_n2 = (obj.qt_recue_n2 or 0) * (obj.masse_tole or 0)
+            obj.stock_final   = (obj.stock_reel or 0) + (obj.en_cours_livraison or 0)  - (obj.conso_prevue or 0) 
+            obj.montant_total = (obj.prevision_appro or 0) * (obj.cout or 0) 
 
-            obj.qt_consommee_kg_n0 = (obj.qt_consommee_n0 or 0) * (obj.masse_tole or 0)
-            obj.qt_consommee_kg_n1 = (obj.qt_consommee_n1 or 0) * (obj.masse_tole or 0)
-            obj.qt_consommee_kg_n2 = (obj.qt_consommee_n2 or 0) * (obj.masse_tole or 0)
+            masse_tole = obj.masse_tole or 0
+            obj.qt_recue_kg_n0 = (obj.qt_recue_n0 or 0) * masse_tole
+            obj.qt_recue_kg_n1 = (obj.qt_recue_n1 or 0) * masse_tole
+            obj.qt_recue_kg_n2 = (obj.qt_recue_n2 or 0) * masse_tole
+
+            obj.qt_consommee_kg_n0 = (obj.qt_consommee_n0 or 0) * masse_tole
+            obj.qt_consommee_kg_n1 = (obj.qt_consommee_n1 or 0) * masse_tole
+            obj.qt_consommee_kg_n2 = (obj.qt_consommee_n2 or 0) * masse_tole
+
+            obj.stock_reel_kg         = (obj.stock_reel or 0) * masse_tole
+            obj.en_cours_livraison_kg = (obj.en_cours_livraison or 0) * masse_tole
+            obj.conso_prevue_kg       = (obj.conso_prevue or 0) * masse_tole
+            obj.stock_final_kg        = (obj.stock_final or 0) * masse_tole
+            obj.stock_secu_kg         = (obj.stock_secu or 0) * masse_tole
+            obj.prevision_appro_kg    = (obj.prevision_appro or 0) * masse_tole
+

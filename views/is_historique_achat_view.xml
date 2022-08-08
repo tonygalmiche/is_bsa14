@@ -18,8 +18,9 @@
             <field name="arch" type="xml">
                 <form>
                     <header>
-                        <button name="actualiser_action"      type="object" string="Actualiser les lignes"/>
-                        <button name="voir_les_lignes_action" type="object" string="Voir les lignes"/>
+                        <button name="actualiser_action"        type="object" string="Actualiser les lignes"/>
+                        <button name="effacer_prevision_action" type="object" string="Effacer les prévisions"/>
+                        <button name="voir_les_lignes_action"   type="object" string="Voir les lignes"/>
                     </header>
                     <sheet>
                         <group>
@@ -228,6 +229,21 @@
                     <field name="qt_recue_kg_n0" sum="Total" />
                     <field name="qt_consommee_n0" sum="Total" />
                     <field name="qt_consommee_kg_n0" sum="Total" />
+
+                    <field name="stock_reel"            sum="Total" optional="show"/>
+                    <field name="stock_reel_kg"         sum="Total" optional="show"/>
+                    <field name="en_cours_livraison"    sum="Total" optional="show"/>
+                    <field name="en_cours_livraison_kg" sum="Total" optional="show"/>
+                    <field name="conso_prevue"          sum="Total" optional="show"/>
+                    <field name="conso_prevue_kg"       sum="Total" optional="show"/>
+                    <field name="stock_final"           sum="Total" optional="show"/>
+                    <field name="stock_final_kg"        sum="Total" optional="show"/>
+                    <field name="stock_secu"            sum="Total" optional="show"/>
+                    <field name="stock_secu_kg"         sum="Total" optional="show"/>
+                    <field name="prevision_appro"       sum="Total" optional="show"/>
+                    <field name="prevision_appro_kg"    sum="Total" optional="show"/>
+                    <field name="cout"                  sum="Total" optional="show"/>
+                    <field name="montant_total"         sum="Total" optional="show"/>
                 </tree>
             </field>
         </record>
@@ -257,6 +273,15 @@
 
                     <field name="qt_recue_n0" sum="Total" />
                     <field name="qt_consommee_n0" sum="Total" />
+
+                    <field name="stock_reel"            sum="Total" optional="show"/>
+                    <field name="en_cours_livraison"    sum="Total" optional="show"/>
+                    <field name="conso_prevue"          sum="Total" optional="show"/>
+                    <field name="stock_final"           sum="Total" optional="show"/>
+                    <field name="stock_secu"            sum="Total" optional="show"/>
+                    <field name="prevision_appro"       sum="Total" optional="show"/>
+                    <field name="cout"                  sum="Total" optional="show"/>
+                    <field name="montant_total"         sum="Total" optional="show"/>
                 </tree>
             </field>
         </record>
@@ -287,6 +312,15 @@
 
                     <field name="qt_recue_kg_n0" sum="Total" />
                     <field name="qt_consommee_kg_n0" sum="Total" />
+
+                    <field name="stock_reel_kg"         sum="Total" optional="show"/>
+                    <field name="en_cours_livraison_kg" sum="Total" optional="show"/>
+                    <field name="conso_prevue_kg"       sum="Total" optional="show"/>
+                    <field name="stock_final_kg"        sum="Total" optional="show"/>
+                    <field name="stock_secu_kg"         sum="Total" optional="show"/>
+                    <field name="prevision_appro_kg"    sum="Total" optional="show"/>
+                    <field name="cout"                  sum="Total" optional="show"/>
+                    <field name="montant_total"         sum="Total" optional="show"/>
                 </tree>
             </field>
         </record>
@@ -305,12 +339,26 @@
             <field name="arch" type="xml">
                 <tree editable="bottom" create="0">
                     <field name="product_id" />
-                    <field name="famille_id" optional="show"/>
-                    <field name="masse_tole" optional="show"/>
-                    <field name="qt_recue_n0" sum="Total" />
-                    <field name="qt_recue_kg_n0" sum="Total" />
-                    <field name="qt_consommee_n0" sum="Total" />
-                    <field name="qt_consommee_kg_n0" sum="Total" />
+                    <field name="famille_id"                        optional="show"/>
+                    <field name="masse_tole"                        optional="show"/>
+                    <field name="qt_recue_n0"           sum="Total" optional="show"/>
+                    <field name="qt_recue_kg_n0"        sum="Total" optional="show"/>
+                    <field name="qt_consommee_n0"       sum="Total" optional="show"/>
+                    <field name="qt_consommee_kg_n0"    sum="Total" optional="show"/>
+                    <field name="stock_reel"            sum="Total" optional="show"/>
+                    <field name="stock_reel_kg"         sum="Total" optional="show"/>
+                    <field name="en_cours_livraison"    sum="Total" optional="show"/>
+                    <field name="en_cours_livraison_kg" sum="Total" optional="show"/>
+                    <field name="conso_prevue"          sum="Total" optional="show"/>
+                    <field name="conso_prevue_kg"       sum="Total" optional="show"/>
+                    <field name="stock_final"           sum="Total" optional="show"/>
+                    <field name="stock_final_kg"        sum="Total" optional="show"/>
+                    <field name="stock_secu"            sum="Total" optional="show"/>
+                    <field name="stock_secu_kg"         sum="Total" optional="show"/>
+                    <field name="prevision_appro"       sum="Total" optional="show"/>
+                    <field name="prevision_appro_kg"    sum="Total" optional="show"/>
+                    <field name="cout"                  sum="Total" optional="show"/>
+                    <field name="montant_total"         sum="Total" optional="show"/>
                 </tree>
             </field>
         </record>
@@ -320,8 +368,5 @@
             <field name="view_mode">tree,form</field>
             <field name="view_id" ref="is_historique_achat_n0_tree"/>
         </record>
-
-
-        
     </data>
 </odoo>

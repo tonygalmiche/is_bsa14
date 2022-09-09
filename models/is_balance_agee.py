@@ -68,18 +68,19 @@ class is_balance_agee(models.Model):
                 #print(invoice.invoice_date_due,delta, invoice.partner_id.name,invoice.amount_residual)
 
             for line in res:
-                vals={
-                    'balance_id': obj.id,
-                    'partner_id': line.id,
-                    'solde'     : res[line][0],
-                    'creance1'  : res[line][1],
-                    'creance2'  : res[line][2],
-                    'creance3'  : res[line][3],
-                    'creance4'  : res[line][4],
-                    'creance5'  : res[line][5],
-                    'creance6'  : res[line][6],
-                }
-                self.env['is.balance.agee.ligne'].create(vals)
+                if line.id:
+                    vals={
+                        'balance_id': obj.id,
+                        'partner_id': line.id,
+                        'solde'     : res[line][0],
+                        'creance1'  : res[line][1],
+                        'creance2'  : res[line][2],
+                        'creance3'  : res[line][3],
+                        'creance4'  : res[line][4],
+                        'creance5'  : res[line][5],
+                        'creance6'  : res[line][6],
+                    }
+                    self.env['is.balance.agee.ligne'].create(vals)
 
 
 class is_balance_agee_ligne(models.Model):

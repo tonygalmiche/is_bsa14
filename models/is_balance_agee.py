@@ -65,9 +65,10 @@ class is_balance_agee(models.Model):
                 if delta<-120:
                     res[partner_id][6]+=residual
 
-                #print(invoice.invoice_date_due,delta, invoice.partner_id.name,invoice.amount_residual)
+                print(invoice.invoice_date_due,delta, invoice.partner_id.name,invoice.amount_residual)
 
             for line in res:
+                print(res)
                 if line.id:
                     vals={
                         'balance_id': obj.id,

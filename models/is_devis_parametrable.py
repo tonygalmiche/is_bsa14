@@ -257,9 +257,14 @@ class is_devis_parametrable(models.Model):
             for dimension in obj.dimension_ids:
                 lien_id = dimension.dimension_id.lien_id
                 if lien_id:
-                    for line in obj.calcul_ids:
-                        if line.lien_id==lien_id:
-                            line.formule=dimension.valeur
+                    if lien_id.type_lien=="entree":
+                        for line in obj.calcul_ids:
+                            if line.lien_id==lien_id:
+                                line.formule=dimension.valeur
+                    if lien_id.type_lien=="sortie":
+                        for line in obj.calcul_ids:
+                            if line.lien_id==lien_id:
+                                dimension.valeur= line.formule
             #******************************************************************
 
             for line in obj.calcul_ids:

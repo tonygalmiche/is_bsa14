@@ -255,25 +255,19 @@ class is_devis_parametrable(models.Model):
                         if line.lien_id==lien_id:
                             line.formule=matiere.epaisseur
             for dimension in obj.dimension_ids:
-
-
-
-
                 lien_id = dimension.dimension_id.lien_id
-
-
-                print(dimension, lien_id, lien_id.type_lien, lien_id.name)
-
-
                 if lien_id:
                     if lien_id.type_lien=="entree":
                         for line in obj.calcul_ids:
                             if line.lien_id==lien_id:
                                 line.formule=dimension.valeur
+
+            for dimension in obj.dimension_ids:
+                lien_id = dimension.dimension_id.lien_id
+                if lien_id:
                     if lien_id.type_lien=="sortie":
                         for line in obj.calcul_ids:
                             if line.lien_id==lien_id:
-                                print(line.lien_id.name, dimension.valeur, line.formule)
                                 dimension.valeur= line.resultat
             #******************************************************************
 

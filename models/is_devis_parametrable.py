@@ -9,7 +9,7 @@ import re
 import openpyxl
 from glob import glob
 import logging
-from math import pi,tan,sqrt
+from math import pi,tan,sqrt, floor
 
 _logger = logging.getLogger(__name__)
 
@@ -968,8 +968,11 @@ class is_type_cuve_calcul(models.Model):
                 formule=formule.replace("ROUNDDOWN(","round(")
                 formule=formule.replace("ROUNDUP(","round(")
                 formule=formule.replace("ROUND(","round(")
-
                 formule=formule.replace("SQRT(","sqrt(")
+                formule=formule.replace("INT(","floor(")
+
+
+
 
 
                 # ** Traitement fonction IF ***********************************

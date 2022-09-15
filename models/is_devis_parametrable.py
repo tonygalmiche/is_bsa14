@@ -933,6 +933,14 @@ class is_type_cuve_calcul(models.Model):
                 formule=formule.replace("^","**")
 
 
+
+                formule=formule.replace("ROUNDDOWN(","round(")
+                formule=formule.replace("ROUNDUP(","round(")
+                formule=formule.replace("ROUND(","round(")
+
+
+
+
                 # ** Traitement fonction IF ***********************************
                 pattern = re.compile(r'(IF\(.*\))')
                 res = pattern.findall(formule)

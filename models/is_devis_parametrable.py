@@ -798,17 +798,17 @@ class is_type_cuve(models.Model):
                             lien_id = l.id
                         name = cells_value[lig][col].value
                         if re.match(r"[A-Z][0-9]+", str(name)):
-                            if cells_formula[lig][col+2].value:
-                                vals={
-                                    "type_cuve_id": obj.id,
-                                    "sequence"    : lig,
-                                    "name"        : name,
-                                    "description" : cells_value[lig][col+1].value,
-                                    "formule"     : cells_formula[lig][col+2].value,
-                                    "unite"       : cells_value[lig][col+3].value,
-                                    "lien_id"     : lien_id,
-                                }
-                                res = self.env['is.type.cuve.calcul'].create(vals)
+                            #if cells_formula[lig][col+2].value:
+                            vals={
+                                "type_cuve_id": obj.id,
+                                "sequence"    : lig,
+                                "name"        : name,
+                                "description" : cells_value[lig][col+1].value,
+                                "formule"     : cells_formula[lig][col+2].value,
+                                "unite"       : cells_value[lig][col+3].value,
+                                "lien_id"     : lien_id,
+                            }
+                            res = self.env['is.type.cuve.calcul'].create(vals)
                         lig+=1
             obj.recalculer_action()
 

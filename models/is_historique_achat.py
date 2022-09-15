@@ -217,3 +217,18 @@ class is_historique_achat(models.Model):
             obj.stock_secu_kg         = (obj.stock_secu or 0) * masse_tole
             obj.prevision_appro_kg    = (obj.prevision_appro or 0) * masse_tole
 
+
+    def vue_formulaire_action(self):
+        for obj in self:
+            res={
+                'name': 'Historique achat',
+                'view_mode': 'form',
+                'res_model': 'is.historique.achat',
+                'res_id': obj.id,
+                'type': 'ir.actions.act_window',
+            }
+            return res
+
+
+
+

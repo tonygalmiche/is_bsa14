@@ -172,23 +172,49 @@
                             }
                         </style>
                         <group>
-                            <field name="product_id" />
-                            <field name="masse_tole" />
-
-                            <field name="qt_recue_n2" />
-                            <field name="qt_recue_kg_n2" />
-                            <field name="qt_consommee_n2" />
-                            <field name="qt_consommee_kg_n2" />
-
-                            <field name="qt_recue_n1" />
-                            <field name="qt_recue_kg_n1" />
-                            <field name="qt_consommee_n1" />
-                            <field name="qt_consommee_kg_n1" />
-
-                            <field name="qt_recue_n0" />
-                            <field name="qt_recue_kg_n0" />
-                            <field name="qt_consommee_n0" />
-                            <field name="qt_consommee_kg_n0" />
+                            <group>
+                                <field name="product_id" />
+                                <field name="famille_id" />
+                                <field name="masse_tole" />
+                            </group>
+                            <group>
+                                <field name="cout" />
+                                <field name="montant_total" />
+                            </group>
+                            <group string="Stock en Qt">
+                                <field name="stock_reel" />
+                                <field name="en_cours_livraison" />
+                                <field name="conso_prevue" />
+                                <field name="stock_final" />
+                                <field name="stock_secu" />
+                                <field name="prevision_appro" />
+                            </group>
+                            <group string="Stock en Kg">
+                                <field name="stock_reel_kg" />
+                                <field name="en_cours_livraison_kg" />
+                                <field name="conso_prevue_kg" />
+                                <field name="stock_final_kg" />
+                                <field name="stock_secu_kg" />
+                                <field name="prevision_appro_kg" />
+                            </group>
+                            <group string="Année N-2">
+                                <field name="qt_recue_n2" />
+                                <field name="qt_recue_kg_n2" />
+                                <field name="qt_consommee_n2" />
+                                <field name="qt_consommee_kg_n2" />
+                            </group>
+                            <group string="Année N-1">
+                                <field name="qt_recue_n1" />
+                                <field name="qt_recue_kg_n1" />
+                                <field name="qt_consommee_n1" />
+                                <field name="qt_consommee_kg_n1" />
+                            </group>
+                            <group string="Année N">
+                                <field name="qt_recue_n0" />
+                                <field name="qt_recue_kg_n0" />
+                                <field name="qt_consommee_n0" />
+                                <field name="qt_consommee_kg_n0" />
+                            </group>
                         </group>
                     </sheet>
                 </form>
@@ -211,6 +237,8 @@
             <field name="model">is.historique.achat</field>
             <field name="arch" type="xml">
                 <tree editable="bottom" create="0">
+                    <button name="vue_formulaire_action" type="object" title="Voir la fiche complète" icon="fa-search-plus"/>
+
                     <field name="product_id" />
                     <field name="famille_id" optional="show"/>
                     <field name="masse_tole" optional="show"/>
@@ -261,6 +289,8 @@
             <field name="model">is.historique.achat</field>
             <field name="arch" type="xml">
                 <tree editable="bottom" create="0">
+                    <button name="vue_formulaire_action" type="object" title="Voir la fiche complète" icon="fa-search-plus"/>
+
                     <field name="product_id" />
                     <field name="famille_id" optional="show"/>
                     <field name="masse_tole" optional="show"/>
@@ -300,6 +330,8 @@
             <field name="model">is.historique.achat</field>
             <field name="arch" type="xml">
                 <tree editable="bottom" create="0">
+                    <button name="vue_formulaire_action" type="object" title="Voir la fiche complète" icon="fa-search-plus"/>
+
                     <field name="product_id" />
                     <field name="famille_id" optional="show"/>
                     <field name="masse_tole" optional="show"/>
@@ -338,6 +370,7 @@
             <field name="model">is.historique.achat</field>
             <field name="arch" type="xml">
                 <tree editable="bottom" create="0">
+                    <button name="vue_formulaire_action" type="object" title="Voir la fiche complète" icon="fa-search-plus"/>
                     <field name="product_id" />
                     <field name="famille_id"                        optional="show"/>
                     <field name="masse_tole"                        optional="show"/>

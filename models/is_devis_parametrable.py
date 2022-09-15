@@ -261,6 +261,13 @@ class is_devis_parametrable(models.Model):
                         for line in obj.calcul_ids:
                             if line.lien_id==lien_id:
                                 line.formule=dimension.valeur
+            for section in obj.section_ids:
+                for product in section.product_ids:
+                    lien_id = product.type_equipement_id.quantite_id
+                    if lien_id.type_lien=="entree":
+                        for line in obj.calcul_ids:
+                            if line.lien_id==lien_id:
+                                line.formule=product.quantite
             #******************************************************************
 
             for line in obj.calcul_ids:
@@ -273,7 +280,6 @@ class is_devis_parametrable(models.Model):
                     for line in obj.calcul_ids:
                         if line.lien_id==lien_id:
                             matiere.poids=line.resultat
-
             for dimension in obj.dimension_ids:
                 lien_id = dimension.dimension_id.lien_id
                 if lien_id:
@@ -281,6 +287,13 @@ class is_devis_parametrable(models.Model):
                         for line in obj.calcul_ids:
                             if line.lien_id==lien_id:
                                 dimension.valeur= line.resultat
+            for section in obj.section_ids:
+                for product in section.product_ids:
+                    lien_id = product.type_equipement_id.prix_id
+                    if lien_id.type_lien=="sortie":
+                        for line in obj.calcul_ids:
+                            if line.lien_id==lien_id:
+                                product.prix=line.resultat
             #******************************************************************
 
             #** Récupératon capacite ******************************************
@@ -676,13 +689,6 @@ class is_devis_parametrable_variante(models.Model):
             obj.montant_marge_revendeur = (prix_vente_revendeur - prix_vente)/quantite
 
 
-    # prix_vente_int           = fields.Integer("Prix de vente HT (arrondi)" , readonly=True, compute='_compute_montants')
-    # montant_tva              = fields.Monetary("TVA"                       , readonly=True, compute='_compute_montants', currency_field='currency_id')
-    # prix_vente_ttc           = fields.Monetary("Prix de vente TTC"         , readonly=True, compute='_compute_montants', currency_field='currency_id')
-
-
-
-
     def acceder_variante_action(self):
         for obj in self:
             res={
@@ -700,8 +706,11 @@ class is_type_equipement(models.Model):
     _description = "Type d'équipement"
     _order='name'
 
-    name        = fields.Char("Type d'équipement", required=True)
-    tps_montage = fields.Float("Temps de montatge (HH:MM)")
+    name           = fields.Char("Type d'équipement", required=True)
+    tps_montage    = fields.Float("Temps de montatge (HH:MM)")
+    quantite_id    = fields.Many2one('is.lien.odoo.excel', 'Quantité')     # Données d'entrée
+    prix_id        = fields.Many2one('is.lien.odoo.excel', 'Prix')         # Donnée de sortie
+    description_id = fields.Many2one('is.lien.odoo.excel', 'Description')  # Donnée de sortie
 
 
 class is_section_devis(models.Model):

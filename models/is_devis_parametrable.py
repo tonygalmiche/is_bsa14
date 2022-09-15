@@ -261,14 +261,6 @@ class is_devis_parametrable(models.Model):
                         for line in obj.calcul_ids:
                             if line.lien_id==lien_id:
                                 line.formule=dimension.valeur
-
-            for dimension in obj.dimension_ids:
-                lien_id = dimension.dimension_id.lien_id
-                if lien_id:
-                    if lien_id.type_lien=="sortie":
-                        for line in obj.calcul_ids:
-                            if line.lien_id==lien_id:
-                                dimension.valeur= line.resultat
             #******************************************************************
 
             for line in obj.calcul_ids:
@@ -281,6 +273,14 @@ class is_devis_parametrable(models.Model):
                     for line in obj.calcul_ids:
                         if line.lien_id==lien_id:
                             matiere.poids=line.resultat
+
+            for dimension in obj.dimension_ids:
+                lien_id = dimension.dimension_id.lien_id
+                if lien_id:
+                    if lien_id.type_lien=="sortie":
+                        for line in obj.calcul_ids:
+                            if line.lien_id==lien_id:
+                                dimension.valeur= line.resultat
             #******************************************************************
 
             #** Récupératon capacite ******************************************

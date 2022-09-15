@@ -520,6 +520,7 @@ class is_devis_parametrable_section_product(models.Model):
     description        = fields.Text("Description")
     description_report = fields.Text("Description pour le rapport PDF", compute='_compute_description_report',)
     uom_po_id          = fields.Many2one('uom.uom', "Unité", help="Unité de mesure d'achat", related="product_id.uom_po_id", readonly=True)
+    marge              = fields.Float("Marge (%)", help="Si ce champ n'est pas renseigné, la marge par défaut de la variante sera appliquée")
     quantite           = fields.Float("Quantité", default=1)
     prix               = fields.Float("Prix", help="Prix d'achat")
     date_achat         = fields.Date("Date"    , store=True, readonly=True, compute='_compute_date_achat', help="Date du dernier achat")
@@ -630,8 +631,19 @@ class is_devis_parametrable_variante(models.Model):
 
             montant_unitaire = montant_total/quantite
 
+            #** Calcul du montant des équipements avec la marge par équipement **********
+            montant_equipement_marge=0
+            for section in obj.devis_id.section_ids:
+                for product in section.product_ids:
+                    marge = obj.marge_equipement
+                    if product.marge>0:
+                        marge=product.marge
+                    montant_equipement_marge+=product.montant*(1+marge/100)
+            #****************************************************************************
+
             prix_vente  = montant_matiere*(1+obj.marge_matiere/100)
-            prix_vente += montant_equipement*(1+obj.marge_equipement/100)
+            #prix_vente += montant_equipement*(1+obj.marge_equipement/100)
+            prix_vente += montant_equipement_marge
             prix_vente += montant_montage_productivite*(1+obj.marge_montage/100)
             prix_vente += montant_be*(1+obj.marge_be/100)
 

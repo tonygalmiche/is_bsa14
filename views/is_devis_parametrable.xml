@@ -457,6 +457,7 @@
                                 <field name="prix"        optional="show"/>
                                 <field name="date_achat"  optional="hide"/>
                                 <field name="montant"     optional="show" sum="Total"/>
+                                <field name="marge"       optional="show"/>
                                 <field name="tps_montage" optional="show" sum="Total" widget="float_time"/>
                             </tree>
                         </field>

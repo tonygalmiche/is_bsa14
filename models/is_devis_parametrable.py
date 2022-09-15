@@ -9,7 +9,8 @@ import re
 import openpyxl
 from glob import glob
 import logging
-from math import pi,tan
+from math import pi,tan,sqrt
+
 _logger = logging.getLogger(__name__)
 
 
@@ -968,7 +969,7 @@ class is_type_cuve_calcul(models.Model):
                 formule=formule.replace("ROUNDUP(","round(")
                 formule=formule.replace("ROUND(","round(")
 
-
+                formule=formule.replace("SQRT(","sqrt(")
 
 
                 # ** Traitement fonction IF ***********************************

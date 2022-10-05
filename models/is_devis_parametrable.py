@@ -492,6 +492,7 @@ class is_devis_parametrable_option(models.Model):
     quantite           = fields.Float("Quantitée"  , help="Donnée de sortie du calculateur")
     prix               = fields.Float("Prix"       , help="Prix unitaire de l'option")
     montant            = fields.Float("Montant", store=True, readonly=True, compute='_compute_montant')
+    entree2            = fields.Float("Entrée 2")
     sortie2            = fields.Float("Sortie 2")
 
 
@@ -511,7 +512,7 @@ class is_devis_parametrable_option(models.Model):
             obj.montant = montant
 
 
-    @api.depends('description','valeur','quantite','prix','montant')
+    @api.depends('description','valeur','quantite','prix','montant','entree2','sortie2')
     def _compute_description_client(self):
         for obj in self:
             val=""
@@ -521,6 +522,7 @@ class is_devis_parametrable_option(models.Model):
                 val = val.replace("[quantite]", str(obj.quantite))
                 val = val.replace("[prix]", str(obj.prix))
                 val = val.replace("[montant]", str(obj.montant))
+                val = val.replace("[entree2]", str(obj.entree2))
                 val = val.replace("[sortie2]", str(obj.sortie2))
             obj.description_client = val
 
@@ -749,10 +751,14 @@ class is_devis_parametrable_variante(models.Model):
             #****************************************************************************
 
             prix_vente  = montant_matiere*(1+obj.marge_matiere/100)
-            #prix_vente += montant_equipement*(1+obj.marge_equipement/100)
             prix_vente += montant_equipement_marge
+            prix_vente += montant_option
             prix_vente += montant_montage_productivite*(1+obj.marge_montage/100)
             prix_vente += montant_be*(1+obj.marge_be/100)
+
+
+            print("prix_vente=",prix_vente)
+
 
             prix_vente_revendeur = prix_vente*(1+obj.marge_revendeur/100)
 
@@ -1133,5 +1139,6 @@ class is_option(models.Model):
     prix             = fields.Float("Prix uniaire", help="ex: Mettre le prix en m2 pour la régulation thermique")
     lien_valeur_id   = fields.Many2one('is.lien.odoo.excel', 'Lien Odoo Excel Valeur (Entrée)')
     lien_quantite_id = fields.Many2one('is.lien.odoo.excel', 'Lien Odoo Excel Quantité (Sortie)')
+    lien_entree2_id  = fields.Many2one('is.lien.odoo.excel', 'Lien Odoo Excel Entrée 2')
     lien_sortie2_id  = fields.Many2one('is.lien.odoo.excel', 'Lien Odoo Excel Sortie 2')
 

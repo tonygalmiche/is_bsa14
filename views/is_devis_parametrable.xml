@@ -216,6 +216,21 @@
                                         </tree>
                                     </field>
                                 </group>
+                                <group string="Options">
+                                    <field name="options_ids" nolabel="1">
+                                        <tree editable="bottom">
+                                            <field name="sequence" widget="handle" />
+                                            <field name="devis_id" invisible="1"/>
+                                            <field name="option_id"/>
+                                            <field name="description"        optional="show"/>
+                                            <field name="description_client" optional="show"/>
+                                            <field name="valeur"/>
+                                            <field name="quantite"/>
+                                            <field name="prix"/>
+                                            <field name="montant" sum="Total"/>
+                                        </tree>
+                                    </field>
+                                </group>
                                 <group string="Sections des équipements">
                                     <field name="section_ids" nolabel="1" readonly="0">
                                         <tree>
@@ -261,7 +276,7 @@
                             <page string="Calculs">
                                 <group string="Calculs"/>
                                 <field name="calcul_ids" nolabel="1">
-                                    <tree editable="bottom" limit="200">
+                                    <tree editable="bottom" limit="2000">
                                         <field name="sequence" widget="handle" />
                                         <field name="devis_parametrable_id" invisible="1"/>
                                         <field name="name"/>
@@ -493,7 +508,7 @@
                     <field name="name"/>
                     <field name="quantite_id"/>
                     <field name="prix_id"/>
-                    <field name="description_id"/>
+                    <!-- <field name="description_id"/> -->
                     <field name="tps_montage" widget="float_time"/>
                 </tree>
             </field>
@@ -509,7 +524,7 @@
                                 <field name="name" />
                                 <field name="quantite_id"/>
                                 <field name="prix_id"/>
-                                <field name="description_id"/>
+                                <!-- <field name="description_id"/> -->
                                 <field name="tps_montage" widget="float_time"/>
                             </group>
                          </group>
@@ -621,7 +636,7 @@
                             </group>
                          </group>
                             <field name="calcul_ids" nolabel="1">
-                                <tree editable="bottom" limit="200">
+                                <tree editable="bottom" limit="2000">
                                     <field name="sequence" widget="handle" />
                                     <field name="type_cuve_id" invisible="1"/>
                                     <field name="name"  attrs="{'readonly': [('proteger','=',True)]}"/>
@@ -760,6 +775,59 @@
             <field name="view_mode">tree,form</field>
         </record>
 
+
+        <!-- is.option -->
+        <record id="is_option_tree" model="ir.ui.view">
+            <field name="name">is.option.tree</field>
+            <field name="model">is.option</field>
+            <field name="arch" type="xml">
+                <tree >
+                    <field name="name"/>
+                    <field name="prix"/>
+                    <field name="lien_valeur_id"/>
+                    <field name="lien_quantite_id"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_option_form" model="ir.ui.view">
+            <field name="name">is.option.form</field>
+            <field name="model">is.option</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <style>
+                            .o_form_label{
+                                white-space: nowrap;
+                            }
+                        </style>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="prix"/>
+                                <field name="lien_valeur_id"/>
+                                <field name="lien_quantite_id"/>
+                            </group>
+                         </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_option_search" model="ir.ui.view">
+            <field name="name">is.option.search</field>
+            <field name="model">is.option</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="lien_valeur_id"/>
+                    <field name="lien_quantite_id"/>
+               </search>
+            </field>
+        </record>
+        <record id="is_option_action" model="ir.actions.act_window">
+            <field name="name">Options</field>
+            <field name="res_model">is.option</field>
+            <field name="view_mode">tree,form</field>
+        </record>
 
 
         <!-- is.lien.odoo.excel -->

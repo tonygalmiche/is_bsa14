@@ -84,6 +84,8 @@
             </t>
         </t>
     </template>
+
+
     <template id="report_devis_parametrable_affaire">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
@@ -141,4 +143,20 @@
             </t>
         </t>
     </template>
+
+
+
+    <template id="report_devis_parametrable_affaire_entete">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h3>Entête de l'affaire</h3>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+
 </odoo>

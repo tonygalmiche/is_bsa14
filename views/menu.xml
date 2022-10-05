@@ -143,6 +143,16 @@
             action="is_dimension_action"
             sequence="960"
         />
+
+        <menuitem 
+            name="Options"
+            id="is_option_menu"
+            parent="is_devis_parametrable_configuration_menu"
+            action="is_option_action"
+            sequence="965"
+        />
+
+
         <menuitem 
             name="Liens Odoo/Excel"
             id="is_lien_odoo_excel_menu"

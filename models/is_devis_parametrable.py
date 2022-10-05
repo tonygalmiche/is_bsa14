@@ -216,7 +216,7 @@ class is_devis_parametrable(models.Model):
     date_actualisation = fields.Datetime("Date d'actualisation"                , default=fields.Datetime.now)
     partner_id         = fields.Many2one('res.partner', 'Client', required=True)
     tax_id             = fields.Many2one('account.tax', 'TVA à appliquer')
-    tps_montage        = fields.Float("Tps montage (HH:MM)", help="Temps de montatge (HH:MM)", store=False, readonly=True, compute='_compute_montant')
+    tps_montage        = fields.Float("Tps montage (HH:MM)", help="Temps de montage (HH:MM)", store=False, readonly=True, compute='_compute_montant')
     tps_assemblage     = fields.Float("Tps assemblage (HH:MM)")
     tps_majoration     = fields.Float("Tps majoration (HH:MM)")
     tps_minoration     = fields.Float("Tps minoration (HH:MM)")
@@ -225,6 +225,7 @@ class is_devis_parametrable(models.Model):
 
     matiere_ids        = fields.One2many('is.devis.parametrable.matiere'  , 'devis_id', 'Matières'  , copy=True)
     dimension_ids      = fields.One2many('is.devis.parametrable.dimension', 'devis_id', 'Dimensions', copy=True)
+    options_ids        = fields.One2many('is.devis.parametrable.option'   , 'devis_id', 'Options', copy=True)
     section_ids        = fields.One2many('is.devis.parametrable.section'  , 'devis_id', 'Sections'  , copy=True)
     variante_ids       = fields.One2many('is.devis.parametrable.variante' , 'devis_id', 'Variantes' , copy=True)
     total_equipement   = fields.Float("Total équipement"                     , store=False, readonly=True, compute='_compute_montant')
@@ -262,6 +263,15 @@ class is_devis_parametrable(models.Model):
                         for line in obj.calcul_ids:
                             if line.lien_id==lien_id:
                                 line.formule=dimension.valeur
+
+            for option in obj.options_ids:
+                lien_id = option.option_id.lien_valeur_id
+                if lien_id:
+                    if lien_id.type_lien=="entree":
+                        for line in obj.calcul_ids:
+                            if line.lien_id==lien_id:
+                                line.formule=option.valeur
+
             for section in obj.section_ids:
                 for product in section.product_ids:
                     lien_id = product.type_equipement_id.quantite_id
@@ -288,6 +298,13 @@ class is_devis_parametrable(models.Model):
                         for line in obj.calcul_ids:
                             if line.lien_id==lien_id:
                                 dimension.valeur= line.resultat
+            for option in obj.options_ids:
+                lien_id = option.option_id.lien_quantite_id
+                if lien_id:
+                    if lien_id.type_lien=="sortie":
+                        for line in obj.calcul_ids:
+                            if line.lien_id==lien_id:
+                                option.quantite= line.resultat
             for section in obj.section_ids:
                 for product in section.product_ids:
                     lien_id = product.type_equipement_id.prix_id
@@ -436,7 +453,51 @@ class is_devis_parametrable_dimension(models.Model):
     valeur       = fields.Integer("Valeur (mm)", help="Utilisée dans les calculs")
 
 
+class is_devis_parametrable_option(models.Model):
+    _name = 'is.devis.parametrable.option'
+    _description = "Options du devis paramètrable"
+    _order='sequence,id'
 
+
+    devis_id           = fields.Many2one('is.devis.parametrable', 'Devis', required=True, ondelete='cascade')
+    sequence           = fields.Integer("Sequence")
+    option_id          = fields.Many2one('is.option', 'Option')
+    description        = fields.Char("Description BSA" , help="Information pour le client (mettre [quantite] pour récupérer la quantité dans le PDF")
+    description_client = fields.Char("Description Client", store=True, readonly=True, compute='_compute_description_client')
+    valeur             = fields.Float("Valeur"     , help="Donnée d'entrée du calculateur")
+    quantite           = fields.Float("Quantitée"  , help="Donnée de sortie du calculateur")
+    prix               = fields.Float("Prix"       , help="Prix unitaire de l'option")
+    montant            = fields.Float("Montant", store=True, readonly=True, compute='_compute_montant')
+
+
+    @api.onchange('option_id')
+    def onchange_product_id(self):
+        for obj in self:
+            obj.description = obj.option_id.name
+            obj.prix        = obj.option_id.prix
+
+
+    @api.depends('option_id','quantite','prix')
+    def _compute_montant(self):
+        for obj in self:
+            montant=0
+            if obj.prix and obj.quantite:
+                montant = obj.prix*obj.quantite
+            obj.montant = montant
+
+
+    @api.depends('description','valeur','quantite','prix','montant')
+    def _compute_description_client(self):
+        for obj in self:
+            val=""
+            if obj.description:
+                val=obj.description+" TEST"
+
+                val = val.replace("[valeur]", str(obj.valeur))
+                val = val.replace("[quantite]", str(obj.quantite))
+                val = val.replace("[prix]", str(obj.prix))
+                val = val.replace("[montant]", str(obj.montant))
+            obj.description_client = val
 
 
 class is_devis_parametrable_section(models.Model):
@@ -466,7 +527,7 @@ class is_devis_parametrable_section(models.Model):
     section_id    = fields.Many2one('is.section.devis', "Section")
     product_ids   = fields.One2many('is.devis.parametrable.section.product', 'section_id', 'Articles', copy=True)
     montant_total = fields.Float("Total", store=True, readonly=True, compute='_compute_montant')
-    tps_montage   = fields.Float("Tps (HH:MM)", help="Temps de montatge (HH:MM)", store=True, readonly=True, compute='_compute_tps_montage')
+    tps_montage   = fields.Float("Tps (HH:MM)", help="Temps de montage (HH:MM)", store=True, readonly=True, compute='_compute_tps_montage')
 
 
 
@@ -508,7 +569,8 @@ class is_devis_parametrable_section_product(models.Model):
     @api.depends('product_id','quantite','prix')
     def _compute_date_achat(self):
         for obj in self:
-            obj.date_achat=fields.Date.today()
+            res = self.env['is.devis.parametrable'].get_prix_achat(obj.product_id)
+            obj.date_achat=res[1]
 
 
     @api.depends('type_equipement_id','product_id','quantite')
@@ -539,7 +601,7 @@ class is_devis_parametrable_section_product(models.Model):
     prix               = fields.Float("Prix", help="Prix d'achat")
     date_achat         = fields.Date("Date"    , store=True, readonly=True, compute='_compute_date_achat', help="Date du dernier achat")
     montant            = fields.Float("Montant", store=True, readonly=True, compute='_compute_montant')
-    tps_montage        = fields.Float("Tps (HH:MM)", help="Temps de montatge (HH:MM)", store=True, readonly=True, compute='_compute_tps_montage')
+    tps_montage        = fields.Float("Tps (HH:MM)", help="Temps de montage (HH:MM)", store=True, readonly=True, compute='_compute_tps_montage')
 
 
 class is_devis_parametrable_variante(models.Model):
@@ -708,7 +770,7 @@ class is_type_equipement(models.Model):
     _order='name'
 
     name           = fields.Char("Type d'équipement", required=True)
-    tps_montage    = fields.Float("Temps de montatge (HH:MM)")
+    tps_montage    = fields.Float("Temps de montage (HH:MM)")
     quantite_id    = fields.Many2one('is.lien.odoo.excel', 'Quantité')     # Données d'entrée
     prix_id        = fields.Many2one('is.lien.odoo.excel', 'Prix')         # Donnée de sortie
     description_id = fields.Many2one('is.lien.odoo.excel', 'Description')  # Donnée de sortie
@@ -1027,4 +1089,16 @@ class is_dimension(models.Model):
 
     name    = fields.Char("Dimension", required=True)
     lien_id = fields.Many2one('is.lien.odoo.excel', 'Lien Odoo Excel')
+
+
+
+class is_option(models.Model):
+    _name='is.option'
+    _description = "Option"
+    _order='name'
+
+    name             = fields.Char("Option", required=True)
+    prix             = fields.Float("Prix uniaire", help="ex: Mettre le prix en m2 pour la régulation thermique")
+    lien_valeur_id   = fields.Many2one('is.lien.odoo.excel', 'Lien Odoo Excel Valeur (Entrée)')
+    lien_quantite_id = fields.Many2one('is.lien.odoo.excel', 'Lien Odoo Excel Quantité (Sortie)')
 

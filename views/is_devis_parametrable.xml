@@ -610,17 +610,7 @@
             <field name="model">is.type.cuve</field>
             <field name="arch" type="xml">
                 <form>
-                    <header>
-                        <button 
-                            name="import_fichier_xlsx_action" 
-                            string="Importer fichier .xlsx" type="object" 
-                        />
-                        <!-- <button 
-                            name="recalculer_action" 
-                            string="Recalculer" type="object" 
-                        /> -->
-                    </header>
-                    <sheet>
+                     <sheet>
                         <style>
                             .o_form_label{
                                 white-space: nowrap;
@@ -634,30 +624,35 @@
                             <group>
                                 <field name="name" />
                                 <field name="perte_decoupe"/>
+                                <field name="import_ids" widget="many2many_binary"/>
                             </group>
                          </group>
-                            <field name="calcul_ids" nolabel="1">
-                                <tree editable="bottom" limit="2000">
-                                    <field name="sequence" widget="handle" />
-                                    <field name="type_cuve_id" invisible="1"/>
-                                    <field name="name"  attrs="{'readonly': [('proteger','=',True)]}"/>
-                                    <field name="description" attrs="{'readonly': [('proteger','=',True)]}"/>
-                                    <field name="formule" attrs="{'readonly': [('proteger_formule','=',True)]}"/>
-                                    <field name="formule_odoo" readonly="1" optional="hide"/>
-                                    <field name="resultat"     readonly="1"/>
-                                    <field name="unite"    attrs="{'readonly': [('proteger','=',True)]}"/>
-                                    <field name="lien_id"  attrs="{'readonly': [('proteger','=',True)]}"/>
-                                    <field name="proteger"         optional="hide"/>
-                                    <field name="proteger_formule" invisible="1"/>
-                                </tree>
-                            </field>
+                          <group>
+                            <button 
+                                name="import_fichier_xlsx_action" 
+                                string="Importer fichier .xlsx" type="object" 
+                            />
+                        </group>
+
+                        <field name="calcul_ids" nolabel="1">
+                            <tree editable="bottom" limit="2000">
+                                <field name="sequence" widget="handle" />
+                                <field name="type_cuve_id" invisible="1"/>
+                                <field name="name"  attrs="{'readonly': [('proteger','=',True)]}"/>
+                                <field name="description" attrs="{'readonly': [('proteger','=',True)]}"/>
+                                <field name="formule" attrs="{'readonly': [('proteger_formule','=',True)]}"/>
+                                <field name="formule_odoo" readonly="1" optional="hide"/>
+                                <field name="resultat"     readonly="1"/>
+                                <field name="unite"    attrs="{'readonly': [('proteger','=',True)]}"/>
+                                <field name="lien_id"  attrs="{'readonly': [('proteger','=',True)]}"/>
+                                <field name="proteger"         optional="hide"/>
+                                <field name="proteger_formule" invisible="1"/>
+                            </tree>
+                        </field>
                         <group>
                             <field name="image" widget='image' class="oe_center oe_avatar" nolabel="1"/>
                         </group>
-                        <group>
-                            <field name="import_ids" widget="many2many_binary"/>
-                        </group>
-                    </sheet>
+                   </sheet>
                 </form>
             </field>
         </record>

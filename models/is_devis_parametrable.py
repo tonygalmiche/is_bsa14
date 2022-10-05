@@ -242,7 +242,7 @@ class is_devis_parametrable(models.Model):
 
     def write(self, vals):
         res = super(is_devis_parametrable, self).write(vals)
-        if "capacite" not in vals:
+        if "capacite" not in vals and "tps_assemblage" not in vals:
             self.recalculer_action()
         return res
 
@@ -319,6 +319,13 @@ class is_devis_parametrable(models.Model):
                         for line in obj.calcul_ids:
                             if line.lien_id==lien_id:
                                 product.prix=line.resultat
+
+            liens =  self.env['is.lien.odoo.excel'].search([('name','=',"tps_assemblage")])
+            for lien in liens:
+                for line in obj.calcul_ids:
+                    if line.lien_id==lien:
+                        obj.tps_assemblage=line.resultat
+
             #******************************************************************
 
             #** Récupératon capacite ******************************************

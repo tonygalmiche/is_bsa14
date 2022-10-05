@@ -228,6 +228,7 @@
                                             <field name="quantite"/>
                                             <field name="prix"/>
                                             <field name="montant" sum="Total"/>
+                                            <field name="sortie2"/>
                                         </tree>
                                     </field>
                                 </group>
@@ -786,6 +787,7 @@
                     <field name="prix"/>
                     <field name="lien_valeur_id"/>
                     <field name="lien_quantite_id"/>
+                    <field name="lien_sortie2_id"/>
                 </tree>
             </field>
         </record>
@@ -806,6 +808,7 @@
                                 <field name="prix"/>
                                 <field name="lien_valeur_id"/>
                                 <field name="lien_quantite_id"/>
+                                <field name="lien_sortie2_id"/>
                             </group>
                          </group>
                     </sheet>

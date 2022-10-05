@@ -305,6 +305,13 @@ class is_devis_parametrable(models.Model):
                         for line in obj.calcul_ids:
                             if line.lien_id==lien_id:
                                 option.quantite= line.resultat
+            for option in obj.options_ids:
+                lien_id = option.option_id.lien_sortie2_id
+                if lien_id:
+                    if lien_id.type_lien=="sortie":
+                        for line in obj.calcul_ids:
+                            if line.lien_id==lien_id:
+                                option.sortie2= line.resultat
             for section in obj.section_ids:
                 for product in section.product_ids:
                     lien_id = product.type_equipement_id.prix_id
@@ -468,6 +475,7 @@ class is_devis_parametrable_option(models.Model):
     quantite           = fields.Float("Quantitée"  , help="Donnée de sortie du calculateur")
     prix               = fields.Float("Prix"       , help="Prix unitaire de l'option")
     montant            = fields.Float("Montant", store=True, readonly=True, compute='_compute_montant')
+    sortie2            = fields.Float("Sortie 2")
 
 
     @api.onchange('option_id')
@@ -496,6 +504,7 @@ class is_devis_parametrable_option(models.Model):
                 val = val.replace("[quantite]", str(obj.quantite))
                 val = val.replace("[prix]", str(obj.prix))
                 val = val.replace("[montant]", str(obj.montant))
+                val = val.replace("[sortie2]", str(obj.sortie2))
             obj.description_client = val
 
 
@@ -1100,4 +1109,5 @@ class is_option(models.Model):
     prix             = fields.Float("Prix uniaire", help="ex: Mettre le prix en m2 pour la régulation thermique")
     lien_valeur_id   = fields.Many2one('is.lien.odoo.excel', 'Lien Odoo Excel Valeur (Entrée)')
     lien_quantite_id = fields.Many2one('is.lien.odoo.excel', 'Lien Odoo Excel Quantité (Sortie)')
+    lien_sortie2_id  = fields.Many2one('is.lien.odoo.excel', 'Lien Odoo Excel Sortie 2')
 

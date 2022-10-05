@@ -491,8 +491,7 @@ class is_devis_parametrable_option(models.Model):
         for obj in self:
             val=""
             if obj.description:
-                val=obj.description+" TEST"
-
+                val=obj.description
                 val = val.replace("[valeur]", str(obj.valeur))
                 val = val.replace("[quantite]", str(obj.quantite))
                 val = val.replace("[prix]", str(obj.prix))

@@ -185,6 +185,15 @@ class is_devis_parametrable(models.Model):
             obj.montant_matiere = montant
 
 
+    @api.depends('options_ids')
+    def _compute_montant_option(self):
+        for obj in self:
+            montant=0
+            for line in obj.options_ids:
+                montant+=line.montant
+            obj.montant_option = montant
+
+
     @api.depends('section_ids',"tps_assemblage","tps_majoration","tps_minoration")
     def _compute_montant(self):
         for obj in self:
@@ -230,6 +239,7 @@ class is_devis_parametrable(models.Model):
     variante_ids       = fields.One2many('is.devis.parametrable.variante' , 'devis_id', 'Variantes' , copy=True)
     total_equipement   = fields.Float("Total équipement"                     , store=False, readonly=True, compute='_compute_montant')
     montant_matiere    = fields.Float("Montant matière", store=False, readonly=True, compute='_compute_montant_matiere')
+    montant_option     = fields.Float("Montant options", store=False, readonly=True, compute='_compute_montant_option')
     commentaire        = fields.Text("Commentaire")
 
 
@@ -650,8 +660,9 @@ class is_devis_parametrable_variante(models.Model):
     cout_horaire_montage = fields.Float('Coût horaire montage', default=lambda self: self.env.user.company_id.is_cout_horaire_montage)
     cout_horaire_be      = fields.Float('Coût horaire BE'     , default=lambda self: self.env.user.company_id.is_cout_horaire_be)
 
-    montant_matiere    = fields.Monetary("Montant matière" , readonly=True, compute='_compute_montants', currency_field='currency_id')
-    montant_equipement = fields.Monetary("Montant equipements", readonly=True, compute='_compute_montants', currency_field='currency_id')
+    montant_matiere    = fields.Monetary("Montant matière"     , readonly=True, compute='_compute_montants', currency_field='currency_id')
+    montant_equipement = fields.Monetary("Montant equipements" , readonly=True, compute='_compute_montants', currency_field='currency_id')
+    montant_option     = fields.Monetary("Montant options"     , readonly=True, compute='_compute_montants', currency_field='currency_id')
     montant_montage    = fields.Monetary("Montant MO sans productivité"    , readonly=True, compute='_compute_montants', currency_field='currency_id')
     montant_montage_productivite = fields.Monetary("Montant MO", readonly=True, compute='_compute_montants', currency_field='currency_id')
     montant_be         = fields.Monetary("Montant BE"          , readonly=True, compute='_compute_montants', currency_field='currency_id')
@@ -659,6 +670,7 @@ class is_devis_parametrable_variante(models.Model):
     montant_unitaire   = fields.Monetary("Montant Unitaire HT" , readonly=True, compute='_compute_montants', currency_field='currency_id')
     montant_matiere_pourcent              = fields.Float("% Montant matière"                  , readonly=True, compute='_compute_montants')
     montant_equipement_pourcent           = fields.Float("% Montant equipements"              , readonly=True, compute='_compute_montants')
+    montant_option_pourcent               = fields.Float("% Montant options"                  , readonly=True, compute='_compute_montants')
     montant_montage_productivite_pourcent = fields.Float("% Montant MO avec productivité", readonly=True, compute='_compute_montants')
     montant_be_pourcent                   = fields.Float("% Montant BE"                       , readonly=True, compute='_compute_montants')
 
@@ -701,22 +713,26 @@ class is_devis_parametrable_variante(models.Model):
             tps_montage        = obj.devis_id.tps_total*quantite
             montant_matiere    = obj.devis_id.montant_matiere*quantite
             montant_equipement = obj.devis_id.total_equipement*quantite
+            montant_option     = obj.devis_id.montant_option
             montant_montage    = tps_montage*obj.cout_horaire_montage
             montant_montage_productivite = montant_montage-montant_montage*obj.gain_productivite/100
             montant_be         = obj.tps_be * obj.cout_horaire_be
-            montant_total      = montant_matiere + montant_equipement + montant_montage_productivite + montant_be
+            montant_total      = montant_matiere + montant_equipement + montant_option + montant_montage_productivite + montant_be
 
             montant_matiere_pourcent = 0
             montant_equipement_pourcent = 0
+            montant_option_pourcent = 0
             montant_montage_productivite_pourcent = 0
             montant_be_pourcent = 0
             if montant_total>0:
                 montant_matiere_pourcent              = 100 * montant_matiere / montant_total
                 montant_equipement_pourcent           = 100 * montant_equipement / montant_total
+                montant_option_pourcent               = 100 * montant_option / montant_total
                 montant_montage_productivite_pourcent = 100 * montant_montage_productivite / montant_total
                 montant_be_pourcent                   = 100 * montant_be / montant_total
-            obj.montant_matiere_pourcent = montant_matiere_pourcent
+            obj.montant_matiere_pourcent    = montant_matiere_pourcent
             obj.montant_equipement_pourcent = montant_equipement_pourcent
+            obj.montant_option_pourcent     = montant_option_pourcent
             obj.montant_montage_productivite_pourcent = montant_montage_productivite_pourcent
             obj.montant_be_pourcent = montant_be_pourcent
 
@@ -742,6 +758,7 @@ class is_devis_parametrable_variante(models.Model):
 
             obj.montant_matiere    = montant_matiere
             obj.montant_equipement = montant_equipement
+            obj.montant_option     = montant_option
             obj.tps_montage        = tps_montage
             obj.montant_montage    = montant_montage
             obj.montant_montage_productivite = montant_montage_productivite

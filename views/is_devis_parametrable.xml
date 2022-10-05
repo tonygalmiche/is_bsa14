@@ -392,6 +392,13 @@
                                     <field name="montant_equipement" class="oe_inline"/>
                                 </div>
 
+                                <label for="montant_option"/>
+                                <div class="o_row no-gutters d-flex">
+                                    <field name="montant_option_pourcent" widget="progressbar" class="oe_inline"/>
+                                    <field name="montant_option" class="oe_inline"/>
+                                </div>
+
+
                                 <label for="montant_montage_productivite"/>
                                 <div class="o_row no-gutters d-flex">
                                     <field name="montant_montage_productivite_pourcent" widget="progressbar" class="oe_inline"/>

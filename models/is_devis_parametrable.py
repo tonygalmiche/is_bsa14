@@ -715,7 +715,7 @@ class is_devis_parametrable_variante(models.Model):
             tps_montage        = obj.devis_id.tps_total*quantite
             montant_matiere    = obj.devis_id.montant_matiere*quantite
             montant_equipement = obj.devis_id.total_equipement*quantite
-            montant_option     = obj.devis_id.montant_option
+            montant_option     = obj.devis_id.montant_option*quantite
             montant_montage    = tps_montage*obj.cout_horaire_montage
             montant_montage_productivite = montant_montage-montant_montage*obj.gain_productivite/100
             montant_be         = obj.tps_be * obj.cout_horaire_be
@@ -740,6 +740,9 @@ class is_devis_parametrable_variante(models.Model):
 
             montant_unitaire = montant_total/quantite
 
+
+
+
             #** Calcul du montant des équipements avec la marge par équipement **********
             montant_equipement_marge=0
             for section in obj.devis_id.section_ids:
@@ -747,8 +750,11 @@ class is_devis_parametrable_variante(models.Model):
                     marge = obj.marge_equipement
                     if product.marge>0:
                         marge=product.marge
-                    montant_equipement_marge+=product.montant*(1+marge/100)
+                    montant_equipement_marge+=product.montant*(1+marge/100)*quantite
             #****************************************************************************
+
+
+
 
             prix_vente  = montant_matiere*(1+obj.marge_matiere/100)
             prix_vente += montant_equipement_marge
@@ -757,7 +763,15 @@ class is_devis_parametrable_variante(models.Model):
             prix_vente += montant_be*(1+obj.marge_be/100)
 
 
+            print(montant_total, montant_unitaire, montant_equipement_marge)
+            print("montant_matiere=",montant_matiere)
+            print("montant_equipement_marge=",montant_equipement_marge)
+            print("montant_option=",montant_option)
+            print("montant_montage_productivite=",montant_montage_productivite)
+            print("montant_be=",montant_be)
             print("prix_vente=",prix_vente)
+            print("montant_montage=",montant_montage)
+            print("montant_montage_productivite=",montant_montage_productivite)
 
 
             prix_vente_revendeur = prix_vente*(1+obj.marge_revendeur/100)

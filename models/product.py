@@ -287,7 +287,9 @@ class product_template(models.Model):
 class product_product(models.Model):
     _inherit = 'product.product'
 
-    is_production_count          = fields.Integer('# Productions', compute='_compute_is_production_count', compute_sudo=False)
+    is_production_count = fields.Integer('# Productions', compute='_compute_is_production_count', compute_sudo=False)
+    is_pmp_odoo8        = fields.Float('PMP Odoo 8', digits=(14,4))
+
 
     def _compute_is_production_count(self):
         for product in self:

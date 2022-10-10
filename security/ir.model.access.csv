@@ -124,3 +124,8 @@ access_is_devis_parametrable_option_manager,access_is_devis_parametrable_option_
 
 access_is_option,access_is_option,model_is_option,base.group_user,1,0,0,0
 access_is_option_manager,access_is_option_manager,model_is_option,purchase.group_purchase_manager,1,1,1,1
+
+
+access_is_calcul_pmp,access_is_calcul_pmp,model_is_calcul_pmp,purchase.group_purchase_manager,1,1,1,1
+access_is_calcul_pmp_product,access_is_calcul_pmp_product,model_is_calcul_pmp_product,purchase.group_purchase_manager,1,1,1,1
+access_is_calcul_pmp_move,access_is_calcul_pmp_move,model_is_calcul_pmp_move,purchase.group_purchase_manager,1,1,1,1

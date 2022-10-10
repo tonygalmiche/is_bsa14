@@ -221,6 +221,7 @@
                 <field name="type" position="before">
                     <field name="product_tmpl_id"/>
                     <field name="is_production_count"/>
+                    <field name="is_pmp_odoo8"/>
                 </field>                
             </field>
         </record>

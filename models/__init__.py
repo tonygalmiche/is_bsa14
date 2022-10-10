@@ -41,6 +41,7 @@ from . import is_outillage
 from . import is_systeme_gestion
 from . import is_simulation_livrable
 from . import is_historique_achat
+from . import is_calcul_pmp
 
 
 

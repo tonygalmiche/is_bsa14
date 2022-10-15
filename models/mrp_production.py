@@ -37,10 +37,11 @@ class mrp_production(models.Model):
                 res=obj.with_context(skip_backorder=True).button_mark_done()
             else:
                 res=obj.with_context(skip_backorder=True, mo_ids_to_backorder=obj.id).button_mark_done()
+            return res
             #print('res=',res)
             if res!=True and 'name' in res:
                 obj.qty_producing=0
-                err="La nomenclature de l'article ne correspond plus à la nomenclature de l'OF"
+                err="La nomenclature de l'article ne correspond plus a la nomenclature de l'OF"
                 print(err)
                 return err
                 #res["err"]=err

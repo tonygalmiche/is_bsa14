@@ -37,7 +37,7 @@ class mrp_production(models.Model):
             if res!=True and 'name' in res:
                 obj.qty_producing=0
                 err="La nomenclature de l'article ne correspond plus à la nomenclature de l'OF"
-                return err
+                print(err)
                 #res["err"]=err
                 #return {"err": err}
         return True

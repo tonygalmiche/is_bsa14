@@ -37,9 +37,10 @@ class mrp_production(models.Model):
             if res!=True and 'name' in res:
                 obj.qty_producing=0
                 err="La nomenclature de l'article ne correspond plus à la nomenclature de l'OF"
-                res["err"]=err
+                return err
+                #res["err"]=err
                 #return {"err": err}
-        return res
+        return True
 
 
     def _generate_backorder_productions(self, close_mo=True):

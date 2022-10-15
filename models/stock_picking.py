@@ -10,10 +10,13 @@ class stock_picking(models.Model):
         for obj in self:
             montant = 0
             for line in obj.move_lines:
-                price_unit = line.sale_line_id.price_unit or 0
-                discount = line.sale_line_id.discount or 0
-                v = (price_unit-(discount/100)*price_unit)*line.product_uom_qty
-                montant+=v
+                if line.sale_line_id:
+                    price_unit = line.sale_line_id.price_unit or 0
+                    discount = line.sale_line_id.discount or 0
+                    montant+=(price_unit-(discount/100)*price_unit)*line.product_uom_qty
+                if line.purchase_line_id:
+                    price_unit = line.purchase_line_id.price_unit or 0
+                    montant+=price_unit*line.purchase_line_id.product_qty
             obj.is_montant_total = montant
 
 

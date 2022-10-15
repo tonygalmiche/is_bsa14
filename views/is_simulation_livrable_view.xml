@@ -88,6 +88,7 @@
             <field name="arch" type="xml">
                 <tree >
                     <field name="name" />
+                    <field name="type_stock" />
                     <field name="commentaire" />
                     <field name="createur_id" />
                     <field name="date_creation" />
@@ -115,6 +116,7 @@
                         <group>
                             <group>
                                 <field name="name"/>
+                                <field name="type_stock"/>
                                 <field name="commentaire"/>
                             </group>
                             <group>
@@ -141,6 +143,7 @@
             <field name="arch" type="xml">
                 <search>
                     <field name="name" />
+                    <field name="type_stock" />
                     <field name="commentaire" />
                </search>
             </field>

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from email.policy import default
 from itertools import product
 from odoo import models,fields,api
 import datetime
@@ -16,6 +17,11 @@ class is_simulation_livrable(models.Model):
     createur_id   = fields.Many2one('res.users', 'Créateur', required=True, default=lambda self: self.env.user.id)
     date_creation = fields.Date("Date de création"         , required=True, default=lambda *a: fields.Date.today())
     demande_ids   = fields.One2many('is.simulation.livrable.ligne', 'simulation_id', 'Lignes', copy=True, domain=[('type_ligne', '=', 'demande')])
+    type_stock    = fields.Selection([
+        ('sans_stock' , 'Sans stock'),
+        ('stock_reel' , 'Stock réel'),
+        ('stock_prevu', 'Stock prévu'),
+    ], "Type de stock", required=True, default="stock_reel")
 
 
     @api.model
@@ -25,9 +31,14 @@ class is_simulation_livrable(models.Model):
         return res
 
 
-    def bom(self, demande, niv, product, qt, stocks={}):
+    def bom(self, demande, niv, product, qt, type_stock, stocks={}):
         if product not in stocks:
-            stocks[product]=product.qty_available
+            val=0
+            if type_stock=="stock_reel":
+                val=product.qty_available
+            if type_stock=="stock_prevu":
+                val=product.virtual_available
+            stocks[product]=val
         stock = stocks[product]
         besoin = qt-stock
         if besoin<0:
@@ -55,7 +66,7 @@ class is_simulation_livrable(models.Model):
         for bom in boms:
             niv+=1
             for line in bom.bom_line_ids:
-                stocks = self.bom(demande,niv,line.product_id,besoin*line.product_qty, stocks)
+                stocks = self.bom(demande,niv,line.product_id,besoin*line.product_qty, type_stock, stocks)
         return stocks
 
 
@@ -72,7 +83,7 @@ class is_simulation_livrable(models.Model):
             self.env['is.simulation.livrable.ligne'].search(filtre).unlink()
             niv=1
             for demande in obj.demande_ids:
-                self.bom(demande,niv,demande.product_id,demande.demande)
+                self.bom(demande,niv,demande.product_id,demande.demande, obj.type_stock)
 
             #** regroupement des besoins **************************************
             filtre=[

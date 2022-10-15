@@ -168,9 +168,9 @@
             <field name="inherit_id" ref="sale.view_quotation_tree"/>
             <field name="arch" type="xml">
                 <field name="name" position="after">
-                    <field name="client_order_ref" />
-                    <!-- <field name="is_arc_a_faire"/>
-                    <field name="is_date_ar" /> -->
+                    <field name="client_order_ref"   optional="show"/>
+                    <field name="is_notre_ref_devis" optional="show"/>
+                    <field name="is_nom_affaire"     optional="show"/>
                 </field>
             </field>
         </record>
@@ -180,9 +180,9 @@
             <field name="inherit_id" ref="sale.view_order_tree"/>
             <field name="arch" type="xml">
                 <field name="name" position="after">
-                    <field name="client_order_ref" optional="show"/>
-                    <!-- <field name="is_arc_a_faire"   optional="show"/>
-                    <field name="is_date_ar"       optional="show"/> -->
+                    <field name="client_order_ref"   optional="show"/>
+                    <field name="is_notre_ref_devis" optional="show"/>
+                    <field name="is_nom_affaire"     optional="show"/>
                 </field>
                <field name="date_order" position="attributes">
                     <attribute name="invisible">1</attribute>
@@ -199,6 +199,7 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='name']" position="after">
                     <field name="client_order_ref" string="Commande client" filter_domain="[('client_order_ref','ilike',self)]"/>
+                    <field name="is_nom_affaire"/>
                 </xpath>
             </field>
         </record>

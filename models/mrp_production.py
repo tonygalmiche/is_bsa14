@@ -21,7 +21,7 @@ class mrp_production(models.Model):
 
 
     def declarer_une_fabrication_action(self):
-        err=""
+        res=False
         for obj in self:
             qt=1
             if obj.is_gestion_lot:
@@ -30,13 +30,16 @@ class mrp_production(models.Model):
             for move in obj.move_raw_ids:
                 move.quantity_done = move.should_consume_qty
             if obj.qty_producing == obj.product_qty:
-                obj.with_context(skip_backorder=True).button_mark_done()
+                res=obj.with_context(skip_backorder=True).button_mark_done()
             else:
-                obj.with_context(skip_backorder=True, mo_ids_to_backorder=obj.id).button_mark_done()
-
-        if err!="":
-            return {"err": err}
-        return True
+                res=obj.with_context(skip_backorder=True, mo_ids_to_backorder=obj.id).button_mark_done()
+            print('res=',res)
+            if res!=True and 'name' in res:
+                obj.qty_producing=0
+                err="La nomenclature de l'article ne correspond plus à la nomenclature de l'OF"
+                res["err"]=err
+                #return {"err": err}
+        return res
 
 
     def _generate_backorder_productions(self, close_mo=True):

@@ -23,6 +23,10 @@ class mrp_production(models.Model):
     def declarer_une_fabrication_action(self):
         res=False
         for obj in self:
+
+            print("obj=",obj)
+
+
             qt=1
             if obj.is_gestion_lot:
                 qt=obj.product_qty

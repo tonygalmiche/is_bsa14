@@ -19,9 +19,12 @@
                                 <field name="is_date_prevue"/>
                                 <field name="is_date_demandee"/>
                                 <field name="product_uom_qty"/>
+                                <field name="qt_livree"/>
+                                <field name="reste_a_livrer"/>
                                 <field name="price_unit"/>
                                 <field name="discount"/>
                                 <field name="montant_ht"/>
+                                <field name="montant_reste_a_livrer"/>
                                 <field name="state"/>
                             </group>
                         </group>
@@ -35,19 +38,22 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="order_id"         widget="many2one_clickable"/>
-                    <field name="date_order"/>
-                    <field name="client_order_ref"/>
+                    <field name="date_order"       optional="show"/>
+                    <field name="client_order_ref" optional="show"/>
                     <field name="partner_id"       widget="many2one_clickable"/>
-                    <field name="contact_id"       widget="many2one_clickable"/>
-                    <field name="is_categorie_client_id"/>
+                    <field name="contact_id"       optional="show" widget="many2one_clickable"/>
+                    <field name="is_categorie_client_id" optional="show"/>
                     <field name="product_id"       widget="many2one_clickable"/>
-                    <field name="is_date_prevue"/>
-                    <field name="is_date_demandee"/>
-                    <field name="product_uom_qty"/>
-                    <field name="price_unit"/>
-                    <field name="discount"/>
-                    <field name="montant_ht"/>
-                    <field name="state"/>
+                    <field name="is_date_prevue"   optional="show"/>
+                    <field name="is_date_demandee" optional="show"/>
+                    <field name="product_uom_qty"  optional="show" sum="Total"/>
+                    <field name="qt_livree"        optional="show" sum="Total"/>
+                    <field name="reste_a_livrer"   optional="show" sum="Total"/>
+                    <field name="price_unit"       optional="show"/>
+                    <field name="discount"         optional="show"/>
+                    <field name="montant_ht"       optional="show"       sum="Total"/>
+                    <field name="montant_reste_a_livrer" optional="show" sum="Total"/>
+                    <field name="state"            optional="show"/>
                 </tree>
             </field>
         </record>

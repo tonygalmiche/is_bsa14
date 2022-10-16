@@ -45,7 +45,6 @@ class mrp_bom(models.Model):
 
     def actualiser_gammes_action(self):
         for obj in self:
-            print(obj)
             obj.operation_ids.unlink()
             for line in obj.is_gamme_generique_id.ligne_ids:
                 vals={
@@ -54,6 +53,7 @@ class mrp_bom(models.Model):
                     'name'             : line.name,
                     'workcenter_id'    : line.workcenter_id.id,
                     'time_cycle_manual': line.duree,
+                    'is_duree_heure'   : line.duree/60,
                 }
                 self.env['mrp.routing.workcenter'].create(vals)
 
@@ -77,47 +77,23 @@ class mrp_bom_line(models.Model):
         ], "Type", compute="_compute_is_line_type", readonly=True, store=False)
 
 
-
-    # def _bom_explode(self, cr, uid, bom, product, factor, properties=None, level=0, routing_id=False, previous_products=None, master_bom=None, context=None):
-    #     result, result2 = super(mrp_bom, self)._bom_explode(cr, uid, bom, product, factor, properties=properties, level=level, routing_id=routing_id, previous_products=previous_products, master_bom=master_bom, context=context)
-    #     uom_obj = self.pool.get("product.uom")
-    #     routing_obj = self.pool.get("mrp.routing")
-    #     master_bom = master_bom or bom
-    #     def _factor(factor, product_efficiency, product_rounding):
-    #         factor = factor / (product_efficiency or 1.0)
-    #         factor = _common.ceiling(factor, product_rounding)
-    #         if factor < product_rounding:
-    #             factor = product_rounding
-    #         return factor
-
-    #     factor = _factor(factor, bom.product_efficiency, bom.product_rounding)
-    #     result2 = []
-    #     routing = (routing_id and routing_obj.browse(cr, uid, routing_id)) or bom.routing_id or False
-    #     if routing:
-    #         for wc_use in routing.workcenter_lines:
-    #             wc = wc_use.workcenter_id
-    #             d, m = divmod(factor, wc_use.workcenter_id.capacity_per_cycle)
-    #             m=round(m,6) #TODO : Pour corriger un bug
-    #             mult = (d + (m and 1.0 or 0.0))
-    #             cycle = mult * wc_use.cycle_nbr
-    #             result2.append({
-    #                 "name": tools.ustr(wc_use.name) + " - " + tools.ustr(bom.product_tmpl_id.name_get()[0][1]),
-    #                 "workcenter_id": wc.id,
-    #                 "sequence": level + (wc_use.sequence or 0),
-    #                 "is_offset": wc_use.is_offset,
-    #                 "cycle": cycle,
-    #                 "hour": float(wc_use.hour_nbr * mult + ((wc.time_start or 0.0) + (wc.time_stop or 0.0) + cycle * (wc.time_cycle or 0.0)) * (wc.time_efficiency or 1.0)),
-    #             })
-    #     return result, result2
-
-
-
-
-
 class mrp_routing_workcenter(models.Model):
     _inherit  = "mrp.routing.workcenter"
 
-    is_offset = fields.Integer("Offset (jour)", help="Offset en jours par rapport à l'opération précédente pour le calcul du planning")
+    is_offset      = fields.Integer("Offset (jour)", help="Offset en jours par rapport à l'opération précédente pour le calcul du planning")
+    is_duree_heure = fields.Float("Durée (Heures)")
+
+
+    @api.onchange('is_duree_heure')
+    def onchange_is_duree_heure(self):
+        for obj in self:
+            obj.time_cycle_manual=60*obj.is_duree_heure
+
+
+    @api.onchange('time_cycle_manual')
+    def onchange_time_cycle_manual(self):
+        for obj in self:
+            obj.is_duree_heure=obj.time_cycle_manual/60
 
 
 class mrp_workcenter(models.Model):

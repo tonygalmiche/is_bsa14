@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from itertools import product
-from odoo import models,fields,api
+from odoo import models,fields,api,tools
 from datetime import datetime, timedelta
 import time
 import os
@@ -119,8 +119,6 @@ class is_tracabilite_reception(models.Model):
 
 
     def imprimer_etiquette(self, etiquettes):
-        #etiquettes=unicode(etiquettes,'utf-8')
-        #etiquettes=etiquettes.encode("windows-1252")
         path="/tmp/etiquette.txt"
         err=""
         fichier = open(path, "w")
@@ -153,8 +151,6 @@ class is_tracabilite_livraison(models.Model):
     operateur_livraison_ids = fields.Many2many('hr.employee', 'is_tracabilite_livraison_operateur_livraison_rel', 'tracabilite_livraison_id', 'employee_id', 'Opérateurs Livraison')
     etiquette_reception_id  = fields.One2many('is.tracabilite.reception.line', 'livraison_id', 'Etiquettes réception')
     etiquette_livraison_id  = fields.One2many('is.tracabilite.livraison.line', 'livraison_id', 'Etiquettes semi-fini')
-    #etiquette_reception     = fields.Many2one('etiquette_reception_id', 'etiquette_id', type='many2one', related='is.tracabilite.reception.line', string='Etiquette réception'),
-    #etiquette_livraison     = fields.Many2one('etiquette_livraison_id', 'etiquette_id', type='many2one', related='is.tracabilite.livraison.line', string='Etiquette semi-fini'),
 
 
     def ajouter_etiquette_of(self, etiquette, production_id):
@@ -194,15 +190,6 @@ class is_tracabilite_livraison(models.Model):
         return vals
 
 
-    # def update_product(self, vals):
-    #     if "production_id" in vals:
-    #         obj = self.pool.get('mrp.production')
-    #         doc = obj.browse(cr, uid, vals["production_id"], context=context)
-    #         product_id=doc.product_id.product_tmpl_id.id
-    #         vals.update({'product_id': product_id})
-    #     return vals
-
-
     def imprimer_etiquette_livraison_direct(self):
         for obj in self:
             etiquettes=obj.generer_etiquette_livraison()
@@ -210,8 +197,6 @@ class is_tracabilite_livraison(models.Model):
 
 
     def generer_etiquette_livraison(self):
-        #obj = self.env('is.tracabilite.livraison')
-        #eti = obj.browse(cr, uid, ids[0], context)
         for eti in self:
             txt=""
             txt=txt+chr(2)+"qC"+chr(10)
@@ -276,104 +261,11 @@ class is_tracabilite_livraison(models.Model):
     def verifier_product_etiquette(self, etiquettes, products):
         if etiquettes:
             for etiquette in etiquettes:
-                #if etiquette.production_id.product_id.id in products:
                 if etiquette.product_id.id in products:
                     continue
                 else:
                     return False
         return True
-
-
-    # def livrer_produits(self, picking, etiquettes):
-    #     wiz_obj = self.pool.get('stock.transfer_details')
-    #     """ préparer le contenu de wizard de transfer de stock """
-    #     items = []
-    #     packs = []
-    #     if not picking.pack_operation_ids:
-    #         picking.do_prepare_partial()
-    #     for op in picking.pack_operation_ids:
-    #         etiquette_qty = self.existe_etiquette(cr, uid, etiquettes, op.product_id.id, context)
-    #         if etiquette_qty: 
-    #             item = {
-    #                 'packop_id': op.id,
-    #                 'product_id': op.product_id.id,
-    #                 'product_uom_id': op.product_uom_id.id,
-    #                 'quantity': etiquette_qty,
-    #                 'package_id': op.package_id.id,
-    #                 'lot_id': op.lot_id.id,
-    #                 'sourceloc_id': op.location_id.id,
-    #                 'destinationloc_id': op.location_dest_id.id,
-    #                 'result_package_id': op.result_package_id.id,
-    #                 'date': op.date, 
-    #                 'owner_id': op.owner_id.id,
-    #             }
-    #             if op.product_id:
-    #                 items.append([0, False, item])
-    #             elif op.package_id:
-    #                 packs.append([0, False, item])
-    #     vals = {'picking_id': picking.id,
-    #             'item_ids': items,
-    #             'packop_ids': packs}
-    #     wizard = wiz_obj.create(cr, uid, vals, context=context)
-    #     return wiz_obj.do_detailed_transfer(cr, uid, [wizard], context=context)
-
-
-    # def existe_etiquette(self, etiquettes, product_id):
-    #     lst = self.grouper_etiquettes_product(cr, uid, etiquettes, context)
-    #     for item in lst:
-    #         if item['product_id'] == product_id:
-    #             return item['qty']
-    #         else:
-    #             continue
-    #     return False
-
-
-    # def grouper_etiquettes_product(self, etiquettes):
-    #     lst = []
-    #     for etiquette in etiquettes:
-    #         if not lst:
-    #             lst.append({'product_id': etiquette.production_id.product_id.id, 'qty':etiquette.quantity})
-    #         else:
-    #             item = self.etiquette_in_list(cr, uid, lst, etiquette.production_id.product_id.id, context)
-    #             if item:
-    #                 item['qty'] += etiquette.quantity
-    #             else:
-    #                 lst.append({'product_id': etiquette.production_id.product_id.id, 'qty':etiquette.quantity})
-    #     return lst
-
-
-    # def etiquette_in_list(self, list, product_id):
-    #     for item in list:
-    #         if item['product_id'] == product_id:
-    #             return item
-    #         else:
-    #             continue
-    #     return False
-
-
-    # def lier_etiquettes_mouvement(self, picking, etiquette):
-    #     etiquette_obj = self.pool.get('is.tracabilite.livraison')
-    #     if picking.move_lines:
-    #         for move in picking.move_lines:
-    #             if move.product_id.id == etiquette.production_id.product_id.id:
-    #                 vals={
-    #                     'move_id':move.id,
-    #                     'livraison': time.strftime('%Y-%m-%d %H:%M:%S',time.gmtime())
-    #                 }
-    #                 etiquette_obj.write(cr, uid, etiquette.id, vals, context=context)
-    #             else:
-    #                 continue
-    #     return True
-                    
-
-
-
-
-
-
-
-
-
 
 
 class is_tracabilite_reception_line(models.Model):
@@ -397,5 +289,77 @@ class is_tracabilite_livraison_line(models.Model):
 
 
 
+class is_suivi_tracabilite_reception(models.Model):
+    _name='is.suivi.tracabilite.reception'
+    _description='Suivi tracabilité reception'
+    _order='id desc'
+    _auto = False
 
-        
+    etiquette_reception_id = fields.Many2one('is.tracabilite.reception', 'Etiquette réception')
+    picking_id             = fields.Many2one('stock.picking', 'Réception')
+    product_id             = fields.Many2one('product.template', 'Article')
+    bl_fournisseur         = fields.Char('Numéro du BL fournisseur')
+    move_id                = fields.Many2one('stock.move', 'Mouvement de stock')
+    qt_receptionnee        = fields.Float('Qt receptionnée')
+    qt_consommee           = fields.Float('Qt consommée')
+    qt_reste               = fields.Float('Qt reste')
+    create_uid             = fields.Many2one('res.users', 'Créé par')
+    create_date            = fields.Datetime('Date création')
+    write_uid              = fields.Many2one('res.users', 'Modifié par')
+    write_date             = fields.Datetime('Date modification')
+
+    def init(self):
+        cr=self._cr
+        tools.drop_view_if_exists(cr, 'is_suivi_tracabilite_reception')
+        cr.execute("""
+            CREATE OR REPLACE view is_suivi_tracabilite_reception AS (
+                select
+                    tr.id,
+                    tr.picking_id,
+                    tr.product_id,
+                    tr.bl_fournisseur,
+                    tr.move_id,
+                    tr.create_uid,
+                    tr.create_date,
+                    tr.write_uid,
+                    tr.write_date,
+                    tr.id etiquette_reception_id,
+                    tr.quantity qt_receptionnee,
+                    sum(trl.quantity) qt_consommee,
+                    (tr.quantity-sum(trl.quantity)) qt_reste
+                from is_tracabilite_reception tr join is_tracabilite_reception_line trl on tr.id=trl.etiquette_id
+                group by tr.id, tr.quantity
+            );
+        """)
+
+
+
+
+    def liste_livraisons_action(self):
+        for obj in self: 
+            lines = self.env['is.tracabilite.reception.line'].search([('etiquette_id','=',obj.id)])
+            ids=[]
+            for line in lines:
+                ids.append(line.livraison_id.id)
+            return {
+                "name": "Livraisons "+obj.etiquette_reception_id.name,
+                "view_mode": "tree,form",
+                "res_model": "is.tracabilite.livraison",
+                "domain": [
+                    ("id" ,"in",ids),
+                ],
+                "type": "ir.actions.act_window",
+            }
+
+    def liste_etiquettes_action(self):
+        for obj in self: 
+            return {
+                "name": "Consommtions "+obj.etiquette_reception_id.name,
+                "view_mode": "tree,form",
+                "res_model": "is.tracabilite.reception.line",
+                "domain": [
+                    ("etiquette_id" ,"=",obj.id),
+                ],
+                "type": "ir.actions.act_window",
+            }
+

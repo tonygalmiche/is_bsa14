@@ -155,8 +155,8 @@
                     <field name="purchase_line_id"/>
                     <field name="create_uid"/>
                     <field name="write_uid"/>
+                    <field name="create_date"/>
                     <field name="write_date"/>
-                    <field name="write_uid"/>
                 </field>
             </field>
         </record>
@@ -191,8 +191,8 @@
                     <field name="purchase_line_id" optional="hide"/>
                     <field name="create_uid"       optional="hide"/>
                     <field name="write_uid"        optional="hide"/>
-                    <field name="write_date"       optional="hide"/>
-                    <field name="write_uid"        optional="hide"/>
+                    <field name="create_date"       optional="hide"/>
+                    <field name="write_date"        optional="hide"/>
                 </field>
             </field>
         </record>

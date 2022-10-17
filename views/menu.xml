@@ -283,15 +283,24 @@
         <menuitem   action="action_is_bsa_tracabilite_reception" 
                 id="menu_action_is_bsa_tracabilite_reception"
                 parent="menu_is_bsa_tracabilite"
-                sequence="1"/>
+                sequence="10"/>
         <menuitem   action="action_is_bsa_tracabilite_livraison" 
                     id="menu_action_is_bsa_tracabilite_livraison"
                     parent="menu_is_bsa_tracabilite"
-                    sequence="2"/> 
+                    sequence="20"/> 
         <menuitem   action="is_tracabilite_reception_line_action" 
                     id="is_tracabilite_reception_line_menu"
                     parent="menu_is_bsa_tracabilite"
-                    sequence="3"/> 
+                    sequence="30"/> 
+        <menuitem 
+            id="is_suivi_tracabilite_reception_menu" 
+            name="Suivi traçabilité réception" 
+            action="is_suivi_tracabilite_reception_action" 
+            parent="menu_is_bsa_tracabilite"
+            sequence="40"
+        />
+
+
         <menuitem 
             id="is_valorisation_stock_menu" 
             sequence="10" 

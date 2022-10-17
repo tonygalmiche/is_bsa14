@@ -83,7 +83,7 @@
                 <tree string="Etiquettes en livraison">
                     <field name="name" />
                     <field name="production_id" />
-                    <field name="lot_fabrication" />
+                    <field name="lot_fabrication" sum="Total"/>
                     <field name="product_id" />
                     <field name="fabrique" />
                     <field name="operateur_ids" />
@@ -177,7 +177,7 @@
                 <tree>
                     <field name="livraison_id" widget="many2one_clickable"/>
                     <field name="etiquette_id" widget="many2one_clickable"/>
-                    <field name="quantity"/>
+                    <field name="quantity" sum="Total"/>
                 </tree>
             </field>
         </record>
@@ -196,6 +196,69 @@
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">is.tracabilite.reception.line</field>
             <field name="view_mode">tree</field>
+        </record>
+
+
+        <!--  is.suivi.tracabilite.reception -->
+        <record id="is_suivi_tracabilite_reception_tree" model="ir.ui.view">
+            <field name="name">is.suivi.tracabilite.reception.tree</field>
+            <field name="model">is.suivi.tracabilite.reception</field>
+            <field name="arch" type="xml">
+                <tree decoration-danger="qt_reste&lt;0">
+                    <field name="etiquette_reception_id"  widget="many2one_clickable"/>
+                    <field name="product_id"  widget="many2one_clickable"/>
+                    <field name="picking_id"  widget="many2one_clickable"/>
+                    <field name="bl_fournisseur"                       optional="hide"/>
+                    <field name="move_id"  widget="many2one_clickable" optional="hide"/>
+                    <field name="qt_receptionnee" sum="Total"/>
+                    <field name="qt_consommee"    sum="Total"/>
+                    <button name="liste_etiquettes_action" type="object" icon="fa-list" title="Liste des étiquettes"/>
+                    <button name="liste_livraisons_action" type="object" icon="fa-list" title="Liste des livraisons"/>
+                    <field name="qt_reste"        sum="Total"/>
+                    <field name="create_uid"       optional="hide"/>
+                    <field name="write_uid"        optional="hide"/>
+                    <field name="create_date"       optional="hide"/>
+                    <field name="write_date"        optional="hide"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_suivi_tracabilite_reception_view" model="ir.ui.view">
+            <field name="name">is.suivi.tracabilite.reception.view</field>
+            <field name="model">is.suivi.tracabilite.reception</field>
+            <field name="arch" type="xml">
+                <form string="Etiquettes en réception">
+                    <sheet>
+                         <group>
+                            <field name="etiquette_reception_id" />
+                            <field name="product_id" />
+                            <field name="picking_id" />
+                            <field name="bl_fournisseur" />
+                            <field name="move_id" />
+                            <field name="qt_receptionnee" />
+                            <field name="qt_consommee" />
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_suivi_tracabilite_reception_view_filter" model="ir.ui.view">
+                <field name="name">is.suivi.tracabilite.reception.view.select</field>
+                <field name="model">is.suivi.tracabilite.reception</field>
+                <field name="arch" type="xml">
+                    <search>
+                        <field name="etiquette_reception_id"/>
+                        <field name="product_id"/>
+                        <field name="picking_id"/>
+                        <field name="bl_fournisseur"/>
+                        <field name="move_id"/>
+                    </search>
+                </field>
+            </record>
+        <record id="is_suivi_tracabilite_reception_action" model="ir.actions.act_window">
+            <field name="name">Suivi traçabilité réception</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">is.suivi.tracabilite.reception</field>
+            <field name="view_mode">tree,form</field>
         </record>
 
     </data>

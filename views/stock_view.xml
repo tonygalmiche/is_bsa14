@@ -129,18 +129,6 @@
             </field>
         </record>
 
-                <!-- 
-                <field name="product_id" position="attributes">
-                    <attribute name="domain">[('type','=','product'),'|',('is_stock_category_id', '=', False),('is_stock_category_id', '=', product_stock_category_id)]</attribute>
-                </field>
-                <xpath expr="//field[@name='line_ids']/tree/field[@name='product_id']" position="attributes">
-                    <attribute name="domain">[('type','=','product'),'|',('is_stock_category_id', '=', False),('is_stock_category_id', '=', parent.product_stock_category_id)]</attribute>
-                </xpath>                 
-                -->
-
-
-
-
 
         <!-- stock.move -->
         <record id="is_stock_view_move_form" model="ir.ui.view">
@@ -148,9 +136,27 @@
             <field name="model">stock.move</field>
             <field name="inherit_id" ref="stock.view_move_form"/>
             <field name="arch" type="xml">
+
+                <xpath expr="//sheet[1]" position="inside">
+                    <style>
+                        .o_form_label{
+                            white-space: nowrap;
+                        }
+                    </style>
+                </xpath>
+
+
                 <field name="group_id" position="after">
                     <field name="picking_id"/>
+                    <field name="picking_type_id"/>
                     <field name="is_account_move_line_id"/>
+                    <field name="price_unit"/>
+                    <field name="sale_line_id"/>
+                    <field name="purchase_line_id"/>
+                    <field name="create_uid"/>
+                    <field name="write_uid"/>
+                    <field name="write_date"/>
+                    <field name="write_uid"/>
                 </field>
             </field>
         </record>
@@ -170,11 +176,27 @@
             <field name="model">stock.move</field>
             <field name="inherit_id" ref="stock.view_move_tree"/>
             <field name="arch" type="xml">
+                <field name="date" position="replace">
+                    <field name="date" decoration-danger="(state not in ('cancel','done')) and date &gt; current_date"/> 
+                    <field name="date_deadline"/>
+               </field>
                 <field name="reference" position="after">
                     <field name="origin"/>
                 </field>
+               <field name="state" position="before">
+                    <field name="price_unit"       optional="hide"/>
+                    <field name="picking_id"       optional="hide"/>
+                    <field name="picking_type_id"  optional="hide"/>
+                    <field name="sale_line_id"     optional="hide"/>
+                    <field name="purchase_line_id" optional="hide"/>
+                    <field name="create_uid"       optional="hide"/>
+                    <field name="write_uid"        optional="hide"/>
+                    <field name="write_date"       optional="hide"/>
+                    <field name="write_uid"        optional="hide"/>
+                </field>
             </field>
         </record>
+
 
 
         <!-- stock.move.line -->

@@ -177,8 +177,8 @@
             <field name="inherit_id" ref="stock.view_move_tree"/>
             <field name="arch" type="xml">
                 <field name="date" position="replace">
-                    <field name="date" decoration-danger="(state not in ('cancel','done')) and date &gt; current_date"/> 
-                    <field name="date_deadline"/>
+                    <field name="date"          optional="show"/> 
+                    <field name="date_deadline" optional="show"/>
                </field>
                 <field name="reference" position="after">
                     <field name="origin"/>

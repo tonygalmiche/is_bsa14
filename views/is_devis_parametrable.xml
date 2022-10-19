@@ -14,6 +14,12 @@
                     <field name="revendeur_id"/>
                     <field name="delais"/>
                     <field name="duree_validite"/>
+                    <field name="conditions_generales"  optional="hide"/>
+                    <field name="transport"             optional="hide"/>
+                    <field name="information_technique" optional="hide"/>
+                    <field name="acceptation_cgv"       optional="hide"/>
+                    <field name="vendeur_id"            optional="hide"/>
+                    <field name="date_affaire"          optional="hide"/>
                 </tree>
             </field>
         </record>
@@ -40,7 +46,14 @@
                             <field name="revendeur_id"/>
                             <field name="delais"/>
                             <field name="duree_validite"/>
+                        </group>
+                        <group string="Conditions générales">
                             <field name="conditions_generales"/>
+                            <field name="transport"/>
+                            <field name="information_technique"/>
+                            <field name="acceptation_cgv"/>
+                            <field name="vendeur_id"/>
+                            <field name="date_affaire"/>
                         </group>
                         <group string="Variantes des devis">
                             <field name="variante_ids" nolabel="1">

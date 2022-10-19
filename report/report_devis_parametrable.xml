@@ -136,8 +136,32 @@
                         <h3>Durée de validité de l'offre</h3>
                         <div t-field="o.duree_validite"/>
                         <br />
-                        <h3>Conditions générales de ventes</h3>
-                        <div t-field="o.conditions_generales"/>
+
+                        <t t-if="o.conditions_generales">
+                            <h3>Conditions générales de ventes</h3>
+                            <div t-field="o.conditions_generales"/>
+                        </t>
+                        <t t-if="o.transport">
+                            <h3>Transport</h3>
+                            <div t-field="o.transport"/>
+                        </t>
+                        <t t-if="o.information_technique">
+                            <h3>Informations techniques</h3>
+                            <div t-field="o.information_technique"/>
+                        </t>
+                        <t t-if="o.acceptation_cgv">
+                            <h3>Acceptation CGV</h3>
+                            <div t-field="o.acceptation_cgv"/>
+                        </t>
+                        <t t-if="o.vendeur_id">
+                            <h3>Vendeur</h3>
+                            <div t-field="o.vendeur_id"/>
+                        </t>
+
+                        <t t-if="o.date_affaire">
+                            Fait à Saint-Amour le <span t-field="o.date_affaire"/>
+                        </t>
+
                     </div>
                 </t>
             </t>

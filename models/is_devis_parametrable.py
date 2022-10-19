@@ -27,6 +27,12 @@ class is_devis_parametrable_affaire(models.Model):
     duree_validite       = fields.Char("Durée de validité de l'offre")
     conditions_generales = fields.Text("Conditions générales")
 
+    transport             = fields.Text("Transport")
+    information_technique = fields.Text("Informations techniques")
+    acceptation_cgv       = fields.Text("Acceptations CGV")
+    vendeur_id            = fields.Many2one('res.users', 'Vendeur')
+    date_affaire          = fields.Date("Date affaire")
+
     variante_ids = fields.One2many('is.devis.parametrable.affaire.variante', 'affaire_id', 'Variantes', copy=True)
 
     tax_id      = fields.Many2one('account.tax', 'TVA à appliquer', readonly=True)

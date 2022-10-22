@@ -40,6 +40,7 @@ InfoSaône - Module Odoo 14 pour BSA
         "views/product_supplierinfo_view.xml",
         "views/res_company_view.xml",
         "views/res_partner_view.xml",
+        "views/res_users_view.xml",
         "views/sale_view.xml",
         "views/is_accident_travail_view.xml",
         "views/is_account_move_line.xml",

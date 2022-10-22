@@ -21,6 +21,7 @@ class is_devis_parametrable_affaire(models.Model):
     _order='name'
 
     name                 = fields.Char("Affaire", required=True)
+    image_affaire        = fields.Binary("Image affaire")
     partner_id           = fields.Many2one('res.partner', 'Client', required=True)
     revendeur_id         = fields.Many2one('res.partner', 'Revendeur')
     delais               = fields.Char("Délais")
@@ -41,9 +42,10 @@ class is_devis_parametrable_affaire(models.Model):
     montant_tva = fields.Monetary("TVA"        , readonly=True, compute='_compute_montants')
     montant_ttc = fields.Monetary("Montant TTC", readonly=True, compute='_compute_montants')
 
-    entete_ids   = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_entete_rel', 'affaire_id', 'attachment_id', 'Entête')
-    pied_ids     = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_pied_rel'  , 'affaire_id', 'attachment_id', 'Pied')
-    devis_ids    = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_devis_rel' , 'affaire_id', 'attachment_id', 'Devis')
+    entete_ids        = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_entete_rel'       , 'affaire_id', 'attachment_id', 'Entête')
+    recapitulatif_ids = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_recapitulatif_rel', 'affaire_id', 'attachment_id', 'Récapitulatif')
+    pied_ids          = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_pied_rel'         , 'affaire_id', 'attachment_id', 'Pied')
+    devis_ids         = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_devis_rel'        , 'affaire_id', 'attachment_id', 'Devis')
 
     @api.depends('variante_ids')
     def _compute_montants(self):
@@ -77,34 +79,58 @@ class is_devis_parametrable_affaire(models.Model):
             for file in glob(path):
                 os.remove(file)
 
-            #** Entête ********************************************************
-            for attachment in obj.entete_ids:
-                pdf=base64.b64decode(attachment.datas)
+            #** Entête ajouté *************************************************
+            if obj.entete_ids:
+                for attachment in obj.entete_ids:
+                    pdf=base64.b64decode(attachment.datas)
+                    path="/tmp/affaire_%s_%02d_entete.pdf"%(obj.id,ct)
+                    f = open(path,'wb')
+                    f.write(pdf)
+                    f.close()
+                    paths.append(path)
+                    ct+=1
+
+            #** Entête généré *************************************************
+            if not obj.entete_ids:
+                pdf = request.env.ref('is_bsa14.action_report_devis_parametrable_affaire_entete').sudo()._render_qweb_pdf([obj.id])[0]
                 path="/tmp/affaire_%s_%02d_entete.pdf"%(obj.id,ct)
+                paths.append(path)
                 f = open(path,'wb')
                 f.write(pdf)
                 f.close()
-                paths.append(path)
                 ct+=1
 
             #** Variantes *****************************************************
             for line in obj.variante_ids:
-                pdf = request.env.ref('is_bsa14.action_report_variante_devis_parametrable').sudo()._render_qweb_pdf([line.variante_id.id])[0]
-                path="/tmp/affaire_%s_%02d_variante.pdf"%(obj.id,ct)
+                if line.variante_id:
+                    pdf = request.env.ref('is_bsa14.action_report_variante_devis_parametrable').sudo()._render_qweb_pdf([line.variante_id.id])[0]
+                    path="/tmp/affaire_%s_%02d_variante.pdf"%(obj.id,ct)
+                    paths.append(path)
+                    f = open(path,'wb')
+                    f.write(pdf)
+                    f.close()
+                    ct+=1
+
+            #** Récapitulatif ajouté ******************************************
+            if obj.recapitulatif_ids:
+                for attachment in obj.recapitulatif_ids:
+                    pdf=base64.b64decode(attachment.datas)
+                    path="/tmp/affaire_%s_%02d_recapitulatif.pdf"%(obj.id,ct)
+                    f = open(path,'wb')
+                    f.write(pdf)
+                    f.close()
+                    paths.append(path)
+                    ct+=1
+
+            #** Récapitulatif généré ******************************************
+            if not obj.recapitulatif_ids:
+                pdf = request.env.ref('is_bsa14.action_report_devis_parametrable_affaire').sudo()._render_qweb_pdf([obj.id])[0]
+                path="/tmp/affaire_%s_%02d_recapitulatif.pdf"%(obj.id,ct)
                 paths.append(path)
                 f = open(path,'wb')
                 f.write(pdf)
                 f.close()
                 ct+=1
-
-            #** Récapitulatif *************************************************
-            pdf = request.env.ref('is_bsa14.action_report_devis_parametrable_affaire').sudo()._render_qweb_pdf([obj.id])[0]
-            path="/tmp/affaire_%s_%02d_recapitulatif.pdf"%(obj.id,ct)
-            paths.append(path)
-            f = open(path,'wb')
-            f.write(pdf)
-            f.close()
-            ct+=1
 
             #** Pied ********************************************************
             for attachment in obj.pied_ids:
@@ -115,6 +141,19 @@ class is_devis_parametrable_affaire(models.Model):
                 f.close()
                 paths.append(path)
                 ct+=1
+
+
+            #** CGV ***********************************************************
+            company = self.env.user.company_id
+            for attachment in company.is_cgv_ids:
+                pdf=base64.b64decode(attachment.datas)
+                path="/tmp/affaire_%s_%02d_pied.pdf"%(obj.id,ct)
+                f = open(path,'wb')
+                f.write(pdf)
+                f.close()
+                paths.append(path)
+                ct+=1
+            #******************************************************************
 
 
             # ** Merge des PDF *************************************************
@@ -759,26 +798,11 @@ class is_devis_parametrable_variante(models.Model):
                     montant_equipement_marge+=product.montant*(1+marge/100)*quantite
             #****************************************************************************
 
-
-
-
             prix_vente  = montant_matiere*(1+obj.marge_matiere/100)
             prix_vente += montant_equipement_marge
             prix_vente += montant_option
             prix_vente += montant_montage_productivite*(1+obj.marge_montage/100)
             prix_vente += montant_be*(1+obj.marge_be/100)
-
-
-            print(montant_total, montant_unitaire, montant_equipement_marge)
-            print("montant_matiere=",montant_matiere)
-            print("montant_equipement_marge=",montant_equipement_marge)
-            print("montant_option=",montant_option)
-            print("montant_montage_productivite=",montant_montage_productivite)
-            print("montant_be=",montant_be)
-            print("prix_vente=",prix_vente)
-            print("montant_montage=",montant_montage)
-            print("montant_montage_productivite=",montant_montage_productivite)
-
 
             prix_vente_revendeur = prix_vente*(1+obj.marge_revendeur/100)
 

@@ -41,12 +41,20 @@
                             }
                         </style>
                         <group>
-                            <field name="name" />
-                            <field name="partner_id"/>
-                            <field name="revendeur_id"/>
-                            <field name="delais"/>
-                            <field name="duree_validite"/>
+                            <group>
+                                <field name="name" />
+                                <field name="partner_id"/>
+                                <field name="revendeur_id"/>
+                                <field name="delais"/>
+                                <field name="duree_validite"/>
+                            </group>
+                            <group>
+                                <field name="image_affaire" widget='image'/>
+                            </group>
                         </group>
+
+
+
                         <group string="Conditions générales">
                             <field name="conditions_generales"/>
                             <field name="transport"/>
@@ -74,8 +82,9 @@
                             <field name="montant_ttc"/>
                         </group>
                         <group string="Entête et pied à ajouter">
-                            <field name="entete_ids" widget="many2many_binary"/>
-                            <field name="pied_ids"   widget="many2many_binary"/>
+                            <field name="entete_ids"        widget="many2many_binary"/>
+                            <field name="recapitulatif_ids" widget="many2many_binary"/>
+                            <field name="pied_ids"          widget="many2many_binary"/>
                         </group>
                         <group string="Devis généré">
                             <field name="devis_ids" widget="many2many_binary" readonly="1"/>

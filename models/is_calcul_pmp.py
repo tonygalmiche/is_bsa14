@@ -17,7 +17,8 @@ class is_calcul_pmp(models.Model):
 
     location_id       = fields.Many2one('stock.location', 'Emplacement', required=True)
     inventory_id      = fields.Many2one('stock.inventory', 'Inventaire initial pour PMP Odoo 8', required=True)
-    date_limite       = fields.Date("Date limite"                      , required=True, default=lambda *a: fields.Date.today())
+    date_limite       = fields.Date("Date de fin", help="Calcul du PMP à cette date de fin", required=True, default=lambda *a: fields.Date.today())
+    date_debut        = fields.Date("Export des mouvements depuis cette date de début sans calculer le PMP")
     stock_category_id = fields.Many2one('is.stock.category', 'Catégorie de stock')
     product_id        = fields.Many2one('product.product', 'Article')
     date_creation     = fields.Date("Date de création"                 , required=True, default=lambda *a: fields.Date.today())
@@ -63,9 +64,18 @@ class is_calcul_pmp(models.Model):
                         product_id=%s and 
                         state='done' and
                         (location_id=%s or location_dest_id=%s)
-                    ORDER BY date desc
                 """
-                cr.execute(SQL,[product.id, obj.location_id.id, obj.location_id.id])
+                if obj.date_debut:
+                    SQL+=" and  date>=%s"
+                SQL+="ORDER BY date desc"
+
+                if obj.date_debut:
+                    cr.execute(SQL,[product.id, obj.location_id.id, obj.location_id.id, obj.date_debut])
+                else:
+                    cr.execute(SQL,[product.id, obj.location_id.id, obj.location_id.id])
+
+
+
                 for row in cr.fetchall():
                     if row[1].date()<=obj.date_limite and stock_date_limite==0:
                         stock_date_limite=stock_date
@@ -111,8 +121,9 @@ class is_calcul_pmp(models.Model):
                     id = self.env['is.calcul.pmp.move'].create(vals)
                     stock_date-=qt
 
-                    if stock_date<0.01:
-                       break
+                    if not obj.date_debut:
+                        if stock_date<0.01:
+                            break
                 pmp=0
                 if total_qt>0:
                     pmp=total_montant/total_qt

@@ -142,6 +142,7 @@
                     <field name="date_limite"/>
                     <field name="stock_category_id"/>
                     <field name="product_id"/>
+                    <field name="date_debut"/>
                     <field name="date_creation" />
                     <field name="createur_id" />
                 </tree>
@@ -152,6 +153,14 @@
             <field name="model">is.calcul.pmp</field>
             <field name="arch" type="xml">
                 <form>
+
+                   <style>
+                        .o_form_label{
+                            white-space: nowrap;
+                        }
+                    </style>
+
+
                     <header>
                         <button name="calcul_pmp_action" type="object" string="Calculer le PMP"/>
                         <button name="%(is_calcul_pmp_move_action)d"    type="action" string="Voir les mouvements"/>
@@ -174,6 +183,7 @@
                             <group>
                                 <field name="date_creation" readonly="1"/>
                                 <field name="createur_id" readonly="1"/>
+                                <field name="date_debut"/>
                             </group>
                         </group>
                     </sheet>

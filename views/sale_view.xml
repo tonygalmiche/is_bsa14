@@ -30,6 +30,14 @@
                     /> -->
                     <field name="is_production_id"            optional="show"/>
                     <field name="salesman_id" readonly="True" optional="show"/>
+
+                    <field name="is_remise1" readonly="True" optional="hide"/>
+                    <field name="is_remise2" readonly="True" optional="hide"/>
+                    <field name="discount"   readonly="True" optional="hide"/>
+
+
+
+
                     <field name="price_subtotal" sum="Total"  optional="show" readonly="True"/>
                     <field name="state"                       optional="show" readonly="True"/>
                     <field name="company_id" invisible="True"/>

@@ -291,8 +291,8 @@ class sale_order_line(models.Model):
     is_fabrication_prevue      = fields.Float("Fabrication prévue"           , compute="_compute_fab", readonly=True, store=False, digits=(14,0))
     is_reste                   = fields.Float("Reste à lancer en fabrication", compute="_compute_fab", readonly=True, store=False, digits=(14,0))
     is_client_order_ref        = fields.Char("Référence Client", store=True, compute="_compute")
-    is_remise1                 = fields.Integer("Remise 1 (%)")
-    is_remise2                 = fields.Integer("Remise 2 (%)")
+    is_remise1                 = fields.Float("Remise 1 (%)", digits=(14,2))
+    is_remise2                 = fields.Float("Remise 2 (%)", digits=(14,2))
     is_production_id           = fields.Many2one("mrp.production", "Ordre de fabrication", copy=False)
     is_num_ligne               = fields.Integer("N°", help="Numéro de ligne automatique", compute="_compute_is_num_ligne", readonly=True, store=False)
 

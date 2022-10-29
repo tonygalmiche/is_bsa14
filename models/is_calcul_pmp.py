@@ -18,13 +18,122 @@ class is_calcul_pmp(models.Model):
     location_id       = fields.Many2one('stock.location', 'Emplacement', required=True)
     inventory_id      = fields.Many2one('stock.inventory', 'Inventaire initial pour PMP Odoo 8', required=True)
     date_limite       = fields.Date("Date de fin", help="Calcul du PMP à cette date de fin", required=True, default=lambda *a: fields.Date.today())
-    date_debut        = fields.Date("Export des mouvements depuis cette date de début sans calculer le PMP")
     stock_category_id = fields.Many2one('is.stock.category', 'Catégorie de stock')
     product_id        = fields.Many2one('product.product', 'Article')
     date_creation     = fields.Date("Date de création"                 , required=True, default=lambda *a: fields.Date.today())
     createur_id       = fields.Many2one('res.users', 'Créateur'        , required=True, default=lambda self: self.env.user.id)
     move_ids          = fields.One2many('is.calcul.pmp.move'   , 'calcul_id', 'Mouvements de stocks')
     product_ids       = fields.One2many('is.calcul.pmp.product', 'calcul_id', 'Articles')
+
+
+                        # <button name="extraire_mouvement_action" type="object" string="Extraire les mouvements"/>
+                        # <button name="calcul_stock_date_action"  type="object" string="Calculer stock à date et période PMP"/>
+                        # <button name="calcul_pmp_action"         type="object" string="Calculer le PMP"/>
+                        # <button name="%(is_calcul_pmp_move_action)d"    type="action" string="Voir les mouvements"/>
+                        # <button name="%(is_calcul_pmp_product_action)d" type="action" string="Voir les articles"/>
+
+
+    def extraire_mouvement_action(self):
+        cr=self._cr
+        for obj in self:
+            print(obj)
+
+            obj.move_ids.unlink()
+            obj.product_ids.unlink()
+            filtre=[('purchase_ok', '=', True)]
+            if obj.stock_category_id:
+                filtre.append(('is_stock_category_id', '=', obj.stock_category_id.id))
+            if obj.product_id:
+               filtre.append(('id', '=', obj.product_id.id))
+            products=self.env['product.product'].search(filtre)
+            nb=len(products)
+            ct=1
+            for product in products:
+                SQL="""
+                    SELECT 
+                        product_id,
+                        date,
+                        product_uom_qty,
+                        location_id,
+                        location_dest_id,
+                        product_uom,
+                        price_unit,
+                        origin,
+                        picking_id,
+                        id,
+                        inventory_id,
+                        reference
+                    FROM stock_move
+                    WHERE 
+                        product_id=%s and 
+                        state='done' and
+                        (location_id=%s or location_dest_id=%s) and  
+                        date>='2021-01-01'
+                    ORDER BY date desc
+                """
+                cr.execute(SQL,[product.id, obj.location_id.id, obj.location_id.id])
+                for row in cr.fetchall():
+                    qt           = row[2]
+                    price_unit   = row[6] or 0.0
+                    picking_id   = row[8]
+                    inventory_id = row[10]
+
+                    if row[3]==obj.location_id.id:
+                        qt=-qt
+
+
+                    qt_rcp=montant_rcp=0
+                    periode_pmp=False
+                    test=False
+                    if obj.inventory_id.id==inventory_id:
+                        price_unit  = product.is_pmp_odoo8 or 0.0
+                        test=True
+                    if picking_id:
+                        test=True
+                    if test and row[1].date()<=obj.date_limite and price_unit>0.0:
+                        qt_rcp      = qt
+                        montant_rcp = qt_rcp*price_unit
+                        nb_rcp+=1
+                        if last==0 and price_unit>0:
+                            last=price_unit
+                        total_qt+=qt
+                        total_montant+=qt*price_unit
+                        if mini>price_unit or mini==0:
+                            mini=price_unit
+                        if price_unit>maxi:
+                            maxi=price_unit
+
+                    if row[1].date()<=obj.date_limite:
+                        periode_pmp=True
+
+
+                    vals = {
+                        'calcul_id'       : obj.id,
+                        'product_id'      : product.id,
+                        'date'            : row[1],
+                        'product_uom_qty' : qt,
+                        'location_id'     : row[3],
+                        'location_dest_id': row[4],
+                        'product_uom'     : row[5],
+                        'price_unit'      : price_unit,
+                        'origin'          : row[7],
+                        'picking_id'      : picking_id,
+                        'move_id'         : row[9],
+                        'inventory_id'    : inventory_id,
+                        'reference'       : row[11],
+                    }
+                    id = self.env['is.calcul.pmp.move'].create(vals)
+
+
+
+
+
+
+    def calcul_stock_date_action(self):
+        cr=self._cr
+        for obj in self:
+            print(obj)
+
 
 
     def calcul_pmp_action(self):
@@ -63,19 +172,11 @@ class is_calcul_pmp(models.Model):
                     WHERE 
                         product_id=%s and 
                         state='done' and
-                        (location_id=%s or location_dest_id=%s)
+                        (location_id=%s or location_dest_id=%s) and  
+                        date>='2021-01-01'
+                    ORDER BY date desc
                 """
-                if obj.date_debut:
-                    SQL+=" and  date>=%s"
-                SQL+="ORDER BY date desc"
-
-                if obj.date_debut:
-                    cr.execute(SQL,[product.id, obj.location_id.id, obj.location_id.id, obj.date_debut])
-                else:
-                    cr.execute(SQL,[product.id, obj.location_id.id, obj.location_id.id])
-
-
-
+                cr.execute(SQL,[product.id, obj.location_id.id, obj.location_id.id])
                 for row in cr.fetchall():
                     if row[1].date()<=obj.date_limite and stock_date_limite==0:
                         stock_date_limite=stock_date
@@ -86,13 +187,17 @@ class is_calcul_pmp(models.Model):
 
                     picking_id   = row[8]
                     inventory_id = row[10]
+                    qt_rcp=montant_rcp=0
+                    periode_pmp=False
                     test=False
                     if obj.inventory_id.id==inventory_id:
-                        price_unit = product.is_pmp_odoo8 or 0.0
+                        price_unit  = product.is_pmp_odoo8 or 0.0
                         test=True
                     if picking_id:
                         test=True
                     if test and row[1].date()<=obj.date_limite and price_unit>0.0:
+                        qt_rcp      = qt
+                        montant_rcp = qt_rcp*price_unit
                         nb_rcp+=1
                         if last==0 and price_unit>0:
                             last=price_unit
@@ -102,6 +207,11 @@ class is_calcul_pmp(models.Model):
                             mini=price_unit
                         if price_unit>maxi:
                             maxi=price_unit
+
+                    if row[1].date()<=obj.date_limite:
+                        periode_pmp=True
+
+
                     vals = {
                         'calcul_id'       : obj.id,
                         'product_id'      : product.id,
@@ -112,6 +222,9 @@ class is_calcul_pmp(models.Model):
                         'stock_date'      : stock_date,
                         'product_uom'     : row[5],
                         'price_unit'      : price_unit,
+                        'qt_rcp'          : qt_rcp,
+                        'montant_rcp'     : montant_rcp,
+                        'periode_pmp'     : periode_pmp,
                         'origin'          : row[7],
                         'picking_id'      : picking_id,
                         'move_id'         : row[9],
@@ -121,9 +234,8 @@ class is_calcul_pmp(models.Model):
                     id = self.env['is.calcul.pmp.move'].create(vals)
                     stock_date-=qt
 
-                    if not obj.date_debut:
-                        if stock_date<0.01:
-                            break
+                    if stock_date<0.01:
+                        break
                 pmp=0
                 if total_qt>0:
                     pmp=total_montant/total_qt
@@ -196,6 +308,13 @@ class is_calcul_pmp_move(models.Model):
     stock_date       = fields.Float("Stock à date")
     product_uom      = fields.Many2one('uom.uom', 'Unité')
     price_unit       = fields.Float("Prix")
+
+    qt_rcp           = fields.Float("Qt Rcp")
+    montant_rcp      = fields.Float("Montant Rcp")
+    pmp              = fields.Float("PMP")
+    montant_pmp      = fields.Float("Montant PMP à date")
+    periode_pmp      = fields.Boolean("Période PMP", help="Ce mouvement est compris dans le caclul du PMP")
+
     origin           = fields.Char("Origine")
     reference        = fields.Char("Référence")
     picking_id       = fields.Many2one('stock.picking', 'Picking')

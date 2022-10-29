@@ -7,7 +7,7 @@
             <field name="name">is.calcul.pmp.move.tree</field>
             <field name="model">is.calcul.pmp.move</field>
             <field name="arch" type="xml">
-                <tree decoration-danger="product_uom_qty&lt;0">
+                <tree decoration-danger="product_uom_qty&lt;0" default_order="date">
                     <field name="product_id"/>
                     <field name="date"/>
                     <field name="product_uom_qty"   sum="Total"/>
@@ -16,6 +16,11 @@
                     <field name="stock_date"        optional="show"/>
                     <field name="product_uom"       optional="show"/>
                     <field name="price_unit"        optional="show"/>
+                    <field name="qt_rcp"            optional="hide" sum="Total"/>
+                    <field name="montant_rcp"       optional="hide" sum="Total"/>
+                    <field name="pmp"               optional="show"/>
+                    <field name="montant_pmp"       optional="show"/>
+                    <field name="periode_pmp"       optional="show"/>
                     <field name="origin"            optional="hide"/>
                     <field name="reference"         optional="show"/>
                     <field name="picking_id"        optional="hide"/>
@@ -142,7 +147,6 @@
                     <field name="date_limite"/>
                     <field name="stock_category_id"/>
                     <field name="product_id"/>
-                    <field name="date_debut"/>
                     <field name="date_creation" />
                     <field name="createur_id" />
                 </tree>
@@ -162,7 +166,9 @@
 
 
                     <header>
-                        <button name="calcul_pmp_action" type="object" string="Calculer le PMP"/>
+                        <button name="extraire_mouvement_action" type="object" string="Extraire les mouvements"/>
+                        <button name="calcul_stock_date_action"  type="object" string="Calculer stock à date et période PMP"/>
+                        <button name="calcul_pmp_action"         type="object" string="Calculer le PMP"/>
                         <button name="%(is_calcul_pmp_move_action)d"    type="action" string="Voir les mouvements"/>
                         <button name="%(is_calcul_pmp_product_action)d" type="action" string="Voir les articles"/>
                     </header>
@@ -183,7 +189,6 @@
                             <group>
                                 <field name="date_creation" readonly="1"/>
                                 <field name="createur_id" readonly="1"/>
-                                <field name="date_debut"/>
                             </group>
                         </group>
                     </sheet>

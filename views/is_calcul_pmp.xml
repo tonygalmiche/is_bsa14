@@ -83,15 +83,20 @@
                 <tree>
                     <field name="product_id"/>
                     <button name="liste_mouvements_action" type="object" icon="fa-list" title="Liste des mouvements"/>
-                    <field name="last"/>
-                    <field name="mini"/>
-                    <field name="maxi"/>
-                    <field name="nb_rcp"/>
-                    <field name="total_qt"/>
-                    <field name="total_montant"/>
-                    <field name="pmp"/>
-                    <field name="stock_actuel"/>
-                    <field name="stock_date_limite"/>
+                    <field name="stock_category_id" optional="show"/>
+                    <field name="last" optional="show"/>
+                    <field name="mini" optional="show"/>
+                    <field name="maxi" optional="show"/>
+                    <field name="nb_rcp" optional="show"/>
+                    <field name="total_qt" optional="show"/>
+                    <field name="total_montant" optional="show"/>
+                    <field name="prix_moyen" optional="show"/>
+                    <field name="pmp" optional="show"/>
+                    <field name="stock_actuel" optional="show"/>
+                    <field name="stock_date_limite" optional="show"/>
+                    <field name="stock_valorise_last"  sum="Total" optional="show"/>
+                    <field name="stock_valorise_moyen" sum="Total" optional="show"/>
+                    <field name="stock_valorise_pmp"   sum="Total" optional="show"/>
                 </tree>
             </field>
         </record>
@@ -172,6 +177,9 @@
                         <button name="%(is_calcul_pmp_move_action)d"    type="action" string="Voir les mouvements"/>
                         <button name="%(is_calcul_pmp_product_action)d" type="action" string="Voir les articles"/>
                     </header>
+
+
+
                     <sheet>
                         <style>
                              .o_form_label{

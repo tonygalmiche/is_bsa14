@@ -113,6 +113,9 @@
                          <field name="is_gestion_lot"/>
                      </group>
                 </xpath>
+                <field name="invoice_policy" position="after">
+                    <field name="is_type_livraison"/>
+                </field>
             </field>
         </record>
 
@@ -176,8 +179,9 @@
                     <field name="is_stock_disponible_valorise" sum="Total"                              optional="show"/>
                     <field name="is_stock_prevu_valorise"      sum="Total" optional="show"/>
                     <field name="is_position_dans_produit_ids" widget="many2many_tags"  optional="show"/>
-                    <field name="create_date" optional="hide"/>
-                    <field name="write_date"  optional="hide"/>
+                    <field name="is_type_livraison" optional="hide"/>
+                    <field name="create_date"       optional="hide"/>
+                    <field name="write_date"        optional="hide"/>
                 </tree>
             </field>
         </record>

@@ -50,6 +50,10 @@ class product_template(models.Model):
     is_description_devis         = fields.Text('Description devis')
     is_simulation_livrable       = fields.Boolean('Simulation livrable', help="Utilisé dans le calcul des besoins de la simulation livrable des ventes")
     is_article_pour_devis        = fields.Boolean('Article pour devis' , help="Utilisé pour calculer le cout des équipements pour les devis paramètrable")
+    is_type_livraison            = fields.Selection([
+            ('livraison_biens'    , 'Livraison de biens'),
+            ('prestation_services', 'Prestation de services'),
+        ], "Type de livraison", default='livraison_biens', help="Mention obligatoire sur les factures depuis le 01/10/22")
 
 
     # x : Position x à partir de la gauche

@@ -216,6 +216,7 @@
                         </div>
                     </div>
                     <div style="height:3mm"/>
+                    <p><strong>Type de livraison: </strong><span t-field="o.is_type_livraison"/></p>
                     <p t-if="o.narration">
                         <strong>Conditions générales: </strong><br />
                         <span t-field="o.narration"/>

@@ -62,6 +62,7 @@
                     <attribute name="invisible">1</attribute>
                 </field>
                  <field name="invoice_date" position="after">
+                    <field name="is_type_livraison"/>
                     <field style="background:orange" name="is_alerte_acompte" readonly="1" attrs="{'invisible':[('is_alerte_acompte','=',False)]}"/>
                     <field name="is_sale_order_compute_id" attrs="{'invisible':[('is_sale_order_compute_id','=',False)]}"/>
                     <field name="is_sale_order_id"         attrs="{'invisible':[('is_sale_order_compute_id','!=',False)]}"/>

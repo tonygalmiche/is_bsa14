@@ -41,6 +41,23 @@ class account_move(models.Model):
             obj.is_sale_order_compute_id = order_id
 
 
+    @api.depends('invoice_line_ids')
+    def _compute_is_type_livraison(self):
+        for obj in self:
+            order_id = False
+            v=False
+            for line in obj.invoice_line_ids:
+                type_livraison = line.product_id.is_type_livraison
+                if type_livraison and not v:
+                    v=type_livraison
+                if type_livraison and v and v!=type_livraison:
+                    type_livraison='livraison_biens_prestation_services'
+                    break
+                print(line, type_livraison)
+            obj.is_type_livraison = type_livraison
+
+
+
     is_acompte               = fields.Float("Acompte")
     is_imputation_partenaire = fields.Char("Imputation partenaire")
     is_contact_id            = fields.Many2one('res.partner', string='Contact')
@@ -49,6 +66,13 @@ class account_move(models.Model):
     is_sale_order_compute_id = fields.Many2one('sale.order', string="Commande client", store=False, readonly=True, compute='_compute_is_sale_order_compute_id')
     is_account_invoice_id    = fields.Many2one('account.move', string="Acompte traité sur la facture")
     is_alerte_acompte        = fields.Char("Alerte acompte", store=False, compute='_alerte_acompte')
+
+    is_type_livraison        = fields.Selection([
+            ('livraison_biens'                    , 'Livraison de biens'),
+            ('prestation_services'                , 'Prestation de services'),
+            ('livraison_biens_prestation_services', 'Livraison de biens et prestation de services'),
+        ], "Type de livraison", compute='_compute_is_type_livraison', help="Mention obligatoire sur les factures depuis le 01/10/22")
+
 
 
     # def name_get(self):

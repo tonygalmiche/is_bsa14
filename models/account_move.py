@@ -45,7 +45,7 @@ class account_move(models.Model):
     def _compute_is_type_livraison(self):
         for obj in self:
             order_id = False
-            v=False
+            v=type_livraison=False
             for line in obj.invoice_line_ids:
                 type_livraison = line.product_id.is_type_livraison
                 if type_livraison and not v:
@@ -53,7 +53,6 @@ class account_move(models.Model):
                 if type_livraison and v and v!=type_livraison:
                     type_livraison='livraison_biens_prestation_services'
                     break
-                print(line, type_livraison)
             obj.is_type_livraison = type_livraison
 
 

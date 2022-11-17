@@ -95,6 +95,10 @@ class is_tracabilite_reception(models.Model):
             if eti.picking_id:
                 txt=txt+datamax(x=15,y=160,sizex=4,sizey=4,txt=eti.picking_id.partner_id.name) #.encode("utf-8"))
 
+            txt=txt+datamax(x=190,y=180,sizex=2,sizey=2,txt="REF INTERNE:")
+            if eti.picking_id:
+                txt=txt+datamax(x=15,y=200,sizex=3,sizey=4,txt=eti.product_id.default_code) 
+
             txt=txt+datamax(x=15,y=140,sizex=2,sizey=2,txt="RECEPTION:")
             if eti.picking_id:
                 txt=txt+datamax(x=15,y=120,sizex=4,sizey=4,txt=eti.picking_id.name) #.encode("utf-8"))

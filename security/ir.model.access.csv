@@ -134,3 +134,6 @@ access_is_suivi_tracabilite_reception,access_is_suivi_tracabilite_reception,mode
 
 access_is_ordre_travail,access_is_ordre_travail,model_is_ordre_travail,base.group_user,1,0,0,0
 access_is_ordre_travail_manager,access_is_ordre_travail_manager,model_is_ordre_travail,mrp.group_mrp_manager,1,1,1,1
+
+access_is_ordre_travail_line,access_is_ordre_travail_line,model_is_ordre_travail_line,base.group_user,1,0,0,0
+access_is_ordre_travail_line_manager,access_is_ordre_travail_line_manager,model_is_ordre_travail_line,mrp.group_mrp_manager,1,1,1,1

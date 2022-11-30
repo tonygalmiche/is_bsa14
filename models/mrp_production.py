@@ -24,22 +24,32 @@ class mrp_production(models.Model):
     def creer_ordre_travail_action(self):
         for obj in self:
             print(obj,obj.mrp_production_backorder_count)
-            if obj.qty_producing==0 and obj.mrp_production_backorder_count==1 and obj.bom_id:
+            if obj.qty_producing==0 and obj.mrp_production_backorder_count==1 and obj.bom_id.operation_ids:
                 filtre=[
                     ("production_id","=",obj.id),
                 ]
-                lines = self.env["is.ordre.travail"].search(filtre)
-                if len(lines)==0:
+                ordres = self.env["is.ordre.travail"].search(filtre)
+                if len(ordres)==0:
+                    line_ids=[]
+                    for line in obj.bom_id.operation_ids:
+                        vals={
+                            'sequence'      : line.sequence,
+                            'name'          : line.name,
+                            'workcenter_id' : line.workcenter_id.id,
+                            'duree_unitaire': line.is_duree_heure,
+                            'duree_totale'  : line.is_duree_heure*obj.product_qty,
+                            'heure_debut'   : obj.date_planned_start,
+                            'heure_fin'     : obj.date_planned_start,
+                        }
+                        line_ids.append((0, 0, vals))
                     vals = {
                         'production_id': obj.id,
                         'quantite'     : obj.product_qty,
+                        'line_ids'     : line_ids,
                     }
-                    res = self.env['is.ordre.travail'].create(vals)
-                    if res:
-                        obj.is_ordre_travail_id=res.id
-                    print(obj, id)
-
-
+                    ordre = self.env['is.ordre.travail'].create(vals)
+                    if ordre:
+                        obj.is_ordre_travail_id=ordre.id
 
 
     def declarer_une_fabrication_action(self):

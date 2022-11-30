@@ -17,7 +17,29 @@ class mrp_production(models.Model):
     #etiquette_ids        = fields.Many2many('is.tracabilite.livraison', 'mrp_production_tacabilite_livraison_rel', 'production_id', 'etiquette_id', 'Etiquettes', readonly=True, copy=False)
     etiquette_ids         = fields.One2many('is.tracabilite.livraison', 'production_id', 'Etiquettes', copy=False)
     is_gestion_lot        = fields.Boolean('Gestion par lots')
-    is_ref_client = fields.Char("Référence client")
+    is_ref_client         = fields.Char("Référence client")
+    is_ordre_travail_id   = fields.Many2one("is.ordre.travail", "Ordre de travail")
+
+
+    def creer_ordre_travail_action(self):
+        for obj in self:
+            print(obj,obj.mrp_production_backorder_count)
+            if obj.qty_producing==0 and obj.mrp_production_backorder_count==1 and obj.bom_id:
+                filtre=[
+                    ("production_id","=",obj.id),
+                ]
+                lines = self.env["is.ordre.travail"].search(filtre)
+                if len(lines)==0:
+                    vals = {
+                        'production_id': obj.id,
+                        'quantite'     : obj.product_qty,
+                    }
+                    res = self.env['is.ordre.travail'].create(vals)
+                    if res:
+                        obj.is_ordre_travail_id=res.id
+                    print(obj, id)
+
+
 
 
     def declarer_une_fabrication_action(self):
@@ -184,6 +206,19 @@ class mrp_production(models.Model):
             # run scheduler for moves forecasted to not have enough in stock
             #production.move_raw_ids._trigger_scheduler()
         return True
+
+
+    #TODO : Cela permet de désactiver la création des ordres de travaux => A remplacer par du spécifique
+    @api.onchange('bom_id')
+    def _onchange_workorder_ids(self):
+        if self.bom_id:
+            print("## TEST ##")
+            #self._create_workorder()
+
+
+
+
+
 
 
     # def action_close_mo(self):

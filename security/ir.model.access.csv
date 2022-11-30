@@ -131,3 +131,6 @@ access_is_calcul_pmp_product,access_is_calcul_pmp_product,model_is_calcul_pmp_pr
 access_is_calcul_pmp_move,access_is_calcul_pmp_move,model_is_calcul_pmp_move,purchase.group_purchase_manager,1,1,1,1
 
 access_is_suivi_tracabilite_reception,access_is_suivi_tracabilite_reception,model_is_suivi_tracabilite_reception,base.group_user,1,0,0,0
+
+access_is_ordre_travail,access_is_ordre_travail,model_is_ordre_travail,base.group_user,1,0,0,0
+access_is_ordre_travail_manager,access_is_ordre_travail_manager,model_is_ordre_travail,mrp.group_mrp_manager,1,1,1,1

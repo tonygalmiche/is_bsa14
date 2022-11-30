@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+     <data>
+          <!-- is.ordre.travail -->
+          <record id="is_ordre_travail_seq" model="ir.sequence">
+               <field name="name">Ordre de travail</field>
+               <field name="code">is.ordre.travail</field>
+               <field name="padding">5</field>
+               <field eval="False" name="company_id"/>
+          </record>
+          <record model="ir.ui.view" id="is_ordre_travail_form_view">
+               <field name="name">is_ordre_travail_form_view</field>
+               <field name="model">is.ordre.travail</field>
+               <field name="type">form</field>
+               <field name="arch" type="xml">
+                    <form>    
+                         <style>
+                              .o_form_view .o_form_sheet_bg > .o_form_sheet{
+                              max-width: 1800px;
+                         }
+                         .o_form_label{
+                              white-space: nowrap;
+                         }
+                         </style>
+                         <header>
+                              <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
+                         </header>
+                         <sheet>
+                              <group>
+                                   <group>
+                                        <field name="name"/> 
+                                        <field name="production_id"/> 
+                                        <field name="bom_id"/> 
+                                        <field name="quantite"/> 
+                                        <field name="date_prevue"/> 
+                                   </group>
+                                   <group>
+                                        <field name="createur_id"/> 
+                                        <field name="date_creation"/> 
+                                   </group>
+                              </group>
+                         </sheet>
+                    </form>
+               </field>
+          </record>
+          <record model="ir.ui.view" id="is_ordre_travail_tree_view">
+               <field name="name">is_ordre_travail_tree_view</field>
+               <field name="model">is.ordre.travail</field>
+               <field name="type">tree</field>
+                <field name="arch" type="xml">
+                    <tree>
+                         <field name="name"/>
+                         <field name="production_id"/>
+                         <field name="bom_id"/>
+                         <field name="quantite"/>
+                         <field name="date_prevue"/>
+                         <field name="createur_id"/>
+                         <field name="date_creation"/>
+                         <field name="state"/>
+                    </tree>
+               </field>
+          </record>
+          <record model="ir.ui.view" id="is_ordre_travail_filter_view" >
+               <field name="name">is_ordre_travail_filter_view</field>
+               <field name="model">is.ordre.travail</field>
+               <field name="arch" type="xml">
+                    <search>
+                         <field name="name"/>
+                         <field name="production_id"/>
+                         <field name="bom_id"/>
+                         <field name="state"/>
+                    </search>
+               </field>
+          </record>
+          <record model="ir.actions.act_window" id="is_ordre_travail_action">
+               <field name="name">Ordres de travail BSA</field>
+               <field name="res_model">is.ordre.travail</field>
+               <field name="view_mode">tree,form</field>
+          </record>
+     </data>
+</odoo>

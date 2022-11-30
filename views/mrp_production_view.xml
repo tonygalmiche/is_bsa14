@@ -42,6 +42,13 @@
         </record> -->
 
         <!-- mrp.production -->
+        <record id="creer_ordre_travail_action_server" model="ir.actions.server">
+            <field name="name">Créer ordre de travail</field>
+            <field name="model_id" ref="mrp.model_mrp_production"/>
+            <field name="binding_model_id" ref="mrp.model_mrp_production"/>
+            <field name="state">code</field>
+            <field name="code">action = records.creer_ordre_travail_action()</field>
+        </record>
         <record id="is_mrp_production_form_view" model="ir.ui.view">
             <field name="name">is_mrp_production_form_view</field>
             <field name="model">mrp.production</field>
@@ -107,6 +114,7 @@
                 </field> -->
 
                 <field name="bom_id" position="after">
+                    <field name="is_ordre_travail_id" readonly="1"/>
                     <field name="is_ref_client"/>
                 </field>
                 <field name="user_id" position="before">
@@ -137,14 +145,18 @@
                     <field name="message_unread" invisible="1"/>
                     <field name="name" />
                     <field name="product_id"/>
+
+                    <field name="is_ordre_travail_id" optional="show"/>
+
+
                     <field name="product_qty"/>
-                    <field name="is_date_prevue" string="Date prévue commande client"/>
-                    <field name="is_date_planifiee"/>
-                    <field name="is_date_planifiee_fin"/>
-                    <field name="is_ecart_date"/>
-                    <field name="is_gabarit_id" />
+                    <field name="is_date_prevue" string="Date prévue commande client" optional="show"/>
+                    <field name="is_date_planifiee" optional="show"/>
+                    <field name="is_date_planifiee_fin" optional="show"/>
+                    <field name="is_ecart_date" optional="show"/>
+                    <field name="is_gabarit_id"  optional="show"/>
                     <!-- <field name="hour_total" sum="Total Hours"/> -->
-                    <field name="is_sale_order_line_id" readonly="1"/>
+                    <field name="is_sale_order_line_id" readonly="1" optional="show"/>
                     <field name="state"/>
                     <field name="company_id" invisible="1"/>
                 </tree>
@@ -159,6 +171,7 @@
                     <field name="message_unread" invisible="1"/>
                     <field name="name" />
                     <field name="product_id"/>
+                    <field name="is_ordre_travail_id"                                 optional="show"/>
                     <field name="product_qty"/>
                     <field name="date_planned_start"                                  optional="show"/>
                     <field name="is_date_prevue" string="Date prévue commande client" optional="hide"/>

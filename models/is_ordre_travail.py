@@ -16,6 +16,7 @@ class is_ordre_travail(models.Model):
     production_id       = fields.Many2one('mrp.production', 'Ordre de production', required=True)
     quantite            = fields.Float('Qt prévue', digits=(14,2))
     date_prevue         = fields.Datetime('Date prévue' , related='production_id.date_planned_start')
+    product_id          = fields.Many2one('product.product', 'Article', related='production_id.product_id')
     bom_id              = fields.Many2one('mrp.bom', 'Nomenclature', related='production_id.bom_id')
     state               = fields.Selection([
             ('encours', 'En cours'),
@@ -96,11 +97,28 @@ class is_ordre_travail_line(models.Model):
     _description='Ligne Ordre de travail'
     _order='sequence'
 
-    ordre_id       = fields.Many2one('is.ordre.travail', 'Ordre de travail', required=True, ondelete='cascade')
-    name           = fields.Char("Opération"                               , required=True)
-    sequence       = fields.Integer("Séquence"                             , required=True)
-    workcenter_id  = fields.Many2one('mrp.workcenter', 'Poste de Travail'  , required=True)
-    duree_unitaire = fields.Float("Durée unitaire (H)"                     , required=True)
-    duree_totale   = fields.Float("Durée totale (H)"                       , required=True)
-    heure_debut    = fields.Datetime("Heure début"                         , required=False)
-    heure_fin      = fields.Datetime("Heure fin"                           , required=False)
+    ordre_id       = fields.Many2one('is.ordre.travail', 'Ordre de travail' , required=True, ondelete='cascade')
+    production_id  = fields.Many2one('mrp.production', 'Ordre de production', related='ordre_id.production_id')
+    product_id     = fields.Many2one('product.product', 'Article'           , related='ordre_id.product_id')
+    date_prevue    = fields.Datetime('Date prévue'                          , related='ordre_id.date_prevue')
+    name           = fields.Char("Opération"                                , required=True)
+    sequence       = fields.Integer("Séquence"                              , required=True)
+    ordre_planning = fields.Integer("Ordre", help="Ordre dans le planning")
+    workcenter_id  = fields.Many2one('mrp.workcenter', 'Poste de Travail'   , required=True)
+    duree_unitaire = fields.Float("Durée unitaire (H)"                      , required=True)
+    duree_totale   = fields.Float("Durée totale (H)"                        , required=True)
+    heure_debut    = fields.Datetime("Heure début"                          , required=False)
+    heure_fin      = fields.Datetime("Heure fin"                            , required=False)
+    state          = fields.Selection([
+            ('attente', 'Attente'),
+            ('pret'   , 'Prêt'),
+            ('encours', 'En cours'),
+            ('termine', 'Terminé'),
+            ('annule' , 'Annulé'),
+        ], "État", default='attente')
+
+
+
+
+
+

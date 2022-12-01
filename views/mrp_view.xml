@@ -81,6 +81,184 @@
         </record>
 
 
+        <!-- is.mrp.workcenter.temps.ouverture --> 
+        <record model="ir.ui.view" id="is_mrp_workcenter_temps_ouverture_form_view">
+            <field name="name">is_mrp_workcenter_temps_ouverture_form_view</field>
+            <field name="model">is.mrp.workcenter.temps.ouverture</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>  
+                    <sheet>
+                        <group>
+                            <field name="workcenter_id"/>
+                            <field name="date_ouverture"/>
+                            <field name="semaine_ouverture"/>
+                             <field name="mois_ouverture"/>
+                            <field name="temps_ouverture" widget="float_time"/>
+                            <field name="temps_planifie"  widget="float_time"/>
+                            <field name="ecart"           widget="float_time"/>
+                            <field name="charge"/>
+                            <field name="operateur_ids" widget="many2many_tags"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_mrp_workcenter_temps_ouverture_tree_view">
+            <field name="name">is_mrp_workcenter_temps_ouverture_tree_view</field>
+            <field name="model">is.mrp.workcenter.temps.ouverture</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                 <!-- colors="red:ecart&lt;0;" -->
+                <tree>
+                    <field name="workcenter_id"/>
+                    <field name="date_ouverture"/>
+                    <field name="semaine_ouverture"/>
+                    <field name="mois_ouverture"/>
+                    <field name="temps_ouverture" sum="Total" widget="float_time"/>
+                    <field name="temps_planifie"  sum="Total" widget="float_time"/>
+                    <field name="ecart"           sum="Total" widget="float_time"/>
+                    <field name="charge" widget="progressbar"/>
+                    <field name="operateur_ids" widget="many2many_tags"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_mrp_workcenter_temps_ouverture_graph_view" model="ir.ui.view">
+             <field name="name">is_mrp_workcenter_temps_ouverture_graph_view</field>
+            <field name="model">is.mrp.workcenter.temps.ouverture</field>
+             <field name="arch" type="xml">
+                 <graph type="pivot">
+                     <field name="workcenter_id"  type="row"/>
+                     <field name="mois_ouverture" type="col"/>
+                     <field name="ecart"          type="measure"/>
+                 </graph>
+             </field>
+        </record>
+        <record model="ir.ui.view" id="is_mrp_workcenter_temps_ouverture_search_view" >
+            <field name="name">is_mrp_workcenter_temps_ouverture_search_view</field>
+            <field name="model">is.mrp.workcenter.temps.ouverture</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="workcenter_id"/>
+                    <field name="date_ouverture"/>
+                    <field name="semaine_ouverture"/>
+                    <field name="mois_ouverture"/>
+                    <field name="operateur_ids"/>
+                    <group expand="0" string="Regroupé par...">
+                        <filter name="group_workcenter_id"     string="Poste de charge" context="{'group_by':'workcenter_id'}"/>
+                        <filter name="group_date_ouverture"    string="Date"            context="{'group_by':'date_ouverture'}"/>
+                        <filter name="group_semaine_ouverture" string="Semaine"         context="{'group_by':'semaine_ouverture'}"/>
+                        <filter name="group_mois_ouverture"    string="Mois"            context="{'group_by':'mois_ouverture'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_mrp_workcenter_temps_ouverture_action">
+            <field name="name">Dates postes de charge</field>
+            <field name="res_model">is.mrp.workcenter.temps.ouverture</field>
+            <field name="view_mode">tree,form,graph</field>
+        </record>
+
+
+
+        <record id="is_mrp_workcenter_view" model="ir.ui.view">
+            <field name="name">is_mrp_workcenter_view</field>
+            <field name="model">mrp.workcenter</field>
+            <field name="inherit_id" ref="mrp.mrp_workcenter_view" />
+            <field name="arch" type="xml">
+                <xpath expr="//sheet[1]" position="inside">
+                    <style>
+                         .o_form_view .o_form_sheet_bg > .o_form_sheet{
+                            max-width: 1800px;
+                        }
+                        .o_form_label{
+                            white-space: nowrap;
+                        }
+                    </style>
+                </xpath>
+
+
+                <div name="button_box" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </div>
+
+                <page name="general_info" position="after">
+                    <page string="Ordres de travail">
+                         <field name="is_ordre_travail_line_ids" >
+                            <tree editable="bottom">
+                                <field name="ordre_planning" widget="handle"/>
+                                <field name="ordre_id"       readonly="1" optional="show"/>
+                                <field name="production_id"  readonly="1" optional="show"/>
+                                <field name="product_id"     readonly="1" optional="show"/>
+                                <field name="date_prevue"    readonly="1" optional="show"/>
+                                <field name="name"           readonly="1" optional="show"/>
+                                <field name="duree_unitaire" readonly="1" widget="float_time" sum="Total" optional="show"/>
+                                <field name="duree_totale"   readonly="1" widget="float_time" sum="Total" optional="show"/>
+                                <field name="heure_debut"    readonly="1"/>
+                                <field name="heure_fin"      readonly="1"/>
+                                <field 
+                                    name="state" 
+                                    widget="badge" 
+                                    decoration-danger="state == 'attente'" 
+                                    decoration-warning="state == 'pret'" 
+                                    decoration-info="state == 'encours'" 
+                                    decoration-success="state == 'termine'" 
+                                    decoration-muted="state == 'annule'" 
+                                />
+                            </tree>
+                        </field>
+                    </page>
+                    <page string="Fermetures">
+                        <button name="clear_fermeture_action"    string="Clear"    title="Supprimer toutes les fermetures" type="object"  confirm="Voulez-vous vraiment supprimer toutes les fermetures" style="color:red" />
+                        <button name="fermeture_e1_action"       string="E1"       title="Fermeture Equipe 1" type="object" />
+                        <button name="fermeture_e2_action"       string="E2"       title="Fermeture Equipe 2" type="object" />
+                        <button name="fermeture_e3_action"       string="E3"       title="Fermeture Equipe 3" type="object" />
+                        <button name="fermeture_samedi_action"   string="Samedi"   title="Fermeture des samedis"   type="object" />
+                        <button name="fermeture_dimanche_action" string="Dimanche" title="Fermeture des dimanches" type="object" />
+                        <group />
+                        <field name="is_fermeture_ids" >
+                            <tree editable="bottom" limit="1000">
+                                <field name="date_debut"/>
+                                <field name="date_fin"/>
+                                <field name="motif"/>
+                             </tree>
+                        </field>
+                    </page>
+
+                    <page string="Planning">
+                        <button name="maj_planning_action" string="Mise à jour du planning" type="object"/>
+                        <group>
+                                <field name="is_planning" nolabel="1"  widget="html" readonly="1"/>
+                        </group>
+                    </page>
+
+
+
+                </page>
+            </field>
+        </record>
+
+
+
+
+    </data>
+</odoo>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         <!--mrp.production.workcenter.line-->
         <!-- <record id="is_planifier_operation_action_server" model="ir.actions.server">
              <field name="name">Planifier les opérations suivantes</field>
@@ -276,86 +454,5 @@
             <field name="view_mode">tree,form</field>
         </record>
  -->
-
-        <!-- is.mrp.workcenter.temps.ouverture --> 
-        <record model="ir.ui.view" id="is_mrp_workcenter_temps_ouverture_form_view">
-            <field name="name">is_mrp_workcenter_temps_ouverture_form_view</field>
-            <field name="model">is.mrp.workcenter.temps.ouverture</field>
-            <field name="type">form</field>
-            <field name="arch" type="xml">
-                <form>  
-                    <sheet>
-                        <group>
-                            <field name="workcenter_id"/>
-                            <field name="date_ouverture"/>
-                            <field name="semaine_ouverture"/>
-                             <field name="mois_ouverture"/>
-                            <field name="temps_ouverture" widget="float_time"/>
-                            <field name="temps_planifie"  widget="float_time"/>
-                            <field name="ecart"           widget="float_time"/>
-                            <field name="charge"/>
-                            <field name="operateur_ids" widget="many2many_tags"/>
-                        </group>
-                    </sheet>
-                </form>
-            </field>
-        </record>
-        <record model="ir.ui.view" id="is_mrp_workcenter_temps_ouverture_tree_view">
-            <field name="name">is_mrp_workcenter_temps_ouverture_tree_view</field>
-            <field name="model">is.mrp.workcenter.temps.ouverture</field>
-            <field name="type">tree</field>
-            <field name="arch" type="xml">
-                 <!-- colors="red:ecart&lt;0;" -->
-                <tree>
-                    <field name="workcenter_id"/>
-                    <field name="date_ouverture"/>
-                    <field name="semaine_ouverture"/>
-                    <field name="mois_ouverture"/>
-                    <field name="temps_ouverture" sum="Total" widget="float_time"/>
-                    <field name="temps_planifie"  sum="Total" widget="float_time"/>
-                    <field name="ecart"           sum="Total" widget="float_time"/>
-                    <field name="charge" widget="progressbar"/>
-                    <field name="operateur_ids" widget="many2many_tags"/>
-                </tree>
-            </field>
-        </record>
-        <record id="is_mrp_workcenter_temps_ouverture_graph_view" model="ir.ui.view">
-             <field name="name">is_mrp_workcenter_temps_ouverture_graph_view</field>
-            <field name="model">is.mrp.workcenter.temps.ouverture</field>
-             <field name="arch" type="xml">
-                 <graph type="pivot">
-                     <field name="workcenter_id"  type="row"/>
-                     <field name="mois_ouverture" type="col"/>
-                     <field name="ecart"          type="measure"/>
-                 </graph>
-             </field>
-        </record>
-        <record model="ir.ui.view" id="is_mrp_workcenter_temps_ouverture_search_view" >
-            <field name="name">is_mrp_workcenter_temps_ouverture_search_view</field>
-            <field name="model">is.mrp.workcenter.temps.ouverture</field>
-            <field name="arch" type="xml">
-                <search>
-                    <field name="workcenter_id"/>
-                    <field name="date_ouverture"/>
-                    <field name="semaine_ouverture"/>
-                    <field name="mois_ouverture"/>
-                    <field name="operateur_ids"/>
-                    <group expand="0" string="Regroupé par...">
-                        <filter name="group_workcenter_id"     string="Poste de charge" context="{'group_by':'workcenter_id'}"/>
-                        <filter name="group_date_ouverture"    string="Date"            context="{'group_by':'date_ouverture'}"/>
-                        <filter name="group_semaine_ouverture" string="Semaine"         context="{'group_by':'semaine_ouverture'}"/>
-                        <filter name="group_mois_ouverture"    string="Mois"            context="{'group_by':'mois_ouverture'}"/>
-                    </group>
-                </search>
-            </field>
-        </record>
-        <record model="ir.actions.act_window" id="is_mrp_workcenter_temps_ouverture_action">
-            <field name="name">Dates postes de charge</field>
-            <field name="res_model">is.mrp.workcenter.temps.ouverture</field>
-            <field name="view_mode">tree,form,graph</field>
-        </record>
-
-    </data>
-</odoo>
 
 

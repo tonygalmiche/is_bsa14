@@ -2,6 +2,10 @@
 from odoo import models,fields,api,tools, SUPERUSER_ID
 from datetime import datetime, date, timedelta
 from odoo.exceptions import Warning
+import pytz
+from pytz import timezone
+
+
 
 
 class is_gabarit(models.Model):
@@ -99,7 +103,10 @@ class mrp_routing_workcenter(models.Model):
 class mrp_workcenter(models.Model):
     _inherit  = "mrp.workcenter"
 
-    is_temps_ouverture_ids = fields.One2many("is.mrp.workcenter.temps.ouverture", "workcenter_id", "Temps d'ouverture")
+    is_temps_ouverture_ids    = fields.One2many("is.mrp.workcenter.temps.ouverture", "workcenter_id", "Temps d'ouverture")
+    is_ordre_travail_line_ids = fields.One2many('is.ordre.travail.line', 'workcenter_id', 'Ordres de travail')
+    is_fermeture_ids          = fields.One2many('is.mrp.workcenter.fermeture', 'workcenter_id', 'Fermetures')
+    is_planning               = fields.Char("Planning")
 
 
     def calculer_charge_action(self):
@@ -125,6 +132,145 @@ class mrp_workcenter(models.Model):
                 line.temps_planifie = temps_planifie
                 line.ecart          = ecart
                 line.charge         = charge
+
+
+
+    def clear_fermeture_action(self):
+        for obj in self:
+            obj.is_fermeture_ids.unlink()
+
+
+    def utc_offset(self):
+        now = datetime.now()
+        tz = pytz.timezone('Europe/Paris')
+        offset = tz.localize(now).utcoffset()
+        return offset
+
+
+    def create_fermeture(self, workcenter_id,date_debut,date_fin,motif):
+        vals={
+            "workcenter_id": workcenter_id,
+            "date_debut"   : date_debut,
+            "date_fin"     : date_fin,
+            "motif"        : motif,
+        }
+        self.env['is.mrp.workcenter.fermeture'].create(vals)
+
+
+    def fermeture_jour(self, jour, motif):
+        for obj in self:
+            now = datetime.now()
+            x = now.strftime('%Y-%m-%d')+" 00:00:00"
+            x = datetime.strptime(x, "%Y-%m-%d %H:%M:%S")
+            offset = self.utc_offset()
+            date_debut = x - offset
+            for x in range(0, 100):
+                if date_debut.isoweekday()==jour: 
+                    date_fin = date_debut + timedelta(days=1)
+                    self.create_fermeture(obj.id,date_debut,date_fin,motif)
+                date_debut = date_debut + timedelta(days=1)
+
+
+    def fermeture_equipe(self, heure_debut, motif):
+        for obj in self:
+            now = datetime.now()
+            x = now.strftime('%Y-%m-%d')+" 00:00:00"
+            x = datetime.strptime(x, "%Y-%m-%d %H:%M:%S")
+            offset = self.utc_offset()
+            date_debut = x - offset + timedelta(hours=heure_debut)
+            for x in range(0, 30):
+                date_fin = date_debut + timedelta(hours=8)
+                self.create_fermeture(obj.id,date_debut,date_fin,motif)
+                date_debut = date_debut + timedelta(days=1)
+
+
+
+    def fermeture_e1_action(self):
+        for obj in self:
+            self.fermeture_equipe(5,"E1")
+
+
+    def fermeture_e2_action(self):
+        for obj in self:
+            self.fermeture_equipe(13,"E2")
+
+
+    def fermeture_e3_action(self):
+        for obj in self:
+            self.fermeture_equipe(-3,"E3")
+
+
+    def fermeture_samedi_action(self):
+        for obj in self:
+            self.fermeture_jour(5, "Samedi")
+
+
+    def fermeture_dimanche_action(self):
+        for obj in self:
+            self.fermeture_jour(6, "Dimanche")
+
+
+    def maj_planning_action(self):
+        for obj in self:
+            html='<div style="height:2000px"/>'
+            height=22
+            top=left=0
+            color=""
+            for line in obj.is_ordre_travail_line_ids:
+                if color=="orange":
+                    color="LightGreen"
+                else:
+                    color="orange"
+                height
+                width=line.duree_totale*50
+                name=line.name
+                title="Durée: %sH, Début: %s, Fin: %s"%(
+                    round(line.duree_totale,1),
+                    line.heure_debut.strftime("%m/%d/%Y, %HH"),
+                    line.heure_fin.strftime("%m/%d/%Y, %HH")
+                )
+                html+="""
+                    <div style="
+                        background-color:%s;
+                        width:%spx;
+                        height:%spx;
+                        position:absolute;left:%spx;top:%spx;
+                        border-top: 1px solid gray;
+                        border-bottom: 1px solid gray;
+                    "/>
+                """%(color,width,height,left,top)
+
+                html+="""
+                    <div 
+                        title="%s"
+                        style="
+                            height:%spx;
+                            position:absolute;left:%spx;top:%spx;
+                            font-weight:bold;
+                        ">
+                        %s
+                    </div>
+                """%(title,height,(left+2),top,name)
+
+
+                left+=width
+                top+=height
+
+            obj.is_planning=html
+
+
+
+
+
+class is_mrp_workcenter_fermeture(models.Model):
+    _name = "is.mrp.workcenter.fermeture"
+    _description="Horaires de fermeture du poste de charge"
+    _order = "date_debut"
+
+    workcenter_id = fields.Many2one("mrp.workcenter", "Poste de charge", required=True, ondelete="cascade", readonly=True)
+    date_debut    = fields.Datetime("Date début", required=True, index=True)
+    date_fin      = fields.Datetime("Date fin"  , required=True, index=True)
+    motif         = fields.Char("Motif")
 
 
 class is_mrp_workcenter_temps_ouverture(models.Model):

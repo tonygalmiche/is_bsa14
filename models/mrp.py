@@ -109,29 +109,29 @@ class mrp_workcenter(models.Model):
     is_planning               = fields.Char("Planning")
 
 
-    def calculer_charge_action(self):
-        cr=self._cr
-        for obj in self:
-            for line in obj.is_temps_ouverture_ids:
-                SQL="""
-                    SELECT sum(hour)
-                    FROM mrp_production_workcenter_line
-                    WHERE 
-                        workcenter_id="""+str(obj.id)+""" and 
-                        is_date_debut=""""+str(line.date_ouverture)+"""" and
-                        state not in ("cancel","done")
-                """
-                cr.execute(SQL)
-                temps_planifie = 0.0
-                for row in cr.fetchall():
-                    temps_planifie = row[0] or 0.0
-                ecart = line.temps_ouverture - temps_planifie
-                charge = 100
-                if line.temps_ouverture>0:
-                    charge = 100*(temps_planifie / line.temps_ouverture)
-                line.temps_planifie = temps_planifie
-                line.ecart          = ecart
-                line.charge         = charge
+    # def calculer_charge_action(self):
+    #     cr=self._cr
+    #     for obj in self:
+    #         for line in obj.is_temps_ouverture_ids:
+    #             SQL="""
+    #                 SELECT sum(hour)
+    #                 FROM mrp_production_workcenter_line
+    #                 WHERE 
+    #                     workcenter_id="""+str(obj.id)+""" and 
+    #                     is_date_debut=""""+str(line.date_ouverture)+"""" and
+    #                     state not in ("cancel","done")
+    #             """
+    #             cr.execute(SQL)
+    #             temps_planifie = 0.0
+    #             for row in cr.fetchall():
+    #                 temps_planifie = row[0] or 0.0
+    #             ecart = line.temps_ouverture - temps_planifie
+    #             charge = 100
+    #             if line.temps_ouverture>0:
+    #                 charge = 100*(temps_planifie / line.temps_ouverture)
+    #             line.temps_planifie = temps_planifie
+    #             line.ecart          = ecart
+    #             line.charge         = charge
 
 
 
@@ -210,24 +210,73 @@ class mrp_workcenter(models.Model):
             self.fermeture_jour(6, "Dimanche")
 
 
-    def maj_planning_action(self):
+
+                        # <button name="maj_planning_2J_action"  string="2J"  type="object" title="Mise à jour du planning sur 2 jours"/>
+                        # <button name="maj_planning_5J_action"  string="5J"  type="object" title="Mise à jour du planning sur 5 jours"/>
+                        # <button name="maj_planning_10J_action" string="10J" type="object" title="Mise à jour du planning sur 10 jours"/>
+                        # <button name="maj_planning_20J_action" string="20J" type="object" title="Mise à jour du planning sur 20 jours"/>
+
+    def maj_planning_2J_action(self):
         for obj in self:
-            html='<div style="height:2000px"/>'
-            height=22
-            top=left=0
-            color=""
+            obj.maj_planning_action(2)
+
+    def maj_planning_5J_action(self):
+        for obj in self:
+            obj.maj_planning_action(5)
+
+    def maj_planning_10J_action(self):
+        for obj in self:
+            obj.maj_planning_action(10)
+
+    def maj_planning_20J_action(self):
+        for obj in self:
+            obj.maj_planning_action(20)
+
+
+
+    def maj_planning_action(self,nb_jour):
+        for obj in self:
+            self.maj_heure_debut_fin()
+            height=44
+            width_coef = 100
+            color=html=""
+            max_width=1760
+            width_jour = max_width / nb_jour
+            now = datetime.now()
+            midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
+            top=50
+            left=0
+            width_heure = max_width / nb_jour / 24
+            offset = self.utc_offset()
             for line in obj.is_ordre_travail_line_ids:
+
+                
+                if left==0:
+                    decal_heure = (line.heure_debut - midnight).total_seconds()/3600
+                    left = (decal_heure + offset.seconds/3600) * width_heure
+
+
+
+                #** Ordre de travail ******************************************
                 if color=="orange":
                     color="LightGreen"
                 else:
                     color="orange"
-                height
-                width=line.duree_totale*50
-                name=line.name
-                title="Durée: %sH, Début: %s, Fin: %s"%(
+                color="AliceBlue"
+                font_color="black"
+                #width=line.duree_totale*width_heure
+
+                duree = (line.heure_fin-line.heure_debut).total_seconds()/3600
+
+                width = width_heure*duree
+
+
+                name=line.name+"<br />"+line.product_id.name_get()[0][1]
+                title="Durée hors fermeture: %sH, Durée avec fermeture: %sH Début: %s, Fin: %s"%(
                     round(line.duree_totale,1),
-                    line.heure_debut.strftime("%m/%d/%Y, %HH"),
-                    line.heure_fin.strftime("%m/%d/%Y, %HH")
+                    round(duree,1),
+                    (line.heure_debut+offset).strftime("%d/%m/%Y %H:%M"),
+                    (line.heure_fin+offset).strftime("%d/%m/%Y %H:%M")
                 )
                 html+="""
                     <div style="
@@ -237,9 +286,11 @@ class mrp_workcenter(models.Model):
                         position:absolute;left:%spx;top:%spx;
                         border-top: 1px solid gray;
                         border-bottom: 1px solid gray;
+                        z-index: 3;
                     "/>
                 """%(color,width,height,left,top)
 
+                #** Informations sur ordre de travail *************************
                 html+="""
                     <div 
                         title="%s"
@@ -247,19 +298,153 @@ class mrp_workcenter(models.Model):
                             height:%spx;
                             position:absolute;left:%spx;top:%spx;
                             font-weight:bold;
+                            color:%s;
+                            z-index: 3;
+                            white-space: nowrap;
                         ">
                         %s
                     </div>
-                """%(title,height,(left+2),top,name)
-
-
+                """%(title,height,(left+2),top,font_color,name)
                 left+=width
                 top+=height
+                if left>1600:
+                    break
+            height = top
+            top=left=0
+            jour=now
+            for x in range(0,nb_jour):
+                #** Heures ****************************************************
+                div_jour = 12
+                if nb_jour>5:
+                    div_jour=3
+                for h in range(0,div_jour):
+                    width_heure=width_jour/div_jour
+                    name=int(h*24/div_jour)
+                    html+="""
+                        <span 
+                            style="
+                                width:%spx;
+                                height:%spx;
+                                position:absolute;left:%spx;top:%spx;
+                                font-weight:bold;
+                                color:black;
+                                background-color:white;
+                                border-right: 1px dotted #DEE2E6;
+                                text-align:left;
+                                padding-left:4px;
+                                z-index: 1;
+                            ">
+                            %s
+                        </span>
+                    """%(width_heure,height-20,left+h*width_heure,top+20,name)
+
+                #** Jours *****************************************************
+                title="Jour"
+                name=jour.strftime("%d/%m")
+                html+="""
+                    <span 
+                        title="%s"
+                        style="
+                            width:%spx;
+                            height:%spx;
+                            position:absolute;left:%spx;top:%spx;
+                            font-weight:bold;
+                            color:black;
+                            border: 1px solid #DEE2E6;
+                            text-align:center;
+                            z-index: 1;
+                          ">
+                        %s
+                    </span>
+                """%(title,width_jour,height,left,top,name)
+                left+=width_jour
+                jour = jour + timedelta(days=1)
+            html+='<div style="height:%spx"/>'%(height-20)
+
+
+            #** Heures de fermetures ******************************************
+
+            now = datetime.now()
+            midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
+            limit = midnight + timedelta(days=nb_jour)
+            for line in obj.is_fermeture_ids:
+                top=40
+                if line.date_debut>=midnight and line.date_debut<=limit:
+                    x=line.date_debut-midnight
+                    left=width_jour*(x.total_seconds()+offset.seconds)/3600/24
+                    width = width_jour*(line.date_fin-line.date_debut).total_seconds()/3600/24
+                    html+="""
+                        <span 
+                            style="
+                                width:%spx;
+                                height:%spx;
+                                position:absolute;left:%spx;top:%spx;
+                                background-color:#FCE5E7;
+                                z-index: 2;
+                              ">
+                        </span>
+                    """%(width,height-top,left,top)
+
+
+
 
             obj.is_planning=html
 
 
+    def maj_heure_debut_fin(self):
+        for obj in self:
+            heure_debut = datetime.now()
 
+            # ** Décale heure de début si fermeture ***************************
+            test=True
+            while test:
+                filtre=[
+                    ('workcenter_id', '=', obj.id),
+                    ('date_debut', '<', heure_debut),
+                    ('date_fin'  , '>', heure_debut),
+                ]
+                fermetures=self.env['is.mrp.workcenter.fermeture'].search(filtre)
+                if len(fermetures)>0:
+                    fermeture=fermetures[0]
+                    heure_debut=fermeture.date_fin
+                else:
+                    test=False
+            #******************************************************************
+
+            for line in obj.is_ordre_travail_line_ids:
+                line.heure_debut = heure_debut
+                ts = datetime.timestamp(heure_debut) + line.reste*3600
+                heure_fin = datetime.fromtimestamp(ts)
+                duree = line.reste*3600
+                tps_fermeture=0
+                test=True
+                while test:
+                    ts = datetime.timestamp(heure_debut) + duree
+                    heure_fin = datetime.fromtimestamp(ts)
+                    filtre=[
+                        ('workcenter_id', '=', obj.id),
+                        ('date_debut', '>=', heure_debut),
+                        ('date_debut', '<=', heure_fin),
+                    ]
+                    fermetures=self.env['is.mrp.workcenter.fermeture'].search(filtre)
+                    if len(fermetures)>0:
+                        fermeture=fermetures[0]
+                        tps_fermeture+=(fermeture.date_fin-fermeture.date_debut).total_seconds()
+                        delta = (fermeture.date_debut-heure_debut).total_seconds()
+                        heure_debut=fermeture.date_fin
+                        duree=duree-delta
+                    else:
+                        test=False
+                line.heure_fin   = heure_fin
+                heure_debut=heure_fin
+
+
+    def tri_date_prevue_action(self):
+        for obj in self:
+            for line in obj.is_ordre_travail_line_ids:
+                x = datetime.timestamp(line.date_prevue) - 1667900000 + line.sequence
+                line.ordre_planning = x
+            obj.maj_heure_debut_fin()
 
 
 class is_mrp_workcenter_fermeture(models.Model):

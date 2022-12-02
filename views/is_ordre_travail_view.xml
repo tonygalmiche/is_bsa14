@@ -48,16 +48,16 @@
                                                   <field name="workcenter_id"/>
                                                   <field name="duree_unitaire" widget="float_time" sum="Total"/>
                                                   <field name="duree_totale"   widget="float_time" sum="Total"/>
-                                                  <field name="heure_debut"/>
-                                                  <field name="heure_fin"/>
+                                                  <field name="realisee"       widget="float_time" sum="Total"/>
+                                                  <field name="reste"          widget="float_time" sum="Total"/>
                                              </tree>
                                         </field>
                                    </page>
-                                   <page string="Planning">
+                                   <!-- <page string="Planning">
                                         <group>
                                              <field name="planning" nolabel="1"  widget="html" readonly="1"/>
                                         </group>
-                                   </page>
+                                   </page> -->
                               </notebook>
                          </sheet>
                     </form>

@@ -448,13 +448,39 @@
             action="is_fiche_travail_action" 
             sequence="90"
         />
-        <menuitem id="is_ordre_travail_menu"          parent="mrp.menu_mrp_manufacturing" action="is_ordre_travail_action"          sequence="9" />
         <menuitem id="bsa_affectation_gabarit_menu"   parent="mrp.menu_mrp_manufacturing" action="bsa_affectation_gabarit_action" sequence="10" />
         <menuitem id="mrp.menu_mrp_production_action" action="bsa_mrp_production_action" parent="mrp.menu_mrp_manufacturing" sequence="1"/>
-        <menuitem id="bsa_mrp_production_planification_menu" parent="mrp.menu_mrp_manufacturing" action="bsa_mrp_production_planification_action" sequence="11" />
+        <!-- <menuitem id="bsa_mrp_production_planification_menu" parent="mrp.menu_mrp_manufacturing" action="bsa_mrp_production_planification_action" sequence="11" /> -->
         <menuitem name="Gabarits" id="is_gabarit_menu" parent="mrp.menu_mrp_manufacturing" action="is_gabarit_action" sequence="90" />
-        <menuitem name="Dates postes de charge" id="is_mrp_workcenter_temps_ouverture_menu" parent="mrp.menu_mrp_manufacturing" action="is_mrp_workcenter_temps_ouverture_action" sequence="96" />
-        <!-- <menuitem name="Postes de charge" id="is_mrp_workcenter_menu" parent="mrp.menu_mrp_manufacturing" action="is_mrp_workcenter_action" sequence="95" /> -->
+        <!-- <menuitem name="Dates postes de charge" id="is_mrp_workcenter_temps_ouverture_menu" parent="mrp.menu_mrp_manufacturing" action="is_mrp_workcenter_temps_ouverture_action" sequence="96" /> -->
+
+
+
+        <!-- Production / Planification -->
+        <menuitem 
+            name="Postes de charge"
+            id="is_poste_charge_menu" 
+            parent="mrp.mrp_planning_menu_root" 
+            action="mrp.mrp_workcenter_action" 
+            sequence="10"
+        />
+        <menuitem 
+            name="Ordres de production"
+            id="is_ordre_production_menu" 
+            parent="mrp.mrp_planning_menu_root" 
+            action="bsa_mrp_production_action" 
+            sequence="20"
+        />
+        <menuitem 
+            name="Ordres de travail"
+            id="is_ordre_travail_menu"
+            parent="mrp.mrp_planning_menu_root" 
+            action="is_ordre_travail_action"
+            sequence="30"
+        />
+
+
+
 
 
         <!-- Projets -->
@@ -683,11 +709,17 @@
         />
 
         <!-- Déplacer les menus non utilsés -->
-        <menuitem id="menu_is_autre"               sequence="90" parent="base.menu_custom" name="Autre"/>
-        <menuitem id="mail.menu_root_discuss"      sequence="10" parent="menu_is_autre"/>
-        <menuitem id="mail.mail_feeds_main"        sequence="20" parent="menu_is_autre"/>
-        <menuitem id="calendar.mail_menu_calendar" sequence="30" parent="menu_is_autre"/>
-        <menuitem id="contacts.menu_contacts"      sequence="40" parent="menu_is_autre"/>
+        <menuitem id="menu_is_autre"                    sequence="90" parent="base.menu_custom" name="Autre"/>
+        <menuitem id="mail.menu_root_discuss"           sequence="10" parent="menu_is_autre"/>
+        <menuitem id="mail.mail_feeds_main"             sequence="20" parent="menu_is_autre"/>
+        <menuitem id="calendar.mail_menu_calendar"      sequence="30" parent="menu_is_autre"/>
+        <menuitem id="contacts.menu_contacts"           sequence="40" parent="menu_is_autre"/>
+        <menuitem id="mrp.menu_procurement_compute_mrp" sequence="50" parent="menu_is_autre"/>
+        <menuitem id="mrp.menu_mrp_workorder_todo"      sequence="60" parent="menu_is_autre"/>
+        <menuitem id="mrp.menu_mrp_reporting"           sequence="70" parent="menu_is_autre"/>
+
+
+
 
 
     </data>

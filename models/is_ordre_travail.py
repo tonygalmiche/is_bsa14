@@ -23,7 +23,7 @@ class is_ordre_travail(models.Model):
             ('termine', 'Terminé'),
         ], "État", default='encours')
     line_ids            = fields.One2many('is.ordre.travail.line', 'ordre_id', 'Lignes')
-    planning            = fields.Char("Planning", store=True, readonly=True, compute='_compute_planning')
+    #planning            = fields.Char("Planning", store=True, readonly=True, compute='_compute_planning')
 
 
     @api.model
@@ -33,61 +33,62 @@ class is_ordre_travail(models.Model):
         return res
 
 
-    @api.onchange('quantite')
-    def onchange_quantite(self):
-        for obj in self:
-            for line in obj.line_ids:
-                line.duree_totale=obj.quantite*line.duree_unitaire
+    # @api.onchange('quantite')
+    # def onchange_quantite(self):
+    #     for obj in self:
+    #         for line in obj.line_ids:
+    #             line.duree_totale=obj.quantite*line.duree_unitaire
 
 
-    @api.depends('line_ids')
-    def _compute_planning(self):
-        for obj in self:
-            html='<div style="height:2000px"/>'
-            height=22
-            top=left=0
-            color=""
-            for line in obj.line_ids:
-                if color=="orange":
-                    color="LightGreen"
-                else:
-                    color="orange"
-                height
-                width=line.duree_totale*50
-                name=line.name
-                title="Durée: %sH, Début: %s, Fin: %s"%(
-                    round(line.duree_totale,1),
-                    line.heure_debut.strftime("%m/%d/%Y, %HH"),
-                    line.heure_fin.strftime("%m/%d/%Y, %HH")
-                )
-                html+="""
-                    <div style="
-                        background-color:%s;
-                        width:%spx;
-                        height:%spx;
-                        position:absolute;left:%spx;top:%spx;
-                        border-top: 1px solid gray;
-                        border-bottom: 1px solid gray;
-                    "/>
-                """%(color,width,height,left,top)
 
-                html+="""
-                    <div 
-                        title="%s"
-                        style="
-                            height:%spx;
-                            position:absolute;left:%spx;top:%spx;
-                            font-weight:bold;
-                        ">
-                        %s
-                    </div>
-                """%(title,height,(left+2),top,name)
+    # @api.depends('line_ids')
+    # def _compute_planning(self):
+    #     for obj in self:
+    #         html='<div style="height:2000px"/>'
+    #         height=22
+    #         top=left=0
+    #         color=""
+    #         for line in obj.line_ids:
+    #             if color=="orange":
+    #                 color="LightGreen"
+    #             else:
+    #                 color="orange"
+    #             height
+    #             width=line.duree_totale*50
+    #             name=line.name
+    #             title="Durée: %sH, Début: %s, Fin: %s"%(
+    #                 round(line.duree_totale,1),
+    #                 line.heure_debut.strftime("%m/%d/%Y, %HH"),
+    #                 line.heure_fin.strftime("%m/%d/%Y, %HH")
+    #             )
+    #             html+="""
+    #                 <div style="
+    #                     background-color:%s;
+    #                     width:%spx;
+    #                     height:%spx;
+    #                     position:absolute;left:%spx;top:%spx;
+    #                     border-top: 1px solid gray;
+    #                     border-bottom: 1px solid gray;
+    #                 "/>
+    #             """%(color,width,height,left,top)
+
+    #             html+="""
+    #                 <div 
+    #                     title="%s"
+    #                     style="
+    #                         height:%spx;
+    #                         position:absolute;left:%spx;top:%spx;
+    #                         font-weight:bold;
+    #                     ">
+    #                     %s
+    #                 </div>
+    #             """%(title,height,(left+2),top,name)
 
 
-                left+=width
-                top+=height
+    #             left+=width
+    #             top+=height
 
-            obj.planning=html
+    #         obj.planning=html
 
 
 
@@ -95,7 +96,7 @@ class is_ordre_travail(models.Model):
 class is_ordre_travail_line(models.Model):
     _name='is.ordre.travail.line'
     _description='Ligne Ordre de travail'
-    _order='sequence'
+    _order='ordre_planning,sequence,heure_debut'
 
     ordre_id       = fields.Many2one('is.ordre.travail', 'Ordre de travail' , required=True, ondelete='cascade')
     production_id  = fields.Many2one('mrp.production', 'Ordre de production', related='ordre_id.production_id')
@@ -106,7 +107,9 @@ class is_ordre_travail_line(models.Model):
     ordre_planning = fields.Integer("Ordre", help="Ordre dans le planning")
     workcenter_id  = fields.Many2one('mrp.workcenter', 'Poste de Travail'   , required=True)
     duree_unitaire = fields.Float("Durée unitaire (H)"                      , required=True)
-    duree_totale   = fields.Float("Durée totale (H)"                        , required=True)
+    duree_totale   = fields.Float("Durée totale (H)", compute='_compute_reste', store=True)
+    realisee       = fields.Float("Durée réalisee (H)")
+    reste          = fields.Float("Reste (H)", compute='_compute_reste', store=True)
     heure_debut    = fields.Datetime("Heure début"                          , required=False)
     heure_fin      = fields.Datetime("Heure fin"                            , required=False)
     state          = fields.Selection([
@@ -118,6 +121,13 @@ class is_ordre_travail_line(models.Model):
         ], "État", default='attente')
 
 
+    @api.depends('duree_unitaire','realisee','ordre_id.quantite')
+    def _compute_reste(self):
+        for obj in self:
+            print(obj)
+            duree_totale = obj.ordre_id.quantite*obj.duree_unitaire
+            obj.duree_totale=duree_totale
+            obj.reste=duree_totale-obj.realisee
 
 
 

@@ -124,7 +124,6 @@ class is_ordre_travail_line(models.Model):
     @api.depends('duree_unitaire','realisee','ordre_id.quantite')
     def _compute_reste(self):
         for obj in self:
-            print(obj)
             duree_totale = obj.ordre_id.quantite*obj.duree_unitaire
             obj.duree_totale=duree_totale
             obj.reste=duree_totale-obj.realisee

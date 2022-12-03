@@ -76,7 +76,12 @@
                          <field name="date_prevue"/>
                          <field name="createur_id"/>
                          <field name="date_creation"/>
-                         <field name="state"/>
+                         <field 
+                              name="state" 
+                              widget="badge" 
+                              decoration-info="state == 'encours'" 
+                              decoration-muted="state == 'termine'" 
+                         />
                     </tree>
                </field>
           </record>
@@ -96,6 +101,198 @@
                <field name="name">Ordres de travail BSA</field>
                <field name="res_model">is.ordre.travail</field>
                <field name="view_mode">tree,form</field>
+          </record>
+
+
+          <!-- is.ordre.travail.line -->
+          <record model="ir.ui.view" id="is_ordre_travail_line_form_view">
+               <field name="name">is_ordre_travail_line_form_view</field>
+               <field name="model">is.ordre.travail.line</field>
+               <field name="type">form</field>
+               <field name="arch" type="xml">
+                    <form>
+                         <style>
+                              .o_form_view .o_form_sheet_bg > .o_form_sheet{
+                                   max-width: 1800px;
+                              }
+                              .o_form_label{
+                                   white-space: nowrap;
+                              }
+                         </style>
+                         <header>
+                              <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
+                         </header>
+                         <sheet>
+                              <group>
+                                   <group>
+                                        <field name="ordre_id" readonly="1"/> 
+                                        <field name="production_id" readonly="1"/> 
+                                        <field name="product_id" readonly="1"/> 
+                                        <field name="date_prevue" readonly="1"/> 
+                                        <field name="sequence" readonly="1"/> 
+                                        <field name="ordre_planning"/> 
+                                        <field name="workcenter_id" readonly="1"/> 
+                                   </group>
+                                   <group>
+                                        <field name="duree_unitaire"            widget="float_time"/> 
+                                        <field name="duree_totale" readonly="1" widget="float_time"/> 
+                                        <field name="realisee"                  widget="float_time"/> 
+                                        <field name="reste" readonly="1"        widget="float_time"/> 
+                                        <field name="heure_debut" readonly="1"/> 
+                                        <field name="heure_fin" readonly="1"/> 
+                                   </group>
+                              </group>
+                         </sheet>
+                    </form>
+               </field>
+          </record>
+          <record model="ir.ui.view" id="is_ordre_travail_line_tree_view">
+               <field name="name">is_ordre_travail_line_tree_view</field>
+               <field name="model">is.ordre.travail.line</field>
+               <field name="type">tree</field>
+                <field name="arch" type="xml">
+                     <tree>
+                         <field name="ordre_id"       optional="show"/> 
+                         <field name="production_id"  optional="show"/> 
+                         <field name="product_id"     optional="show"/> 
+                         <field name="date_prevue"    optional="show"/> 
+                         <field name="sequence"       optional="show"/> 
+                         <field name="ordre_planning" optional="show"/> 
+                         <field name="workcenter_id"  optional="show"/> 
+                         <field name="duree_unitaire" optional="show"             widget="float_time"/> 
+                         <field name="duree_totale"   optional="show" sum="Total" widget="float_time"/> 
+                         <field name="realisee"       optional="show" sum="Total" widget="float_time"/> 
+                         <field name="reste"          optional="show" sum="Total" widget="float_time"/> 
+                         <field name="heure_debut"    optional="show"/> 
+                         <field name="heure_fin"      optional="show"/> 
+                         <field 
+                              name="state" 
+                              widget="badge" 
+                              decoration-danger="state == 'attente'" 
+                              decoration-warning="state == 'pret'" 
+                              decoration-info="state == 'encours'" 
+                              decoration-success="state == 'termine'" 
+                              decoration-muted="state == 'annule'" 
+                              optional="show"
+                         />
+                    </tree>
+               </field>
+          </record>
+
+
+          <record model="ir.ui.view" id="is_ordre_travail_line_calendar_view" >
+               <field name="name">is_ordre_travail_line_calendar_view</field>
+               <field name="model">is.ordre.travail.line</field>
+               <field name="arch" type="xml">
+                    <calendar date_start="heure_debut" date_stop="heure_fin" color="workcenter_id" hide_time="true" event_limit="100">
+                         <field name="ordre_id"/> 
+                         <field name="production_id"/> 
+                         <field name="product_id"/> 
+                         <field name="workcenter_id"/> 
+                         <field name="state"/> 
+                    </calendar>
+               </field>
+          </record>
+          <record model="ir.ui.view" id="is_ordre_travail_line_graph_view" >
+               <field name="name">is_ordre_travail_line_graph_view</field>
+               <field name="model">is.ordre.travail.line</field>
+               <field name="arch" type="xml">
+                    <graph string="Graph"> 
+                         <field name="workcenter_id"/>
+                         <field name="reste" type="measure"/>
+                    </graph>
+               </field>
+          </record>
+          <record model="ir.ui.view" id="is_ordre_travail_line_pivot_view" >
+               <field name="name">is_ordre_travail_line_pivot_view</field>
+               <field name="model">is.ordre.travail.line</field>
+               <field name="arch" type="xml">
+                    <pivot string="Pivot"> 
+                         <field name="heure_debut"  type="row"/>
+                         <field name="workcenter_id"  type="column"/>
+                         <field name="reste" type="measure"/>
+                    </pivot>
+               </field>
+          </record>
+          <record model="ir.ui.view" id="is_ordre_travail_line_timeline_view" >
+               <field name="name">is_ordre_travail_line_timeline_view</field>
+               <field name="model">is.ordre.travail.line</field>
+               <field name="arch" type="xml">
+                    <timeline 
+                         date_start="heure_debut" 
+                         date_stop="heure_fin" 
+                         default_group_by="workcenter_id" 
+                         event_open_popup="true"
+                         zoomKey="ctrlKey"
+                    >
+                         <field name="ordre_id"/> 
+                         <field name="production_id"/> 
+                         <field name="product_id"/> 
+                         <field name="workcenter_id"/> 
+                         <field name="state"/> 
+                         <field name="date_prevue"/> 
+
+                         <templates>
+                              <t t-name="timeline-item">
+
+
+
+
+                                   <div class="o_project_timeline_item">
+                                        <span name="display_name">
+                                             <t t-esc="record.display_name"/> (<t t-esc="record.date_prevue"/>)(<t t-esc="record.state"/>)
+                                        </span>
+                                        <!-- <small name="date_prevue" class="text-info ml4">
+                                             <t t-esc="field_utils.format.float_time(record.date_prevue)"/>
+                                        </small> -->
+                                   </div>
+                              </t>
+                         </templates>
+
+
+                    </timeline>
+
+
+               </field>
+          </record>
+
+<!-- 
+<timeline date_start="date_start" date_stop="date_end" default_group_by="project_id" event_open_popup="true" colors="#ec7063: user_id == false; #2ecb71: kanban_state == 'done';">
+                <field name="user_id"/>
+                <field name="planned_hours"/>
+                <templates>
+                    <t t-name="timeline-item">
+                        <div class="o_project_timeline_item">
+                            <img t-if="record.user_id" t-attf-src="/web/image/res.users/#{record.user_id[0]}/image_128/16x16" t-att-title="record.user_id[1]" width="16" height="16" class="mr8" alt="User"/>
+                            <span name="display_name">
+                                <t t-esc="record.display_name"/>
+                            </span>
+                            <small name="planned_hours" class="text-info ml4">
+                                <t t-esc="field_utils.format.float_time(record.planned_hours)"/>
+                            </small>
+                        </div>
+                    </t>
+                </templates>
+            </timeline> -->
+
+
+          <record model="ir.ui.view" id="is_ordre_travail_line_filter_view" >
+               <field name="name">is_ordre_travail_line_filter_view</field>
+               <field name="model">is.ordre.travail.line</field>
+               <field name="arch" type="xml">
+                    <search>
+                         <field name="ordre_id"/> 
+                         <field name="production_id"/> 
+                         <field name="product_id"/> 
+                         <field name="workcenter_id"/> 
+                         <field name="state"/> 
+                    </search>
+               </field>
+          </record>
+          <record model="ir.actions.act_window" id="is_ordre_travail_line_action">
+               <field name="name">Lignes ordres de travail</field>
+               <field name="res_model">is.ordre.travail.line</field>
+               <field name="view_mode">tree,form,calendar,pivot,graph,timeline</field>
           </record>
      </data>
 </odoo>

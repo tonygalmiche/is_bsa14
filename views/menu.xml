@@ -478,6 +478,13 @@
             action="is_ordre_travail_action"
             sequence="30"
         />
+        <menuitem 
+            name="Lignes Ordres de travail"
+            id="is_ordre_travail_line_menu"
+            parent="mrp.mrp_planning_menu_root" 
+            action="is_ordre_travail_line_action"
+            sequence="40"
+        />
 
 
 

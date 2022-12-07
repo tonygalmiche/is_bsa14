@@ -63,7 +63,7 @@
                         </table>
                         <t t-if="o.devis_id.options_ids">
                             <div style="page-break-before:always"/>
-                            <h3>Options : </h3>
+                            <h3>Options comprises : </h3>
                             <table class="table table-sm o_main_table">
                                 <tbody>
                                     <t t-foreach="o.devis_id.options_ids" t-as="option">

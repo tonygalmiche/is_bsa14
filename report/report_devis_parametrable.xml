@@ -65,21 +65,10 @@
                             <div style="page-break-before:always"/>
                             <h3>Options : </h3>
                             <table class="table table-sm o_main_table">
-                                <thead>
-                                    <tr>
-                                        <th class="text-center">Option</th>
-                                        <th class="text-center">Quantité</th>
-                                        <th class="text-center">Prix</th>
-                                        <th class="text-center">Montant</th>
-                                    </tr>
-                                </thead>
                                 <tbody>
                                     <t t-foreach="o.devis_id.options_ids" t-as="option">
                                         <tr style="border-bottom: 1px solid;">
                                             <td class="text-left">  <span t-field="option.description_client"/></td>
-                                            <td class="text-center"><span t-field="option.quantite"/></td>
-                                            <td class="text-right"><span t-field="option.prix"/> €</td>
-                                            <td class="text-right"> <span t-field="option.montant"/> €</td>
                                         </tr>
                                     </t>
                                 </tbody>

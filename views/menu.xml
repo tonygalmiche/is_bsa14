@@ -96,6 +96,15 @@
                 ref('sales_team.group_sale_manager'),
             ])]"/>
         </record>
+        <record id="is_devis_parametrable_variante_menu" model="ir.ui.menu" >
+            <field name="name">Variante</field>
+            <field name="sequence">30</field>
+            <field name="parent_id" eval="ref('is_devis_parametrable_main_menu')"/>
+            <field name="action"    ref="is_devis_parametrable_variante_action"/>
+            <field name="groups_id" eval="[(6,0,[
+                ref('sales_team.group_sale_manager'),
+            ])]"/>
+        </record>
 
 
         <record id="is_devis_parametrable_configuration_menu" model="ir.ui.menu" >

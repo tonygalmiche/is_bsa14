@@ -5,6 +5,29 @@
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.external_layout">
                     <div class="page">
+
+                        <style>
+                            body {
+                                line-height: 1.2;
+                            }
+
+                            h1{
+                                font-size: 14pt;
+                                font-weight:bold;
+                            }
+                            h2{
+                                font-size: 13pt;
+                                font-weight:bold;
+                            }
+                            h3{
+                                font-size: 12pt;
+                                font-weight:bold;
+                            }
+                            .table-sm th, .table-sm td {
+                                padding: 0.1rem;
+                            }
+                        </style>
+
                         <h1><span t-field="o.devis_id.designation"/></h1>
                         <h2><span t-field="o.devis_id.designation_complementaire"/></h2>
                     
@@ -62,7 +85,6 @@
                             </tbody>
                         </table>
                         <t t-if="o.devis_id.options_ids">
-                            <div style="page-break-before:always"/>
                             <h3>Options comprises : </h3>
                             <table class="table table-sm o_main_table">
                                 <tbody>
@@ -81,14 +103,14 @@
                                         <td><strong>Prix unitaire hors taxes</strong></td>
                                         <td class="text-right"><span t-field="o.prix_vente_int"/> €</td>
                                     </tr>
-                                    <tr>
+                                    <!-- <tr>
                                         <td><strong>TVA</strong></td>
                                         <td class="text-right"><span t-field="o.montant_tva"/> €</td>
                                     </tr>
                                     <tr>
                                         <td><strong>Prix unitaire TTC</strong></td>
                                         <td class="text-right"><span t-field="o.prix_vente_ttc"/> €</td>
-                                    </tr>
+                                    </tr> -->
                                 </table>
                             </div>
                         </div>

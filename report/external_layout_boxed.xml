@@ -61,7 +61,7 @@
                         <div style="border-bottom: 1px solid black;"/>
                     </div>
                 </div>
-                <div class="row mb8">
+                <!-- <div class="row mb8">
                     <div class="col-5">
                         <div style="border-bottom: 1px solid black;" class="pull-left">
                             <div t-field="company.partner_id.street"/>
@@ -69,8 +69,42 @@
                             <span t-field="company.partner_id.zip"/> <span t-field="company.partner_id.city"/><br />
                         </div>
                     </div>
+                </div> -->
+            </div>
+        </div>
+
+        <div class="pt-5" position="replace">
+            <div>
+                <t t-call="web.address_layout"/>
+            </div>
+        </div>
+
+
+        <div t-attf-class="footer o_boxed_footer o_company_#{company.id}_layout" position="replace">
+            <div t-attf-class="footer o_boxed_footer o_company_#{company.id}_layout" style="border-top: 1px solid black;">
+                <div class="text-center" style="font-size: 9pt;">
+                    <ul class="list-inline">
+                        <li t-if="company.phone" class="list-inline-item"><span class="o_force_ltr" t-field="company.phone"/></li>
+                        <li t-if="company.email" class="list-inline-item"><span t-field="company.email"/></li>
+                        <li t-if="company.website" class="list-inline-item"><span t-field="company.website"/></li>
+                        <li t-if="company.vat" class="list-inline-item"><t t-esc="company.country_id.vat_label or 'Tax ID'"/>: <span t-field="company.vat"/></li>
+                    </ul>
+                    <div t-field="company.report_footer"/>
+                    <div t-if="report_type == 'pdf'">
+                        Page: <span class="page"/> / <span class="topage"/>
+                    </div>
                 </div>
             </div>
         </div>
+
+
+
+
     </template>
+
+
+
+
+
+
 </odoo>

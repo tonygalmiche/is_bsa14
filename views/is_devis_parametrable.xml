@@ -347,6 +347,23 @@
 
 
         <!-- is.devis.parametrable.variante -->
+
+        <record id="is_devis_parametrable_variante_tree" model="ir.ui.view">
+            <field name="name">is_devis_parametrable_variante_tree</field>
+            <field name="model">is.devis.parametrable.variante</field>
+            <field name="arch" type="xml">
+                <tree >
+                    <field name="devis_id"/>
+                    <field name="partner_id"/>
+                    <field name="name"/>
+                    <field name="quantite"/>
+                    <field name="montant_unitaire"/>
+                    <field name="prix_vente"/>
+                </tree>
+            </field>
+        </record>
+
+
         <record id="is_devis_parametrable_variante_form" model="ir.ui.view">
             <field name="name">is.devis.parametrable.variante.form</field>
             <field name="model">is.devis.parametrable.variante</field>
@@ -459,6 +476,23 @@
                 </form>
             </field>
         </record>
+        <record id="is_devis_parametrable_variante_search" model="ir.ui.view">
+            <field name="name">is_devis_parametrable_variante_search</field>
+            <field name="model">is.devis.parametrable.variante</field>
+            <field name="arch" type="xml">
+                <search >
+                    <field name="devis_id"/>
+                    <field name="partner_id"/>
+                    <field name="name"/>
+                </search>
+            </field>
+        </record>
+        <record id="is_devis_parametrable_variante_action" model="ir.actions.act_window">
+            <field name="name">Variante</field>
+            <field name="res_model">is.devis.parametrable.variante</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
 
 
         <!-- is.devis.parametrable.section -->

@@ -56,6 +56,7 @@
                 </xpath>
                 <field name="property_account_position_id" position="before">
                     <field name="is_code_client"         attrs="{'invisible': [('is_company','!=', True)]}"/>
+                    <field name="is_code_client_affare"  attrs="{'invisible': [('is_company','!=', True)]}"/>
                     <field name="is_categorie_client_id" attrs="{'invisible': [('is_company','!=', True)]}"/>
                 </field>
             </field>
@@ -67,6 +68,7 @@
             <field name="arch" type="xml">
                 <field name="user_id" position="before">
                     <field name="is_code_client"/>
+                    <field name="is_code_client_affare"/>
                     <field name="is_categorie_client_id"/>
                 </field>
             </field>
@@ -77,8 +79,9 @@
             <field name="inherit_id" ref="base.view_partner_tree"/>
             <field name="arch" type="xml">
                 <field name="email" position="after">
-                    <field name="is_code_client"/>
-                    <field name="is_categorie_client_id"/>
+                    <field name="is_code_client"         optional="show"/>
+                    <field name="is_code_client_affare"  optional="show"/>
+                    <field name="is_categorie_client_id" optional="show"/>
                 </field>
             </field>
         </record>

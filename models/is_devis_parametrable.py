@@ -9,7 +9,7 @@ import re
 import openpyxl
 from glob import glob
 import logging
-from math import pi,tan,sqrt, floor
+from math import pi,tan,sqrt, floor, ceil
 
 _logger = logging.getLogger(__name__)
 
@@ -20,9 +20,11 @@ class is_devis_parametrable_affaire(models.Model):
     _description = "Affaire - Devis paramètrable"
     _order='name'
 
-    name                 = fields.Char("Affaire", required=True)
+    name                 = fields.Char("Nom de l'affaire", required=True)
+    code_affare          = fields.Char("Code de l'affaire", compute='_compute_code_affare', store=True, readonly=True, index=True)
+    version              = fields.Char("Version")
     image_affaire        = fields.Binary("Image affaire")
-    partner_id           = fields.Many2one('res.partner', 'Client', required=True)
+    partner_id           = fields.Many2one('res.partner', 'Revendeur / Client', required=True)
     revendeur_id         = fields.Many2one('res.partner', 'Revendeur')
     delais               = fields.Char("Délais")
     duree_validite       = fields.Char("Durée de validité de l'offre")
@@ -46,6 +48,20 @@ class is_devis_parametrable_affaire(models.Model):
     recapitulatif_ids = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_recapitulatif_rel', 'affaire_id', 'attachment_id', 'Récapitulatif')
     pied_ids          = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_pied_rel'         , 'affaire_id', 'attachment_id', 'Pied')
     devis_ids         = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_devis_rel'        , 'affaire_id', 'attachment_id', 'Devis')
+
+    @api.depends('create_date', 'partner_id', 'partner_id.is_code_client_affare')
+    def _compute_code_affare(self):
+        for obj in self:
+            code=False
+            if obj.create_date and obj.partner_id:
+                code="%s-%s"%((obj.partner_id.is_code_client_affare or '????'), obj.create_date.strftime("%Y%m%d"))
+                affaires = self.env['is.devis.parametrable.affaire'].search([('code_affare','like',code)], order="code_affare desc", limit=1)
+                sequence=1
+                for affaire in affaires:
+                    sequence=int(affaire.code_affare[-1:])+1
+                code="%s-%s"%(code,sequence)
+            obj.code_affare = code
+
 
     @api.depends('variante_ids')
     def _compute_montants(self):
@@ -251,8 +267,10 @@ class is_devis_parametrable(models.Model):
             obj.tps_total = tps_montage + obj.tps_assemblage + obj.tps_majoration - obj.tps_minoration
 
     name                       = fields.Char("N°", readonly=True)
+    nom_affaire                = fields.Char("Nom affaire")
     image                      = fields.Binary("Image", related="type_cuve_id.image")
     code_devis                 = fields.Char("Code devis")
+    version                    = fields.Char("Version")
     designation                = fields.Char("Désignation")
     designation_complementaire = fields.Char("Désignation complémentaire")
     capacite                   = fields.Integer("Capacité")
@@ -268,7 +286,7 @@ class is_devis_parametrable(models.Model):
     createur_id        = fields.Many2one('res.users', 'Créateur', required=True, default=lambda self: self.env.user.id)
     date_creation      = fields.Date("Date de création"         , required=True, default=lambda *a: fields.Date.today())
     date_actualisation = fields.Datetime("Date d'actualisation"                , default=fields.Datetime.now)
-    partner_id         = fields.Many2one('res.partner', 'Client', required=True)
+    partner_id         = fields.Many2one('res.partner', 'Revendeur / Client', required=True)
     tax_id             = fields.Many2one('account.tax', 'TVA à appliquer')
     tps_montage        = fields.Float("Tps montage (HH:MM)", help="Temps de montage (HH:MM)", store=False, readonly=True, compute='_compute_montant')
     tps_assemblage     = fields.Float("Tps assemblage (HH:MM)")
@@ -520,6 +538,7 @@ class is_devis_parametrable_dimension(models.Model):
     dimension_id = fields.Many2one('is.dimension', 'Dimension')
     description  = fields.Char("Description"   , help="Information pour le client")
     valeur       = fields.Integer("Valeur (mm)", help="Utilisée dans les calculs")
+    imprimer     = fields.Boolean("Imprimer"   , help="Afficher cette ligne sur le PDF", default=True)
 
 
 class is_devis_parametrable_option(models.Model):
@@ -531,8 +550,8 @@ class is_devis_parametrable_option(models.Model):
     devis_id           = fields.Many2one('is.devis.parametrable', 'Devis', required=True, ondelete='cascade')
     sequence           = fields.Integer("Sequence")
     option_id          = fields.Many2one('is.option', 'Option')
-    description        = fields.Char("Description BSA" , help="Information pour le client (mettre [quantite] pour récupérer la quantité dans le PDF")
-    description_client = fields.Char("Description Client", store=True, readonly=True, compute='_compute_description_client')
+    description        = fields.Text("Description BSA" , help="Information pour le client (mettre [quantite] pour récupérer la quantité dans le PDF")
+    description_client = fields.Text("Description Client", store=True, readonly=True, compute='_compute_description_client')
     valeur             = fields.Float("Valeur"     , help="Donnée d'entrée du calculateur")
     quantite           = fields.Float("Quantitée"  , help="Donnée de sortie du calculateur")
     prix               = fields.Float("Prix"       , help="Prix unitaire de l'option")
@@ -618,6 +637,7 @@ class is_devis_parametrable_section(models.Model):
 class is_devis_parametrable_section_product(models.Model):
     _name = 'is.devis.parametrable.section.product'
     _description = "Lignes des sections du devis paramètrable"
+    _order='sequence,id'
 
 
     @api.onchange('product_id')
@@ -661,7 +681,8 @@ class is_devis_parametrable_section_product(models.Model):
             description = str(int(obj.quantite))+" x "+description
             obj.description_report = description
 
-
+    
+    sequence           = fields.Integer("Sequence")
     section_id         = fields.Many2one('is.devis.parametrable.section', 'Section', required=True, ondelete='cascade')
     type_equipement_id = fields.Many2one('is.type.equipement', "Type d'équipement")
     product_id         = fields.Many2one('product.product', "Article")
@@ -702,10 +723,12 @@ class is_devis_parametrable_variante(models.Model):
     marge_revendeur   = fields.Float("Marge revendeur (%)")
     gain_productivite = fields.Float("Gain de productivé (%)", help="En fonction de la quantité prévue, vous pouvez ajouter un gain de productivité sur le temps de montage des équipements")
 
+    cout_transport    = fields.Monetary("Coût du transport", currency_field='currency_id')
+
     currency_id        = fields.Many2one('res.currency', "Devise", readonly=True, compute='_compute_montants')
 
-    cout_horaire_montage = fields.Float('Coût horaire montage', default=lambda self: self.env.user.company_id.is_cout_horaire_montage)
-    cout_horaire_be      = fields.Float('Coût horaire BE'     , default=lambda self: self.env.user.company_id.is_cout_horaire_be)
+    cout_horaire_montage = fields.Monetary('Coût horaire montage', default=lambda self: self.env.user.company_id.is_cout_horaire_montage, currency_field='currency_id')
+    cout_horaire_be      = fields.Monetary('Coût horaire BE'     , default=lambda self: self.env.user.company_id.is_cout_horaire_be     , currency_field='currency_id')
 
     montant_matiere    = fields.Monetary("Montant matière"     , readonly=True, compute='_compute_montants', currency_field='currency_id')
     montant_equipement = fields.Monetary("Montant equipements" , readonly=True, compute='_compute_montants', currency_field='currency_id')
@@ -713,13 +736,15 @@ class is_devis_parametrable_variante(models.Model):
     montant_montage    = fields.Monetary("Montant MO sans productivité"    , readonly=True, compute='_compute_montants', currency_field='currency_id')
     montant_montage_productivite = fields.Monetary("Montant MO", readonly=True, compute='_compute_montants', currency_field='currency_id')
     montant_be         = fields.Monetary("Montant BE"          , readonly=True, compute='_compute_montants', currency_field='currency_id')
+    montant_transport  = fields.Monetary("Montant transport"   , readonly=True, compute='_compute_montants', currency_field='currency_id')
     montant_total      = fields.Monetary("Montant Total"       , readonly=True, compute='_compute_montants', currency_field='currency_id')
     montant_unitaire   = fields.Monetary("Montant Unitaire HT" , readonly=True, compute='_compute_montants', currency_field='currency_id')
     montant_matiere_pourcent              = fields.Float("% Montant matière"                  , readonly=True, compute='_compute_montants')
     montant_equipement_pourcent           = fields.Float("% Montant equipements"              , readonly=True, compute='_compute_montants')
     montant_option_pourcent               = fields.Float("% Montant options"                  , readonly=True, compute='_compute_montants')
-    montant_montage_productivite_pourcent = fields.Float("% Montant MO avec productivité", readonly=True, compute='_compute_montants')
+    montant_montage_productivite_pourcent = fields.Float("% Montant MO avec productivité"     , readonly=True, compute='_compute_montants')
     montant_be_pourcent                   = fields.Float("% Montant BE"                       , readonly=True, compute='_compute_montants')
+    montant_transport_pourcent            = fields.Float("% Montant transport"                , readonly=True, compute='_compute_montants')
 
     prix_vente_lot              = fields.Monetary("Prix de vente de l'affaire"          , readonly=True, compute='_compute_montants', currency_field='currency_id')
     prix_vente_revendeur_lot    = fields.Monetary("Prix de vente revendeur de l'affaire", readonly=True, compute='_compute_montants', currency_field='currency_id')
@@ -764,29 +789,31 @@ class is_devis_parametrable_variante(models.Model):
             montant_montage    = tps_montage*obj.cout_horaire_montage
             montant_montage_productivite = montant_montage-montant_montage*obj.gain_productivite/100
             montant_be         = obj.tps_be * obj.cout_horaire_be
-            montant_total      = montant_matiere + montant_equipement + montant_option + montant_montage_productivite + montant_be
+            montant_transport  = obj.cout_transport*quantite
+
+            montant_total      = montant_matiere + montant_equipement + montant_option + montant_montage_productivite + montant_be + montant_transport
 
             montant_matiere_pourcent = 0
             montant_equipement_pourcent = 0
             montant_option_pourcent = 0
             montant_montage_productivite_pourcent = 0
             montant_be_pourcent = 0
+            montant_transport_pourcent = 0
             if montant_total>0:
                 montant_matiere_pourcent              = 100 * montant_matiere / montant_total
                 montant_equipement_pourcent           = 100 * montant_equipement / montant_total
                 montant_option_pourcent               = 100 * montant_option / montant_total
                 montant_montage_productivite_pourcent = 100 * montant_montage_productivite / montant_total
                 montant_be_pourcent                   = 100 * montant_be / montant_total
+                montant_transport_pourcent            = 100 * montant_transport / montant_total
             obj.montant_matiere_pourcent    = montant_matiere_pourcent
             obj.montant_equipement_pourcent = montant_equipement_pourcent
             obj.montant_option_pourcent     = montant_option_pourcent
             obj.montant_montage_productivite_pourcent = montant_montage_productivite_pourcent
             obj.montant_be_pourcent = montant_be_pourcent
+            obj.montant_transport_pourcent = montant_transport_pourcent
 
             montant_unitaire = montant_total/quantite
-
-
-
 
             #** Calcul du montant des équipements avec la marge par équipement **********
             montant_equipement_marge=0
@@ -803,6 +830,7 @@ class is_devis_parametrable_variante(models.Model):
             prix_vente += montant_option
             prix_vente += montant_montage_productivite*(1+obj.marge_montage/100)
             prix_vente += montant_be*(1+obj.marge_be/100)
+            prix_vente += montant_transport
 
             prix_vente_revendeur = prix_vente*(1+obj.marge_revendeur/100)
 
@@ -813,6 +841,7 @@ class is_devis_parametrable_variante(models.Model):
             obj.montant_montage    = montant_montage
             obj.montant_montage_productivite = montant_montage_productivite
             obj.montant_be         = montant_be
+            obj.montant_transport  = montant_transport
             obj.montant_total      = montant_total
             obj.montant_unitaire   = montant_unitaire
 
@@ -821,7 +850,7 @@ class is_devis_parametrable_variante(models.Model):
             obj.montant_marge_revendeur_lot = prix_vente_revendeur - prix_vente
             obj.prix_vente                  = prix_vente/quantite
 
-            prix_vente_int = round(obj.prix_vente)
+            prix_vente_int = 10*ceil(obj.prix_vente/10)
             obj.prix_vente_int = prix_vente_int
             obj.prix_vente_lot = prix_vente_int * quantite
 

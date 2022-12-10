@@ -58,10 +58,15 @@
                         <table class="table table-sm o_main_table">
                             <tbody>
                                 <t t-foreach="o.devis_id.dimension_ids" t-as="l">
-                                    <tr>
-                                        <td class="text-left">  <span t-field="l.dimension_id.name"/></td>
-                                        <td class="text-left"><span t-field="l.description"/></td>
-                                    </tr>
+                                    <t t-if="l.imprimer">
+                                        <tr>
+                                            <td class="text-left">  <span t-field="l.dimension_id.name"/></td>
+                                            <td class="text-left">
+                                                <span t-field="l.valeur"/>mm 
+                                                <span t-field="l.description"/>
+                                            </td>
+                                        </tr>
+                                    </t>
                                 </t>
                             </tbody>
                         </table>

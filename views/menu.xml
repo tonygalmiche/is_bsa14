@@ -102,7 +102,7 @@
             <field name="parent_id" eval="ref('is_devis_parametrable_main_menu')"/>
             <field name="action"    ref="is_devis_parametrable_variante_action"/>
             <field name="groups_id" eval="[(6,0,[
-                ref('sales_team.group_sale_manager'),
+                ref('is_bsa14.is_devis_parametrable_user_group'),
             ])]"/>
         </record>
 
@@ -112,7 +112,7 @@
             <field name="sequence">90</field>
             <field name="parent_id" eval="ref('is_devis_parametrable_main_menu')"/>
             <field name="groups_id" eval="[(6,0,[
-                ref('sales_team.group_sale_manager'),
+                ref('is_bsa14.is_devis_parametrable_admin_group'),
             ])]"/>
         </record>
 

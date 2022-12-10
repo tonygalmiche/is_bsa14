@@ -26,5 +26,17 @@
             <field name="comment">Donne accès au menu CRM</field>
             <field name="category_id" ref="is_bsa_module_category"/>
         </record>
+
+        <!-- Devis paramètrable -->
+        <record id="is_devis_parametrable_user_group" model="res.groups">
+            <field name="name">Devis paramètrable - Utilisateur</field>
+            <field name="category_id" ref="is_bsa_module_category"/>
+        </record>
+        <record id="is_devis_parametrable_admin_group" model="res.groups">
+            <field name="name">Devis paramètrable - Administrateur</field>
+            <field name="implied_ids" eval="[(4, ref('is_bsa14.is_devis_parametrable_user_group'))]"/>
+            <field name="category_id" ref="is_bsa_module_category"/>
+        </record>
+ 
     </data>
 </openerp>

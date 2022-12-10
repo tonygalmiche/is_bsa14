@@ -13,9 +13,7 @@ class is_categorie_client(models.Model):
 class res_partner(models.Model):
     _inherit = "res.partner"
 
+    is_code_client_affare  = fields.Char("Code client affaire")
     is_code_client         = fields.Char("Code comptable client")
     is_categorie_client_id = fields.Many2one("is.categorie.client", string="Catégorie de client")
     is_rib_bsa             = fields.Many2one("res.partner.bank"   , string="RIB BSA")
-
-
-#"['|', ('company_id', '=', False), ('company_id', '=', company_id)]")

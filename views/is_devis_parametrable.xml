@@ -9,11 +9,13 @@
             <field name="model">is.devis.parametrable.affaire</field>
             <field name="arch" type="xml">
                 <tree >
+                    <field name="partner_id"            optional="show"/>
+                    <field name="code_affare"           optional="show"/>
+                    <field name="version"               optional="show"/>
                     <field name="name"/>
-                    <field name="partner_id"/>
-                    <field name="revendeur_id"/>
-                    <field name="delais"/>
-                    <field name="duree_validite"/>
+                    <field name="revendeur_id"          optional="show"/>
+                    <field name="delais"                optional="show"/>
+                    <field name="duree_validite"        optional="show"/>
                     <field name="conditions_generales"  optional="hide"/>
                     <field name="transport"             optional="hide"/>
                     <field name="information_technique" optional="hide"/>
@@ -42,8 +44,10 @@
                         </style>
                         <group>
                             <group>
-                                <field name="name" />
                                 <field name="partner_id"/>
+                                <field name="name"/>
+                                <field name="code_affare"/>
+                                <field name="version"/>
                                 <field name="revendeur_id"/>
                                 <field name="delais"/>
                                 <field name="duree_validite"/>
@@ -52,9 +56,6 @@
                                 <field name="image_affaire" widget='image'/>
                             </group>
                         </group>
-
-
-
                         <group string="Conditions générales">
                             <field name="conditions_generales"/>
                             <field name="transport"/>
@@ -128,16 +129,17 @@
             <field name="model">is.devis.parametrable</field>
             <field name="arch" type="xml">
                 <tree >
-                    <field name="name"/>
-                    <field name="code_devis"/>
-                    <field name="designation"/>
-                    <field name="designation_complementaire" optional="show"/>
+                    <field name="name" class="test_scss2"/>
+                    <field name="version"/>
+                    <field name="partner_id"   optional="show"               class="test_scss"/>
+                    <field name="nom_affaire"  optional="show"               class="test_scss"/>
+                    <field name="type_cuve_id" optional="show"               class="test_scss"/>
+                    <field name="designation"  optional="show"               class="test_scss"/>
+                    <field name="designation_complementaire" optional="show" class="test_scss"/>
                     <field name="capacite"         optional="show"/>
                     <field name="unite"            optional="show"/>
-                    <field name="type_cuve_id"     optional="show"/>
                     <field name="createur_id"      optional="show"/>
                     <field name="date_creation"    optional="show"/>
-                    <field name="partner_id"/>
                     <field name="commentaire"      optional="hide"/>
                     <field name="total_equipement" optional="show" sum="Total"/>
                 </tree>
@@ -148,8 +150,6 @@
             <field name="model">is.devis.parametrable</field>
             <field name="arch" type="xml">
                 <form>
-
-
                     <header>
                         <button
                             name="creation_section_action"
@@ -183,22 +183,25 @@
                         <group>
                             <group>
                                 <field name="name"/>
-                                <field name="code_devis"/>
+                                <field name="version"/>
+                                <field name="partner_id"/>
+                                <field name="nom_affaire"/>
+                                <field name="type_cuve_id"/>
                                 <field name="designation"/>
                                 <field name="designation_complementaire"/>
                                 <field name="capacite" readonly="1"/>
                                 <field name="unite"/>
-                                <field name="type_cuve_id"/>
-                                <field name="partner_id"/>
+                            </group>
+                            <group>
                                 <field name="tax_id"/>
                                 <field name="date_creation"/>
                                 <field name="date_actualisation" readonly="1"/>
                                 <field name="createur_id"/>
                                 <field name="montant_matiere" invisible="1"/>
                             </group>
-                            <group>
+                            <!-- <group>
                                 <field name="image" widget='image' class="oe_center oe_avatar" nolabel="1"/>
-                            </group>
+                            </group> -->
                         </group>
                         <notebook>
                             <page string="Devis">
@@ -235,23 +238,30 @@
                                             <field name="dimension_id"/>
                                             <field name="valeur"/>
                                             <field name="description"/>
+                                            <field name="imprimer"/>
                                         </tree>
                                     </field>
                                 </group>
+                                <div class="o_row no-gutters d-flex">
+                                    <label for="capacite"               class="oe_inline"/> : 
+                                    <field name="capacite" readonly="1" class="oe_inline"/>
+                                    <field name="unite"    readonly="1" class="oe_inline"/>
+                                </div>
+
                                 <group string="Options">
                                     <field name="options_ids" nolabel="1">
                                         <tree editable="bottom">
                                             <field name="sequence" widget="handle" />
                                             <field name="devis_id" invisible="1"/>
-                                            <field name="option_id"/>
-                                            <field name="description"        optional="show"/>
-                                            <field name="description_client" optional="show"/>
-                                            <field name="valeur"/>
-                                            <field name="quantite"/>
-                                            <field name="prix"/>
-                                            <field name="montant" sum="Total"/>
-                                            <field name="entree2"/>
-                                            <field name="sortie2"/>
+                                            <field name="option_id"          class="test_scss"/>
+                                            <field name="description"        class="test_scss" optional="show"/>
+                                            <field name="description_client" class="test_scss" optional="show"/>
+                                            <field name="valeur"              optional="show"/>
+                                            <field name="quantite"            optional="show"/>
+                                            <field name="prix"                optional="show"/>
+                                            <field name="montant" sum="Total" optional="show"/>
+                                            <field name="entree2"             optional="show"/>
+                                            <field name="sortie2"             optional="show"/>
                                         </tree>
                                     </field>
                                 </group>
@@ -281,6 +291,7 @@
                                             <field name="marge_be"          optional="show"/>
                                             <field name="marge_revendeur"   optional="show"/>
                                             <field name="gain_productivite" optional="show"/>
+                                            <field name="cout_transport"    optional="show"/>
 
                                             <field name="prix_vente_lot"              optional="show"/>
                                             <field name="prix_vente_revendeur_lot"    optional="hide"/>
@@ -331,7 +342,8 @@
             <field name="arch" type="xml">
                 <search>
                     <field name="name"/>
-                    <field name="code_devis"/>
+                    <field name="version"/>
+                    <field name="nom_affaire"/>
                     <field name="designation"/>
                     <field name="partner_id"/>
                     <field name="createur_id"/>
@@ -399,6 +411,7 @@
                                 <field name="quantite"/>
                                 <field name="cout_horaire_montage"/>
                                 <field name="cout_horaire_be"/>
+                                <field name="cout_transport"/>
                                 <field name="marge_matiere"/>
                                 <field name="marge_equipement"/>
                                 <field name="marge_montage"/>
@@ -451,6 +464,14 @@
                                     <field name="montant_be" class="oe_inline"/>
                                 </div>
 
+                                <label for="montant_transport"/>
+                                <div class="o_row no-gutters d-flex">
+                                    <field name="montant_transport_pourcent" widget="progressbar" class="oe_inline"/>
+                                    <field name="montant_transport" class="oe_inline"/>
+                                </div>
+
+
+
                                 <field name="montant_total"/>
                             </group>
                             <group string="Prix de revient unitaire">
@@ -464,6 +485,7 @@
                             </group>
                             <group string="Prix de vente unitaire">
                                 <field name="prix_vente"/>
+                                <field name="prix_vente_int"/>
                                 <field name="prix_vente_revendeur"/>
                                 <field name="montant_marge"/>
                                 <field name="montant_marge_revendeur"/>
@@ -529,6 +551,7 @@
                         <field name="product_ids">
                             <tree editable="bottom">
                                 <field name="section_id" invisible="1"/>
+                                <field name="sequence" widget="handle"/>
                                 <field name="type_equipement_id"/>
                                 <field name="product_id" domain="[('is_type_equipement_id', '=', type_equipement_id)]"/>
                                 <field name="description"/>
@@ -665,7 +688,6 @@
             <field name="arch" type="xml">
                 <tree >
                     <field name="name"/>
-                    <field name="perte_decoupe"/>
                 </tree>
             </field>
         </record>
@@ -687,7 +709,6 @@
                         <group>
                             <group>
                                 <field name="name" />
-                                <field name="perte_decoupe"/>
                                 <field name="import_ids" widget="many2many_binary"/>
                             </group>
                          </group>

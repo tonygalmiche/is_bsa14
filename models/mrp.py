@@ -56,8 +56,8 @@ class mrp_bom(models.Model):
                     'sequence'         : line.sequence,
                     'name'             : line.name,
                     'workcenter_id'    : line.workcenter_id.id,
-                    'time_cycle_manual': line.duree,
-                    'is_duree_heure'   : line.duree/60,
+                    'time_cycle_manual': line.duree*60,
+                    'is_duree_heure'   : line.duree,
                 }
                 self.env['mrp.routing.workcenter'].create(vals)
 

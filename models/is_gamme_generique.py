@@ -20,4 +20,4 @@ class is_gamme_generique_ligne(models.Model):
     name          = fields.Char("Opération", required=True)
     sequence      = fields.Integer("Séquence", default=100)
     workcenter_id = fields.Many2one('mrp.workcenter', 'Poste de Travail', required=True)
-    duree         = fields.Float("Durée (MM:SS)", required=True)
+    duree         = fields.Float("Durée (HH:MN)", required=True)

@@ -22,19 +22,23 @@ class is_devis_parametrable_affaire(models.Model):
 
     name                 = fields.Char("Nom de l'affaire", required=True)
     code_affare          = fields.Char("Code de l'affaire", compute='_compute_code_affare', store=True, readonly=True, index=True)
+    code_affare_force    = fields.Char("Code de l'affaire forcé")
     version              = fields.Char("Version")
     image_affaire        = fields.Binary("Image affaire")
+    is_societe_commerciale_id = fields.Many2one("is.societe.commerciale", "Société commerciale", readonly=True, compute='_compute_is_societe_commerciale_id')
     partner_id           = fields.Many2one('res.partner', 'Revendeur / Client', required=True)
     revendeur_id         = fields.Many2one('res.partner', 'Revendeur')
-    delais               = fields.Char("Délais")
-    duree_validite       = fields.Char("Durée de validité de l'offre")
-    conditions_generales = fields.Text("Conditions générales")
+    charge_affaire       = fields.Char("Chargé d'affaire")
+    date_affaire         = fields.Date("Date affaire")
 
-    transport             = fields.Text("Transport")
-    information_technique = fields.Text("Informations techniques")
-    acceptation_cgv       = fields.Text("Acceptations CGV")
-    vendeur_id            = fields.Many2one('res.users', 'Vendeur')
-    date_affaire          = fields.Date("Date affaire")
+    conditions_particulieres = fields.Text("Conditions particulières")
+    information_technique    = fields.Text("Informations techniques")
+    conditions_reglement     = fields.Text("Conditions de règlement")
+    delais                   = fields.Char("Délais")
+    duree_validite           = fields.Char("Durée de validité de l'offre")
+    transport                = fields.Text("Transport")
+    conditions_generales     = fields.Text("Conditions générales")
+    vendeur_id               = fields.Many2one('res.users', 'Vendeur')
 
     variante_ids = fields.One2many('is.devis.parametrable.affaire.variante', 'affaire_id', 'Variantes', copy=True)
 
@@ -49,17 +53,32 @@ class is_devis_parametrable_affaire(models.Model):
     pied_ids          = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_pied_rel'         , 'affaire_id', 'attachment_id', 'Pied')
     devis_ids         = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_devis_rel'        , 'affaire_id', 'attachment_id', 'Devis')
 
-    @api.depends('create_date', 'partner_id', 'partner_id.is_code_client_affare')
+
+    @api.depends('variante_ids')
+    def _compute_is_societe_commerciale_id(self):
+        for obj in self:
+            societe_id=False
+            for line in obj.variante_ids:
+                if line.variante_id.is_societe_commerciale_id:
+                    societe_id = line.variante_id.is_societe_commerciale_id
+                    break
+            obj.is_societe_commerciale_id = societe_id
+ 
+ 
+    @api.depends('create_date', 'partner_id', 'partner_id.is_code_client_affare','code_affare_force')
     def _compute_code_affare(self):
         for obj in self:
             code=False
-            if obj.create_date and obj.partner_id:
-                code="%s-%s"%((obj.partner_id.is_code_client_affare or '????'), obj.create_date.strftime("%Y%m%d"))
-                affaires = self.env['is.devis.parametrable.affaire'].search([('code_affare','like',code)], order="code_affare desc", limit=1)
-                sequence=1
-                for affaire in affaires:
-                    sequence=int(affaire.code_affare[-1:])+1
-                code="%s-%s"%(code,sequence)
+            if obj.code_affare_force:
+                code = obj.code_affare_force
+            else:
+                if obj.create_date and obj.partner_id:
+                    code="%s-%s"%((obj.partner_id.is_code_client_affare or '????'), obj.create_date.strftime("%Y%m%d"))
+                    affaires = self.env['is.devis.parametrable.affaire'].search([('code_affare','like',code)], order="code_affare desc", limit=1)
+                    sequence=1
+                    for affaire in affaires:
+                        sequence=int(affaire.code_affare[-1:])+1
+                    code="%s-%s"%(code,sequence)
             obj.code_affare = code
 
 
@@ -73,7 +92,7 @@ class is_devis_parametrable_affaire(models.Model):
             for line in obj.variante_ids:
                 tax_id = line.variante_id.devis_id.tax_id.id
                 qt = line.variante_id.quantite
-                prix_vente=line.variante_id.prix_vente_int
+                prix_vente=line.variante_id.prix_vente_remise
                 ht+=prix_vente*qt
                 tva+=line.variante_id.montant_tva*qt
                 ttc+=line.variante_id.prix_vente_ttc*qt
@@ -255,6 +274,13 @@ class is_devis_parametrable(models.Model):
             obj.montant_option = montant
 
 
+    @api.depends('capacite','unite')
+    def _compute_capacite_txt(self):
+        for obj in self:
+            x = "%s %s"%(obj.capacite,obj.unite)
+            obj.capacite_txt = x
+
+
     @api.depends('section_ids',"tps_assemblage","tps_majoration","tps_minoration")
     def _compute_montant(self):
         for obj in self:
@@ -273,16 +299,17 @@ class is_devis_parametrable(models.Model):
     version                    = fields.Char("Version")
     designation                = fields.Char("Désignation")
     designation_complementaire = fields.Char("Désignation complémentaire")
+    is_societe_commerciale_id  = fields.Many2one("is.societe.commerciale", "Société commerciale")
     capacite                   = fields.Integer("Capacité")
     unite                      = fields.Selection([
             ('Litre', 'Litre'),
             ('m3'   , 'm3'),
             ('HL'   , 'HL'),
         ], "Unité")
+
+    capacite_txt       = fields.Char("Capacité ", compute='_compute_capacite_txt')
     type_cuve_id       = fields.Many2one('is.type.cuve', 'Type de cuve', required=True)
-
     calcul_ids         = fields.One2many('is.type.cuve.calcul', 'devis_parametrable_id', 'Calculs', copy=True)
-
     createur_id        = fields.Many2one('res.users', 'Créateur', required=True, default=lambda self: self.env.user.id)
     date_creation      = fields.Date("Date de création"         , required=True, default=lambda *a: fields.Date.today())
     date_actualisation = fields.Datetime("Date d'actualisation"                , default=fields.Datetime.now)
@@ -582,8 +609,8 @@ class is_devis_parametrable_option(models.Model):
             val=""
             if obj.description:
                 val=obj.description
-                val = val.replace("[valeur]", str(obj.valeur))
-                val = val.replace("[quantite]", str(obj.quantite))
+                val = val.replace("[valeur]", str(round(obj.valeur,1)))
+                val = val.replace("[quantite]", str(round(obj.quantite,1)))
                 val = val.replace("[prix]", str(obj.prix))
                 val = val.replace("[montant]", str(obj.montant))
                 val = val.replace("[entree2]", str(obj.entree2))
@@ -706,8 +733,9 @@ class is_devis_parametrable_variante(models.Model):
     name              = fields.Char("Nom", required=True)
     description       = fields.Text("Description", readonly=True, compute='_compute_description')
     partner_id        = fields.Many2one('res.partner', "Client", related="devis_id.partner_id", readonly=True)
-
+    is_societe_commerciale_id = fields.Many2one("is.societe.commerciale", "Société commerciale", related="devis_id.is_societe_commerciale_id", readonly=True)
     quantite          = fields.Integer("Qt prévue")
+    currency_id       = fields.Many2one('res.currency', "Devise", readonly=True, compute='_compute_montants')
 
     tps_montage       = fields.Float("Tps montage (HH:MM)"      , related="devis_id.tps_montage"   , readonly=True)
     tps_assemblage    = fields.Float("Tps assemblage (HH:MM)"   , related="devis_id.tps_assemblage", readonly=True)
@@ -716,19 +744,18 @@ class is_devis_parametrable_variante(models.Model):
     tps_total         = fields.Float("Tps total hors BE (HH:MM)", related="devis_id.tps_total"     , readonly=True)
     tps_be            = fields.Float("Tps BE (HH:MM)"           , related="devis_id.tps_be"        , readonly=True)
 
+    cout_horaire_montage = fields.Monetary('Coût horaire montage', default=lambda self: self.env.user.company_id.is_cout_horaire_montage, currency_field='currency_id')
+    cout_horaire_be      = fields.Monetary('Coût horaire BE'     , default=lambda self: self.env.user.company_id.is_cout_horaire_be     , currency_field='currency_id')
+    cout_transport    = fields.Monetary("Coût du transport", currency_field='currency_id')
+
     marge_matiere     = fields.Float("Marge matière (%)")
     marge_equipement  = fields.Float("Marge équipement (%)")
     marge_montage     = fields.Float("Marge MO (%)")
     marge_be          = fields.Float("Marge BE (%)")
     marge_revendeur   = fields.Float("Marge revendeur (%)")
     gain_productivite = fields.Float("Gain de productivé (%)", help="En fonction de la quantité prévue, vous pouvez ajouter un gain de productivité sur le temps de montage des équipements")
-
-    cout_transport    = fields.Monetary("Coût du transport", currency_field='currency_id')
-
-    currency_id        = fields.Many2one('res.currency', "Devise", readonly=True, compute='_compute_montants')
-
-    cout_horaire_montage = fields.Monetary('Coût horaire montage', default=lambda self: self.env.user.company_id.is_cout_horaire_montage, currency_field='currency_id')
-    cout_horaire_be      = fields.Monetary('Coût horaire BE'     , default=lambda self: self.env.user.company_id.is_cout_horaire_be     , currency_field='currency_id')
+    remise            = fields.Monetary("Remise")
+    remise_pourcent   = fields.Float("Remise (%)")
 
     montant_matiere    = fields.Monetary("Montant matière"     , readonly=True, compute='_compute_montants', currency_field='currency_id')
     montant_equipement = fields.Monetary("Montant equipements" , readonly=True, compute='_compute_montants', currency_field='currency_id')
@@ -745,6 +772,8 @@ class is_devis_parametrable_variante(models.Model):
     montant_montage_productivite_pourcent = fields.Float("% Montant MO avec productivité"     , readonly=True, compute='_compute_montants')
     montant_be_pourcent                   = fields.Float("% Montant BE"                       , readonly=True, compute='_compute_montants')
     montant_transport_pourcent            = fields.Float("% Montant transport"                , readonly=True, compute='_compute_montants')
+    montant_remise                        = fields.Integer("Montant remise"                   , readonly=True, compute='_compute_montants')
+    intitule_remise                       = fields.Char("Intitulé remise"                     , readonly=True, compute='_compute_montants')
 
     prix_vente_lot              = fields.Monetary("Prix de vente de l'affaire"          , readonly=True, compute='_compute_montants', currency_field='currency_id')
     prix_vente_revendeur_lot    = fields.Monetary("Prix de vente revendeur de l'affaire", readonly=True, compute='_compute_montants', currency_field='currency_id')
@@ -753,6 +782,7 @@ class is_devis_parametrable_variante(models.Model):
 
     prix_vente               = fields.Monetary("Prix de vente HT"          , readonly=True, compute='_compute_montants', currency_field='currency_id')
     prix_vente_int           = fields.Integer("Prix de vente HT (arrondi)" , readonly=True, compute='_compute_montants')
+    prix_vente_remise        = fields.Integer("Prix de vente remisé"       , readonly=True, compute='_compute_montants')
     montant_tva              = fields.Integer("TVA"                        , readonly=True, compute='_compute_montants')
     prix_vente_ttc           = fields.Integer("Prix de vente TTC"          , readonly=True, compute='_compute_montants')
 
@@ -763,11 +793,11 @@ class is_devis_parametrable_variante(models.Model):
     commentaire              = fields.Text("Commentaire")
 
 
-    @api.depends('name')
+    @api.depends('name','quantite')
     def _compute_description(self):
         for obj in self:
             d = obj.devis_id
-            r="%s - %s - %s %s %s"%(d.designation, d.designation_complementaire, d.capacite, d.unite, d.type_cuve_id.name)
+            r="%s x %s - %s - %s %s %s"%(obj.quantite, (d.designation or ''), (d.designation_complementaire or ''), d.capacite, d.unite, d.type_cuve_id.name)
             # r+=devis.designation+"\n"
             # r+=devis.designation_complementaire+"\n"
             # r+=str(devis.capacite)+" "+devis.unite+" "+devis.type_cuve_id.name
@@ -775,7 +805,7 @@ class is_devis_parametrable_variante(models.Model):
             obj.description=r
 
 
-    @api.depends('quantite','marge_matiere','marge_equipement','marge_montage','tps_be','marge_be','marge_revendeur','gain_productivite','cout_horaire_montage','cout_horaire_be')
+    @api.depends('remise','remise_pourcent','quantite','marge_matiere','marge_equipement','marge_montage','tps_be','marge_be','marge_revendeur','gain_productivite','cout_horaire_montage','cout_horaire_be')
     def _compute_montants(self):
         company = self.env.user.company_id
         for obj in self:
@@ -832,7 +862,12 @@ class is_devis_parametrable_variante(models.Model):
             prix_vente += montant_be*(1+obj.marge_be/100)
             prix_vente += montant_transport
 
-            prix_vente_revendeur = prix_vente*(1+obj.marge_revendeur/100)
+
+
+
+
+
+
 
             obj.montant_matiere    = montant_matiere
             obj.montant_equipement = montant_equipement
@@ -845,22 +880,47 @@ class is_devis_parametrable_variante(models.Model):
             obj.montant_total      = montant_total
             obj.montant_unitaire   = montant_unitaire
 
-            obj.prix_vente_revendeur_lot    = prix_vente_revendeur
-            obj.montant_marge_lot           = prix_vente - montant_total
-            obj.montant_marge_revendeur_lot = prix_vente_revendeur - prix_vente
+
+            prix_vente_int = 10*ceil(prix_vente/quantite/10)
+            obj.prix_vente_int = prix_vente_int
+
+            montant_remise=0
+            if obj.remise>0:
+                montant_remise = obj.remise
+            else:
+                if obj.remise_pourcent>0:
+                    montant_remise = prix_vente_int*obj.remise_pourcent/100
+            obj.montant_remise = montant_remise
+
+            intitule_remise=False
+            if obj.remise_pourcent>0:
+                intitule_remise="Remise de %s%% soit %s €"%(obj.remise_pourcent, obj.montant_remise)
+            if obj.remise>0:
+                intitule_remise="Remise de %s €"%(obj.montant_remise)
+
+            obj.intitule_remise = intitule_remise
+            
+            obj.prix_vente_remise = prix_vente_int - montant_remise
+
+            obj.prix_vente_lot = obj.prix_vente_remise * quantite
+
+
+            prix_vente_revendeur = obj.prix_vente_remise*(1+obj.marge_revendeur/100)
+            obj.prix_vente_revendeur_lot    = prix_vente_revendeur*quantite
+            obj.montant_marge_lot           = obj.prix_vente_lot - montant_total
+            obj.montant_marge_revendeur_lot = obj.prix_vente_revendeur_lot  - obj.prix_vente_lot
             obj.prix_vente                  = prix_vente/quantite
 
-            prix_vente_int = 10*ceil(obj.prix_vente/10)
-            obj.prix_vente_int = prix_vente_int
-            obj.prix_vente_lot = prix_vente_int * quantite
+
+
 
             tva = obj.devis_id.tax_id.amount
-            obj.montant_tva = obj.prix_vente_int * (tva/100)
-            obj.prix_vente_ttc =  obj.prix_vente_int + obj.montant_tva
+            obj.montant_tva = obj.prix_vente_remise * (tva/100)
+            obj.prix_vente_ttc =  obj.prix_vente_remise + obj.montant_tva
 
-            obj.prix_vente_revendeur    = prix_vente_revendeur/quantite
-            obj.montant_marge           = (prix_vente - montant_total)/quantite
-            obj.montant_marge_revendeur = (prix_vente_revendeur - prix_vente)/quantite
+            obj.prix_vente_revendeur    = prix_vente_revendeur
+            obj.montant_marge           = obj.prix_vente_remise - montant_unitaire
+            obj.montant_marge_revendeur = prix_vente_revendeur - obj.prix_vente_remise
 
 
     def acceder_variante_action(self):

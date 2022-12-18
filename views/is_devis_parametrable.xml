@@ -10,18 +10,21 @@
             <field name="arch" type="xml">
                 <tree >
                     <field name="partner_id"            optional="show"/>
+                    <field name="is_societe_commerciale_id" optional="show"/>
                     <field name="code_affare"           optional="show"/>
                     <field name="version"               optional="show"/>
                     <field name="name"/>
                     <field name="revendeur_id"          optional="show"/>
+                    <field name="charge_affaire"        optional="show"/>
+                    <field name="date_affaire"          optional="hide"/>
+                    <field name="conditions_particulieres" optional="hide"/>
+                    <field name="information_technique" optional="hide"/>
+                    <field name="conditions_reglement"  optional="hide"/>
                     <field name="delais"                optional="show"/>
                     <field name="duree_validite"        optional="show"/>
-                    <field name="conditions_generales"  optional="hide"/>
                     <field name="transport"             optional="hide"/>
-                    <field name="information_technique" optional="hide"/>
-                    <field name="acceptation_cgv"       optional="hide"/>
+                    <field name="conditions_generales"  optional="hide"/>
                     <field name="vendeur_id"            optional="hide"/>
-                    <field name="date_affaire"          optional="hide"/>
                 </tree>
             </field>
         </record>
@@ -44,25 +47,29 @@
                         </style>
                         <group>
                             <group>
+                                <field name="is_societe_commerciale_id"/>
                                 <field name="partner_id"/>
                                 <field name="name"/>
                                 <field name="code_affare"/>
+                                <field name="code_affare_force"/>
                                 <field name="version"/>
                                 <field name="revendeur_id"/>
-                                <field name="delais"/>
-                                <field name="duree_validite"/>
+                                <field name="charge_affaire"/>
+                                <field name="date_affaire"/>
                             </group>
                             <group>
                                 <field name="image_affaire" widget='image'/>
                             </group>
                         </group>
-                        <group string="Conditions générales">
-                            <field name="conditions_generales"/>
-                            <field name="transport"/>
+                        <group string="Conditions">
+                            <field name="conditions_particulieres"/>
                             <field name="information_technique"/>
-                            <field name="acceptation_cgv"/>
+                            <field name="conditions_reglement"/>
+                            <field name="delais"/>
+                            <field name="duree_validite"/>
+                            <field name="transport"/>
+                            <field name="conditions_generales"/>
                             <field name="vendeur_id"/>
-                            <field name="date_affaire"/>
                         </group>
                         <group string="Variantes des devis">
                             <field name="variante_ids" nolabel="1">
@@ -107,6 +114,7 @@
                     <field name="name"/>
                     <field name="partner_id"/>
                     <field name="revendeur_id"/>
+                    <field name="charge_affaire"/>
                </search>
             </field>
         </record>
@@ -131,10 +139,11 @@
                 <tree >
                     <field name="name" class="test_scss2"/>
                     <field name="version"/>
-                    <field name="partner_id"   optional="show"               class="test_scss"/>
-                    <field name="nom_affaire"  optional="show"               class="test_scss"/>
-                    <field name="type_cuve_id" optional="show"               class="test_scss"/>
-                    <field name="designation"  optional="show"               class="test_scss"/>
+                    <field name="is_societe_commerciale_id" optional="show"/>
+                    <field name="partner_id"             optional="show"     class="test_scss"/>
+                    <field name="nom_affaire"            optional="show"     class="test_scss"/>
+                    <field name="type_cuve_id"           optional="show"     class="test_scss"/>
+                    <field name="designation"            optional="show"     class="test_scss"/>
                     <field name="designation_complementaire" optional="show" class="test_scss"/>
                     <field name="capacite"         optional="show"/>
                     <field name="unite"            optional="show"/>
@@ -184,13 +193,21 @@
                             <group>
                                 <field name="name"/>
                                 <field name="version"/>
+                                <field name="is_societe_commerciale_id"/>
                                 <field name="partner_id"/>
                                 <field name="nom_affaire"/>
                                 <field name="type_cuve_id"/>
                                 <field name="designation"/>
                                 <field name="designation_complementaire"/>
-                                <field name="capacite" readonly="1"/>
-                                <field name="unite"/>
+                                <!-- <field name="capacite" readonly="1"/>
+                                <field name="unite"/> -->
+
+                                <label for="capacite" string="Capacité"/>
+                                <div class="d-flex">
+                                    <field name="capacite" readonly="1"/>
+                                    <span class="o_form_label mx-3"> </span>
+                                    <field name="unite"/>
+                                </div>
                             </group>
                             <group>
                                 <field name="tax_id"/>
@@ -242,12 +259,9 @@
                                         </tree>
                                     </field>
                                 </group>
-                                <div class="o_row no-gutters d-flex">
-                                    <label for="capacite"               class="oe_inline"/> : 
-                                    <field name="capacite" readonly="1" class="oe_inline"/>
-                                    <field name="unite"    readonly="1" class="oe_inline"/>
-                                </div>
-
+                                <group>
+                                    <field name="capacite_txt"/>
+                                </group>
                                 <group string="Options">
                                     <field name="options_ids" nolabel="1">
                                         <tree editable="bottom">
@@ -284,6 +298,7 @@
                                             <field name="devis_id" invisible="1"/>
                                             <field name="name"              optional="show"/>
                                             <field name="quantite"          optional="show"/>
+                                            <field name="cout_transport"    optional="show"/>
                                             <field name="marge_matiere"     optional="show"/>
                                             <field name="marge_equipement"  optional="show"/>
                                             <field name="marge_montage"     optional="show"/>
@@ -291,7 +306,8 @@
                                             <field name="marge_be"          optional="show"/>
                                             <field name="marge_revendeur"   optional="show"/>
                                             <field name="gain_productivite" optional="show"/>
-                                            <field name="cout_transport"    optional="show"/>
+                                            <field name="remise"            optional="hide"/>
+                                            <field name="remise_pourcent"   optional="hide"/>
 
                                             <field name="prix_vente_lot"              optional="show"/>
                                             <field name="prix_vente_revendeur_lot"    optional="hide"/>
@@ -366,11 +382,12 @@
             <field name="arch" type="xml">
                 <tree >
                     <field name="devis_id"/>
-                    <field name="partner_id"/>
-                    <field name="name"/>
-                    <field name="quantite"/>
-                    <field name="montant_unitaire"/>
-                    <field name="prix_vente"/>
+                    <field name="is_societe_commerciale_id" optional="show"/>
+                    <field name="partner_id" optional="show"/>
+                    <field name="name" optional="show"/>
+                    <field name="quantite" optional="show"/>
+                    <field name="montant_unitaire" optional="show"/>
+                    <field name="prix_vente" optional="show"/>
                 </tree>
             </field>
         </record>
@@ -405,8 +422,9 @@
                         </group>
                         <group>
                             <group string="Paramètres">
-                                <field name="devis_id"   readonly="1"/>
-                                <field name="partner_id" readonly="1"/>
+                                <field name="devis_id"               readonly="1"/>
+                                <field name="is_societe_commerciale_id" readonly="1"/>
+                                <field name="partner_id"             readonly="1"/>
                                 <field name="name"/>
                                 <field name="quantite"/>
                                 <field name="cout_horaire_montage"/>
@@ -418,6 +436,8 @@
                                 <field name="marge_be"/>
                                 <field name="marge_revendeur"/>
                                 <field name="gain_productivite"/>
+                                <field name="remise"/>
+                                <field name="remise_pourcent"/>
                             </group>
                             <group string="Temps unitaire">
                                 <field name="tps_montage"    widget="float_time"/>
@@ -486,6 +506,9 @@
                             <group string="Prix de vente unitaire">
                                 <field name="prix_vente"/>
                                 <field name="prix_vente_int"/>
+                                <field name="montant_remise" invisible="1"/>
+                                <field name="intitule_remise"    attrs="{'invisible':[('montant_remise','=',0)]}"/>
+                                <field name="prix_vente_remise"  attrs="{'invisible':[('montant_remise','=',0)]}"/>
                                 <field name="prix_vente_revendeur"/>
                                 <field name="montant_marge"/>
                                 <field name="montant_marge_revendeur"/>

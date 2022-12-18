@@ -15,8 +15,9 @@ class is_societe_commerciale(models.Model):
     _name = "is.societe.commerciale"
     _description = "Société commerciale"
 
-    name = fields.Char("Nom",required=True)
-    logo = fields.Binary("Logo", help="Logo utilisé dans les documents (ex : AR de commande)")
+    name   = fields.Char("Nom",required=True)
+    logo   = fields.Binary("Logo", help="Logo utilisé dans les documents (ex : AR de commande)")
+    slogan = fields.Char("Slogan")
 
 
 class sale_order(models.Model):

@@ -28,7 +28,7 @@
                             }
                         </style>
 
-                        <h1><span t-field="o.devis_id.designation"/></h1>
+                        <h1><span t-field="o.quantite"/> x <span t-field="o.devis_id.designation"/></h1>
                         <h2><span t-field="o.devis_id.designation_complementaire"/></h2>
                     
                         <table class="table table-sm o_main_table">
@@ -105,9 +105,19 @@
                             <div class="col-6 ml-auto">
                                 <table class="table table-sm o_main_table" style="page-break-inside: avoid;">
                                     <tr>
-                                        <td><strong>Prix unitaire hors taxes</strong></td>
+                                        <td><strong>Prix unitaire HT</strong></td>
                                         <td class="text-right"><span t-field="o.prix_vente_int"/> €</td>
                                     </tr>
+                                    <t t-if="o.montant_remise">
+                                        <tr>
+                                            <td><strong><span t-field="o.intitule_remise"/></strong></td>
+                                            <td class="text-right"><span t-field="o.montant_remise"/> €</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Prix unitaire avec remise HT</strong></td>
+                                            <td class="text-right"><span t-field="o.prix_vente_remise"/> €</td>
+                                        </tr>
+                                    </t>
                                     <!-- <tr>
                                         <td><strong>TVA</strong></td>
                                         <td class="text-right"><span t-field="o.montant_tva"/> €</td>
@@ -148,6 +158,7 @@
                             <thead>
                                 <tr>
                                     <th class="text-left">Description</th>
+                                    <th class="text-center">Capacité</th>
                                     <th class="text-right">Prix unitaire</th>
                                     <th class="text-center">Quantité prévue</th>
                                     <th class="text-right">Montant HT</th>
@@ -156,8 +167,9 @@
                             <tbody>
                                 <t t-foreach="o.variante_ids" t-as="variante">
                                     <tr style="border-bottom: 1px solid;">
-                                        <td class="text-left"><span t-field="variante.variante_id.name"/></td>
-                                        <td class="text-right"><span t-field="variante.variante_id.prix_vente_int"/> €</td>
+                                        <td class="text-left"><span t-field="variante.variante_id.devis_id.designation"/></td>
+                                        <td class="text-center"><span t-field="variante.variante_id.devis_id.capacite_txt"/></td>
+                                        <td class="text-right"><span t-field="variante.variante_id.prix_vente_remise"/> €</td>
                                         <td class="text-center"><span t-field="variante.variante_id.quantite"/></td>
                                         <td class="text-right"><span t-field="variante.variante_id.prix_vente_lot"/></td>
                                     </tr>
@@ -182,6 +194,18 @@
                                 </table>
                             </div>
                         </div>
+                        <t t-if="o.conditions_particulieres">
+                            <h3>Conditions particulières</h3>
+                            <div t-field="o.conditions_particulieres"/>
+                        </t>
+                        <t t-if="o.information_technique">
+                            <h3>Informations techniques</h3>
+                            <div t-field="o.information_technique"/>
+                        </t>
+                        <t t-if="o.conditions_reglement">
+                            <h3>Conditions de règlement</h3>
+                            <div t-field="o.conditions_reglement"/>
+                        </t>
                         <t t-if="o.delais">
                             <h3>Délais</h3>
                             <div t-field="o.delais"/>
@@ -190,36 +214,25 @@
                             <h3>Durée de validité de l'offre</h3>
                             <div t-field="o.duree_validite"/>
                         </t>
-                        <t t-if="o.conditions_generales">
-                            <h3>Conditions générales de ventes</h3>
-                            <div t-field="o.conditions_generales"/>
-                        </t>
                         <t t-if="o.transport">
                             <h3>Transport</h3>
                             <div t-field="o.transport"/>
                         </t>
-                        <t t-if="o.information_technique">
-                            <h3>Informations techniques</h3>
-                            <div t-field="o.information_technique"/>
-                        </t>
-                        <t t-if="o.acceptation_cgv">
-                            <h3>Acceptation CGV</h3>
-                            <div t-field="o.acceptation_cgv"/>
+                        <t t-if="o.conditions_generales">
+                            <h3>Conditions générales de ventes</h3>
+                            <div t-field="o.conditions_generales"/>
                         </t>
                         <t t-if="o.vendeur_id">
                             <h3>Vendeur</h3>
                             <div t-field="o.vendeur_id"/>
                         </t>
-
                         <t t-if="o.date_affaire">
                             <div>Fait à Saint-Amour le <span t-field="o.date_affaire"/></div>
                         </t>
-
                         <img t-if="o.vendeur_id.is_image_signature" t-att-src="image_data_uri(o.vendeur_id.is_image_signature)" style="max-height: 25mm;"/>
-
-
-
-
+                        <div style="text-align:center;margin-top:10mm">
+                            <img src='/is_bsa14/static/src/img/made-in-jura.jpg' style="height:30mm" />
+                        </div>
                     </div>
                 </t>
             </t>
@@ -232,13 +245,101 @@
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.external_layout">
-                    <div class="page text-center">
-
-                        <h1 class="text-center" t-field="o.name"/>
-
-                        <img class="text-center" t-if="o.image_affaire" t-att-src="image_data_uri(o.image_affaire)" style="max-height: 100mm;"/>
-
-
+                    <div class="page">
+                        <style>
+                            .o_report_layout_boxed .page > table:not(.o_main_table) tr td:last-child {
+                                background-color: white;
+                            }
+                            .o_report_layout_boxed table tbody tr td {
+                                border-right: none;
+                            }
+                            th, td {
+                                padding: 0.5rem;
+                                padding-left:0;
+                                line-height: 1.1;
+                                background-color : white;
+                                color:black;
+                                font-size:12pt;
+                                vertical-align: top;
+                            }
+                            td {
+                                white-space: nowrap;
+                            }
+                        </style>
+                        <t t-if="o.is_societe_commerciale_id.id">
+                            <div style="text-align:center">
+                                <img 
+                                    t-if="o.is_societe_commerciale_id.logo" 
+                                    t-att-src="image_data_uri(o.is_societe_commerciale_id.logo)" 
+                                    style="max-height:25mm;max-width:80mm;"
+                                />
+                                <div style="margin-top:1mm;font-size:11pt" t-field="o.is_societe_commerciale_id.slogan"/>
+                                <div style="margin-top:5mm;font-size:22pt;font-weight:bold;color:black">Offre de prix</div>
+                            </div>
+                        </t>
+                        <br />
+                        <table style="width:100%;border:none; border-top:1px solid black">
+                            <tr>
+                                <th style="width:35mm">Client : </th>
+                                <th style="font-size:14pt"><span t-field="o.partner_id.name"/></th>
+                                <t t-if="o.partner_id.image_1920">
+                                    <td rowspan="3" style="width:10mm;text-align:right">
+                                        <img  t-att-src="image_data_uri(o.partner_id.image_1920)" style="max-width:100mm;max-height:60mm;"/>
+                                    </td>
+                                </t>
+                            </tr>
+                            <tr>
+                                <th>À l'attention de : </th>
+                                <td><span t-field="o.charge_affaire"/></td>
+                            </tr>
+                            <tr>
+                                <th>Adresse : </th>
+                                <td>
+                                    <div t-field="o.partner_id.street"/>
+                                    <div t-if="o.partner_id.street2" t-field="o.partner_id.street2"/>
+                                    <span t-field="o.partner_id.zip"/> <span t-field="o.partner_id.city"/>
+                                </td>
+                            </tr>
+                        </table>
+                        <div style="height:10mm"/>
+                        <table style="width:100%;border:none; border-top:1px solid black">
+                            <tr>
+                                <th style="width:35mm;color:black">Devis N° : </th>
+                                <th style="font-size:14pt"><span t-field="o.code_affare"/></th>
+                                <t t-if="o.image_affaire">
+                                    <td rowspan="4" style="width:10mm;text-align:right">
+                                        <img  t-att-src="image_data_uri(o.image_affaire)" style="max-width:100mm;max-height:60mm;"/>
+                                    </td>
+                                </t>
+                            </tr>
+                            <tr>
+                                <th>Affaire : </th>
+                                <td><span t-field="o.name"/></td>
+                            </tr>
+                            <tr>
+                                <th>Date : </th>
+                                <td><span t-field="o.date_affaire"/></td>
+                            </tr>
+                            <tr>
+                                <th>Version : </th>
+                                <td><span t-field="o.version"/></td>
+                            </tr>
+                        </table>
+                        <div style="height:5mm"/>
+                        <div style="text-align:center;border-top: 1px solid black;border-bottom:1px solid black;">
+                            <div style="padding:2mm;font-size:22pt;font-weight:bold;color:black">Descriptif</div>
+                        </div>
+                        <div style="font-size:13pt;text-align:left;color:black;font-weight:bold;">
+                            <t t-foreach="o.variante_ids" t-as="variante">
+                                <div style="padding-top:5mm;padding-left:33mm">
+                                    - <span t-field="variante.variante_id.quantite"/> x 
+                                    <span t-field="variante.variante_id.devis_id.designation"/>
+                                </div>
+                            </t>
+                        </div>
+                        <div style="text-align:center;margin-top:10mm">
+                            <img src='/is_bsa14/static/src/img/made-in-jura.jpg' style="height:30mm" />
+                        </div>
                     </div>
                 </t>
             </t>

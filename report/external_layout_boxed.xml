@@ -2,9 +2,12 @@
 <odoo>
    <template id="is_external_layout_boxed" inherit_id="web.external_layout_boxed">
         <div class="o_boxed_header" position="replace">
+            <style>
+                .o_boxed_header {
+                    border-bottom: 0;
+                }
+            </style>
             <div class="o_boxed_header">
-
-
                 <t t-if="doc_model not in ['is.devis.parametrable.affaire']">
                     <div class="row mb8">
                         <t t-set="test"  t-value="1"/>

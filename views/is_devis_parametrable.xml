@@ -14,11 +14,11 @@
                     <field name="code_affare"           optional="show"/>
                     <field name="version"               optional="show"/>
                     <field name="name"/>
-                    <field name="revendeur_id"          optional="show"/>
-                    <field name="charge_affaire"        optional="show"/>
-                    <field name="date_affaire"          optional="hide"/>
-                    <field name="conditions_particulieres" optional="hide"/>
-                    <field name="information_technique" optional="hide"/>
+                    <field name="attention_de"               optional="show"/>
+                    <field name="date_affaire"               optional="hide"/>
+                    <field name="conditions_particulieres"   optional="hide"/>
+                    <field name="information_technique"      optional="hide"/>
+                    <field name="information_complementaire" optional="hide"/>
                     <field name="conditions_reglement"  optional="hide"/>
                     <field name="delais"                optional="show"/>
                     <field name="duree_validite"        optional="show"/>
@@ -53,8 +53,7 @@
                                 <field name="code_affare"/>
                                 <field name="code_affare_force"/>
                                 <field name="version"/>
-                                <field name="revendeur_id"/>
-                                <field name="charge_affaire"/>
+                                <field name="attention_de"/>
                                 <field name="date_affaire"/>
                             </group>
                             <group>
@@ -64,6 +63,7 @@
                         <group string="Conditions">
                             <field name="conditions_particulieres"/>
                             <field name="information_technique"/>
+                            <field name="information_complementaire"/>
                             <field name="conditions_reglement"/>
                             <field name="delais"/>
                             <field name="duree_validite"/>
@@ -113,8 +113,6 @@
                 <search>
                     <field name="name"/>
                     <field name="partner_id"/>
-                    <field name="revendeur_id"/>
-                    <field name="charge_affaire"/>
                </search>
             </field>
         </record>
@@ -180,6 +178,10 @@
                         <style>
                             .o_form_view .o_form_sheet_bg > .o_form_sheet{
                                 max-width: 1800px;
+                            }
+
+                            .modal-lg, .modal-xl{
+                                max-width: 1700px;
                             }
                             .o_form_label{
                                 white-space: nowrap;
@@ -268,8 +270,11 @@
                                             <field name="sequence" widget="handle" />
                                             <field name="devis_id" invisible="1"/>
                                             <field name="option_id"          class="test_scss"/>
-                                            <field name="description"        class="test_scss" optional="show"/>
-                                            <field name="description_client" class="test_scss" optional="show"/>
+                                            <field name="option_active"/>
+                                            <field name="option_comprise"/>
+                                            <field name="thermoregulation"    optional="hide"/>
+                                            <field name="description"         optional="show" class="test_scss" />
+                                            <field name="description_client"  optional="show" class="test_scss"/>
                                             <field name="valeur"              optional="show"/>
                                             <field name="quantite"            optional="show"/>
                                             <field name="prix"                optional="show"/>
@@ -279,6 +284,11 @@
                                         </tree>
                                     </field>
                                 </group>
+                                <group>
+                                    <field name="montant_option_active"/>
+                                    <field name="montant_option_comprise"/>
+                                    <field name="montant_option_thermo"/>
+                                </group>
                                 <group string="Sections des équipements">
                                     <field name="section_ids" nolabel="1" readonly="0">
                                         <tree>
@@ -286,7 +296,8 @@
                                             <button title="Section" name="acceder_section_action" type="object" icon="fa-search-plus"/>
                                             <field name="devis_id" invisible="1"/>
                                             <field name="section_id"/>
-                                            <field name="montant_total" sum="Total"/>
+                                            <field name="montant_total"            sum="Total"/>
+                                            <field name="montant_total_avec_marge" sum="Total"/>
                                             <field name="tps_montage"   sum="Total" widget="float_time"/>
                                         </tree>
                                     </field>
@@ -509,6 +520,8 @@
                                 <field name="montant_remise" invisible="1"/>
                                 <field name="intitule_remise"    attrs="{'invisible':[('montant_remise','=',0)]}"/>
                                 <field name="prix_vente_remise"  attrs="{'invisible':[('montant_remise','=',0)]}"/>
+                                <field name="prix_par_hl"/>
+                                <field name="afficher_prix_par_hl"/>
                                 <field name="prix_vente_revendeur"/>
                                 <field name="montant_marge"/>
                                 <field name="montant_marge_revendeur"/>
@@ -584,6 +597,7 @@
                                 <field name="date_achat"  optional="hide"/>
                                 <field name="montant"     optional="show" sum="Total"/>
                                 <field name="marge"       optional="show"/>
+                                <field name="montant_avec_marge" optional="show" sum="Total"/>
                                 <field name="tps_montage" optional="show" sum="Total" widget="float_time"/>
                             </tree>
                         </field>
@@ -887,10 +901,12 @@
             <field name="arch" type="xml">
                 <tree >
                     <field name="name"/>
+                    <field name="thermoregulation"/>
                     <field name="prix"/>
                     <field name="lien_valeur_id"/>
                     <field name="lien_quantite_id"/>
                     <field name="lien_entree2_id"/>
+                    <field name="lien_sortie2_id"/>
                     <field name="lien_sortie2_id"/>
                 </tree>
             </field>
@@ -908,6 +924,7 @@
                         </style>
                         <group>
                             <field name="name"/>
+                            <field name="thermoregulation"/>
                             <field name="prix"/>
                             <field name="lien_valeur_id"/>
                             <field name="lien_quantite_id"/>

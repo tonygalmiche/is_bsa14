@@ -25,6 +25,8 @@
                             }
                             .table-sm th, .table-sm td {
                                 padding: 0.1rem;
+                                padding-left:0.5em;
+                                padding-right:0.5em;
                             }
                         </style>
 
@@ -89,12 +91,24 @@
                                 </t>
                             </tbody>
                         </table>
-                        <t t-if="o.devis_id.options_ids">
+                        <t t-if="o.devis_id.montant_option_thermo">
+                            <h3>Thermorégulation : </h3>
+                            <table class="table table-sm o_main_table">
+                                <tbody>
+                                    <t t-foreach="o.devis_id.options_ids" t-as="option">
+                                        <tr t-if="option.option_active and option.thermoregulation" style="border-bottom: 1px solid;">
+                                            <td class="text-left">  <span t-field="option.description_client"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </t>
+                        <t t-if="o.devis_id.montant_option_comprise">
                             <h3>Options comprises : </h3>
                             <table class="table table-sm o_main_table">
                                 <tbody>
                                     <t t-foreach="o.devis_id.options_ids" t-as="option">
-                                        <tr style="border-bottom: 1px solid;">
+                                        <tr t-if="option.option_active and option.option_comprise and not option.thermoregulation" style="border-bottom: 1px solid;">
                                             <td class="text-left">  <span t-field="option.description_client"/></td>
                                         </tr>
                                     </t>
@@ -127,8 +141,23 @@
                                         <td class="text-right"><span t-field="o.prix_vente_ttc"/> €</td>
                                     </tr> -->
                                 </table>
+                                <div t-if="o.afficher_prix_par_hl" style="font-style: italic;">
+                                    Prix par HL : <span t-field="o.prix_par_hl"/> €
+                                </div>
                             </div>
                         </div>
+                        <t t-if="(o.devis_id.montant_option_active-o.devis_id.montant_option_comprise)>0">
+                            <h3>Autres Options non comprises : </h3>
+                            <table class="table table-sm o_main_table">
+                                <tbody>
+                                    <t t-foreach="o.devis_id.options_ids" t-as="option">
+                                        <tr t-if="option.option_active and not option.option_comprise " style="border-bottom: 1px solid;">
+                                            <td class="text-left">  <span t-field="option.description_client"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </t>
                     </div>
                 </t>
             </t>
@@ -202,6 +231,10 @@
                             <h3>Informations techniques</h3>
                             <div t-field="o.information_technique"/>
                         </t>
+                        <t t-if="o.information_complementaire">
+                            <h3>Informations complémentaires</h3>
+                            <div t-field="o.information_complementaire"/>
+                        </t>
                         <t t-if="o.conditions_reglement">
                             <h3>Conditions de règlement</h3>
                             <div t-field="o.conditions_reglement"/>
@@ -223,14 +256,14 @@
                             <div t-field="o.conditions_generales"/>
                         </t>
                         <t t-if="o.vendeur_id">
-                            <h3>Vendeur</h3>
+                            <h3>Chargé d'affaire</h3>
                             <div t-field="o.vendeur_id"/>
                         </t>
                         <t t-if="o.date_affaire">
                             <div>Fait à Saint-Amour le <span t-field="o.date_affaire"/></div>
                         </t>
                         <img t-if="o.vendeur_id.is_image_signature" t-att-src="image_data_uri(o.vendeur_id.is_image_signature)" style="max-height: 25mm;"/>
-                        <div style="text-align:center;margin-top:10mm">
+                        <div style="text-align:center;margin-top:5mm">
                             <img src='/is_bsa14/static/src/img/made-in-jura.jpg' style="height:30mm" />
                         </div>
                     </div>
@@ -254,7 +287,7 @@
                                 border-right: none;
                             }
                             th, td {
-                                padding: 0.5rem;
+                                padding: 0.2rem;
                                 padding-left:0;
                                 line-height: 1.1;
                                 background-color : white;
@@ -290,7 +323,7 @@
                             </tr>
                             <tr>
                                 <th>À l'attention de : </th>
-                                <td><span t-field="o.charge_affaire"/></td>
+                                <td><span t-field="o.attention_de"/></td>
                             </tr>
                             <tr>
                                 <th>Adresse : </th>
@@ -307,7 +340,7 @@
                                 <th style="width:35mm;color:black">Devis N° : </th>
                                 <th style="font-size:14pt"><span t-field="o.code_affare"/></th>
                                 <t t-if="o.image_affaire">
-                                    <td rowspan="4" style="width:10mm;text-align:right">
+                                    <td rowspan="5" style="width:10mm;text-align:right">
                                         <img  t-att-src="image_data_uri(o.image_affaire)" style="max-width:100mm;max-height:60mm;"/>
                                     </td>
                                 </t>
@@ -323,6 +356,10 @@
                             <tr>
                                 <th>Version : </th>
                                 <td><span t-field="o.version"/></td>
+                            </tr>
+                            <tr>
+                                <th>Chargé d'affaire : </th>
+                                <td><span t-field="o.vendeur_id.name"/></td>
                             </tr>
                         </table>
                         <div style="height:5mm"/>

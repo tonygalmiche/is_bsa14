@@ -24,21 +24,21 @@ class is_devis_parametrable_affaire(models.Model):
     code_affare          = fields.Char("Code de l'affaire", compute='_compute_code_affare', store=True, readonly=True, index=True)
     code_affare_force    = fields.Char("Code de l'affaire forcé")
     version              = fields.Char("Version")
+    attention_de         = fields.Char("A l'attention de")
     image_affaire        = fields.Binary("Image affaire")
     is_societe_commerciale_id = fields.Many2one("is.societe.commerciale", "Société commerciale", readonly=True, compute='_compute_is_societe_commerciale_id')
     partner_id           = fields.Many2one('res.partner', 'Revendeur / Client', required=True)
-    revendeur_id         = fields.Many2one('res.partner', 'Revendeur')
-    charge_affaire       = fields.Char("Chargé d'affaire")
     date_affaire         = fields.Date("Date affaire")
 
-    conditions_particulieres = fields.Text("Conditions particulières")
-    information_technique    = fields.Text("Informations techniques")
-    conditions_reglement     = fields.Text("Conditions de règlement")
-    delais                   = fields.Char("Délais")
-    duree_validite           = fields.Char("Durée de validité de l'offre")
-    transport                = fields.Text("Transport")
-    conditions_generales     = fields.Text("Conditions générales")
-    vendeur_id               = fields.Many2one('res.users', 'Vendeur')
+    conditions_particulieres   = fields.Text("Conditions particulières")
+    information_technique      = fields.Text("Informations techniques")
+    information_complementaire = fields.Text("Informations complémentaires")
+    conditions_reglement       = fields.Text("Conditions de règlement")
+    delais                     = fields.Char("Délais")
+    duree_validite             = fields.Char("Durée de validité de l'offre")
+    transport                  = fields.Text("Transport")
+    conditions_generales       = fields.Text("Conditions générales")
+    vendeur_id                 = fields.Many2one('res.users', "Chargé d'affaire")
 
     variante_ids = fields.One2many('is.devis.parametrable.affaire.variante', 'affaire_id', 'Variantes', copy=True)
 
@@ -64,7 +64,7 @@ class is_devis_parametrable_affaire(models.Model):
                     break
             obj.is_societe_commerciale_id = societe_id
  
- 
+
     @api.depends('create_date', 'partner_id', 'partner_id.is_code_client_affare','code_affare_force')
     def _compute_code_affare(self):
         for obj in self:
@@ -268,10 +268,19 @@ class is_devis_parametrable(models.Model):
     @api.depends('options_ids')
     def _compute_montant_option(self):
         for obj in self:
-            montant=0
+            montant=option_active=option_comprise=option_thermo=0
             for line in obj.options_ids:
                 montant+=line.montant
+                if line.option_active:
+                    option_active+=line.montant
+                if line.option_comprise:
+                    option_comprise+=line.montant
+                if line.option_active and line.thermoregulation:
+                    option_thermo+=line.montant
             obj.montant_option = montant
+            obj.montant_option_active   = option_active
+            obj.montant_option_comprise = option_comprise
+            obj.montant_option_thermo   = option_thermo
 
 
     @api.depends('capacite','unite')
@@ -330,6 +339,9 @@ class is_devis_parametrable(models.Model):
     total_equipement   = fields.Float("Total équipement"                     , store=False, readonly=True, compute='_compute_montant')
     montant_matiere    = fields.Float("Montant matière", store=False, readonly=True, compute='_compute_montant_matiere')
     montant_option     = fields.Float("Montant options", store=False, readonly=True, compute='_compute_montant_option')
+    montant_option_active   = fields.Float("Montant options actives"  , store=False, readonly=True, compute='_compute_montant_option')
+    montant_option_comprise = fields.Float("Montant options comprises", store=False, readonly=True, compute='_compute_montant_option')
+    montant_option_thermo   = fields.Float("Montant options Thermorégulation", store=False, readonly=True, compute='_compute_montant_option')
     commentaire        = fields.Text("Commentaire")
 
 
@@ -573,7 +585,6 @@ class is_devis_parametrable_option(models.Model):
     _description = "Options du devis paramètrable"
     _order='sequence,id'
 
-
     devis_id           = fields.Many2one('is.devis.parametrable', 'Devis', required=True, ondelete='cascade')
     sequence           = fields.Integer("Sequence")
     option_id          = fields.Many2one('is.option', 'Option')
@@ -585,6 +596,9 @@ class is_devis_parametrable_option(models.Model):
     montant            = fields.Float("Montant", store=True, readonly=True, compute='_compute_montant')
     entree2            = fields.Float("Entrée 2")
     sortie2            = fields.Float("Sortie 2")
+    option_active      = fields.Boolean("Active"  , default=True)
+    option_comprise    = fields.Boolean("Comprise", default=True)
+    thermoregulation   = fields.Boolean("Thermo.", help="Thermorégulation", related="option_id.thermoregulation")
 
 
     @api.onchange('option_id')
@@ -627,10 +641,12 @@ class is_devis_parametrable_section(models.Model):
     @api.depends('product_ids')
     def _compute_montant(self):
         for obj in self:
-            montant=0
+            montant=montant_avec_marge=0
             for line in obj.product_ids:
                 montant+=line.montant
+                montant_avec_marge+=line.montant_avec_marge
             obj.montant_total = montant
+            obj.montant_total_avec_marge = montant_avec_marge
 
     @api.depends('product_ids')
     def _compute_tps_montage(self):
@@ -645,6 +661,7 @@ class is_devis_parametrable_section(models.Model):
     section_id    = fields.Many2one('is.section.devis', "Section")
     product_ids   = fields.One2many('is.devis.parametrable.section.product', 'section_id', 'Articles', copy=True)
     montant_total = fields.Float("Total", store=True, readonly=True, compute='_compute_montant')
+    montant_total_avec_marge = fields.Float("Total avec marge", store=True, readonly=True, compute='_compute_montant')
     tps_montage   = fields.Float("Tps (HH:MM)", help="Temps de montage (HH:MM)", store=True, readonly=True, compute='_compute_tps_montage')
 
 
@@ -676,13 +693,16 @@ class is_devis_parametrable_section_product(models.Model):
             obj.description = obj.product_id.is_description_devis
 
 
-    @api.depends('product_id','quantite','prix')
+    @api.depends('product_id','quantite','prix','marge')
     def _compute_montant(self):
         for obj in self:
-            montant=0
+            montant=montant_avec_marge=0
             if obj.prix and obj.quantite:
                 montant = obj.prix*obj.quantite
+            if montant:
+                montant_avec_marge = montant+montant*obj.marge/100
             obj.montant = montant
+            obj.montant_avec_marge = montant_avec_marge
 
 
     @api.depends('product_id','quantite','prix')
@@ -721,6 +741,7 @@ class is_devis_parametrable_section_product(models.Model):
     prix               = fields.Float("Prix", help="Prix d'achat")
     date_achat         = fields.Date("Date"    , store=True, readonly=True, compute='_compute_date_achat', help="Date du dernier achat")
     montant            = fields.Float("Montant", store=True, readonly=True, compute='_compute_montant')
+    montant_avec_marge = fields.Float("Montant avec marge", store=True, readonly=True, compute='_compute_montant')
     tps_montage        = fields.Float("Tps (HH:MM)", help="Temps de montage (HH:MM)", store=True, readonly=True, compute='_compute_tps_montage')
 
 
@@ -783,6 +804,8 @@ class is_devis_parametrable_variante(models.Model):
     prix_vente               = fields.Monetary("Prix de vente HT"          , readonly=True, compute='_compute_montants', currency_field='currency_id')
     prix_vente_int           = fields.Integer("Prix de vente HT (arrondi)" , readonly=True, compute='_compute_montants')
     prix_vente_remise        = fields.Integer("Prix de vente remisé"       , readonly=True, compute='_compute_montants')
+    prix_par_hl              = fields.Integer("Prix par HL"                , readonly=True, compute='_compute_montants')
+    afficher_prix_par_hl     = fields.Boolean("Afficher prix par HL", default=False)
     montant_tva              = fields.Integer("TVA"                        , readonly=True, compute='_compute_montants')
     prix_vente_ttc           = fields.Integer("Prix de vente TTC"          , readonly=True, compute='_compute_montants')
 
@@ -815,7 +838,7 @@ class is_devis_parametrable_variante(models.Model):
             tps_montage        = obj.devis_id.tps_total*quantite
             montant_matiere    = obj.devis_id.montant_matiere*quantite
             montant_equipement = obj.devis_id.total_equipement*quantite
-            montant_option     = obj.devis_id.montant_option*quantite
+            montant_option     = obj.devis_id.montant_option_comprise*quantite
             montant_montage    = tps_montage*obj.cout_horaire_montage
             montant_montage_productivite = montant_montage-montant_montage*obj.gain_productivite/100
             montant_be         = obj.tps_be * obj.cout_horaire_be
@@ -901,6 +924,12 @@ class is_devis_parametrable_variante(models.Model):
             obj.intitule_remise = intitule_remise
             
             obj.prix_vente_remise = prix_vente_int - montant_remise
+
+            prix_par_hl=False
+            if obj.devis_id.capacite>0:
+                prix_par_hl=obj.prix_vente_remise/obj.devis_id.capacite
+            obj.prix_par_hl = prix_par_hl
+
 
             obj.prix_vente_lot = obj.prix_vente_remise * quantite
 
@@ -1274,4 +1303,5 @@ class is_option(models.Model):
     lien_quantite_id = fields.Many2one('is.lien.odoo.excel', 'Lien Odoo Excel Quantité (Sortie)')
     lien_entree2_id  = fields.Many2one('is.lien.odoo.excel', 'Lien Odoo Excel Entrée 2')
     lien_sortie2_id  = fields.Many2one('is.lien.odoo.excel', 'Lien Odoo Excel Sortie 2')
+    thermoregulation = fields.Boolean("Thermorégulation", default=False)
 

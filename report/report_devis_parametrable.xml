@@ -103,7 +103,7 @@
                                 </tbody>
                             </table>
                         </t>
-                        <t t-if="o.devis_id.montant_option_comprise">
+                        <t t-if="(o.devis_id.montant_option_comprise-o.devis_id.montant_option_thermo)>0">
                             <h3>Options comprises : </h3>
                             <table class="table table-sm o_main_table">
                                 <tbody>

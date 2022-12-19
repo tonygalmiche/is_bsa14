@@ -80,11 +80,17 @@
                                         name="variante_id"
                                         domain="[('partner_id','=',parent.partner_id)]"
                                     />
+                                    <field name="capacite" sum="Total"/>
+                                    <field name="unite"/>
                                 </tree>
                             </field>
                         </group>
                         <group>
                             <field name="montant_ht" />
+
+                            <field name="capacite"    attrs="{'invisible':[('capacite','=',0)]}"/>
+                            <field name="prix_par_hl" attrs="{'invisible':[('capacite','=',0)]}"/>
+
                             <field name="tax_id"/>
                             <field name="montant_tva"/>
                             <field name="montant_ttc"/>
@@ -278,7 +284,8 @@
                                             <field name="valeur"              optional="show"/>
                                             <field name="quantite"            optional="show"/>
                                             <field name="prix"                optional="show"/>
-                                            <field name="montant" sum="Total" optional="show"/>
+                                            <field name="montant"     sum="Total" optional="show"/>
+                                            <field name="montant_int" sum="Total" optional="hide"/>
                                             <field name="entree2"             optional="show"/>
                                             <field name="sortie2"             optional="show"/>
                                         </tree>
@@ -434,6 +441,8 @@
                         <group>
                             <group string="Paramètres">
                                 <field name="devis_id"               readonly="1"/>
+                                <field name="capacite"               invisible="1"/>
+                                <field name="unite"                  invisible="1"/>
                                 <field name="is_societe_commerciale_id" readonly="1"/>
                                 <field name="partner_id"             readonly="1"/>
                                 <field name="name"/>

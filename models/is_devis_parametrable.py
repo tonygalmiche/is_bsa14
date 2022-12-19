@@ -45,6 +45,10 @@ class is_devis_parametrable_affaire(models.Model):
     tax_id      = fields.Many2one('account.tax', 'TVA à appliquer', readonly=True)
     currency_id = fields.Many2one('res.currency', "Devise", readonly=True, compute='_compute_montants')
     montant_ht  = fields.Monetary("Montant HT" , readonly=True, compute='_compute_montants')
+
+    capacite          = fields.Integer("Capacité totale (HL)", compute='_compute_capacite', store=False, readonly=True)
+    prix_par_hl       = fields.Integer("Prix par HL"         , compute='_compute_capacite', store=False, readonly=True)
+
     montant_tva = fields.Monetary("TVA"        , readonly=True, compute='_compute_montants')
     montant_ttc = fields.Monetary("Montant TTC", readonly=True, compute='_compute_montants')
 
@@ -52,6 +56,23 @@ class is_devis_parametrable_affaire(models.Model):
     recapitulatif_ids = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_recapitulatif_rel', 'affaire_id', 'attachment_id', 'Récapitulatif')
     pied_ids          = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_pied_rel'         , 'affaire_id', 'attachment_id', 'Pied')
     devis_ids         = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_devis_rel'        , 'affaire_id', 'attachment_id', 'Devis')
+
+
+    @api.depends('variante_ids')
+    def _compute_capacite(self):
+        for obj in self:
+            capacite=0
+            for line in obj.variante_ids:
+                if line.unite!="HL":
+                    capacite=0
+                    break
+                else:
+                    capacite+=line.capacite
+            prix_par_hl=0
+            if capacite>0:
+                prix_par_hl = obj.montant_ht/capacite
+            obj.capacite    = capacite
+            obj.prix_par_hl = prix_par_hl
 
 
     @api.depends('variante_ids')
@@ -235,7 +256,8 @@ class is_devis_parametrable_affaire_variante(models.Model):
 
     affaire_id  = fields.Many2one('is.devis.parametrable.affaire', 'Affaire', required=True, ondelete='cascade')
     variante_id = fields.Many2one('is.devis.parametrable.variante', 'Variante')
-
+    capacite    = fields.Integer("Capacité", related="variante_id.capacite", readonly=True)
+    unite       = fields.Selection(related="variante_id.unite", readonly=True)
 
     def acceder_variante_action(self):
         for obj in self:
@@ -593,7 +615,8 @@ class is_devis_parametrable_option(models.Model):
     valeur             = fields.Float("Valeur"     , help="Donnée d'entrée du calculateur")
     quantite           = fields.Float("Quantitée"  , help="Donnée de sortie du calculateur")
     prix               = fields.Float("Prix"       , help="Prix unitaire de l'option")
-    montant            = fields.Float("Montant", store=True, readonly=True, compute='_compute_montant')
+    montant            = fields.Float("Montant"            , store=True, readonly=True, compute='_compute_montant')
+    montant_int        = fields.Integer("Montant (arrondi)", store=True, readonly=True, compute='_compute_montant')
     entree2            = fields.Float("Entrée 2")
     sortie2            = fields.Float("Sortie 2")
     option_active      = fields.Boolean("Active"  , default=True)
@@ -614,7 +637,9 @@ class is_devis_parametrable_option(models.Model):
             montant=0
             if obj.prix and obj.quantite:
                 montant = obj.prix*obj.quantite
-            obj.montant = montant
+            montant_int = 10*ceil(montant/10)
+            obj.montant     = montant
+            obj.montant_int = montant_int
 
 
     @api.depends('description','valeur','quantite','prix','montant','entree2','sortie2')
@@ -754,6 +779,9 @@ class is_devis_parametrable_variante(models.Model):
     name              = fields.Char("Nom", required=True)
     description       = fields.Text("Description", readonly=True, compute='_compute_description')
     partner_id        = fields.Many2one('res.partner', "Client", related="devis_id.partner_id", readonly=True)
+    capacite          = fields.Integer("Capacité", related="devis_id.capacite", readonly=True)
+    unite             = fields.Selection(related="devis_id.unite", readonly=True)
+
     is_societe_commerciale_id = fields.Many2one("is.societe.commerciale", "Société commerciale", related="devis_id.is_societe_commerciale_id", readonly=True)
     quantite          = fields.Integer("Qt prévue")
     currency_id       = fields.Many2one('res.currency', "Devise", readonly=True, compute='_compute_montants')

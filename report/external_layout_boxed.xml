@@ -8,7 +8,8 @@
                 }
             </style>
             <div class="o_boxed_header">
-                <t t-if="doc_model not in ['is.devis.parametrable.affaire']">
+                <!-- <t t-if="doc_model not in ['is.devis.parametrable.affaire']"> -->
+                <t t-if="xmlid not in ['is_bsa14.report_devis_parametrable_affaire_entete']">
                     <div class="row mb8">
                         <t t-set="test"  t-value="1"/>
                         <t t-if="'is_societe_commerciale_id' in o._fields">

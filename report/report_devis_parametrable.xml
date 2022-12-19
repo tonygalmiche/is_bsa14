@@ -109,7 +109,7 @@
                                 <tbody>
                                     <t t-foreach="o.devis_id.options_ids" t-as="option">
                                         <tr t-if="option.option_active and option.option_comprise and not option.thermoregulation" style="border-bottom: 1px solid;">
-                                            <td class="text-left">  <span t-field="option.description_client"/></td>
+                                            <td class="text-left"> <span t-field="option.description_client"/></td>
                                         </tr>
                                     </t>
                                 </tbody>
@@ -120,7 +120,7 @@
                                 <table class="table table-sm o_main_table" style="page-break-inside: avoid;">
                                     <tr>
                                         <td><strong>Prix unitaire HT</strong></td>
-                                        <td class="text-right"><span t-field="o.prix_vente_int"/> €</td>
+                                        <td class="text-right" style="width:40mm"><span t-field="o.prix_vente_int"/> €</td>
                                     </tr>
                                     <t t-if="o.montant_remise">
                                         <tr>
@@ -153,6 +153,7 @@
                                     <t t-foreach="o.devis_id.options_ids" t-as="option">
                                         <tr t-if="option.option_active and not option.option_comprise " style="border-bottom: 1px solid;">
                                             <td class="text-left">  <span t-field="option.description_client"/></td>
+                                            <td class="text-right" style="width:40mm"><span t-field="option.montant_int"/> € HT</td>
                                         </tr>
                                     </t>
                                 </tbody>
@@ -221,6 +222,9 @@
                                         <td class="text-right"><span t-field="o.montant_ttc"/></td>
                                     </tr>
                                 </table>
+                                <div t-if="o.capacite" style="font-style: italic;">
+                                    Capacité totale de <span t-field="o.capacite"/>HL soit <span t-field="o.prix_par_hl"/> € HT par HL
+                                </div>
                             </div>
                         </div>
                         <t t-if="o.conditions_particulieres">
@@ -364,7 +368,7 @@
                         </table>
                         <div style="height:5mm"/>
                         <div style="text-align:center;border-top: 1px solid black;border-bottom:1px solid black;">
-                            <div style="padding:2mm;font-size:22pt;font-weight:bold;color:black">Descriptif</div>
+                            <div style="padding:2mm;font-size:22pt;font-weight:bold;color:black">Descriptif de l'affaire</div>
                         </div>
                         <div style="font-size:13pt;text-align:left;color:black;font-weight:bold;">
                             <t t-foreach="o.variante_ids" t-as="variante">

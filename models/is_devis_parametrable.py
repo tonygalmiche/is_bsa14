@@ -67,7 +67,7 @@ class is_devis_parametrable_affaire(models.Model):
                     capacite=0
                     break
                 else:
-                    capacite+=line.capacite
+                    capacite+=line.capacite*line.variante_id.quantite
             prix_par_hl=0
             if capacite>0:
                 prix_par_hl = obj.montant_ht/capacite

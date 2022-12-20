@@ -798,7 +798,7 @@ class is_devis_parametrable_variante(models.Model):
     cout_transport    = fields.Monetary("Coût du transport", currency_field='currency_id')
 
     marge_matiere     = fields.Float("Marge matière (%)")
-    marge_equipement  = fields.Float("Marge équipement (%)")
+    marge_equipement  = fields.Float("Marge équipements & options (%)")
     marge_montage     = fields.Float("Marge MO (%)")
     marge_be          = fields.Float("Marge BE (%)")
     marge_revendeur   = fields.Float("Marge revendeur (%)")
@@ -909,16 +909,10 @@ class is_devis_parametrable_variante(models.Model):
 
             prix_vente  = montant_matiere*(1+obj.marge_matiere/100)
             prix_vente += montant_equipement_marge
-            prix_vente += montant_option
+            prix_vente += montant_option*(1+obj.marge_equipement/100)
             prix_vente += montant_montage_productivite*(1+obj.marge_montage/100)
             prix_vente += montant_be*(1+obj.marge_be/100)
             prix_vente += montant_transport
-
-
-
-
-
-
 
 
             obj.montant_matiere    = montant_matiere
@@ -994,6 +988,14 @@ class is_devis_parametrable_variante(models.Model):
                 'type': 'ir.actions.act_window',
             }
             return res
+
+
+    def get_montant_option(self,option):
+        montant=0
+        for obj in self:
+            montant = option.montant*(1+obj.marge_equipement/100)
+            montant = 10*ceil(montant/10)
+        return montant
 
 
 class is_type_equipement(models.Model):

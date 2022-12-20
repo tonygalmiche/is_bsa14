@@ -153,7 +153,8 @@
                                     <t t-foreach="o.devis_id.options_ids" t-as="option">
                                         <tr t-if="option.option_active and not option.option_comprise " style="border-bottom: 1px solid;">
                                             <td class="text-left">  <span t-field="option.description_client"/></td>
-                                            <td class="text-right" style="width:40mm"><span t-field="option.montant_int"/> € HT</td>
+                                            <!-- <td class="text-right" style="width:40mm"><span t-field="option.montant_int"/> € HT</td> -->
+                                            <td class="text-right" style="width:40mm"><span t-esc="o.get_montant_option(option)"/> € HT</td>
                                         </tr>
                                     </t>
                                 </tbody>

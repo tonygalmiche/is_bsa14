@@ -837,9 +837,10 @@ class is_devis_parametrable_variante(models.Model):
     montant_tva              = fields.Integer("TVA"                        , readonly=True, compute='_compute_montants')
     prix_vente_ttc           = fields.Integer("Prix de vente TTC"          , readonly=True, compute='_compute_montants')
 
-    prix_vente_revendeur     = fields.Monetary("Prix de vente revendeur", readonly=True, compute='_compute_montants', currency_field='currency_id')
-    montant_marge            = fields.Monetary("Marge"                  , readonly=True, compute='_compute_montants', currency_field='currency_id')
-    montant_marge_revendeur  = fields.Monetary("Marge revendeur"        , readonly=True, compute='_compute_montants', currency_field='currency_id')
+    prix_vente_revendeur     = fields.Monetary("Prix de vente revendeur"   , readonly=True, compute='_compute_montants', currency_field='currency_id')
+    montant_marge            = fields.Monetary("Marge"                     , readonly=True, compute='_compute_montants', currency_field='currency_id')
+    taux_marge_commerciale   = fields.Float("Taux de marge commerciale (%)", readonly=True, compute='_compute_montants')
+    montant_marge_revendeur  = fields.Monetary("Marge revendeur"           , readonly=True, compute='_compute_montants', currency_field='currency_id')
 
     commentaire              = fields.Text("Commentaire")
 
@@ -977,6 +978,9 @@ class is_devis_parametrable_variante(models.Model):
 
             obj.prix_vente_revendeur    = prix_vente_revendeur
             obj.montant_marge           = obj.prix_vente_remise - montant_unitaire
+
+            obj.taux_marge_commerciale  = 100*obj.montant_marge / obj.prix_vente_remise
+
             obj.montant_marge_revendeur = prix_vente_revendeur - obj.prix_vente_remise
 
 

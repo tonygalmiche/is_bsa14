@@ -332,8 +332,9 @@
                                             <field name="montant_marge_lot"           optional="hide"/>
                                             <field name="montant_marge_revendeur_lot" optional="hide"/>
                                             <field name="prix_vente"                  optional="show"/>
-                                            <field name="prix_vente_revendeur"        optional="hide"/>
                                             <field name="montant_marge"               optional="hide"/>
+                                            <field name="taux_marge_commerciale"      optional="hide"/>
+                                            <field name="prix_vente_revendeur"        optional="hide"/>
                                             <field name="montant_marge_revendeur"     optional="hide"/>
                                         </tree>
                                     </field>
@@ -404,8 +405,10 @@
                     <field name="partner_id" optional="show"/>
                     <field name="name" optional="show"/>
                     <field name="quantite" optional="show"/>
-                    <field name="montant_unitaire" optional="show"/>
-                    <field name="prix_vente" optional="show"/>
+                    <field name="montant_unitaire"       optional="show"/>
+                    <field name="prix_vente"             optional="show"/>
+                    <field name="montant_marge"          optional="show"/>
+                    <field name="taux_marge_commerciale" optional="show"/>
                 </tree>
             </field>
         </record>
@@ -531,8 +534,9 @@
                                 <field name="prix_vente_remise"  attrs="{'invisible':[('montant_remise','=',0)]}"/>
                                 <field name="prix_par_hl"/>
                                 <field name="afficher_prix_par_hl"/>
-                                <field name="prix_vente_revendeur"/>
                                 <field name="montant_marge"/>
+                                <field name="taux_marge_commerciale"/>
+                                <field name="prix_vente_revendeur"/>
                                 <field name="montant_marge_revendeur"/>
                             </group>
                          </group>

@@ -798,7 +798,8 @@ class is_devis_parametrable_variante(models.Model):
     cout_transport    = fields.Monetary("Coût du transport", currency_field='currency_id')
 
     marge_matiere     = fields.Float("Marge matière (%)")
-    marge_equipement  = fields.Float("Marge équipements & options (%)")
+    marge_equipement  = fields.Float("Marge équipements (%)")
+    marge_option      = fields.Float("Marge options (%)")
     marge_montage     = fields.Float("Marge MO (%)")
     marge_be          = fields.Float("Marge BE (%)")
     marge_revendeur   = fields.Float("Marge revendeur (%)")
@@ -857,7 +858,7 @@ class is_devis_parametrable_variante(models.Model):
             obj.description=r
 
 
-    @api.depends('remise','remise_pourcent','quantite','marge_matiere','marge_equipement','marge_montage','tps_be','marge_be','marge_revendeur','gain_productivite','cout_horaire_montage','cout_horaire_be')
+    @api.depends('remise','remise_pourcent','quantite','marge_matiere','marge_equipement','marge_option','marge_montage','tps_be','marge_be','marge_revendeur','gain_productivite','cout_horaire_montage','cout_horaire_be')
     def _compute_montants(self):
         company = self.env.user.company_id
         for obj in self:
@@ -909,7 +910,7 @@ class is_devis_parametrable_variante(models.Model):
 
             prix_vente  = montant_matiere*(1+obj.marge_matiere/100)
             prix_vente += montant_equipement_marge
-            prix_vente += montant_option*(1+obj.marge_equipement/100)
+            prix_vente += montant_option*(1+obj.marge_option/100)
             prix_vente += montant_montage_productivite*(1+obj.marge_montage/100)
             prix_vente += montant_be*(1+obj.marge_be/100)
             prix_vente += montant_transport
@@ -993,7 +994,7 @@ class is_devis_parametrable_variante(models.Model):
     def get_montant_option(self,option):
         montant=0
         for obj in self:
-            montant = option.montant*(1+obj.marge_equipement/100)
+            montant = option.montant*(1+obj.marge_option/100)
             montant = 10*ceil(montant/10)
         return montant
 

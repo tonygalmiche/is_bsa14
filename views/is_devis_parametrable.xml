@@ -319,6 +319,7 @@
                                             <field name="cout_transport"    optional="show"/>
                                             <field name="marge_matiere"     optional="show"/>
                                             <field name="marge_equipement"  optional="show"/>
+                                            <field name="marge_option"      optional="show"/>
                                             <field name="marge_montage"     optional="show"/>
                                             <field name="tps_be"            optional="show" widget="float_time"/>
                                             <field name="marge_be"          optional="show"/>
@@ -455,6 +456,7 @@
                                 <field name="cout_transport"/>
                                 <field name="marge_matiere"/>
                                 <field name="marge_equipement"/>
+                                <field name="marge_option"/>
                                 <field name="marge_montage"/>
                                 <field name="marge_be"/>
                                 <field name="marge_revendeur"/>

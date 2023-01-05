@@ -179,9 +179,17 @@
                             type="object"
                             string="Actualiser les prix"
                         />
+                        <button
+                            name="recalculer_action"
+                            type="object"
+                            string="Actualiser le calculateur"
+                        />
                     </header>
                     <sheet>
                         <style>
+                            body{
+                                line-height:1.2;
+                            }
                             .o_form_view .o_form_sheet_bg > .o_form_sheet{
                                 max-width: 1800px;
                             }
@@ -230,6 +238,31 @@
                         </group>
                         <notebook>
                             <page string="Devis">
+
+                                <group string="Dimensions">
+                                    <field name="dimension_ids" nolabel="1">
+                                        <tree editable="bottom">
+                                            <field name="sequence" widget="handle" />
+                                            <field name="devis_id" invisible="1"/>
+                                            <field name="dimension_id"/>
+                                            <field name="valeur"/>
+                                            <field name="description"/>
+                                            <field name="imprimer"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                                <!-- <group>
+                                    <field name="capacite_txt"/>
+                                </group>
+                                <group>
+                                    <button
+                                        name="recalculer_action"
+                                        type="object"
+                                        string="Actualiser le calculateur"
+                                    />
+                                </group>
+ -->
+
                                 <group>
                                     <group string="Temps">
                                         <field name="tps_montage"    widget="float_time" readonly="1" />
@@ -254,21 +287,6 @@
                                             <field name="montant" sum="Total"/>
                                         </tree>
                                     </field>
-                                </group>
-                                <group string="Dimensions">
-                                    <field name="dimension_ids" nolabel="1">
-                                        <tree editable="bottom">
-                                            <field name="sequence" widget="handle" />
-                                            <field name="devis_id" invisible="1"/>
-                                            <field name="dimension_id"/>
-                                            <field name="valeur"/>
-                                            <field name="description"/>
-                                            <field name="imprimer"/>
-                                        </tree>
-                                    </field>
-                                </group>
-                                <group>
-                                    <field name="capacite_txt"/>
                                 </group>
                                 <group string="Options">
                                     <field name="options_ids" nolabel="1">

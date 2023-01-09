@@ -131,6 +131,17 @@
 
 
         <!-- stock.move -->
+        <record id="is_view_move_search" model="ir.ui.view">
+            <field name="name">is_view_move_search</field>
+            <field name="model">stock.move</field>
+            <field name="inherit_id" ref="stock.view_move_search"/>
+            <field name="arch" type="xml">
+                <field name="partner_id" position="after">
+                    <field name="origin"/>
+                    <field name="picking_id"/>
+                </field>
+            </field>
+        </record>
         <record id="is_stock_view_move_form" model="ir.ui.view">
             <field name="name">is_stock_view_move_form</field>
             <field name="model">stock.move</field>
@@ -231,6 +242,52 @@
                 ('picking_id','!=',False)
             ]</field>
             <field name="limit">1000</field>
+        </record>
+
+
+
+        <record id="is_correction_lien_ligne_commande_ligne_bl_tree_view" model="ir.ui.view">
+            <field name="name">is_correction_lien_ligne_commande_ligne_bl_tree_view</field>
+            <field name="model">stock.move</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="date"           optional="show" readonly="1"/>
+                    <field name="date_deadline"  optional="hide" readonly="1"/>
+                    <field name="origin"         optional="hide"/>
+                    <field name="product_id"    widget="many2one_clickable"/>
+                    <field name="product_uom_qty"/>
+                    <field name="product_uom"    optional="show" readonly="1"/>
+                    <field name="picking_partner_id"    widget="many2one_clickable" string="Fournisseur" readonly="1"/>
+                    <field name="picking_id"    widget="many2one_clickable"/>
+                    <field name="sale_line_id"     optional="show" widget="many2one_clickable"/>
+                    <field name="purchase_line_id" optional="hide" widget="many2one_clickable"/>
+                    <field name="create_uid"       optional="hide"/>
+                    <field name="write_uid"        optional="hide"/>
+                    <field name="create_date"      optional="hide"/>
+                    <field name="write_date"       optional="hide"/>
+                    <field name="company_id" invisible="1"/>
+                    <field name="product_uom_category_id" invisible="1"/>
+                    
+                    <field 
+                        name="state" 
+                        optional="hide" 
+                        widget="badge" decoration-success="state == 'done'" decoration-info="state not in ('done', 'cancel')"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_correction_lien_ligne_commande_ligne_bl_action" model="ir.actions.act_window">
+            <field name="name">Correction lien ligne commande / ligne livraison</field>
+            <field name="res_model">stock.move</field>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="is_correction_lien_ligne_commande_ligne_bl_tree_view"/>
+            <field name="domain">[
+                ('state','not in',['draft','cancel']),
+                ('picking_id','!=',False)
+            ]</field>
+            <field name="limit">100</field>
+            <field name="search_view_id" ref="is_view_move_search"/>
+
+
         </record>
 
 

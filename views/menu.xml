@@ -370,6 +370,17 @@
             parent="account.menu_finance_receivables" 
             sequence="810"
         />
+
+        <menuitem   
+            name="Correction lien ligne commande / ligne livraison"
+            action="is_correction_lien_ligne_commande_ligne_bl_action"  
+            id="is_correction_lien_ligne_commande_ligne_bl_menu" 
+            parent="account.menu_finance_receivables" 
+            sequence="812"
+        />
+
+
+
         <menuitem   
             action="is_export_vente_compta_action"  
             id="is_export_vente_compta_menu" 

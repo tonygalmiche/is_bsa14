@@ -14,6 +14,8 @@ class is_fiche_controle(models.Model):
     product_id         = fields.Many2one('product.product', 'Article', required=True)
     date_creation      = fields.Date("Date de création"              , required=True, default=lambda *a: fields.Date.today())
     createur_id        = fields.Many2one('res.users', 'Créateur'     , required=True, default=lambda self: self.env.user.id)
+    controleur_id      = fields.Many2one('res.users', 'Contrôleur fabrication')
+    soudeur_id         = fields.Many2one('res.users', 'Soudeur')
     ligne_ids          = fields.One2many('is.fiche.controle.ligne', 'fiche_id', u'Lignes')
     observation        = fields.Text("Observations")
 

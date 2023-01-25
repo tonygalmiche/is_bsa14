@@ -9,9 +9,11 @@
                              <h2>Fiche de contrôle <span t-field="o.name"/></h2>
                             <table class="table table-condensed">
                               <tbody>
-                                  <tr><th><strong>Article            </strong></th><td><span t-field="o.product_id.name"/></td></tr>
-                                  <tr><th><strong>Date de création   </strong></th><td><span t-field="o.date_creation"/></td></tr>
-                                  <tr><th><strong>Créateur           </strong></th><td><span t-field="o.createur_id"/></td></tr>
+                                  <tr><th><strong>Article               </strong></th><td><span t-field="o.product_id.name"/></td></tr>
+                                  <tr><th><strong>Date de création      </strong></th><td><span t-field="o.date_creation"/></td></tr>
+                                  <tr><th><strong>Créateur              </strong></th><td><span t-field="o.createur_id"/></td></tr>
+                                  <tr><th><strong>Contrôleur fabrication</strong></th><td><span t-field="o.controleur_id"/></td></tr>
+                                  <tr><th><strong>Soudeur               </strong></th><td><span t-field="o.soudeur_id"/></td></tr>
                               </tbody>
                             </table>
                             <br/>

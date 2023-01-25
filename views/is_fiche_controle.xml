@@ -19,6 +19,8 @@
                     <field name="product_id" />
                     <field name="date_creation"/>
                     <field name="createur_id"/>
+                    <field name="controleur_id"/>
+                    <field name="soudeur_id"/>
                     <field name="observation"/>
                 </tree>
             </field>
@@ -28,6 +30,11 @@
             <field name="model">is.fiche.controle</field>
             <field name="arch" type="xml">
                 <form>
+                    <style>
+                        .o_form_label{
+                            white-space: nowrap;
+                        }
+                    </style>
                     <sheet>
                         <group>
                             <group>
@@ -36,6 +43,8 @@
                                 <field name="product_id" />
                                 <field name="date_creation" />
                                 <field name="createur_id"/>
+                                <field name="controleur_id"/>
+                                <field name="soudeur_id"/>
                             </group>
                         </group>
                         <field name="ligne_ids">
@@ -67,6 +76,8 @@
                     <field name="type_fiche"/>
                     <field name="product_id" />
                     <field name="createur_id"/>
+                    <field name="controleur_id"/>
+                    <field name="soudeur_id"/>
                </search>
             </field>
         </record>

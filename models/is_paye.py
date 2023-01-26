@@ -49,6 +49,7 @@ class is_paye(models.Model):
                 semaine = date.isocalendar().week
                 vals={
                     "paye_id"    : obj.id,
+                    "matricule"  : employee.is_matricule,
                     "employee_id": employee.id,
                 }
                 employe = self.env['is.paye.employe'].create(vals)
@@ -60,7 +61,7 @@ class is_paye(models.Model):
                     if compteur and intitule.name=="Compteur":
                         vals["heure"]=compteur
                     res = self.env['is.paye.employe.intitule'].create(vals)
-                total_heures_semaine=total_balance=0
+                total_heures_semaine=total_balance=total_balance_heure_sup=0
                 total_cp_heure=total_cp_jour=total_maladie=total_at=total_ecole=total_abs=0
                 for i in range(0,nb_jours):                    
                     if date.weekday()==0:
@@ -75,6 +76,9 @@ class is_paye(models.Model):
                             for heure in heures:
                                 heures_semaine      = heure.effectif_reel
                                 balance             = heure.balance_reelle
+                                balance_heure_sup = 0
+                                if balance>0:
+                                    balance_heure_sup = balance
                                 info_id             = heure.info_id.id
                                 info_complementaire = heure.info_complementaire
                                 if heure.info_id.name=="Congé payé":
@@ -90,6 +94,7 @@ class is_paye(models.Model):
                                     ecole = -balance
                                 if heure.info_id.name in ["Congé payé","Férié"]:
                                     balance=0
+                                    balance_heure_sup = 0
                                     cp_heure=0
                         else:
                             if date.weekday()==0:
@@ -108,6 +113,7 @@ class is_paye(models.Model):
                                 heures_semaine = employee.is_jour7
                         total_heures_semaine+=heures_semaine
                         total_balance+=balance
+                        total_balance_heure_sup+=balance_heure_sup
                         total_cp_heure += cp_heure
                         total_cp_jour  += cp_jour
                         total_maladie  += maladie
@@ -125,13 +131,13 @@ class is_paye(models.Model):
                         at             = total_at
                         abs            = total_abs
                         ecole          = total_ecole
-                        if balance>0:
-                            if balance<=4:
-                                hs25=balance
+                        if total_balance_heure_sup>0:
+                            if total_balance_heure_sup<=4:
+                                hs25=total_balance_heure_sup
                             else:
                                 hs25=4
-                        if balance>4:
-                            hs50=balance-4
+                        if total_balance_heure_sup>4:
+                            hs50=total_balance_heure_sup-4
                     vals={
                         "employe_id"         : employe.id,
                         "jour"               : jour,
@@ -161,9 +167,10 @@ class is_paye_employe(models.Model):
     _name='is.paye.employe'
     _description='is.paye.employe'
     _rec_name = 'employee_id'
-    _order='employee_id'
+    _order='matricule'
 
     paye_id        = fields.Many2one('is.paye', 'Préparation salaire', required=True, ondelete='cascade')
+    matricule      = fields.Char("Matricule")
     employee_id    = fields.Many2one('hr.employee', string='Employé' , required=True)
     jour_ids       = fields.One2many('is.paye.employe.jour', 'employe_id', 'Jours')
     intitule_ids   = fields.One2many('is.paye.employe.intitule', 'employe_id', 'Intitulé')

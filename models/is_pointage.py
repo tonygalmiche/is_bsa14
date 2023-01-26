@@ -74,7 +74,8 @@ class is_heure_effective_info(models.Model):
     _description='is.heure.effective.info'
     _order='name'
 
-    name = fields.Char("Information",required=True)
+    name   = fields.Char("Information",required=True)
+    active = fields.Boolean("Active",default=True)
 
 
 

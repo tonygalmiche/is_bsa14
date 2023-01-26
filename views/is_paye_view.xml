@@ -22,6 +22,7 @@
                          <sheet>
                               <group>
                                    <field name="employee_id"/> 
+                                   <field name="matricule"/> 
                               </group>
                               <group>
                                    <field name="jour_ids" nolabel="1">
@@ -81,6 +82,7 @@
                <field name="type">tree</field>
                 <field name="arch" type="xml">
                     <tree create="0">
+                         <field name="matricule"/>
                          <field name="employee_id"/>
                          <field name="heures_semaine"/>
                          <field name="balance"/>

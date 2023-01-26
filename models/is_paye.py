@@ -157,7 +157,7 @@ class is_paye(models.Model):
                     }
                     res = self.env['is.paye.employe.jour'].create(vals)
                     if date.weekday()==6:
-                        total_heures_semaine=total_balance=0
+                        total_heures_semaine=total_balance=total_balance_heure_sup=0
                         total_cp_heure=total_cp_jour=total_maladie=total_at=total_ecole=total_abs=0
                     date = date + datetime.timedelta(days=1)
                 employe.onchange_jour_ids()

@@ -55,6 +55,28 @@ class product_template(models.Model):
             ('prestation_services', 'Prestation de services'),
         ], "Type de livraison", default='livraison_biens', help="Mention obligatoire sur les factures depuis le 01/10/22")
 
+    is_cuve_thermoregulation  = fields.Boolean("Thermorégulation", default=False)
+    is_cuve_isolation         = fields.Boolean("Isolation"       , default=False)
+    is_cuve_compartimente     = fields.Boolean("Compartimenté"   , default=False)
+    is_cuve_plafond_mobile    = fields.Boolean("Plafond mobile"  , default=False)
+    is_cuve_niveau_complexite = fields.Text('Niveau de compléxité', store=True, compute='_compute_is_cuve_niveau_complexite')
+
+
+    @api.depends('is_cuve_thermoregulation','is_cuve_isolation','is_cuve_compartimente','is_cuve_plafond_mobile')
+    def _compute_is_cuve_niveau_complexite(self):
+        for obj in self:
+            t=[]
+            if obj.is_cuve_thermoregulation:
+                t.append("Thermorégulation")
+            if obj.is_cuve_isolation:
+                t.append("Isolation")
+            if obj.is_cuve_compartimente:
+                t.append("Compartimenté")
+            if obj.is_cuve_plafond_mobile:
+                t.append("Plafond mobile")
+            val = ", ".join(t)
+            obj.is_cuve_niveau_complexite = val
+
 
     # x : Position x à partir de la gauche
     # y : Position y à partir du bas (entre 0 et 200)

@@ -13,9 +13,55 @@
                     }
                 </style>
             </xpath>
+            <xpath expr="//h1/field[@name='name']/.." position="after">
+                <label for="is_description"/>
+                <div><field name="is_description"/></div>
+            </xpath>
+            <xpath expr="//group[@name='opportunity_partner']/field[@name='partner_id']" position="after">
+                <field name="is_categorie_client_id"/>
+                <field name="is_implantation"/>
+            </xpath>
             <field name="team_id" position="after" >
                 <field name="is_affaire_id"/>
+                <field name="is_order_id"/>
             </field>
+
+            <page name="internal_notes" position="after">
+                <page string="Etapes">
+                    <field name="is_stage_ids" nolabel="1">
+                        <tree editable="bottom">
+                            <field name="lead_id" invisible="1"/>
+                            <field name="date_creation"/>
+                            <field name="stage_id" readonly="1"/>
+                            <field name="commentaire"/>
+                        </tree>
+                    </field>
+                </page>
+                <page string="Données d'entrée">
+                    <field name="is_entree_ids" nolabel="1">
+                        <tree editable="bottom">
+                            <field name="lead_id" invisible="1"/>
+                            <field name="date_creation"/>
+                            <field name="attachment_ids" widget="many2many_binary"/>
+                            <field name="commentaire"/>
+                        </tree>
+                    </field>
+                </page>
+                <page string="Données de sortie">
+                    <field name="is_sortie_ids" nolabel="1">
+                        <tree editable="bottom">
+                            <field name="lead_id" invisible="1"/>
+                            <field name="date_creation"/>
+                            <field name="attachment_ids" widget="many2many_binary"/>
+                            <field name="commentaire"/>
+                        </tree>
+                    </field>
+                </page>
+            </page>
+
+
+
+
         </field>
     </record>
     <record id="is_crm_case_tree_view_oppor" model="ir.ui.view">
@@ -23,9 +69,44 @@
         <field name="model">crm.lead</field>
         <field name="inherit_id" ref="crm.crm_case_tree_view_oppor"/>
         <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="is_description" optional="show"/>
+            </field>
             <field name="team_id" position="after" >
                 <field name="is_affaire_id" optional="show"/>
+                <field name="is_order_id"   optional="show"/>
             </field>
+            <field name="partner_id" position="after" >
+                <field name="is_categorie_client_id" optional="show"/>
+                <field name="is_implantation" optional="show"/>
+            </field>
+            <field name="email_from" position="attributes">
+                <attribute name="optional">show</attribute>
+            </field>
+            <field name="phone" position="attributes">
+                <attribute name="optional">show</attribute>
+            </field>
+            <field name="activity_ids" position="attributes">
+                <attribute name="optional">show</attribute>
+            </field>
+            <field name="activity_date_deadline_my" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </field>
+        </field>
+    </record>
+    <record id="is_crm_case_kanban_view_leads" model="ir.ui.view">
+        <field name="name">is_crm_case_kanban_view_leads</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_case_kanban_view_leads"/>
+        <field name="arch" type="xml">
+            <field name="user_id" position="after">
+                <field name="is_description_html"/>
+                <field name="is_categorie_client_id"/>
+            </field>
+            <xpath expr="//field[@name='name']/.." position="after">
+                <div><b><t t-raw="record.is_description_html.raw_value"/></b></div>
+                <div>Secteur:<field name="is_categorie_client_id"/></div>
+            </xpath>
         </field>
     </record>
     <record id="is_view_crm_case_opportunities_filter" model="ir.ui.view">
@@ -34,7 +115,11 @@
         <field name="inherit_id" ref="crm.view_crm_case_opportunities_filter"/>
         <field name="arch" type="xml">
             <field name="team_id" position="after" >
+                <field name="is_description"/>
+                <field name="is_categorie_client_id"/>
+                <field name="is_implantation"/>
                 <field name="is_affaire_id"/>
+                <field name="is_order_id"/>
             </field>
         </field>
     </record>

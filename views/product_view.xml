@@ -57,6 +57,11 @@
                 <button name="%(product.product_variant_action)d" position="attributes">
                     <attribute name="attrs">{}</attribute>
                 </button>
+
+
+
+
+
             </field>
         </record>
 
@@ -116,6 +121,17 @@
                 <field name="invoice_policy" position="after">
                     <field name="is_type_livraison"/>
                 </field>
+                <page name="general_information" position="after">
+                    <page string="Cuve" name="cuve">
+                        <group string="Niveau de compléxité">
+                            <field name="is_cuve_thermoregulation"/>
+                            <field name="is_cuve_isolation"/>
+                            <field name="is_cuve_compartimente"/>
+                            <field name="is_cuve_plafond_mobile"/>
+                            <field name="is_cuve_niveau_complexite"/>
+                        </group>
+                    </page>
+                </page>
             </field>
         </record>
 
@@ -156,6 +172,7 @@
                     <field name="is_famille_id" />
                     <field name="is_stock_category_id" />
                     <field name="is_type_equipement_id" />
+                    <field name="is_cuve_niveau_complexite" />
                 </field>
 
             </field>
@@ -180,6 +197,7 @@
                     <field name="is_stock_prevu_valorise"      sum="Total" optional="show"/>
                     <field name="is_position_dans_produit_ids" widget="many2many_tags"  optional="show"/>
                     <field name="is_type_livraison" optional="hide"/>
+                    <field name="is_cuve_niveau_complexite" optional="hide"/>
                     <field name="create_date"       optional="hide"/>
                     <field name="write_date"        optional="hide"/>
                 </tree>

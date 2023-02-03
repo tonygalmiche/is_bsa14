@@ -182,3 +182,9 @@ access_is_ordre_travail_line_manager,access_is_ordre_travail_line_manager,model_
 
 access_is_mrp_workcenter_fermeture,access_is_mrp_workcenter_fermeture,model_is_mrp_workcenter_fermeture,base.group_user,1,0,0,0
 access_is_mrp_workcenter_fermeture_manager,access_is_mrp_workcenter_fermeture_manager,model_is_mrp_workcenter_fermeture,mrp.group_mrp_manager,1,1,1,1
+
+
+
+access_is_crm_lead_stage,access_is_crm_lead_stage,model_is_crm_lead_stage,base.group_user,1,1,1,1
+access_is_crm_lead_entree,access_is_crm_lead_entree,model_is_crm_lead_entree,base.group_user,1,1,1,1
+access_is_crm_lead_sortie,access_is_crm_lead_sortie,model_is_crm_lead_sortie,base.group_user,1,1,1,1

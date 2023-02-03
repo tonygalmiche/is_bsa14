@@ -45,7 +45,7 @@
                             </thead>
                             <tbody>
                                 <t t-foreach="o.devis_id.matiere_ids" t-as="l">
-                                    <tr>
+                                    <tr t-if="l.imprimer">
                                         <td class="text-left">  <span t-field="l.section_id.name"/></td>
                                         <td class="text-center"><span t-field="l.matiere_id.type_matiere"/></td>
                                         <td class="text-center"><span t-field="l.matiere_id.finition_interieur"/></td>
@@ -202,7 +202,8 @@
                                         <td class="text-center"><span t-field="variante.variante_id.devis_id.capacite_txt"/></td>
                                         <td class="text-right"><span t-field="variante.variante_id.prix_vente_remise"/> €</td>
                                         <td class="text-center"><span t-field="variante.variante_id.quantite"/></td>
-                                        <td class="text-right"><span t-field="variante.variante_id.prix_vente_lot"/></td>
+                                        <td t-if="variante.quantite>0"  class="text-right"><span t-field="variante.variante_id.prix_vente_lot"/></td>
+                                        <td t-if="variante.quantite==0" class="text-right">0,00 €</td>
                                     </tr>
                                 </t>
                             </tbody>
@@ -264,8 +265,8 @@
                             <h3>Chargé d'affaire</h3>
                             <div t-field="o.vendeur_id"/>
                         </t>
-                        <t t-if="o.date_affaire">
-                            <div>Fait à Saint-Amour le <span t-field="o.date_affaire"/></div>
+                        <t t-if="o.date_modification">
+                            <div>Fait à Saint-Amour le <span t-field="o.date_modification"/></div>
                         </t>
                         <img t-if="o.vendeur_id.is_image_signature" t-att-src="image_data_uri(o.vendeur_id.is_image_signature)" style="max-height: 25mm;"/>
                         <div style="text-align:center;margin-top:5mm">
@@ -356,7 +357,7 @@
                             </tr>
                             <tr>
                                 <th>Date : </th>
-                                <td><span t-field="o.date_affaire"/></td>
+                                <td><span t-field="o.date_modification"/></td>
                             </tr>
                             <tr>
                                 <th>Version : </th>

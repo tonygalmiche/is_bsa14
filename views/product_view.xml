@@ -41,6 +41,89 @@
             <field name="view_mode">tree,form</field>
         </record>
 
+
+       <!-- is.product.type.cuve --> 
+       <record model="ir.ui.view" id="is_product_type_cuve_form_view">
+            <field name="name">is_product_type_cuve_form_view</field>
+            <field name="model">is.product.type.cuve</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>  
+                    <sheet>
+                        <group>
+                            <field name="name"  /> 
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_product_type_cuve_tree_view">
+            <field name="name">is_product_type_cuve_tree_view</field>
+            <field name="model">is.product.type.cuve</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/> 
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_product_type_cuve_search_view" >
+            <field name="name">is_product_type_cuve_search_view</field>
+            <field name="model">is.product.type.cuve</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/> 
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_product_type_cuve_action">
+            <field name="name">Type de cuve</field>
+            <field name="res_model">is.product.type.cuve</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+       <!-- is.volume.cuve --> 
+       <record model="ir.ui.view" id="is_volume_cuve_form_view">
+            <field name="name">is_volume_cuve_form_view</field>
+            <field name="model">is.volume.cuve</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>  
+                    <sheet>
+                        <group>
+                            <field name="name"  /> 
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_volume_cuve_tree_view">
+            <field name="name">is_volume_cuve_tree_view</field>
+            <field name="model">is.volume.cuve</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/> 
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_volume_cuve_search_view" >
+            <field name="name">is_volume_cuve_search_view</field>
+            <field name="model">is.volume.cuve</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/> 
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_volume_cuve_action">
+            <field name="name">Volume de cuve</field>
+            <field name="res_model">is.volume.cuve</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
         <!-- Recalcul du prix de revient -->
         <record id="is_recalcul_prix_revient_action_server" model="ir.actions.server">
             <field name="name">Recalcul du prix de revient</field>
@@ -123,6 +206,10 @@
                 </field>
                 <page name="general_information" position="after">
                     <page string="Cuve" name="cuve">
+                        <group string="Cuve">
+                            <field name="is_type_cuve_id"/>
+                            <field name="is_volume_cuve_id"/>
+                        </group>
                         <group string="Niveau de compléxité">
                             <field name="is_cuve_thermoregulation"/>
                             <field name="is_cuve_isolation"/>
@@ -172,6 +259,8 @@
                     <field name="is_famille_id" />
                     <field name="is_stock_category_id" />
                     <field name="is_type_equipement_id" />
+                    <field name="is_type_cuve_id" />
+                    <field name="is_volume_cuve_id" />
                     <field name="is_cuve_niveau_complexite" />
                 </field>
 
@@ -196,10 +285,12 @@
                     <field name="is_stock_disponible_valorise" sum="Total"                              optional="show"/>
                     <field name="is_stock_prevu_valorise"      sum="Total" optional="show"/>
                     <field name="is_position_dans_produit_ids" widget="many2many_tags"  optional="show"/>
-                    <field name="is_type_livraison" optional="hide"/>
+                    <field name="is_type_livraison"         optional="hide"/>
+                    <field name="is_type_cuve_id"           optional="hide"/>
+                    <field name="is_volume_cuve_id"         optional="hide"/>
                     <field name="is_cuve_niveau_complexite" optional="hide"/>
-                    <field name="create_date"       optional="hide"/>
-                    <field name="write_date"        optional="hide"/>
+                    <field name="create_date"               optional="hide"/>
+                    <field name="write_date"                optional="hide"/>
                 </tree>
             </field>
         </record>

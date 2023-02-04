@@ -166,7 +166,6 @@ access_is_historique_achat_annee,access_is_historique_achat_annee,model_is_histo
 access_is_annee,access_is_annee,model_is_annee,purchase.group_purchase_manager,1,1,1,1
 access_is_historique_achat,access_is_historique_achat,model_is_historique_achat,purchase.group_purchase_manager,1,1,1,1
 
-
 access_is_calcul_pmp,access_is_calcul_pmp,model_is_calcul_pmp,purchase.group_purchase_manager,1,1,1,1
 access_is_calcul_pmp_product,access_is_calcul_pmp_product,model_is_calcul_pmp_product,purchase.group_purchase_manager,1,1,1,1
 access_is_calcul_pmp_move,access_is_calcul_pmp_move,model_is_calcul_pmp_move,purchase.group_purchase_manager,1,1,1,1
@@ -179,12 +178,21 @@ access_is_ordre_travail_manager,access_is_ordre_travail_manager,model_is_ordre_t
 access_is_ordre_travail_line,access_is_ordre_travail_line,model_is_ordre_travail_line,base.group_user,1,0,0,0
 access_is_ordre_travail_line_manager,access_is_ordre_travail_line_manager,model_is_ordre_travail_line,mrp.group_mrp_manager,1,1,1,1
 
-
 access_is_mrp_workcenter_fermeture,access_is_mrp_workcenter_fermeture,model_is_mrp_workcenter_fermeture,base.group_user,1,0,0,0
 access_is_mrp_workcenter_fermeture_manager,access_is_mrp_workcenter_fermeture_manager,model_is_mrp_workcenter_fermeture,mrp.group_mrp_manager,1,1,1,1
-
-
 
 access_is_crm_lead_stage,access_is_crm_lead_stage,model_is_crm_lead_stage,base.group_user,1,1,1,1
 access_is_crm_lead_entree,access_is_crm_lead_entree,model_is_crm_lead_entree,base.group_user,1,1,1,1
 access_is_crm_lead_sortie,access_is_crm_lead_sortie,model_is_crm_lead_sortie,base.group_user,1,1,1,1
+
+access_is_product_type_cuve,access_is_product_type_cuve,model_is_product_type_cuve,base.group_user,1,0,0,0
+access_is_product_type_cuve_manager,access_is_product_type_cuve_manager,model_is_product_type_cuve,sales_team.group_sale_manager,1,1,1,1
+
+access_is_volume_cuve,access_is_volume_cuve,model_is_volume_cuve,base.group_user,1,0,0,0
+access_is_volume_cuve_manager,access_is_volume_cuve_manager,model_is_volume_cuve,sales_team.group_sale_manager,1,1,1,1
+
+access_is_salon,access_is_salon,model_is_salon,sales_team.group_sale_salesman_all_leads,1,1,1,1
+access_is_suivi_commercial,access_is_suivi_commercial,model_is_suivi_commercial,sales_team.group_sale_salesman_all_leads,1,1,1,1
+
+
+

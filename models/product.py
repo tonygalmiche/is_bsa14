@@ -30,6 +30,20 @@ class is_famille(models.Model):
     name = fields.Char(string="Famille")
 
 
+class is_product_type_cuve(models.Model):
+    _name = "is.product.type.cuve"
+    _description="Type de cuve pour la fiche article"
+    _order="name"
+    name = fields.Char(string="Type de cuve", required=True)
+
+
+class is_volume_cuve(models.Model):
+    _name = "is.volume.cuve"
+    _description="Volume de cuve pour la fiche article"
+    _order="name"
+    name = fields.Char(string="Volume", required=True)
+
+
 class product_template(models.Model):
     _inherit = 'product.template'
     
@@ -60,6 +74,8 @@ class product_template(models.Model):
     is_cuve_compartimente     = fields.Boolean("Compartimenté"   , default=False)
     is_cuve_plafond_mobile    = fields.Boolean("Plafond mobile"  , default=False)
     is_cuve_niveau_complexite = fields.Text('Niveau de compléxité', store=True, compute='_compute_is_cuve_niveau_complexite')
+    is_type_cuve_id           = fields.Many2one("is.product.type.cuve", string="Type de cuve")
+    is_volume_cuve_id         = fields.Many2one("is.volume.cuve", string="Volume cuve")
 
 
     @api.depends('is_cuve_thermoregulation','is_cuve_isolation','is_cuve_compartimente','is_cuve_plafond_mobile')

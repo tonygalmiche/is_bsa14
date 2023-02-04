@@ -9,7 +9,7 @@ import re
 import openpyxl
 from glob import glob
 import logging
-from math import pi,tan,sqrt, floor, ceil
+from math import pi,sin,cos,tan,sqrt, floor, ceil
 
 _logger = logging.getLogger(__name__)
 
@@ -1238,8 +1238,8 @@ class is_type_cuve_calcul(models.Model):
     name         = fields.Char("Code")
     description  = fields.Char("Description")
     formule      = fields.Text("Formule")
-    formule_odoo = fields.Text("Formule Odoo") #, compute='_compute_resultat', store=True, readonly=True)
-    resultat     = fields.Float("Résultat")    #, compute='_compute_resultat', store=True, readonly=True)
+    formule_odoo = fields.Text("Formule Odoo") 
+    resultat     = fields.Float("Résultat", digits=(14,4))
     unite        = fields.Char("Unité")
     lien_id      = fields.Many2one('is.lien.odoo.excel', 'Lien Odoo Excel')
     proteger     = fields.Boolean("Protéger", default=True)
@@ -1363,6 +1363,8 @@ class is_type_cuve_calcul(models.Model):
 
 
                 formule=formule.replace("PI()",str(pi))
+                formule=formule.replace("SIN(","sin(")
+                formule=formule.replace("COS(","cos(")
                 formule=formule.replace("TAN(","tan(")
                 formule=formule.replace("^","**")
 

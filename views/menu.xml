@@ -30,7 +30,7 @@
         <record id="is_suivi_commercial_config_menu" model="ir.ui.menu" >
             <field name="name">Suivi commercial</field>
             <field name="sequence">100</field>
-            <field name="parent_id" eval="ref('crm.crm_menu_root')"/>
+            <field name="parent_id" eval="ref('crm.crm_menu_config')"/>
          </record>
          <record id="is_salon_menu" model="ir.ui.menu" >
             <field name="name">Salon</field>

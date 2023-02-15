@@ -184,7 +184,13 @@
             action="is_dimension_action"
             sequence="960"
         />
-
+        <menuitem 
+            name="Unités"
+            id="is_devis_parametrable_unite_menu"
+            parent="is_devis_parametrable_configuration_menu"
+            action="is_devis_parametrable_unite_action"
+            sequence="962"
+        />
         <menuitem 
             name="Options"
             id="is_option_menu"
@@ -201,7 +207,6 @@
             action="is_lien_odoo_excel_action"
             sequence="970"
         />
-
         <!-- Achats -->
         <menuitem 
             name="Articles avec dernière commande d'achat"

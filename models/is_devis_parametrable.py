@@ -60,11 +60,9 @@ class is_devis_parametrable_affaire(models.Model):
 
 
     def write(self, vals):
-        print("write",self, vals)
         vals["date_modification"] = fields.Date.today()
         res = super(is_devis_parametrable_affaire, self).write(vals)
         return res
-
 
 
     def name_get(self):
@@ -684,17 +682,31 @@ class is_devis_parametrable_matiere(models.Model):
     imprimer           = fields.Boolean("Imprimer", help="Afficher cette ligne sur le PDF", default=True)
 
 
+class is_devis_parametrable_unite(models.Model):
+    _name = 'is.devis.parametrable.unite'
+    _description = "Unités des dimensions du devis paramètrable"
+
+    name = fields.Char("Unité", required=True)
+
+
 class is_devis_parametrable_dimension(models.Model):
     _name = 'is.devis.parametrable.dimension'
     _description = "Dimensions du devis paramètrable"
     _order='sequence,id'
 
+    def _get_unite_id(self):
+        unite_id = False
+        unites =  self.env['is.devis.parametrable.unite'].search([('name','=','mm')])
+        for unite in unites:
+            unite_id = unite.id
+        return unite_id
 
     devis_id     = fields.Many2one('is.devis.parametrable', 'Devis', required=True, ondelete='cascade')
     sequence     = fields.Integer("Sequence")
     dimension_id = fields.Many2one('is.dimension', 'Dimension')
+    valeur       = fields.Integer("Valeur", help="Utilisée dans les calculs")
+    unite_id     = fields.Many2one('is.devis.parametrable.unite', 'Unité', default=lambda self: self._get_unite_id())
     description  = fields.Char("Description"   , help="Information pour le client")
-    valeur       = fields.Integer("Valeur (mm)", help="Utilisée dans les calculs")
     imprimer     = fields.Boolean("Imprimer"   , help="Afficher cette ligne sur le PDF", default=True)
 
 

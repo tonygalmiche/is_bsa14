@@ -258,6 +258,7 @@
                                             <field name="devis_id" invisible="1"/>
                                             <field name="dimension_id"/>
                                             <field name="valeur"/>
+                                            <field name="unite_id"/>
                                             <field name="description"/>
                                             <field name="imprimer"/>
                                         </tree>
@@ -1063,6 +1064,47 @@
             <field name="view_mode">tree,form</field>
         </record>
 
+
+
+        <!-- is.devis.parametrable.unite -->
+        <record id="is_devis_parametrable_unite_tree" model="ir.ui.view">
+            <field name="name">is.devis.parametrable.unite.tree</field>
+            <field name="model">is.devis.parametrable.unite</field>
+            <field name="arch" type="xml">
+                <tree >
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_devis_parametrable_unite_form" model="ir.ui.view">
+            <field name="name">is.devis.parametrable.unite.form</field>
+            <field name="model">is.devis.parametrable.unite</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                            </group>
+                         </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_devis_parametrable_unite_search" model="ir.ui.view">
+            <field name="name">is.devis.parametrable.unite.search</field>
+            <field name="model">is.devis.parametrable.unite</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+               </search>
+            </field>
+        </record>
+        <record id="is_devis_parametrable_unite_action" model="ir.actions.act_window">
+            <field name="name">Unités</field>
+            <field name="res_model">is.devis.parametrable.unite</field>
+            <field name="view_mode">tree,form</field>
+        </record>
 
 
 

@@ -47,16 +47,16 @@
                               </group>
                               <group>
                                    <group>
-                                        <field name="heures_semaine"/>
-                                        <field name="balance"/>
-                                        <field name="hs25"/>
-                                        <field name="hs50"/>
-                                        <field name="cp_heure"/>
-                                        <field name="cp_jour"/>
-                                        <field name="maladie"/>
-                                        <field name="at"/>
-                                        <field name="abs"/>
-                                        <field name="ecole"/>
+                                        <field name="intitule_calcule_ids" nolabel="1">
+                                             <tree editable="bottom" default_order="intitule_calcule">
+                                                  <field name="employe_id" invisible="1"/>
+                                                  <field name="intitule_calcule"/>
+                                                  <field name="heure"/>
+                                                  <field name="commentaire"/>
+                                             </tree>
+                                        </field>
+                                        <br />
+                                        <button name="maj_intitule_calcule_ids_action" type="object" string="Actualiser"/>
                                    </group>
                                    <group>
                                         <field name="intitule_ids" nolabel="1">
@@ -70,7 +70,21 @@
                                    </group>
                               </group>
                               <group>
-                                   <field name="commentaire"/>
+                                   <group>
+                                        <field name="heures_semaine"/>
+                                        <field name="balance"/>
+                                        <field name="hs25"/>
+                                        <field name="hs50"/>
+                                        <field name="cp_heure"/>
+                                        <field name="cp_jour"/>
+                                        <field name="maladie"/>
+                                        <field name="at"/>
+                                        <field name="abs"/>
+                                        <field name="ecole"/>
+                                   </group>
+                                   <group>
+                                        <field name="commentaire"/>
+                                   </group>
                               </group>
                          </sheet>
                     </form>

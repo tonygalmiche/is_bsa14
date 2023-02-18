@@ -132,13 +132,6 @@ access_is_devis_parametrable_section_product_user,access_is_devis_parametrable_s
 access_is_devis_parametrable_option_user,access_is_devis_parametrable_option_user,model_is_devis_parametrable_option,is_bsa14.is_devis_parametrable_user_group,1,1,1,1
 access_is_devis_parametrable_option_manager_user,access_is_devis_parametrable_option_manager_user,model_is_devis_parametrable_option,is_bsa14.is_devis_parametrable_user_group,1,1,1,1
 
-
-
-
-
-
-
-
 access_is_outillage,access_is_outillage,model_is_outillage,is_bsa14.is_qualite_group,1,1,1,1
 access_is_outillage_ligne,access_is_outillage_ligne,model_is_outillage_ligne,is_bsa14.is_qualite_group,1,1,1,1
 
@@ -156,9 +149,9 @@ access_is_simulation_livrable_ligne,access_is_simulation_livrable_ligne,model_is
 access_is_paye,access_is_paye,model_is_paye,hr.group_hr_manager,1,1,1,1
 access_is_paye_employe,access_is_paye_employe,model_is_paye_employe,hr.group_hr_manager,1,1,1,1
 access_is_paye_employe_jour,access_is_paye_employe_jour,model_is_paye_employe_jour,hr.group_hr_manager,1,1,1,1
-
 access_is_paye_employe_intitule,access_is_paye_employe_intitule,model_is_paye_employe_intitule,hr.group_hr_manager,1,1,1,1
 access_is_paye_intitule,access_is_paye_intitule,model_is_paye_intitule,hr.group_hr_manager,1,1,1,1
+access_is_paye_employe_intitule_calcule,access_is_paye_employe_intitule_calcule,model_is_paye_employe_intitule_calcule,hr.group_hr_manager,1,1,1,1
 
 access_is_famille,access_is_famille,model_is_famille,base.group_user,1,0,0,0
 access_is_famille_manager,access_is_famille_manager,model_is_famille,purchase.group_purchase_manager,1,1,1,1

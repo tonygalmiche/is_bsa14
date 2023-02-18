@@ -194,6 +194,7 @@ class is_devis_parametrable_affaire(models.Model):
             lead_id=False
             leads = self.env['crm.lead'].search([('is_affaire_id','=',obj.id)],limit=1)
             for lead in leads:
+                lead.expected_revenue = obj.montant_ht
                 lead_id = lead.id
             obj.lead_id = lead_id
 

@@ -161,6 +161,7 @@ class is_paye(models.Model):
                         total_cp_heure=total_cp_jour=total_maladie=total_at=total_ecole=total_abs=0
                     date = date + datetime.timedelta(days=1)
                 employe.onchange_jour_ids()
+                employe.maj_intitule_calcule_ids_action()
 
 
 class is_paye_employe(models.Model):
@@ -174,6 +175,7 @@ class is_paye_employe(models.Model):
     employee_id    = fields.Many2one('hr.employee', string='Employé' , required=True)
     jour_ids       = fields.One2many('is.paye.employe.jour', 'employe_id', 'Jours')
     intitule_ids   = fields.One2many('is.paye.employe.intitule', 'employe_id', 'Intitulé')
+    intitule_calcule_ids = fields.One2many('is.paye.employe.intitule.calcule', 'employe_id', 'Intitulé Calculé')
     heures_semaine = fields.Float("Heures semaine", digits=(14,2))
     balance        = fields.Float("Balance", digits=(14,2))
     hs25           = fields.Float("HS 25", digits=(14,2))
@@ -247,12 +249,91 @@ class is_paye_employe(models.Model):
             return res
 
 
+    def maj_intitule_calcule_ids_action(self):
+        for obj in self:
+            print("maj_intitule_calcule_ids_action",self)
+
+
+            #** Déplacement ***************************************************
+            v = 0
+            for line in obj.jour_ids:
+                if line.info_id.name=="Déplacement":
+                    v+=1
+            o = self.env['is.paye.employe.intitule.calcule']
+            lines = o.search([("employe_id","=",obj.id),("intitule_calcule","=",'deplacement')])
+            print(lines)
+            if len(lines)==0:
+                val={
+                    "employe_id"      : obj.id,
+                    "intitule_calcule": 'deplacement',
+                }
+                line = o.create(val)
+                print(line,val)
+                line.heure=v
+            for line in lines:
+                line.heure=v
+            #******************************************************************
+
+            #** Détachement ***************************************************
+            v = 0
+            for line in obj.jour_ids:
+                if line.info_id.name=="Détachement":
+                    v+=1
+            o = self.env['is.paye.employe.intitule.calcule']
+            lines = o.search([("employe_id","=",obj.id),("intitule_calcule","=",'detachement')])
+            if len(lines)==0:
+                val={
+                    "employe_id"      : obj.id,
+                    "intitule_calcule": 'detachement',
+                }
+                line = o.create(val)
+                line.heure=v
+            for line in lines:
+                line.heure=v
+            #******************************************************************
+
+            #** Ticket restaurant *********************************************
+            v = 0
+            for line in obj.jour_ids:
+                if line.jour and line.heures_semaine>5:
+                    v+=1
+            o = self.env['is.paye.employe.intitule.calcule']
+            lines = o.search([("employe_id","=",obj.id),("intitule_calcule","=",'ticket_restaurant')])
+            if len(lines)==0:
+                val={
+                    "employe_id"      : obj.id,
+                    "intitule_calcule": 'ticket_restaurant',
+                }
+                line = o.create(val)
+                line.heure=v
+            for line in lines:
+                line.heure=v
+            #******************************************************************
+
+
+
 class is_paye_employe_intitule(models.Model):
     _name='is.paye.employe.intitule'
     _description='is.paye.employe.intitule'
 
     employe_id     = fields.Many2one('is.paye.employe', 'Employé', required=True, ondelete='cascade')
     intitule_id    = fields.Many2one('is.paye.intitule', 'Intitulé', required=True)
+    heure          = fields.Float("Valeur", digits=(14,2))
+    commentaire    = fields.Char("Commentaire")
+
+
+class is_paye_employe_intitule_calcule(models.Model):
+    _name='is.paye.employe.intitule.calcule'
+    _description='is.paye.employe.intitule.calcule'
+    _odrer='intitule_calcule'
+
+    employe_id     = fields.Many2one('is.paye.employe', 'Employé', required=True, ondelete='cascade')
+    intitule_calcule = fields.Selection([
+        ('detachement'      , 'Détachement'),
+        ('deplacement'      , 'Déplacement'),
+        ('cp'               , 'CP'),
+        ('ticket_restaurant', 'Ticket restaurant'),
+    ], "Intitulé calculé", required=True)
     heure          = fields.Float("Valeur", digits=(14,2))
     commentaire    = fields.Char("Commentaire")
 

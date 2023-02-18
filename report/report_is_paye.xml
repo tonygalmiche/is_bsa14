@@ -86,9 +86,30 @@
                             <!-- <br /> -->
 
 
-                            <table style="width:100%;border:0">
+                            <table style="width:100%;border:0;border-spacing: 2mm;">
                                 <tr>
-                                    <td style="width:50%;border:0">
+                                    <td style="width:33%;border:0">
+                                        <table class="table table-condensed">
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-center"><strong>Intitulé</strong></th>
+                                                    <th class="text-center"><strong>Valeur</strong></th>
+                                                    <th class="text-center"><strong>Commentaire</strong></th>
+                                                    <th style="display:none"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr t-foreach="o.intitule_calcule_ids" t-as="line" style="border-bottom: 1px solid;">
+                                                    <td class="text-left"><span t-field="line.intitule_calcule"/></td>
+                                                    <td class="text-right"><span t-field="line.heure"/></td>
+                                                    <td class="text-left"><span t-field="line.commentaire"/></td>
+                                                    <td style="display:none"></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                    <td style="width:2%;border:0"></td>
+                                    <td style="width:33%;border:0">
                                         <table class="table table-condensed">
                                             <thead>
                                                 <tr>
@@ -108,7 +129,7 @@
                                             </tbody>
                                         </table>
                                     </td>
-                                    <td style="width:50%;padding:1em;border:0">
+                                    <td style="padding:1em;border:0">
                                         <span t-field="o.commentaire"/>
                                     </td>
                                     <td style="display:none"></td>

@@ -101,6 +101,13 @@
             action="is_volume_cuve_action"
             sequence="110"
         />
+        <menuitem 
+            name="Finition cuve"
+            id="is_finition_cuve_menu"
+            parent="sale.prod_config_main"
+            action="is_finition_cuve_action"
+            sequence="120"
+        />
 
 
         <!-- is.devis.parametrable -->

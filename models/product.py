@@ -44,6 +44,13 @@ class is_volume_cuve(models.Model):
     name = fields.Char(string="Volume", required=True)
 
 
+class is_finition_cuve(models.Model):
+    _name = "is.finition.cuve"
+    _description="Finition de cuve pour la fiche article"
+    _order="name"
+    name = fields.Char(string="Finition", required=True)
+
+
 class product_template(models.Model):
     _inherit = 'product.template'
     
@@ -76,6 +83,9 @@ class product_template(models.Model):
     is_cuve_niveau_complexite = fields.Text('Niveau de compléxité', store=True, compute='_compute_is_cuve_niveau_complexite')
     is_type_cuve_id           = fields.Many2one("is.product.type.cuve", string="Type de cuve")
     is_volume_cuve_id         = fields.Many2one("is.volume.cuve", string="Volume cuve")
+    is_finition_cuve_ids      = fields.Many2many('is.finition.cuve','is_finition_cuve_product_rel','product_id','finition_id', string="Finition")
+
+
 
 
     @api.depends('is_cuve_thermoregulation','is_cuve_isolation','is_cuve_compartimente','is_cuve_plafond_mobile')

@@ -186,6 +186,9 @@ access_is_product_type_cuve_manager,access_is_product_type_cuve_manager,model_is
 access_is_volume_cuve,access_is_volume_cuve,model_is_volume_cuve,base.group_user,1,0,0,0
 access_is_volume_cuve_manager,access_is_volume_cuve_manager,model_is_volume_cuve,sales_team.group_sale_manager,1,1,1,1
 
+access_is_finition_cuve,access_is_finition_cuve,model_is_finition_cuve,base.group_user,1,0,0,0
+access_is_finition_cuve_manager,access_is_finition_cuve_manager,model_is_finition_cuve,sales_team.group_sale_manager,1,1,1,1
+
 access_is_salon,access_is_salon,model_is_salon,sales_team.group_sale_salesman_all_leads,1,1,1,1
 access_is_suivi_commercial,access_is_suivi_commercial,model_is_suivi_commercial,sales_team.group_sale_salesman_all_leads,1,1,1,1
 

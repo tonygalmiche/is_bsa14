@@ -44,19 +44,21 @@ class is_devis_parametrable_affaire(models.Model):
 
     tax_id      = fields.Many2one('account.tax', 'TVA à appliquer', readonly=True, compute='_compute_montants')
     currency_id = fields.Many2one('res.currency', "Devise"        , readonly=True, compute='_compute_montants')
-    montant_ht  = fields.Monetary("Montant HT"                    , readonly=True, compute='_compute_montants')
+    montant_ht  = fields.Monetary("Montant HT"                    , readonly=True, compute='_compute_montants', currency_field='devise_client_id')
 
     capacite          = fields.Integer("Capacité totale (HL)", compute='_compute_capacite', store=False, readonly=True)
     prix_par_hl       = fields.Integer("Prix par HL"         , compute='_compute_capacite', store=False, readonly=True)
 
-    montant_tva = fields.Monetary("TVA"        , readonly=True, compute='_compute_montants')
-    montant_ttc = fields.Monetary("Montant TTC", readonly=True, compute='_compute_montants')
+    montant_tva = fields.Monetary("TVA"        , readonly=True, compute='_compute_montants', currency_field='devise_client_id')
+    montant_ttc = fields.Monetary("Montant TTC", readonly=True, compute='_compute_montants', currency_field='devise_client_id')
 
     entete_ids        = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_entete_rel'       , 'affaire_id', 'attachment_id', 'Entête')
     recapitulatif_ids = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_recapitulatif_rel', 'affaire_id', 'attachment_id', 'Récapitulatif')
     pied_ids          = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_pied_rel'         , 'affaire_id', 'attachment_id', 'Pied')
     devis_ids         = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_devis_rel'        , 'affaire_id', 'attachment_id', 'Devis')
     lead_id           = fields.Many2one('crm.lead', "Lien CRM", readonly=True)
+
+    devise_client_id  = fields.Many2one('res.currency', "Devise Client", readonly=True, compute='_compute_montants')
 
 
     def write(self, vals):
@@ -155,17 +157,21 @@ class is_devis_parametrable_affaire(models.Model):
             obj.currency_id = company.currency_id.id
             ht=tva=ttc=0
             tax_id = False
+            devise_client_id = False
             for line in obj.variante_ids:
                 tax_id = line.variante_id.devis_id.tax_id.id
-                qt = line.variante_id.quantite
-                prix_vente=line.variante_id.prix_vente_remise
-                ht+=prix_vente*qt
+                devise_client_id = line.variante_id.devise_client_id.id
+                qt = line.quantite
+                #prix_vente=line.variante_id.prix_vente_remise
+                #ht+=prix_vente*qt
+                ht+=line.montant
                 tva+=line.variante_id.montant_tva*qt
                 ttc+=line.variante_id.prix_vente_ttc*qt
             obj.montant_ht  = ht
             obj.montant_tva = tva
             obj.montant_ttc = ttc
             obj.tax_id      = tax_id
+            obj.devise_client_id = devise_client_id
 
 
     def acceder_affaire_action(self):
@@ -334,6 +340,16 @@ class is_devis_parametrable_affaire_variante(models.Model):
     capacite    = fields.Integer("Capacité", related="variante_id.capacite", readonly=True)
     unite       = fields.Selection(related="variante_id.unite", readonly=True)
     quantite    = fields.Integer(related="variante_id.quantite", readonly=True)
+    devise_client_id         = fields.Many2one(related="variante_id.devise_client_id")
+    prix_vente_remise_devise = fields.Integer(related="variante_id.prix_vente_remise_devise")
+    montant                  = fields.Integer("Montant", compute='_compute_montant', store=False, readonly=True)
+
+
+    @api.depends('quantite',"prix_vente_remise_devise")
+    def _compute_montant(self):
+        for obj in self:
+            obj.montant = obj.prix_vente_remise_devise * obj.quantite
+
 
     def acceder_variante_action(self):
         for obj in self:
@@ -432,6 +448,10 @@ class is_devis_parametrable(models.Model):
     date_creation      = fields.Date("Date de création"         , required=True, default=lambda *a: fields.Date.today())
     date_actualisation = fields.Datetime("Date d'actualisation"                , default=fields.Datetime.now)
     partner_id         = fields.Many2one('res.partner', 'Revendeur / Client', required=True)
+
+    devise_client_id   = fields.Many2one('res.currency', "Devise Client", default=lambda self: self.env.user.company_id.currency_id.id)
+    taux_devise        = fields.Float("Taux devise", default=1, digits=(12, 6), help="Nombre d'Euro pour une devise")
+
     tax_id             = fields.Many2one('account.tax', 'TVA à appliquer')
     tps_montage        = fields.Float("Tps montage (HH:MM)", help="Temps de montage (HH:MM)", store=False, readonly=True, compute='_compute_montant')
     tps_assemblage     = fields.Float("Tps assemblage (HH:MM)", readonly=True)
@@ -891,7 +911,7 @@ class is_devis_parametrable_variante(models.Model):
     devis_id          = fields.Many2one('is.devis.parametrable', 'Devis paramètrable', required=True, ondelete='cascade')
     name              = fields.Char("Nom", required=True)
     description       = fields.Text("Description", readonly=True, compute='_compute_description')
-    partner_id        = fields.Many2one('res.partner', "Client", related="devis_id.partner_id", readonly=True)
+    partner_id        = fields.Many2one('res.partner', "Client"        , related="devis_id.partner_id"      , readonly=True)
     capacite          = fields.Integer("Capacité", related="devis_id.capacite", readonly=True)
     unite             = fields.Selection(related="devis_id.unite", readonly=True)
 
@@ -960,6 +980,16 @@ class is_devis_parametrable_variante(models.Model):
     montant_marge_revendeur  = fields.Monetary("Marge revendeur"           , readonly=True, compute='_compute_montants', currency_field='currency_id')
 
     commentaire              = fields.Text("Commentaire")
+
+    #Montants en devises 
+    devise_client_id         = fields.Many2one('res.currency', "Devise Client", related="devis_id.devise_client_id", readonly=True)
+    taux_devise              = fields.Float("Taux devise"                     , related="devis_id.taux_devise"     , readonly=True)
+    prix_vente_devise        = fields.Monetary("Prix de vente HT (Devise)"        , readonly=True, compute='_compute_montants', currency_field='devise_client_id')
+    prix_vente_int_devise    = fields.Integer("Prix de vente HT (arrondi)(Devise)", readonly=True, compute='_compute_montants')
+    montant_remise_devise    = fields.Integer("Montant remise (Devise)"           , readonly=True, compute='_compute_montants')
+    intitule_remise_devise   = fields.Char("Intitulé remise (Devise)"             , readonly=True, compute='_compute_montants')
+    prix_vente_remise_devise = fields.Integer("Prix de vente remisé (Devise)"     , readonly=True, compute='_compute_montants')
+    prix_par_hl_devise       = fields.Integer("Prix par HL (Devise)"              , readonly=True, compute='_compute_montants')
 
 
     @api.depends('name','quantite')
@@ -1076,9 +1106,6 @@ class is_devis_parametrable_variante(models.Model):
             obj.montant_marge_revendeur_lot = obj.prix_vente_revendeur_lot  - obj.prix_vente_lot
             obj.prix_vente                  = prix_vente/quantite
 
-            tva = obj.devis_id.tax_id.amount
-            obj.montant_tva = obj.prix_vente_remise * (tva/100)
-            obj.prix_vente_ttc =  obj.prix_vente_remise + obj.montant_tva
 
             obj.prix_vente_revendeur    = prix_vente_revendeur
 
@@ -1096,6 +1123,35 @@ class is_devis_parametrable_variante(models.Model):
             obj.taux_marge_commerciale  = 100*obj.montant_marge / obj.prix_vente_remise
 
             obj.montant_marge_revendeur = prix_vente_revendeur - obj.prix_vente_remise
+
+
+            #** Montants en devise ********************************************
+            taux = obj.taux_devise or 1
+            obj.prix_vente_devise     = obj.prix_vente     / taux
+            obj.prix_par_hl_devise    = obj.prix_par_hl    / taux
+            obj.prix_vente_int_devise = 10*ceil(obj.prix_vente_devise/10)
+            montant_remise=0
+            if obj.remise>0:
+                montant_remise = obj.remise
+            else:
+                if obj.remise_pourcent>0:
+                    montant_remise = obj.prix_vente_int_devise*obj.remise_pourcent/100
+            obj.montant_remise_devise = montant_remise
+            intitule_remise=False
+            if obj.remise_pourcent>0:
+                intitule_remise="Remise de %s%% soit %s %s"%(obj.remise_pourcent, obj.montant_remise_devise, obj.devise_client_id.symbol)
+            if obj.remise>0:
+                intitule_remise="Remise de %s €"%(obj.montant_remise_devise)
+            obj.intitule_remise_devise = intitule_remise
+            obj.prix_vente_remise_devise = obj.prix_vente_int_devise - obj.montant_remise_devise
+
+            tva = obj.devis_id.tax_id.amount
+            obj.montant_tva = obj.prix_vente_remise_devise * (tva/100)
+            obj.prix_vente_ttc =  obj.prix_vente_remise_devise + obj.montant_tva
+            #******************************************************************
+
+
+
 
 
     def acceder_variante_action(self):

@@ -120,16 +120,16 @@
                                 <table class="table table-sm o_main_table" style="page-break-inside: avoid;">
                                     <tr>
                                         <td><strong>Prix unitaire HT</strong></td>
-                                        <td class="text-right" style="width:40mm"><span t-field="o.prix_vente_int"/> €</td>
+                                        <td class="text-right" style="width:40mm"><span t-field="o.prix_vente_int_devise"/> <span t-field="o.devise_client_id.symbol"/></td>
                                     </tr>
-                                    <t t-if="o.montant_remise">
+                                    <t t-if="o.montant_remise_devise">
                                         <tr>
-                                            <td><strong><span t-field="o.intitule_remise"/></strong></td>
-                                            <td class="text-right"><span t-field="o.montant_remise"/> €</td>
+                                            <td><strong><span t-field="o.intitule_remise_devise"/></strong></td>
+                                            <td class="text-right"><span t-field="o.montant_remise_devise"/> <span t-field="o.devise_client_id.symbol"/></td>
                                         </tr>
                                         <tr>
                                             <td><strong>Prix unitaire avec remise HT</strong></td>
-                                            <td class="text-right"><span t-field="o.prix_vente_remise"/> €</td>
+                                            <td class="text-right"><span t-field="o.prix_vente_remise_devise"/> <span t-field="o.devise_client_id.symbol"/></td>
                                         </tr>
                                     </t>
                                     <!-- <tr>
@@ -142,7 +142,7 @@
                                     </tr> -->
                                 </table>
                                 <div t-if="o.afficher_prix_par_hl" style="font-style: italic;">
-                                    Prix par HL : <span t-field="o.prix_par_hl"/> €
+                                    Prix par HL : <span t-field="o.prix_par_hl_devise"/> <span t-field="o.devise_client_id.symbol"/>
                                 </div>
                             </div>
                         </div>
@@ -200,10 +200,10 @@
                                     <tr style="border-bottom: 1px solid;">
                                         <td class="text-left"><span t-field="variante.variante_id.devis_id.designation"/></td>
                                         <td class="text-center"><span t-field="variante.variante_id.devis_id.capacite_txt"/></td>
-                                        <td class="text-right"><span t-field="variante.variante_id.prix_vente_remise"/> €</td>
-                                        <td class="text-center"><span t-field="variante.variante_id.quantite"/></td>
-                                        <td t-if="variante.quantite>0"  class="text-right"><span t-field="variante.variante_id.prix_vente_lot"/></td>
-                                        <td t-if="variante.quantite==0" class="text-right">0,00 €</td>
+                                        <td class="text-right"><span t-field="variante.prix_vente_remise_devise"/> <span t-field="o.devise_client_id.symbol"/></td>
+                                        <td class="text-center"><span t-field="variante.quantite"/></td>
+                                        <td t-if="variante.quantite>0"  class="text-right"><span t-field="variante.montant"/> <span t-field="o.devise_client_id.symbol"/></td>
+                                        <td t-if="variante.quantite==0" class="text-right">0,00 <span t-field="o.devise_client_id.symbol"/></td>
                                     </tr>
                                 </t>
                             </tbody>
@@ -225,7 +225,7 @@
                                     </tr>
                                 </table>
                                 <div t-if="o.capacite" style="font-style: italic;">
-                                    Capacité totale de <span t-field="o.capacite"/>HL soit <span t-field="o.prix_par_hl"/> € HT par HL
+                                    Capacité totale de <span t-field="o.capacite"/>HL soit <span t-field="o.prix_par_hl"/> <span t-field="o.devise_client_id.symbol"/> HT par HL
                                 </div>
                             </div>
                         </div>

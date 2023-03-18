@@ -34,6 +34,10 @@
                             <field name="is_cout_horaire_montage"/>
                             <field name="is_cout_horaire_be"/>
                         </group>
+                        <group string="Entête et pied de page des documents">
+                            <field name="report_header"/>
+                            <field name="report_footer"/>
+                        </group>
                     </page>
                 </page>
             </field>

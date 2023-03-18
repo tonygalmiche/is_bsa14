@@ -90,11 +90,15 @@
                                     <field name="capacite" sum="Total"/>
                                     <field name="unite"/>
                                     <field name="quantite" sum="Total"/>
+                                    <field name="prix_vente_remise_devise"/>
+                                    <field name="montant" sum="Total"/>
+                                    <field name="devise_client_id"/>
                                 </tree>
                             </field>
                         </group>
                         <group>
-                            <field name="montant_ht" />
+                            <field name="devise_client_id"/>
+                            <field name="montant_ht"/>
 
                             <field name="capacite"    attrs="{'invisible':[('capacite','=',0)]}"/>
                             <field name="prix_par_hl" attrs="{'invisible':[('capacite','=',0)]}"/>
@@ -223,13 +227,12 @@
                                 <field name="version"/>
                                 <field name="is_societe_commerciale_id"/>
                                 <field name="partner_id"/>
+                                <field name="devise_client_id"/>
+                                <field name="taux_devise"/>
                                 <field name="nom_affaire"/>
                                 <field name="type_cuve_id"/>
                                 <field name="designation"/>
                                 <field name="designation_complementaire"/>
-                                <!-- <field name="capacite" readonly="1"/>
-                                <field name="unite"/> -->
-
                                 <label for="capacite" string="Capacité"/>
                                 <div class="d-flex">
                                     <field name="capacite" readonly="1"/>
@@ -244,10 +247,7 @@
                                 <field name="createur_id"/>
                                 <field name="montant_matiere" invisible="1"/>
                             </group>
-                            <!-- <group>
-                                <field name="image" widget='image' class="oe_center oe_avatar" nolabel="1"/>
-                            </group> -->
-                        </group>
+                         </group>
                         <notebook>
                             <page string="Devis">
 
@@ -264,18 +264,6 @@
                                         </tree>
                                     </field>
                                 </group>
-                                <!-- <group>
-                                    <field name="capacite_txt"/>
-                                </group>
-                                <group>
-                                    <button
-                                        name="recalculer_action"
-                                        type="object"
-                                        string="Actualiser le calculateur"
-                                    />
-                                </group>
- -->
-
                                 <group>
                                     <group string="Temps">
                                         <field name="tps_montage"    widget="float_time" readonly="1" />
@@ -439,7 +427,6 @@
 
 
         <!-- is.devis.parametrable.variante -->
-
         <record id="is_devis_parametrable_variante_tree" model="ir.ui.view">
             <field name="name">is_devis_parametrable_variante_tree</field>
             <field name="model">is.devis.parametrable.variante</field>
@@ -448,6 +435,7 @@
                     <field name="devis_id"/>
                     <field name="is_societe_commerciale_id" optional="show"/>
                     <field name="partner_id" optional="show"/>
+                    <field name="devise_client_id" optional="hide"/>
                     <field name="name" optional="show"/>
                     <field name="quantite" optional="show"/>
                     <field name="montant_unitaire"       optional="show"/>
@@ -492,7 +480,7 @@
                                 <field name="capacite"               invisible="1"/>
                                 <field name="unite"                  invisible="1"/>
                                 <field name="is_societe_commerciale_id" readonly="1"/>
-                                <field name="partner_id"             readonly="1"/>
+                                <field name="partner_id"                readonly="1"/>
                                 <field name="name"/>
                                 <field name="quantite"/>
                                 <field name="cout_horaire_montage"/>
@@ -578,14 +566,23 @@
                                 <field name="montant_remise" invisible="1"/>
                                 <field name="intitule_remise"    attrs="{'invisible':[('montant_remise','=',0)]}"/>
                                 <field name="prix_vente_remise"  attrs="{'invisible':[('montant_remise','=',0)]}"/>
-                                <field name="prix_par_hl"/>
-                                <field name="afficher_prix_par_hl"/>
                                 <field name="montant_marge"/>
                                 <field name="taux_marge_brute"/>
                                 <field name="taux_marge_commerciale"/>
                                 <field name="prix_vente_revendeur"/>
-                                <!-- <field name="prix_vente_revendeur_int"/> -->
                                 <field name="montant_marge_revendeur"/>
+                                <field name="prix_par_hl"/>
+                                <field name="afficher_prix_par_hl"/>
+                            </group>
+                            <group string="Prix de vente unitaire (Devise)">
+                                <field name="devise_client_id"/>
+                                <field name="taux_devise"/>
+                                <field name="prix_vente_devise"/>
+                                <field name="prix_vente_int_devise"/>
+                                <field name="montant_remise_devise" invisible="1"/>
+                                <field name="intitule_remise_devise"    attrs="{'invisible':[('montant_remise_devise','=',0)]}"/>
+                                <field name="prix_vente_remise_devise"  attrs="{'invisible':[('montant_remise_devise','=',0)]}"/>
+                                <field name="prix_par_hl_devise"/>
                             </group>
                          </group>
                         <group>

@@ -18,6 +18,7 @@ class is_societe_commerciale(models.Model):
     name   = fields.Char("Nom",required=True)
     logo   = fields.Binary("Logo", help="Logo utilisé dans les documents (ex : AR de commande)")
     slogan = fields.Char("Slogan")
+    report_footer = fields.Text("Pied de page de rapport")
 
 
 class sale_order(models.Model):

@@ -235,6 +235,9 @@
                             <field name="slogan"/>
                             <field name="report_footer"/>
                         </group>
+                        <group string="CGV">
+                            <field name="cgv_ids" widget="many2many_binary"/>
+                        </group>
                     </sheet>
                 </form>
             </field>

@@ -19,6 +19,7 @@ class is_societe_commerciale(models.Model):
     logo   = fields.Binary("Logo", help="Logo utilisé dans les documents (ex : AR de commande)")
     slogan = fields.Char("Slogan")
     report_footer = fields.Text("Pied de page de rapport")
+    cgv_ids       = fields.Many2many('ir.attachment', 'is_societe_commerciale_cgv_rel', 'societe_id', 'attachment_id', 'CGV')
 
 
 class sale_order(models.Model):

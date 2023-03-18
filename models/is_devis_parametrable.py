@@ -278,16 +278,29 @@ class is_devis_parametrable_affaire(models.Model):
 
 
             #** CGV ***********************************************************
-            company = self.env.user.company_id
-            for attachment in company.is_cgv_ids:
-                pdf=base64.b64decode(attachment.datas)
-                path="/tmp/affaire_%s_%02d_pied.pdf"%(obj.id,ct)
-                f = open(path,'wb')
-                f.write(pdf)
-                f.close()
-                paths.append(path)
-                ct+=1
+            if len(obj.is_societe_commerciale_id.cgv_ids)>0:
+                company = self.env.user.company_id
+                for attachment in obj.is_societe_commerciale_id.cgv_ids:
+                    pdf=base64.b64decode(attachment.datas)
+                    path="/tmp/affaire_%s_%02d_pied.pdf"%(obj.id,ct)
+                    f = open(path,'wb')
+                    f.write(pdf)
+                    f.close()
+                    paths.append(path)
+                    ct+=1
+            else:
+                company = self.env.user.company_id
+                for attachment in company.is_cgv_ids:
+                    pdf=base64.b64decode(attachment.datas)
+                    path="/tmp/affaire_%s_%02d_pied.pdf"%(obj.id,ct)
+                    f = open(path,'wb')
+                    f.write(pdf)
+                    f.close()
+                    paths.append(path)
+                    ct+=1
             #******************************************************************
+
+
 
 
             # ** Merge des PDF *************************************************

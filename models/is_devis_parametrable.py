@@ -881,7 +881,7 @@ class is_devis_parametrable_section_product(models.Model):
     @api.depends('description','quantite')
     def _compute_description_report(self):
         for obj in self:
-            description = obj.description or obj.product_id.name
+            description = obj.description or obj.product_id.name or ''
             description = str(int(obj.quantite))+" x "+description
             obj.description_report = description
 

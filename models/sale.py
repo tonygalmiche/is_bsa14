@@ -155,7 +155,6 @@ class sale_order(models.Model):
             template_id = self._find_mail_template()
             template = self.env['mail.template'].browse(template_id)
             #template.attachment_ids= [(6, 0, [attachment_id])]
-            print("attachment_id =",attachment_id, name)
             # ******************************************************************
 
 
@@ -176,10 +175,6 @@ class sale_order(models.Model):
                 'force_email': True,
                 'model_description': self.with_context(lang=lang).type_name,
             }
-
-
-            print(ctx)
-
             return {
                 'type': 'ir.actions.act_window',
                 'view_mode': 'form',
@@ -204,8 +199,19 @@ class sale_order(models.Model):
                 picking.move_line_ids_without_package.unlink()
                 lines = self.env['is.tracabilite.livraison'].search([('id', 'in', etiquettes)])
                 for line in lines:
+                    move_id=False
+                    mem=False
+                    for move in picking.move_ids_without_package:
+                        if move.product_id.product_tmpl_id==line.product_id:
+                            date_prevue = move.sale_line_id.is_derniere_date_prevue
+                            if not mem:
+                                mem=date_prevue
+                            if date_prevue<=mem:
+                                mem=date_prevue
+                                move_id = move.id
                     product = line.product_id
                     vals={
+                        "move_id"           : move_id,
                         "picking_id"        : picking.id,
                         "product_id"        : line.product_id.product_variant_id.id,
                         "company_id"        : picking.company_id.id,
@@ -229,7 +235,6 @@ class sale_order(models.Model):
                 user    = self.env['res.users'].browse(self._uid)
                 imprimante = user.company_id.is_imprimante_bl
                 if imprimante:
-                    print(picking, picking.state, picking.etiquette_livraison_ids)
 
                     #** Enregistrement du PDF du BL *******************************
                     pdf = request.env.ref('stock.action_report_delivery').sudo().with_context(tz=user.tz)._render_qweb_pdf([picking.id])[0]
@@ -242,12 +247,10 @@ class sale_order(models.Model):
 
                     # Impression en recto-verso
                     cmd="lp -o sides=two-sided-long-edge -d "+imprimante+" "+path
-                    print(cmd)
                     os.system(cmd)
 
                     # Impression premiere page uniquement
                     cmd="lp -P 1 -d "+imprimante+" "+path
-                    print(cmd)
                     os.system(cmd)
                 #******************************************************************
 
@@ -263,13 +266,10 @@ class sale_order(models.Model):
             user  = self.env['res.users'].browse(self._uid)
 
             user_tz = user.tz 
-            print("## TEST ##",user, user_tz)
 
 
             imprimante = user.company_id.is_imprimante_bl
             if imprimante:
-                print(obj, imprimante, picking_id)
-
                 #** Enregistrement du PDF du BL *******************************
                 pdf = request.env.ref('stock.action_report_delivery').sudo().with_context(tz=user_tz)._render_qweb_pdf([picking_id])[0]
                 path="/tmp/%s.pdf"%(picking_id)

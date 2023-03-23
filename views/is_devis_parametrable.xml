@@ -229,6 +229,7 @@
                                 <field name="partner_id"/>
                                 <field name="devise_client_id"/>
                                 <field name="taux_devise"/>
+                                <a href="https://www.xe.com/fr/currencyconverter/convert/?Amount=1&amp;From=CHF&amp;To=EUR" target="_blank">Recherche taux de la devise</a>
                                 <field name="nom_affaire"/>
                                 <field name="type_cuve_id"/>
                                 <field name="designation"/>

@@ -10,6 +10,8 @@ class is_sale_order_line(models.Model):
     order_id               = fields.Many2one('sale.order', 'Commande')
     date_order             = fields.Date("Date commande")
     client_order_ref       = fields.Char("Commande client")
+    is_notre_ref_devis     = fields.Char("Notre référence de devis")
+    is_nom_affaire         = fields.Char("Nom de l'affaire")
     contact_id             = fields.Many2one('res.partner', 'Contact')
     partner_id             = fields.Many2one('res.partner', 'Client')
     is_categorie_client_id = fields.Many2one('is.categorie.client', string='Catégorie de client')
@@ -25,7 +27,6 @@ class is_sale_order_line(models.Model):
     is_date_demandee       = fields.Date("Date demandée")
     state                  = fields.Char("Etat de la commande")
 
-
     def init(self):
         cr=self._cr
         tools.drop_view_if_exists(cr, 'is_sale_order_line')
@@ -35,7 +36,6 @@ class is_sale_order_line(models.Model):
                     sol.id,
                     sol.order_id,
                     so.date_order,
-                    so.client_order_ref,
                     so.partner_id contact_id,
                     COALESCE(rp.parent_id,so.partner_id) partner_id,
                     rp.is_categorie_client_id,
@@ -46,6 +46,9 @@ class is_sale_order_line(models.Model):
                     sol.product_uom_qty*sol.price_unit*(100-discount)/100 montant_ht,
                     sol.is_date_prevue,
                     sol.is_date_demandee,
+                    so.client_order_ref,
+                    so.is_notre_ref_devis,
+                    so.is_nom_affaire,
                     so.state,
                     COALESCE((select sum(sm.product_uom_qty) from stock_move sm where sm.sale_line_id=sol.id and sm.state='done'),0) qt_livree,
                     (sol.product_uom_qty-COALESCE((select sum(sm.product_uom_qty) from stock_move sm where sm.sale_line_id=sol.id and sm.state='done'),0)) reste_a_livrer,

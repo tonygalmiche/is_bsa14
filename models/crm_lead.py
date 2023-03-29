@@ -6,7 +6,7 @@ class is_crm_lead_stage(models.Model):
     _description = "Etapes des opportunité"
 
     lead_id       = fields.Many2one('crm.lead', 'Opportunité', required=True, ondelete='cascade')
-    date_creation = fields.Datetime("Date", readonly=True, default=fields.Datetime.now)
+    date_creation = fields.Datetime("Date", readonly=False, default=fields.Datetime.now)
     stage_id      = fields.Many2one('crm.stage', 'Etapes', required=True)
     commentaire   = fields.Char("Commentaire")
 

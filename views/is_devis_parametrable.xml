@@ -81,6 +81,7 @@
                         <group string="Variantes des devis">
                             <field name="variante_ids" nolabel="1">
                                 <tree editable="bottom">
+                                    <field name="sequence" widget="handle" />
                                     <button title="Variante" name="acceder_variante_action" type="object" icon="fa-search-plus"/>
                                     <field name="affaire_id" invisible="1"/>
                                     <field 

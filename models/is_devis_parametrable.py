@@ -346,9 +346,10 @@ class is_devis_parametrable_affaire(models.Model):
 class is_devis_parametrable_affaire_variante(models.Model):
     _name='is.devis.parametrable.affaire.variante'
     _description = "Variantes des affaires"
-    _order='variante_id'
+    _order='sequence,variante_id'
 
     affaire_id  = fields.Many2one('is.devis.parametrable.affaire', 'Affaire', required=True, ondelete='cascade')
+    sequence    = fields.Integer("Sequence")
     variante_id = fields.Many2one('is.devis.parametrable.variante', 'Variante')
     capacite    = fields.Integer("Capacité", related="variante_id.capacite", readonly=True)
     unite       = fields.Selection(related="variante_id.unite", readonly=True)

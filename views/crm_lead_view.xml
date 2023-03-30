@@ -1,5 +1,30 @@
 <?xml version="1.0"?>
 <odoo>
+
+
+    <!-- crm.stage -->
+    <record id="is_crm_stage_form" model="ir.ui.view">
+        <field name="name">is_crm_stage_form</field>
+        <field name="model">crm.stage</field>
+        <field name="inherit_id" ref="crm.crm_stage_form"/>
+        <field name="arch" type="xml">
+            <field name="is_won" position="after">
+                <field name="is_devis_envoye"/>
+            </field>
+        </field>
+    </record>
+    <record id="is_crm_stage_tree" model="ir.ui.view">
+        <field name="name">is_crm_stage_tree</field>
+        <field name="model">crm.stage</field>
+        <field name="inherit_id" ref="crm.crm_stage_tree"/>
+        <field name="arch" type="xml">
+            <field name="is_won" position="after">
+                <field name="is_devis_envoye"/>
+            </field>
+        </field>
+    </record>
+
+
     <!-- crm.lead -->
     <record id="is_crm_lead_view_form" model="ir.ui.view">
         <field name="name">is_crm_lead_view_form</field>
@@ -25,7 +50,6 @@
                 <field name="is_affaire_id"/>
                 <field name="is_order_id"/>
             </field>
-
             <page name="internal_notes" position="after">
                 <page string="Etapes">
                     <field name="is_stage_ids" nolabel="1">
@@ -36,6 +60,14 @@
                             <field name="commentaire"/>
                         </tree>
                     </field>
+                    <group string="Statistiques">
+                        <field name="is_date_premier_devis_envoye"/> 
+                        <field name="is_duree_envoi_premier_devis"/> 
+                        <field name="is_date_dernier_traitement"/> 
+                        <field name="is_duree_gagner"/> 
+                        <field name="is_duree_totale"/> 
+                        <field name="is_nombre_modifications"/> 
+                    </group>
                 </page>
                 <page string="Données d'entrée">
                     <field name="is_entree_ids" nolabel="1">
@@ -58,10 +90,6 @@
                     </field>
                 </page>
             </page>
-
-
-
-
         </field>
     </record>
     <record id="is_crm_case_tree_view_oppor" model="ir.ui.view">
@@ -91,6 +119,14 @@
             </field>
             <field name="activity_date_deadline_my" position="attributes">
                 <attribute name="optional">hide</attribute>
+            </field>
+            <field name="stage_id" position="after" >
+                <field name="is_date_premier_devis_envoye" optional="hide"/> 
+                <field name="is_duree_envoi_premier_devis" optional="hide"/> 
+                <field name="is_date_dernier_traitement"   optional="hide"/> 
+                <field name="is_duree_gagner"              optional="hide"/> 
+                <field name="is_duree_totale"              optional="hide"/> 
+                <field name="is_nombre_modifications"      optional="hide"/> 
             </field>
         </field>
     </record>

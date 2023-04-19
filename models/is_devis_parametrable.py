@@ -1134,7 +1134,10 @@ class is_devis_parametrable_variante(models.Model):
                 taux_marge_brute = 100*(obj.prix_vente-obj.montant_equipement/quantite-obj.montant_matiere/quantite)/obj.prix_vente
             obj.taux_marge_brute = taux_marge_brute
 
-            obj.taux_marge_commerciale  = 100*obj.montant_marge / obj.prix_vente_remise
+            taux_marge_commerciale = 0
+            if obj.prix_vente_remise>0:
+                taux_marge_commerciale  = 100*obj.montant_marge / obj.prix_vente_remise
+            obj.taux_marge_commerciale = taux_marge_commerciale
 
             obj.montant_marge_revendeur = prix_vente_revendeur - obj.prix_vente_remise
 

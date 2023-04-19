@@ -34,12 +34,7 @@ class is_paye(models.Model):
             obj.employe_ids.unlink()
             intitules = self.env['is.paye.intitule'].search([])
             employees = self.env['hr.employee'].search([('department_id','!=','Inactif'),('department_id','!=','Détaché'),('is_interimaire','=',False)])
-
-
-            employees = self.env['hr.employee'].search([('id','=',842)])
-
-
-
+            #employees = self.env['hr.employee'].search([('id','=',842)])
             for employee in employees:
                 #** Recherche compteur du mois précédent **********************
                 compteur=False

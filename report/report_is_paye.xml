@@ -52,18 +52,18 @@
                                         <td class="text-right"><span t-field="line.heures_semaine"/></td>
                                         <td class="text-right"><span t-field="line.balance"/></td>
                                         <td class="text-left"><span t-field="line.info_id.name"/></td>
-                                        <td class="text-right"><span t-field="line.hs25"/></td>
-                                        <td class="text-right"><span t-field="line.hs50"/></td>
-                                        <td class="text-right"><span t-field="line.cp_heure"/></td>
-                                        <td class="text-right"><span t-field="line.cp_jour"/></td>
-                                        <td class="text-right"><span t-field="line.maladie"/></td>
-                                        <td class="text-right"><span t-field="line.at"/></td>
-                                        <td class="text-right"><span t-field="line.abs"/></td>
-                                        <td class="text-right"><span t-field="line.ecole"/></td>
+                                        <td class="text-right"><span t-esc="(line.hs25 or '')"/></td>
+                                        <td class="text-right"><span t-esc="(line.hs50 or '')"/></td>
+                                        <td class="text-right"><span t-esc="(line.cp_heure or '')"/></td>
+                                        <td class="text-right"><span t-esc="(line.cp_jour or '')"/></td>
+                                        <td class="text-right"><span t-esc="(line.maladie or '')"/></td>
+                                        <td class="text-right"><span t-esc="(line.at or '')"/></td>
+                                        <td class="text-right"><span t-esc="(line.abs or '')"/></td>
+                                        <td class="text-right"><span t-esc="(line.ecole or '')"/></td>
                                         <td style="display:none"></td>
                                     </tr>
 
-                                    <tr>
+                                    <!-- <tr>
                                         <td></td>
                                         <td class="text-right"><b><span t-field="o.heures_semaine"/></b></td>
                                         <td class="text-right"><b><span t-field="o.balance"/></b></td>
@@ -77,7 +77,7 @@
                                         <td class="text-right"><b><span t-field="o.abs"/></b></td>
                                         <td class="text-right"><b><span t-field="o.ecole"/></b></td>
                                         <td style="display:none"></td>
-                                    </tr>
+                                    </tr> -->
                                 </tbody>
 
 
@@ -89,7 +89,7 @@
                             <table style="width:100%;border:0;border-spacing: 2mm;">
                                 <tr>
                                     <td style="width:33%;border:0">
-                                        <table class="table table-condensed">
+                                        <!-- <table class="table table-condensed">
                                             <thead>
                                                 <tr>
                                                     <th class="text-center"><strong>Intitulé</strong></th>
@@ -106,11 +106,36 @@
                                                     <td style="display:none"></td>
                                                 </tr>
                                             </tbody>
+                                        </table> -->
+
+                                        <table class="table table-condensed">
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-center"><strong>Intitulé</strong></th>
+                                                    <th class="text-center"><strong>Valeur</strong></th>
+                                                    <th style="display:none"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr><td class="text-left">Heures semaine   </td><td class="text-right"><span t-esc="(o.heures_semaine or '')"/></td></tr>
+                                                <tr><td class="text-left">Balance          </td><td class="text-right"><span t-esc="(o.balance or '')"/></td></tr>
+                                                <tr><td class="text-left">HS 25            </td><td class="text-right"><span t-esc="(o.hs25 or '')"/></td></tr>
+                                                <tr><td class="text-left">HS 50            </td><td class="text-right"><span t-esc="(o.hs50 or '')"/></td></tr>
+                                                <tr><td class="text-left">CP Heure         </td><td class="text-right"><span t-esc="(o.cp_heure or '')"/></td></tr>
+                                                <tr><td class="text-left">CP Jour          </td><td class="text-right"><span t-esc="(o.cp_jour or '')"/></td></tr>
+                                                <tr><td class="text-left">Maladie          </td><td class="text-right"><span t-esc="(o.maladie or '')"/></td></tr>
+                                                <tr><td class="text-left">AT               </td><td class="text-right"><span t-esc="(o.at or '')"/></td></tr>
+                                                <tr><td class="text-left">Abs Injustifiée  </td><td class="text-right"><span t-esc="(o.abs or '')"/></td></tr>
+                                                <tr><td class="text-left">Ecole            </td><td class="text-right"><span t-esc="(o.ecole or '')"/></td></tr>
+                                                <tr><td class="text-left">Déplacement      </td><td class="text-right"><span t-esc="(o.deplacement or '')"/></td></tr>
+                                                <tr><td class="text-left">Détachement      </td><td class="text-right"><span t-esc="(o.detachement or '')"/></td></tr>
+                                                <tr><td class="text-left">Ticket restaurant</td><td class="text-right"><span t-esc="(o.ticket_restaurant or '')"/></td></tr>
+                                            </tbody>
                                         </table>
                                     </td>
-                                    <td style="width:2%;border:0"></td>
-                                    <td style="width:33%;border:0">
-                                        <table class="table table-condensed">
+                                    <td style="width:1%;border:0"></td>
+                                    <td style="border:0">
+                                        <table class="table" style="width:100%">
                                             <thead>
                                                 <tr>
                                                     <th class="text-center"><strong>Intitulé</strong></th>
@@ -129,12 +154,10 @@
                                             </tbody>
                                         </table>
                                     </td>
-                                    <td style="padding:1em;border:0">
-                                        <span t-field="o.commentaire"/>
-                                    </td>
                                     <td style="display:none"></td>
                                 </tr>
                             </table>
+                            <div t-field="o.commentaire"/>
                         </div>
                     </t>
                  </t>

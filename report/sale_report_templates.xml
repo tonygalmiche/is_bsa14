@@ -184,6 +184,32 @@
                     </div>
                 </div>
             </div>
+            <t t-if="doc.is_group_line_print">
+                <div><b>Cummul des quantités commandées par article : </b></div>
+                <table class="table table-sm o_main_table">
+                    <thead style="display: table-row-group">
+                        <tr>
+                            <th class="text-left">Article</th>
+                            <th class="text-right">Quantité</th>
+                            <th class="text-right">Prix unitaire</th>
+                            <th class="text-right">Montant</th>
+                        </tr>
+                    </thead>
+                    <tbody class="sale_tbody">
+                        <t t-foreach="doc.is_group_line_ids" t-as="line">
+                            <tr style="border-bottom: 1px solid black;">
+                                <td class="text-left"><span t-field="line.product_id"/></td>
+                                <td class="text-right"><span t-field="line.product_uom_qty"/></td>
+                                <td class="text-right"><span t-field="line.price_unit"/></td>
+                                <td class="text-right"><span t-field="line.price_subtotal"/></td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </t>
+
+
+
             <!-- <p t-if="doc.state not in ['draft','sent']">
 Vous allez être recontacté rapidement par l'un de nos techniciens pour la réalisation des plans et le suivi de votre dossier.<br />
 Une fois les éventuelles modifications apportées et le plan validé par vos soins, nous lancerons la fabrication.<br />

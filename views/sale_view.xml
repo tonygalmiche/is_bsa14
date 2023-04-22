@@ -163,11 +163,28 @@
                     <field name="is_pourcentage_commission"/>
                     <field name="is_montant_hors_commission"/>
                 </field>
-
-
-
-
-
+                <group name="note_group" position="after">
+                    <group string="Regroupement des lignes par article" attrs="{'invisible':[('is_group_line_ids','=',[])]}">
+                        <field name="is_group_line_ids" nolabel="1">
+                            <tree>
+                                <field name="product_id"/>
+                                <field name="product_uom_qty" sum="Total"/>
+                                <field name="price_unit"/>
+                                <field name="currency_id" invisible="1"/>
+                                <field name="price_subtotal" sum="Total"/>
+                            </tree>
+                        </field>
+                    </group>
+                    <group>
+                        <button 
+                            name="maj_prix_par_quantite_action" 
+                            string="Mise à jour des prix par quantité" type="object" 
+                        />
+                    </group>
+                    <group>
+                        <field name="is_group_line_print"/>
+                    </group>
+                </group>
             </field>
         </record>
         <record model="ir.ui.view" id="is_view_quotation_tree">

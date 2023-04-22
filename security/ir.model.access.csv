@@ -192,5 +192,5 @@ access_is_finition_cuve_manager,access_is_finition_cuve_manager,model_is_finitio
 access_is_salon,access_is_salon,model_is_salon,sales_team.group_sale_salesman_all_leads,1,1,1,1
 access_is_suivi_commercial,access_is_suivi_commercial,model_is_suivi_commercial,sales_team.group_sale_salesman_all_leads,1,1,1,1
 
-
+access_is_sale_order_line_group,access_is_sale_order_line_group,model_is_sale_order_line_group,base.group_user,1,1,1,1
 

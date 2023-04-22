@@ -272,6 +272,14 @@
                         <div style="text-align:center;margin-top:5mm">
                             <img src='/is_bsa14/static/src/img/made-in-jura.jpg' style="height:30mm" />
                         </div>
+
+
+                        <t t-if="o.test_html">
+                            <div t-field="o.test_html"/>
+                        </t>
+
+
+
                     </div>
                 </t>
             </t>

@@ -113,6 +113,11 @@
                             <field name="recapitulatif_ids" widget="many2many_binary"/>
                             <field name="pied_ids"          widget="many2many_binary"/>
                         </group>
+
+                        <group string="Test HTML">
+                            <field name="test_html" options="{'style-inline': true}"/>
+                        </group>
+
                         <group string="Devis généré">
                             <field name="devis_ids" widget="many2many_binary" readonly="1"/>
                         </group>

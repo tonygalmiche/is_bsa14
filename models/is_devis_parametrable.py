@@ -60,6 +60,10 @@ class is_devis_parametrable_affaire(models.Model):
 
     devise_client_id  = fields.Many2one('res.currency', "Devise Client", readonly=True, compute='_compute_montants')
 
+    test_html = fields.Html(string="Test HTML", default="")
+
+
+
 
     def write(self, vals):
         vals["date_modification"] = fields.Date.today()

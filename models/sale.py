@@ -22,6 +22,24 @@ class is_societe_commerciale(models.Model):
     cgv_ids       = fields.Many2many('ir.attachment', 'is_societe_commerciale_cgv_rel', 'societe_id', 'attachment_id', 'CGV')
 
 
+class is_sale_order_line_group(models.Model):
+    _name = "is.sale.order.line.group"
+    _description = "Regroupement des lignes par article pour recalculer le prix par quantité"
+    _order = "product_id"
+
+    @api.depends("product_uom_qty","price_unit")
+    def _compute_price_subtotal(self):
+        for obj in self:
+            obj.price_subtotal = obj.product_uom_qty * obj.price_unit
+
+    order_id        = fields.Many2one('sale.order', 'Commande', required=True, ondelete='cascade')
+    product_id      = fields.Many2one('product.product', 'Article', required=True)
+    product_uom_qty = fields.Float("Quantité", digits='Product Unit of Measure', required=False)
+    price_unit      = fields.Float("Prix unitaire", digits='Product Price', required=False)
+    currency_id     = fields.Many2one(related='order_id.currency_id')
+    price_subtotal  = fields.Monetary(compute='_compute_price_subtotal', string='Montant', readonly=True, store=True)
+
+
 class sale_order(models.Model):
     _inherit = "sale.order"
 
@@ -56,6 +74,36 @@ class sale_order(models.Model):
     is_date_ar                 = fields.Date("Date AR")
     is_notre_ref_devis         = fields.Char("Notre référence de devis")
     is_nom_affaire             = fields.Char("Nom de l'affaire")
+    is_group_line_ids          = fields.One2many('is.sale.order.line.group', 'order_id', 'Lignes par article', copy=False, readonly=True)
+    is_group_line_print        = fields.Boolean("Imprimer le regroupement par article", default=False)
+
+
+    def maj_prix_par_quantite_action(self):
+        for obj in self:
+            lines={}
+            for line in obj.order_line:
+                if line.product_id not in lines:
+                    lines[line.product_id]=0
+                lines[line.product_id]+=line.product_uom_qty
+            obj.is_group_line_ids.unlink()
+            for product in lines:
+                qty = lines[product]
+                product_context = dict(
+                    self.env.context, 
+                    partner_id=obj.partner_id.id, 
+                    date=obj.date_order, 
+                    uom=product.uom_id.id)
+                price, rule_id = obj.pricelist_id.with_context(product_context).get_product_price_rule(product, qty or 1.0, obj.partner_id)
+                vals={
+                    "order_id"       : obj.id,
+                    "product_id"     : product.id,
+                    "product_uom_qty": qty,
+                    "price_unit"     : price,
+                }
+                self.env['is.sale.order.line.group'].create(vals)
+                for line in obj.order_line:
+                    if line.product_id==product:
+                        line.price_unit = price
 
 
     def mouvement_stock_action(self):

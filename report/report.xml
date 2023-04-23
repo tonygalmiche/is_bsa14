@@ -82,6 +82,16 @@
         <field name="binding_type">report</field>
     </record>
 
+    <record id="action_report_variante_devis_parametrable_parametre" model="ir.actions.report">
+        <field name="name">Paramètres de la variante </field>
+        <field name="model">is.devis.parametrable.variante</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">is_bsa14.report_variante_devis_parametrable_parametre</field>
+        <field name="report_file">is_bsa14.report_variante_devis_parametrable_parametre</field>
+        <field name="binding_model_id" ref="model_is_devis_parametrable_variante"/>
+        <field name="binding_type">report</field>
+    </record>
+
     <record id="action_report_devis_parametrable_affaire" model="ir.actions.report">
         <field name="name">Récapitulatif affaire</field>
         <field name="model">is.devis.parametrable.affaire</field>

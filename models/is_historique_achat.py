@@ -2,6 +2,8 @@
 from itertools import product
 from odoo import models,fields,api
 import datetime
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class is_historique_achat_actualiser(models.Model):
@@ -14,26 +16,40 @@ class is_historique_achat_actualiser(models.Model):
 
     def get_qt(self, annee, product_id, picking_type_id=0, where=False):
         cr=self._cr
-        date_debut = annee+'-01-01 00:00:00'
-        date_fin   = annee+'-12-31 23:59:59'
         SQL="""
             select sum(sm.product_uom_qty)
             from stock_move sm
-            where 
-                sm.product_id=%s  and 
-                date>=%s and 
-                date<=%s and 
-                sm.picking_type_id=%s
+            where sm.product_id=%s  and sm.picking_type_id=%s
         """
+        if annee:
+            date_debut = annee+'-01-01 00:00:00'
+            date_fin   = annee+'-12-31 23:59:59'
+            SQL+=" and date>='%s' and date<='%s' "%(date_debut,date_fin) 
         if where:
             SQL+=" and " + where
-
-        cr.execute(SQL,[product_id, date_debut, date_fin, picking_type_id])
+        cr.execute(SQL,[product_id, picking_type_id])
         moves = cr.fetchall()
         qt = 0
         for move in moves:
             qt = move[0]
         return qt
+
+
+
+    def actualiser_action_ir_cron(self):
+        print()
+        res=self.env['is.historique.achat.actualiser'].search([])
+        nb = len(res)
+        ct=1
+        for obj in res:
+            obj.actualiser_action()
+            _logger.info("%s/%s actualiser_action_ir_cron : %s (%s)"%(ct,nb,obj,obj.famille_id.name))
+            ct+=1
+        return True
+
+
+
+
 
 
     def actualiser_action(self):
@@ -79,7 +95,7 @@ class is_historique_achat_actualiser(models.Model):
                             line.qt_consommee_n0 = historique.qt_consommee
 
                             line.en_cours_livraison = self.get_qt(a.annee, product.id, picking_type_id=1, where="sm.state not in ('done', 'cancel')")
-                            line.conso_prevue       = self.get_qt(a.annee, product.id, picking_type_id=8, where="sm.state not in ('done', 'cancel')")
+                            line.conso_prevue       = self.get_qt(False, product.id, picking_type_id=8, where="sm.state not in ('done', 'cancel')")
 
 
 

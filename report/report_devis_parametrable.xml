@@ -413,51 +413,58 @@
 
                     <div class="page">
 
-                        <h3>Récapitulatif de l'offre</h3>
-                        <table class="table table-sm o_main_table">
-                            <thead>
-                                <tr>
-                                    <th class="text-left">Description</th>
-                                    <th class="text-center">Capacité</th>
-                                    <th class="text-right">Prix unitaire</th>
-                                    <th class="text-center">Quantité prévue</th>
-                                    <th class="text-right">Montant HT</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <t t-foreach="o.variante_ids" t-as="variante">
-                                    <tr style="border-bottom: 1px solid;">
-                                        <td class="text-left"><span t-field="variante.variante_id.devis_id.designation"/></td>
-                                        <td class="text-center"><span t-field="variante.variante_id.devis_id.capacite_txt"/></td>
-                                        <td class="text-right"><span t-field="variante.prix_vente_remise_devise"/> <span t-field="o.devise_client_id.symbol"/></td>
-                                        <td class="text-center"><span t-field="variante.quantite"/></td>
-                                        <td t-if="variante.quantite>0"  class="text-right"><span t-field="variante.montant"/> <span t-field="o.devise_client_id.symbol"/></td>
-                                        <td t-if="variante.quantite==0" class="text-right">0,00 <span t-field="o.devise_client_id.symbol"/></td>
-                                    </tr>
-                                </t>
-                            </tbody>
-                        </table>
-                        <div class="row">
-                            <div class="col-6 ml-auto">
-                                <table class="table table-sm o_main_table" style="page-break-inside: avoid;">
+
+                        <t t-if="o.descriptif_affaire_suite">
+                            <div t-field="o.descriptif_affaire_suite"/>
+                        </t>
+
+                        <t t-if="len(o.variante_ids)>0">
+                            <h3>Récapitulatif de l'offre</h3>
+                            <table class="table table-sm o_main_table">
+                                <thead>
                                     <tr>
-                                        <td><strong>Total HT</strong></td>
-                                        <td class="text-right"><span t-field="o.montant_ht"/></td>
+                                        <th class="text-left">Description</th>
+                                        <th class="text-center">Capacité</th>
+                                        <th class="text-right">Prix unitaire</th>
+                                        <th class="text-center">Quantité prévue</th>
+                                        <th class="text-right">Montant HT</th>
                                     </tr>
-                                    <tr>
-                                        <td><strong>TVA</strong></td>
-                                        <td class="text-right"><span t-field="o.montant_tva"/></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Total TTC</strong></td>
-                                        <td class="text-right"><span t-field="o.montant_ttc"/></td>
-                                    </tr>
-                                </table>
-                                <div t-if="o.capacite" style="font-style: italic;">
-                                    Capacité totale de <span t-field="o.capacite"/>HL soit <span t-field="o.prix_par_hl"/> <span t-field="o.devise_client_id.symbol"/> HT par HL
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="o.variante_ids" t-as="variante">
+                                        <tr style="border-bottom: 1px solid;">
+                                            <td class="text-left"><span t-field="variante.variante_id.devis_id.designation"/></td>
+                                            <td class="text-center"><span t-field="variante.variante_id.devis_id.capacite_txt"/></td>
+                                            <td class="text-right"><span t-field="variante.prix_vente_remise_devise"/> <span t-field="o.devise_client_id.symbol"/></td>
+                                            <td class="text-center"><span t-field="variante.quantite"/></td>
+                                            <td t-if="variante.quantite>0"  class="text-right"><span t-field="variante.montant"/> <span t-field="o.devise_client_id.symbol"/></td>
+                                            <td t-if="variante.quantite==0" class="text-right">0,00 <span t-field="o.devise_client_id.symbol"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                            <div class="row">
+                                <div class="col-6 ml-auto">
+                                    <table class="table table-sm o_main_table" style="page-break-inside: avoid;">
+                                        <tr>
+                                            <td><strong>Total HT</strong></td>
+                                            <td class="text-right"><span t-field="o.montant_ht"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>TVA</strong></td>
+                                            <td class="text-right"><span t-field="o.montant_tva"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Total TTC</strong></td>
+                                            <td class="text-right"><span t-field="o.montant_ttc"/></td>
+                                        </tr>
+                                    </table>
+                                    <div t-if="o.capacite" style="font-style: italic;">
+                                        Capacité totale de <span t-field="o.capacite"/>HL soit <span t-field="o.prix_par_hl"/> <span t-field="o.devise_client_id.symbol"/> HT par HL
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </t>
                         <t t-if="o.conditions_particulieres">
                             <h3>Conditions particulières</h3>
                             <div t-field="o.conditions_particulieres"/>
@@ -501,12 +508,6 @@
                         <div style="text-align:center;margin-top:5mm">
                             <img src='/is_bsa14/static/src/img/made-in-jura.jpg' style="height:30mm" />
                         </div>
-
-
-                        <t t-if="o.test_html">
-                            <div t-field="o.test_html"/>
-                        </t>
-
 
 
                     </div>
@@ -609,6 +610,11 @@
                         <div style="text-align:center;border-top: 1px solid black;border-bottom:1px solid black;">
                             <div style="padding:2mm;font-size:22pt;font-weight:bold;color:black">Descriptif de l'affaire</div>
                         </div>
+
+                        <t t-if="o.descriptif_affaire">
+                            <div t-field="o.descriptif_affaire"/>
+                        </t>
+
                         <div style="font-size:13pt;text-align:left;color:black;font-weight:bold;">
                             <t t-foreach="o.variante_ids" t-as="variante">
                                 <div style="padding-top:5mm;padding-left:33mm">

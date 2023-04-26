@@ -67,6 +67,12 @@
                                 <field name="image_affaire" widget='image'/>
                             </group>
                         </group>
+                        <group string="Descriptif de l'affaire">
+                            <field name="descriptif_affaire"       options="{'style-inline': true}" nolabel="1"/>
+                        </group>
+                        <group>
+                            <field name="descriptif_affaire_suite" options="{'style-inline': true}" nolabel="1"/>
+                        </group>
                         <group string="Conditions">
                             <field name="conditions_particulieres"/>
                             <field name="information_technique"/>
@@ -112,10 +118,6 @@
                             <field name="entete_ids"        widget="many2many_binary"/>
                             <field name="recapitulatif_ids" widget="many2many_binary"/>
                             <field name="pied_ids"          widget="many2many_binary"/>
-                        </group>
-
-                        <group string="Test HTML">
-                            <field name="test_html" options="{'style-inline': true}"/>
                         </group>
 
                         <group string="Devis généré">

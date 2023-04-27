@@ -199,7 +199,8 @@ class is_devis_parametrable_affaire(models.Model):
                 if line.variante_id.is_societe_commerciale_id:
                     societe_id = line.variante_id.is_societe_commerciale_id
                     break
-            obj.is_societe_commerciale_id = societe_id
+            if societe_id:
+                obj.is_societe_commerciale_id = societe_id
 
            #** Mise à jour lien CRM *******************************************
             lead_id=False

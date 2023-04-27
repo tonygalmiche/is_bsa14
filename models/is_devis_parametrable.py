@@ -26,7 +26,7 @@ class is_devis_parametrable_affaire(models.Model):
     version              = fields.Char("Version")
     attention_de         = fields.Char("A l'attention de")
     image_affaire        = fields.Binary("Image affaire")
-    is_societe_commerciale_id = fields.Many2one("is.societe.commerciale", "Société commerciale", readonly=True)
+    is_societe_commerciale_id = fields.Many2one("is.societe.commerciale", "Société commerciale", readonly=False)
     partner_id           = fields.Many2one('res.partner', 'Revendeur / Client', required=True)
     date_affaire         = fields.Date("Date affaire")
     date_modification    = fields.Date("Date", help="Date de dernière modification utilisée dans les PDF", readonly=True)
@@ -61,7 +61,7 @@ class is_devis_parametrable_affaire(models.Model):
     devise_client_id  = fields.Many2one('res.currency', "Devise Client", readonly=True, compute='_compute_montants')
 
     descriptif_affaire       = fields.Html(string="Descriptif de l'affaire", default="")
-    descriptif_affaire_suite = fields.Html(string="Descriptif de l'affaire", default="")
+    descriptif_affaire_suite = fields.Html(string="Descriptif de l'affaire (suite)", default="")
 
 
 

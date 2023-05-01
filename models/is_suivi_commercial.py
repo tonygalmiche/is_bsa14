@@ -11,6 +11,7 @@ class is_salon(models.Model):
 
 class is_suivi_commercial(models.Model):
     _name='is.suivi.commercial'
+    _inherit = ['mail.thread']
     _description='Suivi commercial'
     _order='numero desc'
 

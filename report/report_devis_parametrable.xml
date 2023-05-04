@@ -2,170 +2,189 @@
 <odoo>
 
 
+    <!-- <template id="report_invoice">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="lang" t-value="o.invoice_user_id.sudo().lang if o.move_type in ('in_invoice', 'in_refund') else o.partner_id.lang"/>
+                <t t-if="o._get_name_invoice_report() == 'account.report_invoice_document'"
+                    t-call="account.report_invoice_document" t-lang="lang"/>
+            </t>
+        </t>
+    </template>
 
+    <template id="report_invoice_with_payments">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="lang" t-value="o.invoice_user_id.sudo().lang if o.move_type in ('in_invoice', 'in_refund') else o.partner_id.lang"/>
+                <t t-set="print_with_payments" t-value="True"/>
+                <t t-if="o._get_name_invoice_report() == 'account.report_invoice_document'"
+                    t-call="account.report_invoice_document" t-lang="lang"/>
+            </t>
+        </t>
+    </template> -->
+
+
+
+    <template id="report_variante_devis_parametrable_sans_prix">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="avec_prix_de_vente" t-value="False"/>
+                <t t-call="is_bsa14.report_variante_devis_parametrable_document"/>
+            </t>
+        </t>
+    </template>
     <template id="report_variante_devis_parametrable">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
-                <t t-call="web.external_layout">
-                    <div class="page">
-
-                        <style>
-                            body {
-                                line-height: 1.2;
-                            }
-
-                            h1{
-                                font-size: 14pt;
-                                font-weight:bold;
-                            }
-                            h2{
-                                font-size: 13pt;
-                                font-weight:bold;
-                            }
-                            h3{
-                                font-size: 12pt;
-                                font-weight:bold;
-                            }
-                            .table-sm th, .table-sm td {
-                                padding: 0.1rem;
-                                padding-left:0.5em;
-                                padding-right:0.5em;
-                            }
-                        </style>
-
-                        <h1><span t-field="o.quantite"/> x <span t-field="o.devis_id.designation"/></h1>
-                        <h2><span t-field="o.devis_id.designation_complementaire"/></h2>
-                    
-                        <table class="table table-sm o_main_table">
-                            <thead>
-                                <tr>
-                                    <th class="text-center">Inox</th>
-                                    <th class="text-center">Type</th>
-                                    <th class="text-center">Finition intérieur</th>
-                                    <th class="text-center">Finition exterieur</th>
-                                    <th class="text-center">Ep.</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <t t-foreach="o.devis_id.matiere_ids" t-as="l">
-                                    <tr t-if="l.imprimer">
-                                        <td class="text-left">  <span t-field="l.section_id.name"/></td>
-                                        <td class="text-center"><span t-field="l.matiere_id.type_matiere"/></td>
-                                        <td class="text-center"><span t-field="l.matiere_id.finition_interieur"/></td>
-                                        <td class="text-center"><span t-field="l.matiere_id.finition"/></td>
-                                        <td class="text-right"> <span t-field="l.epaisseur"/>mm</td>
-                                    </tr>
-                                </t>
-                            </tbody>
-                        </table>
-
-                        <h3>Dimensions : </h3>
-                        <table class="table table-sm o_main_table">
-                            <tbody>
-                                <t t-foreach="o.devis_id.dimension_ids" t-as="l">
-                                    <t t-if="l.imprimer">
-                                        <tr>
-                                            <td class="text-left">  <span t-field="l.dimension_id.name"/></td>
-                                            <td class="text-left">
-                                                <span t-field="l.valeur"/><span t-field="l.unite_id.name"/>
-                                                <span t-field="l.description"/>
-                                            </td>
-                                        </tr>
-                                    </t>
-                                </t>
-                            </tbody>
-                        </table>
-
-
-                        <h3>Equipements : </h3>
-                        <table class="table table-sm o_main_table">
-                            <tbody>
-                                <t t-foreach="o.devis_id.section_ids" t-as="section">
-                                    <tr style="border-bottom: 1px solid;">
-                                        <td class="text-left"><span t-field="section.section_id.name"/></td>
-                                        <td class="text-left">
-
-                                            <t t-foreach="section.product_ids" t-as="l">
-                                                <div t-field="l.description_report"/>
-                                            </t>
-                                        
-                                        </td>
-                                    </tr>
-                                </t>
-                            </tbody>
-                        </table>
-                        <t t-if="o.devis_id.montant_option_thermo">
-                            <h3>Thermorégulation : </h3>
-                            <table class="table table-sm o_main_table">
-                                <tbody>
-                                    <t t-foreach="o.devis_id.options_ids" t-as="option">
-                                        <tr t-if="option.option_active and option.thermoregulation" style="border-bottom: 1px solid;">
-                                            <td class="text-left">  <span t-field="option.description_client"/></td>
-                                        </tr>
-                                    </t>
-                                </tbody>
-                            </table>
-                        </t>
-                        <t t-if="(o.devis_id.montant_option_comprise-o.devis_id.montant_option_thermo)>0">
-                            <h3>Options comprises : </h3>
-                            <table class="table table-sm o_main_table">
-                                <tbody>
-                                    <t t-foreach="o.devis_id.options_ids" t-as="option">
-                                        <tr t-if="option.option_active and option.option_comprise and not option.thermoregulation" style="border-bottom: 1px solid;">
-                                            <td class="text-left"> <span t-field="option.description_client"/></td>
-                                        </tr>
-                                    </t>
-                                </tbody>
-                            </table>
-                        </t>
-                        <div class="row">
-                            <div class="col-6 ml-auto">
-                                <table class="table table-sm o_main_table" style="page-break-inside: avoid;">
-                                    <tr>
-                                        <td><strong>Prix unitaire HT</strong></td>
-                                        <td class="text-right" style="width:40mm"><span t-field="o.prix_vente_int_devise"/> <span t-field="o.devise_client_id.symbol"/></td>
-                                    </tr>
-                                    <t t-if="o.montant_remise_devise">
-                                        <tr>
-                                            <td><strong><span t-field="o.intitule_remise_devise"/></strong></td>
-                                            <td class="text-right"><span t-field="o.montant_remise_devise"/> <span t-field="o.devise_client_id.symbol"/></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Prix unitaire avec remise HT</strong></td>
-                                            <td class="text-right"><span t-field="o.prix_vente_remise_devise"/> <span t-field="o.devise_client_id.symbol"/></td>
-                                        </tr>
-                                    </t>
-                                    <!-- <tr>
-                                        <td><strong>TVA</strong></td>
-                                        <td class="text-right"><span t-field="o.montant_tva"/> €</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Prix unitaire TTC</strong></td>
-                                        <td class="text-right"><span t-field="o.prix_vente_ttc"/> €</td>
-                                    </tr> -->
-                                </table>
-                                <div t-if="o.afficher_prix_par_hl" style="font-style: italic;">
-                                    Prix par HL : <span t-field="o.prix_par_hl_devise"/> <span t-field="o.devise_client_id.symbol"/>
-                                </div>
-                            </div>
-                        </div>
-                        <t t-if="(o.devis_id.montant_option_active-o.devis_id.montant_option_comprise)>0">
-                            <h3>Autres Options non comprises : </h3>
-                            <table class="table table-sm o_main_table">
-                                <tbody>
-                                    <t t-foreach="o.devis_id.options_ids" t-as="option">
-                                        <tr t-if="option.option_active and not option.option_comprise " style="border-bottom: 1px solid;">
-                                            <td class="text-left">  <span t-field="option.description_client"/></td>
-                                            <!-- <td class="text-right" style="width:40mm"><span t-field="option.montant_int"/> € HT</td> -->
-                                            <td class="text-right" style="width:40mm"><span t-esc="o.get_montant_option(option)"/> € HT</td>
-                                        </tr>
-                                    </t>
-                                </tbody>
-                            </table>
-                        </t>
-                    </div>
-                </t>
+                <t t-set="avec_prix_de_vente" t-value="True"/>
+                <t t-call="is_bsa14.report_variante_devis_parametrable_document"/>
             </t>
+        </t>
+    </template>
+    <template id="report_variante_devis_parametrable_document">
+        <t t-call="web.external_layout">
+            <div class="page">
+                <style>
+                    body {
+                        line-height: 1.2;
+                    }
+
+                    h1{
+                        font-size: 14pt;
+                        font-weight:bold;
+                    }
+                    h2{
+                        font-size: 13pt;
+                        font-weight:bold;
+                    }
+                    h3{
+                        font-size: 12pt;
+                        font-weight:bold;
+                    }
+                    .table-sm th, .table-sm td {
+                        padding: 0.1rem;
+                        padding-left:0.5em;
+                        padding-right:0.5em;
+                    }
+                </style>
+                <h1><span t-field="o.quantite"/> x <span t-field="o.devis_id.designation"/></h1>
+                <h2><span t-field="o.devis_id.designation_complementaire"/></h2>
+                <table class="table table-sm o_main_table">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Inox</th>
+                            <th class="text-center">Type</th>
+                            <th class="text-center">Finition intérieur</th>
+                            <th class="text-center">Finition exterieur</th>
+                            <th class="text-center">Ep.</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="o.devis_id.matiere_ids" t-as="l">
+                            <tr t-if="l.imprimer">
+                                <td class="text-left">  <span t-field="l.section_id.name"/></td>
+                                <td class="text-center"><span t-field="l.matiere_id.type_matiere"/></td>
+                                <td class="text-center"><span t-field="l.matiere_id.finition_interieur"/></td>
+                                <td class="text-center"><span t-field="l.matiere_id.finition"/></td>
+                                <td class="text-right"> <span t-field="l.epaisseur"/>mm</td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+                <h3>Dimensions : </h3>
+                <table class="table table-sm o_main_table">
+                    <tbody>
+                        <t t-foreach="o.devis_id.dimension_ids" t-as="l">
+                            <t t-if="l.imprimer">
+                                <tr>
+                                    <td class="text-left">  <span t-field="l.dimension_id.name"/></td>
+                                    <td class="text-left">
+                                        <span t-field="l.valeur"/><span t-field="l.unite_id.name"/>
+                                        <span t-field="l.description"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </t>
+                    </tbody>
+                </table>
+                <h3>Equipements : </h3>
+                <table class="table table-sm o_main_table">
+                    <tbody>
+                        <t t-foreach="o.devis_id.section_ids" t-as="section">
+                            <tr style="border-bottom: 1px solid;">
+                                <td class="text-left"><span t-field="section.section_id.name"/></td>
+                                <td class="text-left">
+
+                                    <t t-foreach="section.product_ids" t-as="l">
+                                        <div t-field="l.description_report"/>
+                                    </t>
+                                
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+                <t t-if="o.devis_id.montant_option_thermo">
+                    <h3>Thermorégulation : </h3>
+                    <table class="table table-sm o_main_table">
+                        <tbody>
+                            <t t-foreach="o.devis_id.options_ids" t-as="option">
+                                <tr t-if="option.option_active and option.thermoregulation" style="border-bottom: 1px solid;">
+                                    <td class="text-left">  <span t-field="option.description_client"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </t>
+                <t t-if="(o.devis_id.montant_option_comprise-o.devis_id.montant_option_thermo)>0">
+                    <h3>Options comprises : </h3>
+                    <table class="table table-sm o_main_table">
+                        <tbody>
+                            <t t-foreach="o.devis_id.options_ids" t-as="option">
+                                <tr t-if="option.option_active and option.option_comprise and not option.thermoregulation" style="border-bottom: 1px solid;">
+                                    <td class="text-left"> <span t-field="option.description_client"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </t>
+                <div class="row" t-if="avec_prix_de_vente">
+                    <div class="col-6 ml-auto">
+                        <table class="table table-sm o_main_table" style="page-break-inside: avoid;">
+                            <tr>
+                                <td><strong>Prix unitaire HT</strong></td>
+                                <td class="text-right" style="width:40mm"><span t-field="o.prix_vente_int_devise"/> <span t-field="o.devise_client_id.symbol"/></td>
+                            </tr>
+                            <t t-if="o.montant_remise_devise">
+                                <tr>
+                                    <td><strong><span t-field="o.intitule_remise_devise"/></strong></td>
+                                    <td class="text-right"><span t-field="o.montant_remise_devise"/> <span t-field="o.devise_client_id.symbol"/></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Prix unitaire avec remise HT</strong></td>
+                                    <td class="text-right"><span t-field="o.prix_vente_remise_devise"/> <span t-field="o.devise_client_id.symbol"/></td>
+                                </tr>
+                            </t>
+                            </table>
+                        <div t-if="o.afficher_prix_par_hl" style="font-style: italic;">
+                            Prix par HL : <span t-field="o.prix_par_hl_devise"/> <span t-field="o.devise_client_id.symbol"/>
+                        </div>
+                    </div>
+                </div>
+                <t t-if="(o.devis_id.montant_option_active-o.devis_id.montant_option_comprise)>0">
+                    <h3>Autres Options non comprises : </h3>
+                    <table class="table table-sm o_main_table">
+                        <tbody>
+                            <t t-foreach="o.devis_id.options_ids" t-as="option">
+                                <tr t-if="option.option_active and not option.option_comprise " style="border-bottom: 1px solid;">
+                                    <td class="text-left">  <span t-field="option.description_client"/></td>
+                                    <td class="text-right" style="width:40mm"><span t-esc="o.get_montant_option(option)"/> € HT</td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </t>
+            </div>
         </t>
     </template>
 
@@ -177,25 +196,11 @@
 
 
 
-        <!-- is.devis.parametrable.variante -->
-        <record id="is_devis_parametrable_variante_tree" model="ir.ui.view">
-            <field name="name">is_devis_parametrable_variante_tree</field>
-            <field name="model">is.devis.parametrable.variante</field>
-            <field name="arch" type="xml">
-                <tree >
-                    <field name="devis_id"/>
-                    <field name="is_societe_commerciale_id" optional="show"/>
-                    <field name="partner_id" optional="show"/>
-                    <field name="devise_client_id" optional="hide"/>
-                    <field name="name" optional="show"/>
-                    <field name="quantite" optional="show"/>
-                    <field name="montant_unitaire"       optional="show"/>
-                    <field name="prix_vente"             optional="show"/>
-                    <field name="montant_marge"          optional="show"/>
-                    <field name="taux_marge_commerciale" optional="show"/>
-                </tree>
-            </field>
-        </record>
+
+
+
+
+
 
 
 
@@ -631,6 +636,30 @@
             </t>
         </t>
     </template>
+
+
+
+
+
+        <!-- is.devis.parametrable.variante -->
+        <!-- <record id="is_devis_parametrable_variante_tree" model="ir.ui.view">
+            <field name="name">is_devis_parametrable_variante_tree</field>
+            <field name="model">is.devis.parametrable.variante</field>
+            <field name="arch" type="xml">
+                <tree >
+                    <field name="devis_id"/>
+                    <field name="is_societe_commerciale_id" optional="show"/>
+                    <field name="partner_id" optional="show"/>
+                    <field name="devise_client_id" optional="hide"/>
+                    <field name="name" optional="show"/>
+                    <field name="quantite" optional="show"/>
+                    <field name="montant_unitaire"       optional="show"/>
+                    <field name="prix_vente"             optional="show"/>
+                    <field name="montant_marge"          optional="show"/>
+                    <field name="taux_marge_commerciale" optional="show"/>
+                </tree>
+            </field>
+        </record> -->
 
 
 </odoo>

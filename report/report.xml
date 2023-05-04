@@ -73,7 +73,7 @@
 
 
     <record id="action_report_variante_devis_parametrable" model="ir.actions.report">
-        <field name="name">Variante devis paramètrable</field>
+        <field name="name">Descriptif avec prix de vente</field>
         <field name="model">is.devis.parametrable.variante</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">is_bsa14.report_variante_devis_parametrable</field>
@@ -81,8 +81,17 @@
         <field name="binding_model_id" ref="model_is_devis_parametrable_variante"/>
         <field name="binding_type">report</field>
     </record>
+    <record id="action_report_variante_devis_parametrable_sans_prix" model="ir.actions.report">
+        <field name="name">Descriptif sans prix de vente</field>
+        <field name="model">is.devis.parametrable.variante</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">is_bsa14.report_variante_devis_parametrable_sans_prix</field>
+        <field name="report_file">is_bsa14.report_variante_devis_parametrable_sans_prix</field>
+        <field name="binding_model_id" ref="model_is_devis_parametrable_variante"/>
+        <field name="binding_type">report</field>
+    </record>
 
-    <record id="action_report_variante_devis_parametrable_parametre" model="ir.actions.report">
+    <record id="action_report_variante_devis_parametrable_parametre2" model="ir.actions.report">
         <field name="name">Paramètres de la variante </field>
         <field name="model">is.devis.parametrable.variante</field>
         <field name="report_type">qweb-pdf</field>

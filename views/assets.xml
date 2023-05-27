@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- vim:fdn=3:
--->
 <odoo>
     <data>
-        <template id="is_assets_backend" name="is_assets_backend" inherit_id="web.assets_backend">
-            <xpath expr="." position="inside">
+        <template id="is_assets_backend" name="helpdesk assets" inherit_id="web.assets_backend">
+            <xpath expr="link[last()]" position="after">
                 <link rel="stylesheet" href="/is_bsa14/static/src/css/style.css"/>
                 <link rel="stylesheet" type="text/scss" href="/is_bsa14/static/src/scss/style.scss"/>
 
-
-
+                <!-- <link rel="stylesheet" type="text/scss" href="/is_bsa14/static/src/owl_tree_view/owl_tree_view.scss"/> -->
             </xpath>
+            <!-- <xpath expr="//script[last()]" position="after">
+                 <script type="text/javascript" src="/is_bsa14/static/src/js/test.js"></script>
+                 <script type="text/javascript" src="/is_bsa14/static/src/dhtmlx_gantt/dhtmlx_gantt.js"></script>
+                 <script type="text/javascript" src="/is_bsa14/static/src/test_owl_01.js"></script>
+            </xpath> -->
         </template>
     </data>
 </odoo>

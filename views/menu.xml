@@ -3,6 +3,23 @@
     <data>
 
 
+        <!-- Test OWL -->
+        <!-- <menuitem name="Test OWL"    id="test_owl_menu"    sequence="0"/>
+
+        <record model="ir.actions.client" id="test_owl_01_action_client">
+            <field name="name">Test OWL 01</field>
+            <field name="tag">is_bsa14.test_owl_01_registry</field>
+        </record>
+        <menuitem name="Test OWL 01" id="test_owl_01_menu" parent="test_owl_menu" action="test_owl_01_action_client" sequence="10"/>
+
+        <record model="ir.actions.client" id="test_owl_02_action_client">
+            <field name="name">Test OWL 02</field>
+            <field name="tag">is_bsa14.test_owl_02_registry</field>
+        </record>
+        <menuitem name="Test OWL 02" id="test_owl_02_menu" parent="test_owl_menu" action="test_owl_02_action_client" sequence="20"/> -->
+
+
+
 
         <!-- Employés -->
         <record id="hr.menu_hr_root" model="ir.ui.menu" >

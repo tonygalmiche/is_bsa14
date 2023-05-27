@@ -30,6 +30,10 @@ InfoSaône - Module Odoo 14 pour BSA
         "security/res.groups.xml",
         "security/ir.model.access.csv",
         "views/assets.xml",
+
+# test_owl_01.xml
+
+
         "views/account_invoice_report_view.xml",
         "views/account_move_line_view.xml",
         "views/crm_lead_view.xml",
@@ -106,11 +110,13 @@ InfoSaône - Module Odoo 14 pour BSA
         "views/menu.xml",
         "data/mail_data.xml",
     ],
+
+    # 'qweb': [
+    #     "static/src/test_owl_01.xml",
+    #     "static/src/dhtmlx_gantt/dhtmlx_gantt.xml",
+    # ],
+
     "installable": True,
     "active": False,
     "application": True
 }
-
-
-
-

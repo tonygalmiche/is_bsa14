@@ -138,8 +138,8 @@
                                         <field name="duree_totale" readonly="1" widget="float_time"/> 
                                         <field name="realisee"                  widget="float_time"/> 
                                         <field name="reste" readonly="1"        widget="float_time"/> 
-                                        <field name="heure_debut" readonly="1"/> 
-                                        <field name="heure_fin" readonly="1"/> 
+                                        <field name="heure_debut"/> 
+                                        <field name="heure_fin"/> 
                                    </group>
                               </group>
                          </sheet>

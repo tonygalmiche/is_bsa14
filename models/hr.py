@@ -4,6 +4,7 @@ from odoo import models,fields
 class hr_employee(models.Model):
     _inherit = "hr.employee"
 
+    is_workcenter_id  = fields.Many2one('mrp.workcenter', 'Poste de charge affecté', help="Utilisé pour le calcul de la charge par employé")
     is_workcenter_ids = fields.Many2many('mrp.workcenter', 'hr_employee_mrp_workcenter_rel', 'employe_id', 'workcenter_id', 'Postes de charges autorisés')
 
     is_matricule = fields.Char('Matricule', help='N° de matricule du logiciel de paye', required=False)
@@ -30,36 +31,37 @@ class hr_employee(models.Model):
 
     def _badge_count(self):
         for obj in self:
-            print(obj)
             obj.is_badge_count = 0
-        # obj = self.pool('is.badge')
-        # res = {}
-        # for id in ids:
-        #     nb = obj.search_count(cr, uid, [('employee', '=', id)], context=context)
-        #     res[id] = {
-        #         'is_badge_count': nb,
-        #     }
-        # return res
 
 
     def _pointage_count(self):
         for obj in self:
-            print(obj)
             obj.is_pointage_count = 0
-        # obj = self.pool('is.pointage')
-        # res = {}
-        # for id in ids:
-        #     nb = obj.search_count(cr, uid, [('employee', '=', id)], context=context)
-        #     res[id] = {
-        #         'is_pointage_count': nb,
-        #     }
-        # return res
 
 
     def action_view_badge(self):
-        res = {}
-        res['context'] = "{'employee': " + str(ids[0]) + "}"
-        return res
+        for obj in self:
+            print(obj)
 
 
+class is_motif_absence(models.Model):
+    _name='is.motif.absence'
+    _description="Motifs d'absenses des employés"
+    _order='name'
+
+    name = fields.Char("Motif", required=True, index=True)
+
+
+class is_absence(models.Model):
+    _name='is.absence'
+    _description='Absenses des employés'
+    _order='date_debut desc'
+    _rec_name = 'employe_id'
+
+
+    employe_id  = fields.Many2one('hr.employee', 'Employé' , required=True)
+    motif_id    = fields.Many2one('is.motif.absence', 'Motif', required=True)
+    date_debut  = fields.Datetime('Date début', required=True)
+    date_fin    = fields.Datetime('Date fin', required=True)
+    commentaire = fields.Char("Commentaire")
 

@@ -194,3 +194,9 @@ access_is_suivi_commercial,access_is_suivi_commercial,model_is_suivi_commercial,
 
 access_is_sale_order_line_group,access_is_sale_order_line_group,model_is_sale_order_line_group,base.group_user,1,1,1,1
 
+access_is_motif_absence,access_is_motif_absence,model_is_motif_absence,base.group_user,1,0,0,0
+access_is_motif_absence_manager,access_is_motif_absence_manager,model_is_motif_absence,hr.group_hr_manager,1,1,1,1
+access_is_absence,access_is_absence,model_is_absence,base.group_user,1,0,0,0
+access_is_absence_manager,access_is_absence_manager,model_is_absence,hr.group_hr_manager,1,1,1,1
+
+

@@ -600,8 +600,6 @@
  
 
         <!-- Ressources Humaines -->
-
-
         <record id="is_personnel_present_menu" model="ir.ui.menu" >
             <field name="name">Personnel présent</field>
             <field name="sequence">900</field>
@@ -611,26 +609,38 @@
                 ref('hr.group_hr_user'),
             ])]"/>
         </record>
-        <!-- <menuitem   
-            name="Personnel présent"
-            action="is_personnel_present_action"  
-            id="is_personnel_present_menu" 
-            parent="hr.menu_hr_main"
-            sequence="900"
-        /> -->
-        <menuitem 
+     
+
+
+
+        <!-- <menuitem 
             id="is_accident_travail_menu"
             sequence="20" 
             name="Suivi accident du travail" 
-            parent="hr.menu_hr_root"
-        />
+            parent="hr.menu_hr_employee_payroll"
+        /> -->
         <menuitem 
             id="is_accident_travail_menu_10" 
-            sequence="10" 
+            sequence="20" 
             name="Suivi accident du travail" 
-            parent="is_accident_travail_menu" 
+            parent="hr.menu_hr_employee_payroll" 
             action="is_accident_travail_action"
         />
+        <menuitem 
+            id="is_absence_menu" 
+            sequence="30" 
+            name="Absences" 
+            parent="hr.menu_hr_employee_payroll" 
+            action="is_absence_action"
+        />
+        <menuitem 
+            id="is_motif_absence_menu" 
+            sequence="90" 
+            name="Motifs d'absence" 
+            parent="hr.menu_hr_employee_payroll" 
+            action="is_motif_absence_action"
+        />
+
 
 
         <menuitem 

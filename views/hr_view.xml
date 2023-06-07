@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Liste des pointages appellée depuis la fiche de l'employee -->
+
+        <!-- is.pointage -->
         <record model="ir.actions.act_window" id="is_pointage_action2">
             <field name="context">{'default_employee': active_id, 'search_default_employee': active_id}</field>
             <field name="name">Pointages</field>
@@ -9,7 +10,8 @@
             <field name="view_mode">tree,form</field>
         </record>
 
-        <!-- Liste des badges appellée depuis la fiche de l'employee -->
+
+        <!-- is.badge -->
         <record model="ir.actions.act_window" id="is_badge_action2">
             <field name="context">{'default_employee': active_id, 'search_default_employee': active_id}</field>
             <field name="name">Badges</field>
@@ -17,11 +19,24 @@
             <field name="view_mode">tree,form</field>
         </record>
 
+
+        <!-- hr.employee -->
         <record id="is_view_employee_form" model="ir.ui.view">
             <field name="name">is_view_employee_form</field>
             <field name="model">hr.employee</field>
             <field name="inherit_id" ref="hr.view_employee_form"/>
             <field name="arch" type="xml">
+
+                <xpath expr="//sheet[1]" position="inside">
+                    <style>
+                        .o_form_label{
+                            white-space: nowrap;
+                        }
+                    </style>
+                </xpath>
+
+
+
                 <div name="button_box" position="inside">
                     <button class="oe_stat_button" name="%(is_badge_action2)d" type="action" icon="fa-user">
                         <div class="o_stat_info">
@@ -41,8 +56,9 @@
                     </button>
                 </div>
                 <page name="public" position="after">
-                    <page string="Horaires">
+                    <page string="Planification">
                         <group>
+                            <field name="is_workcenter_id"/>
                             <field name="is_workcenter_ids" widget="many2many_tags" />
                         </group>
                     </page>
@@ -77,6 +93,7 @@
             <field name="arch" type="xml">
                 <field name="work_phone" position="replace">
                     <field name="is_matricule"/>
+                    <field name="is_workcenter_id" optional="hide"/>
                 </field>
                 <field name="work_email" position="replace">
                     <field name="is_categorie"/>
@@ -120,5 +137,124 @@
         <record id="hr.open_view_employee_list_my" model="ir.actions.act_window">
             <field name="view_mode">tree,kanban,form,activity</field>
         </record>
+
+
+          <!-- is.motif.absence -->
+          <record model="ir.ui.view" id="is_motif_absence_form_view">
+               <field name="name">is_motif_absence_form_view</field>
+               <field name="model">is.motif.absence</field>
+               <field name="type">form</field>
+               <field name="arch" type="xml">
+                    <form>
+                        <sheet>
+                            <group>
+                                <field name="name"/> 
+                            </group>
+                        </sheet>
+                    </form>
+               </field>
+          </record>
+          <record model="ir.ui.view" id="is_motif_absence_tree_view">
+               <field name="name">is_motif_absence_tree_view</field>
+               <field name="model">is.motif.absence</field>
+               <field name="type">tree</field>
+                <field name="arch" type="xml">
+                    <tree>
+                         <field name="name"/>
+                    </tree>
+               </field>
+          </record>
+          <record model="ir.ui.view" id="is_motif_absence_filter_view" >
+               <field name="name">is_motif_absence_filter_view</field>
+               <field name="model">is.motif.absence</field>
+               <field name="arch" type="xml">
+               <search>
+                    <field name="name"/>
+               </search>
+               </field>
+          </record>
+          <record model="ir.actions.act_window" id="is_motif_absence_action">
+               <field name="name">Motifs d'absences</field>
+               <field name="res_model">is.motif.absence</field>
+               <field name="view_mode">tree,form</field>
+          </record>
+
+
+          <!-- is.absence -->
+          <record model="ir.ui.view" id="is_absence_form_view">
+               <field name="name">is_absence_form_view</field>
+               <field name="model">is.absence</field>
+               <field name="type">form</field>
+               <field name="arch" type="xml">
+                    <form>
+                        <sheet>
+                            <group>
+                                <field name="employe_id"/> 
+                                <field name="motif_id"/> 
+                                <field name="date_debut"/> 
+                                <field name="date_fin"/> 
+                                <field name="commentaire"/> 
+                            </group>
+                        </sheet>
+                    </form>
+               </field>
+          </record>
+          <record model="ir.ui.view" id="is_absence_tree_view">
+               <field name="name">is_absence_tree_view</field>
+               <field name="model">is.absence</field>
+               <field name="type">tree</field>
+                <field name="arch" type="xml">
+                    <tree>
+                        <field name="employe_id"/> 
+                        <field name="motif_id"/> 
+                        <field name="date_debut"/> 
+                        <field name="date_fin"/> 
+                        <field name="commentaire"/> 
+                    </tree>
+               </field>
+          </record>
+
+          <record model="ir.ui.view" id="is_absence_calendar_view" >
+               <field name="name">is_absence_calendar_view</field>
+               <field name="model">is.absence</field>
+               <field name="arch" type="xml">
+                    <calendar 
+                        date_start="date_debut" 
+                        date_stop="date_fin" 
+                        color="employe_id" 
+                        hide_time="false" 
+                        event_limit="100"
+                        event_open_popup="false"
+                        form_view_id="is_absence_form_view"
+                        quick_add="false"
+                    >
+                        <!-- <field name="employe_id"/>  -->
+
+                    <field name="employe_id" filters="1" invisible="1"/>
+
+
+                        <field name="motif_id"/> 
+                        <field name="commentaire"/> 
+                    </calendar>
+               </field>
+          </record>
+          <record model="ir.ui.view" id="is_absence_filter_view" >
+               <field name="name">is_absence_filter_view</field>
+               <field name="model">is.absence</field>
+               <field name="arch" type="xml">
+               <search>
+                    <field name="employe_id"/> 
+                    <field name="motif_id"/> 
+                    <field name="commentaire"/> 
+               </search>
+               </field>
+          </record>
+          <record model="ir.actions.act_window" id="is_absence_action">
+               <field name="name">Absences</field>
+               <field name="res_model">is.absence</field>
+               <field name="view_mode">calendar,tree,form</field>
+          </record>
+
+
     </data>
 </odoo>

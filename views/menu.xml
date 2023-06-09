@@ -577,6 +577,85 @@
         />
 
 
+        <!-- Production / Ressources -->
+        <menuitem 
+            id="ressource_main_menu" 
+            sequence="98" 
+            name="Ressources" 
+            parent="mrp.menu_mrp_root" 
+        />
+        <menuitem 
+            id="is_employes_menu" 
+            sequence="10" 
+            name="Employés" 
+            parent="ressource_main_menu" 
+            action="hr.open_view_employee_list_my"
+        />
+        <menuitem 
+            id="is_absence_menu" 
+            sequence="20" 
+            name="Absences" 
+            parent="ressource_main_menu" 
+            action="is_absence_action"
+        />
+        <menuitem 
+            id="is_motif_absence_menu" 
+            sequence="30" 
+            name="Motifs d'absence" 
+            parent="ressource_main_menu" 
+            action="is_motif_absence_action"
+        />
+        <menuitem 
+            id="is_resource_calendar_leaves_menu" 
+            sequence="40" 
+            name="Congés" 
+            parent="ressource_main_menu" 
+            action="is_resource_calendar_leaves_action"
+        />
+        <menuitem 
+            id="is_resource_calendar_menu" 
+            sequence="50" 
+            name="Horaires d'ouvertures" 
+            parent="ressource_main_menu" 
+            action="is_resource_calendar_action"
+        />
+        <menuitem 
+            id="dispo_ressource_menu" 
+            sequence="60" 
+            name="Disponibilité des ressources" 
+            parent="ressource_main_menu" 
+        />
+        <menuitem 
+            id="is_dispo_ressource_day_menu" 
+            sequence="10" 
+            name="Disponibilité des ressources par jour" 
+            parent="dispo_ressource_menu" 
+            action="is_dispo_ressource_day_action"
+        />
+        <menuitem 
+            id="is_dispo_ressource_week_menu" 
+            sequence="10" 
+            name="Disponibilité des ressources par semaine" 
+            parent="dispo_ressource_menu" 
+            action="is_dispo_ressource_week_action"
+        />
+        <menuitem 
+            id="is_dispo_ressource_week_employe_menu" 
+            sequence="10" 
+            name="Disponibilité des ressources par semaine et par employé" 
+            parent="dispo_ressource_menu" 
+            action="is_dispo_ressource_week_employe_action"
+        />
+        <menuitem 
+            id="recalculer_dispo_ressource_menu" 
+            sequence="90" 
+            name="Recalculer la disponibilité des ressources" 
+            parent="dispo_ressource_menu" 
+            action="recalculer_dispo_ressource_actions_server"
+        />
+
+
+
 
 
 
@@ -597,9 +676,7 @@
         />
 
 
- 
-
-        <!-- Ressources Humaines -->
+        <!-- Employés / Personnel présent -->
         <record id="is_personnel_present_menu" model="ir.ui.menu" >
             <field name="name">Personnel présent</field>
             <field name="sequence">900</field>
@@ -611,14 +688,7 @@
         </record>
      
 
-
-
-        <!-- <menuitem 
-            id="is_accident_travail_menu"
-            sequence="20" 
-            name="Suivi accident du travail" 
-            parent="hr.menu_hr_employee_payroll"
-        /> -->
+        <!-- Employés / Employés -->
         <menuitem 
             id="is_accident_travail_menu_10" 
             sequence="20" 
@@ -626,23 +696,13 @@
             parent="hr.menu_hr_employee_payroll" 
             action="is_accident_travail_action"
         />
-        <menuitem 
-            id="is_absence_menu" 
-            sequence="30" 
-            name="Absences" 
-            parent="hr.menu_hr_employee_payroll" 
-            action="is_absence_action"
-        />
-        <menuitem 
-            id="is_motif_absence_menu" 
-            sequence="90" 
-            name="Motifs d'absence" 
-            parent="hr.menu_hr_employee_payroll" 
-            action="is_motif_absence_action"
-        />
 
 
 
+
+
+
+        <!-- Employés / Pointages -->
         <menuitem 
             id="menu_is_pointage"                    
             sequence="30" 

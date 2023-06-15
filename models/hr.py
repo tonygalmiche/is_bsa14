@@ -2,6 +2,15 @@
 from odoo import models,fields
 from datetime import datetime, timedelta
 from pytz import timezone
+import pandas as pd
+import numpy as np
+from pprint import pprint
+
+def duree(debut):
+    dt = datetime.now() - debut
+    ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
+    ms=int(ms)
+    return ms
 
 
 class hr_employee(models.Model):
@@ -88,15 +97,24 @@ class is_dispo_ressource(models.Model):
 
 
     def recalculer_dispo_ressource_action(self):
+        debut = datetime.now() 
+
         cr=self._cr
         sql="delete from is_dispo_ressource"
         cr.execute(sql)
 
+        print("delete is_dispo_ressource en %sms"%duree(debut))
+
+        debut = datetime.now() 
+
+
         # Calcul sur nb_jours de la disponibilité des employées toutes les 30mn
-        nb_jours = 31
+        nb_jours = 5
         tz = timezone('Europe/Paris')
         now = datetime.now()
         heure_debut = now.replace(microsecond=0).replace(second=0).replace(minute=0)
+
+        listd=[]
         for i in range(0, 24*nb_jours*2):
             offset = tz.localize(heure_debut).utcoffset().total_seconds()/3600
             heure_fin = heure_debut + timedelta(minutes=30)
@@ -110,13 +128,16 @@ class is_dispo_ressource(models.Model):
                 ('is_workcenter_id', '!=', False),
                 #('id', '=', 9),
             ])
+
+
             for employe in employes:
+                disponibilite = 0
                 vals={
                     "heure_debut"  : heure_debut,
                     "heure_fin"    : heure_fin,
                     "employe_id"   : employe.id,
                     "workcenter_id": employe.is_workcenter_id.id,
-                    "disponibilite": 0,
+                    "disponibilite": disponibilite,
                 }
                 res=self.env['is.dispo.ressource'].create(vals)
                 for line in employe.resource_calendar_id.attendance_ids:
@@ -139,14 +160,90 @@ class is_dispo_ressource(models.Model):
                                         ])
                                         #**************************************
                                         if len(absences)==0:
-                                            res.disponibilite = 0.5
+                                            disponibilite = 0.5
+                                            res.disponibilite = disponibilite
+                vals["disponibilite"] = disponibilite
+                listd.append(vals)
+
             heure_debut = heure_debut + timedelta(minutes=30)
+
+        print("Création et enregistement delistd en %sms"%duree(debut))
+
+        debut = datetime.now() 
+
+        pd.set_option('display.max_rows', 7,) # Il est inutile de metttre plus de 10, car cela n'est pas pris en compte
+        df = pd.DataFrame(listd)
+
+        for employe in employes:
+            print("####",employe.name, employe.is_workcenter_id.name, employe.is_workcenter_id.id)
+
+            df_workcenter = df[df["workcenter_id"] == employe.is_workcenter_id.id]
+            print(df_workcenter)
+
+
+        print(df.workcenter_id.unique())
+        for workcenter_id in df.workcenter_id.unique():
+            print("#### workcenter_id=",workcenter_id)
+
+            df_workcenter = df[df["workcenter_id"] == workcenter_id]
+            print(df_workcenter)
+
+            df_workcenter_groupby = df_workcenter.groupby(["heure_debut","heure_fin","workcenter_id"], as_index=False)[["disponibilite"]].sum()
+
+            #Juste pour l'exemple (sans utilité par la suite), ajout d'une colonne 'week' à la DataFrame
+            df_workcenter_groupby["week"] = df_workcenter_groupby["heure_debut"].dt.isocalendar().week
+            print(df_workcenter_groupby)
+
+            #context pour afficher toutes les lignes
+            #with pd.option_context('display.max_rows', None,):
+            #   print(df_workcenter_groupby)
+
+            # Extraire les ligne avec "disponibilite=0"
+            df_closed = df_workcenter_groupby[df_workcenter_groupby["disponibilite"] == 0]
+            print(df_closed)
+
+
+            # next_closed = heure_debut de la ligne précédente, prev_closed = heure_fin de la ligne suivant 
+            df_aug = df_closed.copy()
+            df_aug["next_closed"] = df_closed["heure_debut"].shift(-1)
+            df_aug["prev_closed"] = df_closed["heure_fin"].shift(1)
+            print(df_aug)
+
+            df_aug["end_closing"]   = (df_aug["next_closed"] != df_aug["heure_fin"])
+            df_aug["start_closing"] = (df_aug["prev_closed"] != df_aug["heure_debut"])
+            print(df_aug)
+
+
+            # Extraire toutes les dates de début
+            df_start = df_aug[df_aug["start_closing"] == True]["heure_debut"]
+            print(df_start)
+
+            # Extraire toutes les dates de fin
+            df_end   = df_aug[df_aug["end_closing"] == True]["heure_fin"]
+            print(df_end)
+
+            # Combiner le tout (et le tout dans le même format d'origine)
+            res_plus_efficace = [{
+                "start" : dstart,
+                "end" : dend,
+            } for (dstart, dend) in zip(df_start, df_end)]
+
+            print("#### Liste des plages fermées pour mettre dans gantt pour ce poste de charge ###")
+            for line in res_plus_efficace:
+               print(workcenter_id,line["start"].to_pydatetime(),  line["end"].to_pydatetime())
+
+        print("Traitement du DateFrame en %sms"%duree(debut))
+
+
+
         return {
             "name": "Disponibilité des employés",
             "view_mode": "pivot,graph,tree,form",
             "res_model": "is.dispo.ressource",
              "type": "ir.actions.act_window",
         }
+
+
 
 
 

@@ -911,14 +911,15 @@ class is_devis_parametrable_section_product(models.Model):
     type_equipement_id = fields.Many2one('is.type.equipement', "Type d'équipement")
     product_id         = fields.Many2one('product.product', "Article")
     description        = fields.Text("Description")
+    description_detaillee = fields.Text("Description détaillée")
     description_report = fields.Text("Description pour le rapport PDF", compute='_compute_description_report',)
     uom_po_id          = fields.Many2one('uom.uom', "Unité", help="Unité de mesure d'achat", related="product_id.uom_po_id", readonly=True)
     marge              = fields.Float("Marge (%)", help="Si ce champ n'est pas renseigné, la marge par défaut de la variante sera appliquée")
-    quantite           = fields.Float("Quantité", default=1)
-    prix               = fields.Float("Prix", help="Prix d'achat")
+    quantite           = fields.Float("Quantité", default=1, digits=(16, 2))
+    prix               = fields.Float("Prix", help="Prix d'achat", digits=(16, 2))
     date_achat         = fields.Date("Date"    , store=True, readonly=True, compute='_compute_date_achat', help="Date du dernier achat")
-    montant            = fields.Float("Montant", store=True, readonly=True, compute='_compute_montant')
-    montant_avec_marge = fields.Float("Montant avec marge", store=True, readonly=True, compute='_compute_montant')
+    montant            = fields.Float("Montant", store=True, readonly=True, compute='_compute_montant', digits=(16, 2))
+    montant_avec_marge = fields.Float("Montant avec marge", store=True, readonly=True, compute='_compute_montant', digits=(16, 2))
     tps_montage        = fields.Float("Tps (HH:MM)"      , help="Temps de montage (HH:MM)", store=True, readonly=True, compute='_compute_tps_montage')
     tps_montage_force  = fields.Float("Tps forcé (HH:MM)", help="Si ce temps est renseigné, il remplacera le champ 'Tps (HH:MM)'")
 
@@ -1010,6 +1011,23 @@ class is_devis_parametrable_variante(models.Model):
     intitule_remise_devise   = fields.Char("Intitulé remise (Devise)"             , readonly=True, compute='_compute_montants')
     prix_vente_remise_devise = fields.Integer("Prix de vente remisé (Devise)"     , readonly=True, compute='_compute_montants')
     prix_par_hl_devise       = fields.Integer("Prix par HL (Devise)"              , readonly=True, compute='_compute_montants')
+    impression_matieres      = fields.Selection([
+            ('oui'   , 'Oui'),
+            ('non'   , 'Non'),
+        ], "Impression Matières", default="oui")
+    impression_dimensions      = fields.Selection([
+            ('oui'   , 'Oui'),
+            ('non'   , 'Non'),
+        ], "Impression Dimensions", default="oui")
+    impression_options      = fields.Selection([
+            ('oui'   , 'Oui'),
+            ('non'   , 'Non'),
+        ], "Impression Options", default="oui")
+    impression_equipements      = fields.Selection([
+            ('standard' , 'Standard (sans les prix)'),
+            ('detaillee', 'Détaillée (avec le détail des prix)'),
+            ('non'      , 'Non'),
+        ], "Impression Équipements", default="standard")
 
 
     @api.depends('name','quantite')

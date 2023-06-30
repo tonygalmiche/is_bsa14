@@ -69,84 +69,156 @@
                 </style>
                 <h1><span t-field="o.quantite"/> x <span t-field="o.devis_id.designation"/></h1>
                 <h2><span t-field="o.devis_id.designation_complementaire"/></h2>
-                <table class="table table-sm o_main_table">
-                    <thead>
-                        <tr>
-                            <th class="text-center">Inox</th>
-                            <th class="text-center">Type</th>
-                            <th class="text-center">Finition intérieur</th>
-                            <th class="text-center">Finition exterieur</th>
-                            <th class="text-center">Ep.</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <t t-foreach="o.devis_id.matiere_ids" t-as="l">
-                            <tr t-if="l.imprimer">
-                                <td class="text-left">  <span t-field="l.section_id.name"/></td>
-                                <td class="text-center"><span t-field="l.matiere_id.type_matiere"/></td>
-                                <td class="text-center"><span t-field="l.matiere_id.finition_interieur"/></td>
-                                <td class="text-center"><span t-field="l.matiere_id.finition"/></td>
-                                <td class="text-right"> <span t-field="l.epaisseur"/>mm</td>
-                            </tr>
-                        </t>
-                    </tbody>
-                </table>
-                <h3>Dimensions : </h3>
-                <table class="table table-sm o_main_table">
-                    <tbody>
-                        <t t-foreach="o.devis_id.dimension_ids" t-as="l">
-                            <t t-if="l.imprimer">
-                                <tr>
-                                    <td class="text-left">  <span t-field="l.dimension_id.name"/></td>
-                                    <td class="text-left">
-                                        <span t-field="l.valeur"/><span t-field="l.unite_id.name"/>
-                                        <span t-field="l.description"/>
-                                    </td>
-                                </tr>
-                            </t>
-                        </t>
-                    </tbody>
-                </table>
-                <h3>Equipements : </h3>
-                <table class="table table-sm o_main_table">
-                    <tbody>
-                        <t t-foreach="o.devis_id.section_ids" t-as="section">
-                            <tr style="border-bottom: 1px solid;">
-                                <td class="text-left"><span t-field="section.section_id.name"/></td>
-                                <td class="text-left">
-
-                                    <t t-foreach="section.product_ids" t-as="l">
-                                        <div t-field="l.description_report"/>
-                                    </t>
-                                
-                                </td>
-                            </tr>
-                        </t>
-                    </tbody>
-                </table>
-                <t t-if="o.devis_id.montant_option_thermo">
-                    <h3>Thermorégulation : </h3>
+                <t t-if="o.impression_matieres=='oui'">
                     <table class="table table-sm o_main_table">
+                        <thead>
+                            <tr>
+                                <th class="text-center">Inox</th>
+                                <th class="text-center">Type</th>
+                                <th class="text-center">Finition intérieur</th>
+                                <th class="text-center">Finition exterieur</th>
+                                <th class="text-center">Ep.</th>
+                            </tr>
+                        </thead>
                         <tbody>
-                            <t t-foreach="o.devis_id.options_ids" t-as="option">
-                                <tr t-if="option.option_active and option.thermoregulation" style="border-bottom: 1px solid;">
-                                    <td class="text-left">  <span t-field="option.description_client"/></td>
+                            <t t-foreach="o.devis_id.matiere_ids" t-as="l">
+                                <tr t-if="l.imprimer">
+                                    <td class="text-left">  <span t-field="l.section_id.name"/></td>
+                                    <td class="text-center"><span t-field="l.matiere_id.type_matiere"/></td>
+                                    <td class="text-center"><span t-field="l.matiere_id.finition_interieur"/></td>
+                                    <td class="text-center"><span t-field="l.matiere_id.finition"/></td>
+                                    <td class="text-right"> <span t-field="l.epaisseur"/>mm</td>
                                 </tr>
                             </t>
                         </tbody>
                     </table>
                 </t>
-                <t t-if="(o.devis_id.montant_option_comprise-o.devis_id.montant_option_thermo)>0">
-                    <h3>Options comprises : </h3>
+                <t t-if="o.impression_dimensions=='oui'">
+                    <h3>Dimensions : </h3>
                     <table class="table table-sm o_main_table">
                         <tbody>
-                            <t t-foreach="o.devis_id.options_ids" t-as="option">
-                                <tr t-if="option.option_active and option.option_comprise and not option.thermoregulation" style="border-bottom: 1px solid;">
-                                    <td class="text-left"> <span t-field="option.description_client"/></td>
+                            <t t-foreach="o.devis_id.dimension_ids" t-as="l">
+                                <t t-if="l.imprimer">
+                                    <tr>
+                                        <td class="text-left">  <span t-field="l.dimension_id.name"/></td>
+                                        <td class="text-left">
+                                            <span t-field="l.valeur"/><span t-field="l.unite_id.name"/>
+                                            <span t-field="l.description"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </t>
+                        </tbody>
+                    </table>
+                </t>
+                <t t-if="o.impression_equipements=='standard'">
+                    <h3>Equipements : </h3>
+                    <table class="table table-sm o_main_table">
+                        <tbody>
+                            <t t-foreach="o.devis_id.section_ids" t-as="section">
+                                <tr style="border-bottom: 1px solid;">
+                                    <td class="text-left"><span t-field="section.section_id.name"/></td>
+                                    <td class="text-left">
+
+                                        <t t-foreach="section.product_ids" t-as="l">
+                                            <div t-field="l.description_report"/>
+                                        </t>
+                                    
+                                    </td>
                                 </tr>
                             </t>
                         </tbody>
                     </table>
+                </t>
+
+                <t t-if="o.impression_equipements=='detaillee'">
+                    <table class="table table-sm o_main_table">
+                        <thead>
+                            <tr>
+                                <th class="text-center">Pos</th>
+                                <th class="text-center">Description</th>
+                                <th class="text-center">Quantité</th>
+                                <th class="text-right text-nowrap">Prix unitaire</th>
+                                <th class="text-right text-nowrap">Montant HT</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="pos" t-value="1"/>
+                            <t t-foreach="o.devis_id.section_ids" t-as="section">
+                                <t t-foreach="section.product_ids" t-as="l">
+                                    <tr style="border-bottom: 1px solid;">
+                                        <td class="text-center"><span t-esc="pos"/></td>
+                                        <td class="text-left">
+                                            <b><div t-field="l.description"/></b>
+                                            <div t-if="l.description_detaillee" t-field="l.description_detaillee"/>
+                                        </td>
+                                        <td class="text-center"><span t-field="l.quantite"/></td>
+                                        <td class="text-right"><span t-field="l.prix"/></td>
+                                        <td class="text-right"><span t-field="l.montant"/></td>
+                                    </tr>
+                                    <t t-set="pos" t-value="pos+1"/>
+                                </t>
+                            </t>
+                        </tbody>
+                    </table>
+                </t>
+
+
+    <!-- devis_id      = fields.Many2one('is.devis.parametrable', 'Devis', required=True, ondelete='cascade')
+    sequence      = fields.Integer("Sequence")
+    section_id    = fields.Many2one('is.section.devis', "Section")
+    product_ids   = fields.One2many('is.devis.parametrable.section.product', 'section_id', 'Articles', copy=True)
+    montant_total = fields.Float("Total", store=True, readonly=True, compute='_compute_montant')
+    montant_total_avec_marge = fields.Float("Total avec marge", store=True, readonly=True, compute='_compute_montant')
+    tps_montage   = fields.Float("Tps (HH:MM)", help="Temps de montage (HH:MM)", store=True, readonly=True, compute='_compute_tps_montage')
+
+    sequence           = fields.Integer("Sequence")
+    section_id         = fields.Many2one('is.devis.parametrable.section', 'Section', required=True, ondelete='cascade')
+    type_equipement_id = fields.Many2one('is.type.equipement', "Type d'équipement")
+    product_id         = fields.Many2one('product.product', "Article")
+    description        = fields.Text("Description")
+    description_report = fields.Text("Description pour le rapport PDF", compute='_compute_description_report',)
+    uom_po_id          = fields.Many2one('uom.uom', "Unité", help="Unité de mesure d'achat", related="product_id.uom_po_id", readonly=True)
+    marge              = fields.Float("Marge (%)", help="Si ce champ n'est pas renseigné, la marge par défaut de la variante sera appliquée")
+    quantite           = fields.Float("Quantité", default=1)
+    prix               = fields.Float("Prix", help="Prix d'achat")
+    date_achat         = fields.Date("Date"    , store=True, readonly=True, compute='_compute_date_achat', help="Date du dernier achat")
+    montant            = fields.Float("Montant", store=True, readonly=True, compute='_compute_montant')
+    montant_avec_marge = fields.Float("Montant avec marge", store=True, readonly=True, compute='_compute_montant')
+    tps_montage        = fields.Float("Tps (HH:MM)"      , help="Temps de montage (HH:MM)", store=True, readonly=True, compute='_compute_tps_montage')
+    tps_montage_force  = fields.Float("Tps forcé (HH:MM)", help="Si ce temps est renseigné, il remplacera le champ 'Tps (HH:MM)'")
+
+
+
+
+ -->
+
+
+                <t t-if="o.impression_options=='oui'">
+                    <t t-if="o.devis_id.montant_option_thermo">
+                        <h3>Thermorégulation : </h3>
+                        <table class="table table-sm o_main_table">
+                            <tbody>
+                                <t t-foreach="o.devis_id.options_ids" t-as="option">
+                                    <tr t-if="option.option_active and option.thermoregulation" style="border-bottom: 1px solid;">
+                                        <td class="text-left">  <span t-field="option.description_client"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </t>
+                    <t t-if="(o.devis_id.montant_option_comprise-o.devis_id.montant_option_thermo)>0">
+                        <h3>Options comprises : </h3>
+                        <table class="table table-sm o_main_table">
+                            <tbody>
+                                <t t-foreach="o.devis_id.options_ids" t-as="option">
+                                    <tr t-if="option.option_active and option.option_comprise and not option.thermoregulation" style="border-bottom: 1px solid;">
+                                        <td class="text-left"> <span t-field="option.description_client"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </t>
                 </t>
                 <div class="row" t-if="avec_prix_de_vente">
                     <div class="col-6 ml-auto">
@@ -171,18 +243,20 @@
                         </div>
                     </div>
                 </div>
-                <t t-if="(o.devis_id.montant_option_active-o.devis_id.montant_option_comprise)>0">
-                    <h3>Autres Options non comprises : </h3>
-                    <table class="table table-sm o_main_table">
-                        <tbody>
-                            <t t-foreach="o.devis_id.options_ids" t-as="option">
-                                <tr t-if="option.option_active and not option.option_comprise " style="border-bottom: 1px solid;">
-                                    <td class="text-left">  <span t-field="option.description_client"/></td>
-                                    <td class="text-right" style="width:40mm"><span t-esc="o.get_montant_option(option)"/> € HT</td>
-                                </tr>
-                            </t>
-                        </tbody>
-                    </table>
+                <t t-if="o.impression_options=='oui'">
+                    <t t-if="(o.devis_id.montant_option_active-o.devis_id.montant_option_comprise)>0">
+                        <h3>Autres Options non comprises : </h3>
+                        <table class="table table-sm o_main_table">
+                            <tbody>
+                                <t t-foreach="o.devis_id.options_ids" t-as="option">
+                                    <tr t-if="option.option_active and not option.option_comprise " style="border-bottom: 1px solid;">
+                                        <td class="text-left">  <span t-field="option.description_client"/></td>
+                                        <td class="text-right" style="width:40mm"><span t-esc="o.get_montant_option(option)"/> € HT</td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </t>
                 </t>
             </div>
         </t>

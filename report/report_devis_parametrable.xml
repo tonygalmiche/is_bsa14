@@ -162,38 +162,6 @@
                         </tbody>
                     </table>
                 </t>
-
-
-    <!-- devis_id      = fields.Many2one('is.devis.parametrable', 'Devis', required=True, ondelete='cascade')
-    sequence      = fields.Integer("Sequence")
-    section_id    = fields.Many2one('is.section.devis', "Section")
-    product_ids   = fields.One2many('is.devis.parametrable.section.product', 'section_id', 'Articles', copy=True)
-    montant_total = fields.Float("Total", store=True, readonly=True, compute='_compute_montant')
-    montant_total_avec_marge = fields.Float("Total avec marge", store=True, readonly=True, compute='_compute_montant')
-    tps_montage   = fields.Float("Tps (HH:MM)", help="Temps de montage (HH:MM)", store=True, readonly=True, compute='_compute_tps_montage')
-
-    sequence           = fields.Integer("Sequence")
-    section_id         = fields.Many2one('is.devis.parametrable.section', 'Section', required=True, ondelete='cascade')
-    type_equipement_id = fields.Many2one('is.type.equipement', "Type d'équipement")
-    product_id         = fields.Many2one('product.product', "Article")
-    description        = fields.Text("Description")
-    description_report = fields.Text("Description pour le rapport PDF", compute='_compute_description_report',)
-    uom_po_id          = fields.Many2one('uom.uom', "Unité", help="Unité de mesure d'achat", related="product_id.uom_po_id", readonly=True)
-    marge              = fields.Float("Marge (%)", help="Si ce champ n'est pas renseigné, la marge par défaut de la variante sera appliquée")
-    quantite           = fields.Float("Quantité", default=1)
-    prix               = fields.Float("Prix", help="Prix d'achat")
-    date_achat         = fields.Date("Date"    , store=True, readonly=True, compute='_compute_date_achat', help="Date du dernier achat")
-    montant            = fields.Float("Montant", store=True, readonly=True, compute='_compute_montant')
-    montant_avec_marge = fields.Float("Montant avec marge", store=True, readonly=True, compute='_compute_montant')
-    tps_montage        = fields.Float("Tps (HH:MM)"      , help="Temps de montage (HH:MM)", store=True, readonly=True, compute='_compute_tps_montage')
-    tps_montage_force  = fields.Float("Tps forcé (HH:MM)", help="Si ce temps est renseigné, il remplacera le champ 'Tps (HH:MM)'")
-
-
-
-
- -->
-
-
                 <t t-if="o.impression_options=='oui'">
                     <t t-if="o.devis_id.montant_option_thermo">
                         <h3>Thermorégulation : </h3>

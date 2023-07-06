@@ -649,9 +649,17 @@
         <menuitem 
             id="recalculer_dispo_ressource_menu" 
             sequence="90" 
-            name="Recalculer la disponibilité des ressources" 
+            name="Calculer la disponibilité des ressources" 
             parent="dispo_ressource_menu" 
-            action="recalculer_dispo_ressource_actions_server"
+            action="is_calcul_dispo_ressource_wizard_action"
+        />
+
+        <menuitem 
+            id="calculer_charge_menu" 
+            sequence="92" 
+            name="Calculer la charge" 
+            parent="dispo_ressource_menu" 
+            action="calculer_charge_actions_server"
         />
 
 

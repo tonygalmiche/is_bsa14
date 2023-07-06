@@ -2,6 +2,8 @@
 <odoo>
     <data>
 
+
+
         <!-- is.pointage -->
         <record model="ir.actions.act_window" id="is_pointage_action2">
             <field name="context">{'default_employee': active_id, 'search_default_employee': active_id}</field>
@@ -363,14 +365,17 @@
             <field name="view_mode">graph,pivot,tree,form</field>
             <field name="view_id" ref="is_dispo_ressource_week_employe_graph_view"/>
         </record>
-
-        <record id="recalculer_dispo_ressource_actions_server" model="ir.actions.server">
-            <field name="name">Recalculer la Disponibilité des ressources</field>
-            <field name="model_id" ref="model_is_dispo_ressource" />
+        <record id="calculer_dispo_ressource_ir_cron" model="ir.cron">
+            <field name="name">Calculer la disponibilité des ressources</field>
+            <field name="model_id" ref="is_bsa14.model_is_dispo_ressource"/>
             <field name="state">code</field>
-            <field name="code">action = model.recalculer_dispo_ressource_action()</field>
+            <field name="code">model.calculer_dispo_ressource_ir_cron()</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
         </record>
 
+
+        <!-- resource.calendar -->
         <record model="ir.actions.act_window" id="is_resource_calendar_action">
             <field name="name">Horaires d'ouvertures</field>
             <field name="res_model">resource.calendar</field>
@@ -382,6 +387,49 @@
             <field name="res_model">resource.calendar.leaves</field>
             <field name="view_mode">tree,form</field>
         </record>
+
+
+        <!-- is.calcul.dispo.ressource.wizard --> 
+        <record id="is_calcul_dispo_ressource_wizard_form_view" model="ir.ui.view">
+            <field name="name">is_calcul_dispo_ressource_wizard_form_view</field>
+            <field name="model">is.calcul.dispo.ressource.wizard</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                         <field name="date_debut"/>
+                         <field name="date_fin"/>
+                    </group>
+                    <footer>
+                        <button string="Calculer la disponibilité des ressources" name="calcul_action" type="object" class="oe_highlight"/>
+                        ou
+                        <button string="Annuler" class="oe_link" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="is_calcul_dispo_ressource_wizard_action" model="ir.actions.act_window">
+            <field name="name">Calculer la disponibilité des ressources</field>
+            <field name="res_model">is.calcul.dispo.ressource.wizard</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="is_calcul_dispo_ressource_wizard_form_view"/>
+            <field name="target">new</field>
+        </record>
+
+
+
+
+        <record id="calculer_charge_actions_server" model="ir.actions.server">
+            <field name="name">Calculer la charge</field>
+            <field name="model_id" ref="model_is_dispo_ressource" />
+            <field name="state">code</field>
+            <!-- <field name="code">action = model.calculer_charge_action()</field> -->
+            <field name="code">model.calculer_charge_action()</field>
+        </record>
+
+
+
+
+
 
     </data>
 </odoo>

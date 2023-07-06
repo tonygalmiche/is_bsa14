@@ -202,3 +202,5 @@ access_is_absence_manager,access_is_absence_manager,model_is_absence,hr.group_hr
 
 access_is_dispo_ressource,access_is_dispo_ressource,model_is_dispo_ressource,base.group_user,1,0,0,0
 access_is_dispo_ressource_manager,access_is_dispo_ressource_manager,model_is_dispo_ressource,hr.group_hr_manager,1,1,1,1
+
+access_is_calcul_dispo_ressource_wizard,access_is_calcul_dispo_ressource_wizard,model_is_calcul_dispo_ressource_wizard,base.group_user,1,1,1,1

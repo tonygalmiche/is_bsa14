@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
-from odoo import models,fields
+from odoo import models,fields,api
 from datetime import datetime, timedelta
 from pytz import timezone
-#import pandas as pd
-#import numpy as np
-#from pprint import pprint
+import pandas as pd
+import numpy as np
+from pprint import pprint
+import logging
+_logger = logging.getLogger(__name__)
+
 
 def duree(debut):
     dt = datetime.now() - debut
@@ -96,42 +99,43 @@ class is_dispo_ressource(models.Model):
     # - Ajouter des entrées dans "Regrouper par"
 
 
-    def recalculer_dispo_ressource_action(self):
+    def calculer_dispo_ressource(self, date_debut, date_fin):
         debut = datetime.now() 
-
         cr=self._cr
-        sql="delete from is_dispo_ressource"
-        cr.execute(sql)
-
-        print("delete is_dispo_ressource en %sms"%duree(debut))
-
-        debut = datetime.now() 
-
-
+ 
         # Calcul sur nb_jours de la disponibilité des employées toutes les 30mn
-        #nb_jours = 5
-        nb_jours = 31
+        nb_jours = (date_fin-date_debut).days
 
         tz = timezone('Europe/Paris')
         now = datetime.now()
-        heure_debut = now.replace(microsecond=0).replace(second=0).replace(minute=0)
+        heure_now = now.replace(microsecond=0).replace(second=0).replace(minute=0).replace(hour=0)
+
+        heure = datetime.min.time() 
+        heure_debut = datetime.combine(date_debut, heure) # Transforme un date en datetime
+        heure_fin   = heure_debut + timedelta(days=nb_jours)
+
+        _logger.info("calculer_dispo_ressource : Début du traitement entre %s et %s (%s jours)"%(heure_debut, heure_fin, nb_jours))
+
+        #Suppression des lignes passées et des lignes dans l'interval à recalculer
+        sql="delete from is_dispo_ressource where heure_debut<%s or (heure_debut>=%s and heure_debut<=%s)"
+        cr.execute(sql, [heure_now, heure_debut, heure_fin])
+
+        _logger.info("calculer_dispo_ressource : delete is_dispo_ressource en %sms"%duree(debut))
 
         listd=[]
         for i in range(0, 24*nb_jours*2):
-            offset = tz.localize(heure_debut).utcoffset().total_seconds()/3600
+            offset    = tz.localize(heure_debut).utcoffset().total_seconds()/3600
             heure_fin = heure_debut + timedelta(minutes=30)
-            weekday = str(heure_debut.weekday())
-            hour    = heure_debut.hour
-            minute  = heure_debut.minute
-            heure   = hour+offset+minute/60
-            week    = heure_debut.isocalendar().week
-            modulo  = str(week%2) # 0=pair, 1=impair
-            employes=self.env['hr.employee'].search([
+            weekday   = str(heure_debut.weekday())
+            hour      = heure_debut.hour
+            minute    = heure_debut.minute
+            heure     = hour+offset+minute/60
+            week      = heure_debut.isocalendar().week
+            modulo    = str(week%2) # 0=pair, 1=impair
+            employes = self.env['hr.employee'].search([
                 ('is_workcenter_id', '!=', False),
                 #('id', '=', 9),
             ])
-
-
             for employe in employes:
                 disponibilite = 0
                 vals={
@@ -168,14 +172,104 @@ class is_dispo_ressource(models.Model):
                 listd.append(vals)
 
             heure_debut = heure_debut + timedelta(minutes=30)
+        _logger.info("calculer_dispo_ressource : Fin du traitement en %sms"%duree(debut))
 
-        # print("Création et enregistement delistd en %sms"%duree(debut))
+        #listd : Disponibilité des ressources par employé et par heure
+        #self.calculer_charge_action()
 
-        # debut = datetime.now() 
 
-        # pd.set_option('display.max_rows', 7,) # Il est inutile de metttre plus de 10, car cela n'est pas pris en compte
-        # df = pd.DataFrame(listd)
+    @api.model
+    def calculer_dispo_ressource_ir_cron(self):
+        date_debut = datetime.now()
+        date_fin   = date_debut + timedelta(days=366)
 
+        print(date_debut, date_fin)
+
+        self.env['is.dispo.ressource'].calculer_dispo_ressource(date_debut, date_fin)
+        return True
+
+
+
+
+
+    def calculer_charge_action(self):
+        debut = datetime.now() 
+
+
+        #** Disponibilité des ressources **************************************
+        listd = [{
+            "heure_debut"  : line.heure_debut,
+            "heure_fin"    : line.heure_fin,
+            "employe"   : line.employe_id.name,
+            "workcenter_id": line.workcenter_id.id,
+            "disponibilite": line.disponibilite,
+        } for line in self.env['is.dispo.ressource'].search([])]
+        _logger.info("Création de listd en %sms"%duree(debut))
+
+        pd.set_option('display.max_rows', 7,) # Il est inutile de metttre plus de 10, car cela n'est pas pris en compte
+        df_pers = pd.DataFrame(listd)
+
+        print("#### Affichage de listd au format DataFrame de Pandas = Table is_dispo_ressource ####")
+        print(df_pers)
+        #**********************************************************************
+
+
+        #** Liste des taches **************************************************
+        workcenter_id = 15 # Soudage manuel
+
+        lines=self.env['is.ordre.travail.line'].search([('workcenter_id','=',workcenter_id)],order="date_prevue, sequence")
+        taches=[]
+        num=1
+        for line in lines:
+            taches.append({
+                "num"         : num,
+                "date_prevue" : line.date_prevue,
+                #"sequence"    : line.sequence,
+                "ordre_id"    : line.ordre_id.id,
+                "tache"       : line.ordre_id.name,
+                "production"  : line.production_id.name,
+                "reste"       : line.reste,
+            })
+            num+=1
+        df_taches = pd.DataFrame(taches)
+        print("#### Liste des taches ####")
+        print(df_taches)
+
+        #**********************************************************************
+
+        # Ajouter une colonne 'taches'
+        df_pers["taches"] = [[] for _ in range(len(df_pers))]
+        print(df_pers)
+
+        # Ne garder que les lignes qui concernent le workcenter avec des gens qui sont vraiment là
+        df_workcenter = df_pers[(df_pers["workcenter_id"] == workcenter_id) & (df_pers["disponibilite"] >0)]
+        print(df_workcenter)
+
+
+        # Faire un groupby magique
+        # Voir doc sur `agg`=> https://pandas.pydata.org/docs/reference/api/pandas.core.groupby.DataFrameGroupBy.aggregate.html
+        aggr_workcenter = df_workcenter.groupby(["heure_debut", "heure_fin"], as_index=False)[["employe", "taches"]].agg({
+            "employe" : lambda x: ', '.join(x), # On joint les noms des employés
+            "taches" : lambda x: []             # On met la valeur [] partout
+        })
+        print(aggr_workcenter)
+
+
+
+
+
+
+
+
+
+
+
+        # _logger.info("Convertion listd en DateFrame en %sms"%duree(debut))
+
+        # employes=self.env['hr.employee'].search([
+        #     ('is_workcenter_id', '!=', False),
+        #     #('id', '=', 9),
+        # ])
         # for employe in employes:
         #     print("####",employe.name, employe.is_workcenter_id.name, employe.is_workcenter_id.id)
 
@@ -215,7 +309,6 @@ class is_dispo_ressource(models.Model):
         #     df_aug["start_closing"] = (df_aug["prev_closed"] != df_aug["heure_debut"])
         #     print(df_aug)
 
-
         #     # Extraire toutes les dates de début
         #     df_start = df_aug[df_aug["start_closing"] == True]["heure_debut"]
         #     print(df_start)
@@ -230,13 +323,23 @@ class is_dispo_ressource(models.Model):
         #         "end" : dend,
         #     } for (dstart, dend) in zip(df_start, df_end)]
 
-        #     print("#### Liste des plages fermées pour mettre dans gantt pour ce poste de charge ###")
-        #     for line in res_plus_efficace:
-        #        print(workcenter_id,line["start"].to_pydatetime(),  line["end"].to_pydatetime())
+        #     #print("#### Liste des plages fermées pour mettre dans gantt pour ce poste de charge ###")
+        #     #for line in res_plus_efficace:
+        #     #   print(workcenter_id,line["start"].to_pydatetime(),  line["end"].to_pydatetime())
 
-        # print("Traitement du DateFrame en %sms"%duree(debut))
+        # _logger.info("Traitement du DateFrame en %sms"%duree(debut))
 
 
+class is_calcul_dispo_ressource_wizard(models.TransientModel):
+    _name = "is.calcul.dispo.ressource.wizard"
+    _description = "Calcul de la dispo des ressurces de date à date"
+
+    date_debut = fields.Date('Date de début', default=lambda *a: datetime.now(), required=True)
+    date_fin   = fields.Date('Date de fin'  , default=lambda *a: datetime.now() + timedelta(days=7), required=True)
+
+    def calcul_action(self):
+        for obj in self:
+            self.env['is.dispo.ressource'].calculer_dispo_ressource(obj.date_debut, obj.date_fin)
 
         return {
             "name": "Disponibilité des employés",
@@ -246,9 +349,7 @@ class is_dispo_ressource(models.Model):
         }
 
 
-
-
-
+           
 
 
 #    def utc_offset(self):

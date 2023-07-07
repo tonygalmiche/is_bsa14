@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from pytz import timezone
 import pandas as pd
 import numpy as np
+from math import ceil
 from pprint import pprint
 import logging
 _logger = logging.getLogger(__name__)
@@ -200,7 +201,8 @@ class is_dispo_ressource(models.Model):
         listd = [{
             "heure_debut"  : line.heure_debut,
             "heure_fin"    : line.heure_fin,
-            "employe"   : line.employe_id.name,
+            "employe"      : line.employe_id.name,
+            "employe_id"   : str(line.employe_id.id),
             "workcenter_id": line.workcenter_id.id,
             "disponibilite": line.disponibilite,
         } for line in self.env['is.dispo.ressource'].search([])]
@@ -216,45 +218,163 @@ class is_dispo_ressource(models.Model):
 
         #** Liste des taches **************************************************
         workcenter_id = 15 # Soudage manuel
+        ordre_id = 82 # 14 taches
 
-        lines=self.env['is.ordre.travail.line'].search([('workcenter_id','=',workcenter_id)],order="date_prevue, sequence")
+        lines=self.env['is.ordre.travail.line'].search([('ordre_id','=',ordre_id)],order="sequence")
         taches=[]
         num=1
         for line in lines:
             taches.append({
                 "num"         : num,
+                "tache_id"    : line.id,
+                "sequence"    : line.sequence,
                 "date_prevue" : line.date_prevue,
-                #"sequence"    : line.sequence,
                 "ordre_id"    : line.ordre_id.id,
                 "tache"       : line.ordre_id.name,
                 "production"  : line.production_id.name,
-                "reste"       : line.reste,
+                "reste"       : int(line.reste),
+                "recouvrement": 0 # 0.5 => la tache suivante commence à 50% de la tache en cours
             })
             num+=1
         df_taches = pd.DataFrame(taches)
         print("#### Liste des taches ####")
         print(df_taches)
 
+        # #### Liste des taches ####
+        #     num  sequence         date_prevue  ordre_id  tache production  reste
+        # 0     1       100 2023-04-24 05:19:20        82  00082   OFA02165    0.0
+        # 1     2       101 2023-04-24 05:19:20        82  00082   OFA02165  168.0
+        # 2     3       102 2023-04-24 05:19:20        82  00082   OFA02165  258.0
+        # ..  ...       ...                 ...       ...    ...        ...    ...
+        # 11   12       111 2023-04-24 05:19:20        82  00082   OFA02165    8.0
+        # 12   13       112 2023-04-24 05:19:20        82  00082   OFA02165    4.0
+        # 13   14       113 2023-04-24 05:19:20        82  00082   OFA02165    2.0
         #**********************************************************************
 
         # Ajouter une colonne 'taches'
         df_pers["taches"] = [[] for _ in range(len(df_pers))]
         print(df_pers)
 
+
         # Ne garder que les lignes qui concernent le workcenter avec des gens qui sont vraiment là
-        df_workcenter = df_pers[(df_pers["workcenter_id"] == workcenter_id) & (df_pers["disponibilite"] >0)]
-        print(df_workcenter)
+        #df_bureau = df_pers[(df_pers["workcenter_id"] == workcenter_id) & (df_pers["disponibilite"] >0)]
+        df_bureau = df_pers[(df_pers["disponibilite"]>0)]
+        print(df_bureau)
+
+
+        # Ajouter une colonne 'employe_ids' pour la liste des employes
+        df_bureau["employe_ids"] = ""
+        print(df_bureau)
 
 
         # Faire un groupby magique
         # Voir doc sur `agg`=> https://pandas.pydata.org/docs/reference/api/pandas.core.groupby.DataFrameGroupBy.aggregate.html
-        aggr_workcenter = df_workcenter.groupby(["heure_debut", "heure_fin"], as_index=False)[["employe", "taches"]].agg({
-            "employe" : lambda x: ', '.join(x), # On joint les noms des employés
-            "taches" : lambda x: []             # On met la valeur [] partout
+        aggr_bureau = df_bureau.groupby(["heure_debut", "heure_fin"], as_index=False)[["employe", "employe_id", "taches"]].agg({
+            "employe"   : lambda x: ', '.join(x), # On joint les noms des employés
+            "employe_id": lambda x: ','.join(x),  # On joint les noms des employés
+            "taches"    : lambda x: [],           # On met la valeur [] partout
         })
-        print(aggr_workcenter)
+        print(aggr_bureau)
 
 
+
+        ## Commencer à calculer les horaires des tâches (Le gros du travail)
+
+        # Quand la dernière tache a commencé / quand on doit commencer la courante
+        T_start = 0
+        # Quand la dernière tache a fini / quand on doit finir la courante
+        T_end = 0
+        # Combien de temps a duré la dernière tache
+        Temps_prev = 0
+
+        # Fonction à utiliser dans le 'apply'
+        def f_apply(l, x):
+            # Append la nouvelle tache à la liste actuelle des taches
+            l.append(x)
+
+        # Connaître l'index de la colonne 'Taches' pour pouvoir utiliser .iloc
+        col_taches = aggr_bureau.columns.get_loc("taches")
+        #print("col_taches=",col_taches)
+
+
+        res={}
+
+        for i, t in enumerate(taches):
+
+            tache_id = t["tache_id"]
+            res[tache_id] = tache_id
+
+            #print(t)
+
+            #print(t)
+            
+            # Savoir quand commencer/finir la nouvelle tache
+            # En fonction du précédent T_end en Temps et du recouvrement actuel
+            T_start = T_end - ceil(t["recouvrement"]*Temps_prev)
+            T_end = T_start+t["reste"]
+            
+            #print(T_start,T_end,t["recouvrement"],t["reste"] )
+            
+            # Mettre à jour la Dataframe avec la Tache courante
+            
+            # -------------  Version naive avec une boucle -------------
+            #for i in range(T_start, T_end):
+            #    print(i,col_taches,aggr_bureau.iloc[i, col_taches])
+            #    # syntaxe : .iloc[row_index, column_index]
+            #    aggr_bureau.iloc[i, col_taches].append(t["tache"])
+            
+            # -------------  Version efficace avec un apply -------------
+            # .apply() va appliquer une function à chaque ligne
+            # .apply() prend en premier paramètre la valeur de ligne actuelle
+            aggr_bureau.iloc[T_start: T_end, col_taches].apply(lambda l: f_apply(l, t["tache"]) )
+            
+            # Preparer la prochaine iteration 
+            Temps_prev = t["reste"]
+
+
+            date_debut = aggr_bureau["heure_debut"].iloc[T_start]
+            date_fin   = aggr_bureau["heure_fin"].iloc[T_end-1]
+            print(t["num"],t["tache_id"],date_debut, date_fin)
+
+
+
+            
+        print(aggr_bureau)
+
+        ### Ajouter le nombre d'employés par tranche horaire
+        aggr_bureau["nb_employes"] = aggr_bureau["employe_id"].str.split(",").str.len()
+
+
+        ### Ajouter le nombre de tache par tranche horaire
+        aggr_bureau["nb_taches"] = aggr_bureau["taches"].str.len()
+        print(aggr_bureau)
+
+
+
+
+        # Ajouter une colonne "nombre de la semaine" depuis la date
+        aggr_bureau["semaine"] = aggr_bureau['heure_debut'].dt.week
+        print(aggr_bureau)
+
+
+        # Test de filtre (sans intéret pour la suite)
+        df_test = aggr_bureau[(aggr_bureau["nb_taches"]>2) & (aggr_bureau["nb_employes"] >1)]
+        print(df_test)
+
+
+
+
+        # ## Ajouter le nombre d'employés
+        # aggr_bureau["nb_employes"] = aggr_bureau["employe"].str.len()
+        # print(aggr_bureau)
+
+
+        # #Test de filtre (sans intéret pour la suite)
+        # #df_test = aggr_bureau[(aggr_bureau["nb_employes"]>1)]
+        # #print(df_test)
+
+
+        print(res)
 
 
 

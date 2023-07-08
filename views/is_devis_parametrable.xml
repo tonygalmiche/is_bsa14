@@ -170,6 +170,7 @@
                     <field name="nom_affaire"            optional="show"     class="test_scss"/>
                     <field name="name" class="test_scss2"/>
                     <field name="version"/>
+                    <field name="type_devis"/>
                     <field name="type_cuve_id"           optional="show"     class="test_scss"/>
                     <field name="designation"            optional="show"     class="test_scss"/>
                     <field name="designation_complementaire" optional="show" class="test_scss"/>
@@ -233,6 +234,7 @@
                             <group>
                                 <field name="name"/>
                                 <field name="version"/>
+                                <field name="type_devis"/>
                                 <field name="is_societe_commerciale_id"/>
                                 <field name="partner_id"/>
                                 <field name="devise_client_id"/>
@@ -373,6 +375,16 @@
                                     <field name="commentaire"/>
                                 </group>
                             </page>
+                            <page string="Descriptif bassin" attrs="{'invisible':[('type_devis','!=','bassin')]}">
+                                <group>
+                                    <field name="descriptif" attrs="{'required':  [('type_devis', '=', 'bassin')]}" nolabel="1"/>
+                                </group>
+                                <group>
+                                    <field name="variante_id"/>
+                                </group>
+                            </page>
+
+
                             <page string="Affaires">
                                 <field name="affaire_ids">
                                     <tree>
@@ -420,6 +432,7 @@
                 <search>
                     <field name="name"/>
                     <field name="version"/>
+                    <field name="type_devis"/>
                     <field name="nom_affaire"/>
                     <field name="designation"/>
                     <field name="partner_id"/>
@@ -486,12 +499,13 @@
                         <group>
                             <group string="Paramètres">
                                 <field name="devis_id"               readonly="1"/>
+                                <field name="type_devis"/>
                                 <field name="capacite"               invisible="1"/>
                                 <field name="unite"                  invisible="1"/>
                                 <field name="is_societe_commerciale_id" readonly="1"/>
                                 <field name="partner_id"                readonly="1"/>
                                 <field name="name"/>
-                                <field name="quantite"/>
+                                <field name="quantite"  attrs="{'invisible':[('type_devis','=','bassin')]}"/>
                                 <field name="cout_horaire_montage"/>
                                 <field name="cout_horaire_be"/>
                                 <field name="cout_transport"/>
@@ -555,12 +569,17 @@
                                     <field name="montant_transport_pourcent" widget="progressbar" class="oe_inline"/>
                                     <field name="montant_transport" class="oe_inline"/>
                                 </div>
-
-
-
                                 <field name="montant_total"/>
                             </group>
-                            <group string="Prix de revient unitaire">
+
+                            <group string="Bassin" attrs="{'invisible':[('type_devis','!=','bassin')]}">
+                                <field name="montant_bassin"/>
+                                <field name="montant_bassin_marge"/>
+                                <field name="montant_bassin_marge_devise"/>
+                            </group>
+
+
+                            <group string="Prix de revient unitaire" attrs="{'invisible':[('type_devis','=','bassin')]}">
                                 <field name="montant_unitaire"/>
                             </group>
                             <group string="Prix de vente de l'affaire">
@@ -569,7 +588,7 @@
                                 <field name="montant_marge_lot"/>
                                 <field name="montant_marge_revendeur_lot"/>
                             </group>
-                            <group string="Prix de vente unitaire">
+                            <group string="Prix de vente unitaire" attrs="{'invisible':[('type_devis','=','bassin')]}">
                                 <field name="prix_vente"/>
                                 <field name="prix_vente_int"/>
                                 <field name="montant_remise" invisible="1"/>
@@ -655,6 +674,10 @@
                                 <field name="devis_id" invisible="1"/>
                                 <field name="section_id"/>
                                 <field name="tps_montage" widget="float_time"/>
+
+                                <field name="type_devis" invisible="1"/>
+
+
                             </group>
                          </group>
                         <field name="product_ids">
@@ -664,19 +687,20 @@
                                 <field name="type_equipement_id" class="test_scss"/>
                                 <field name="product_id" domain="[('is_type_equipement_id', '=', type_equipement_id)]" class="test_scss"/>
                                 <field name="description"/>
-                                <field name="description_detaillee" optional="show"/>
+                                <field name="description_detaillee" attrs="{'column_invisible':[('parent.type_devis','!=','bassin')]}" optional="show"/>
                                 <field name="quantite"                   sum="Total"/>
                                 <field name="uom_po_id"   optional="hide"/>
                                 <field name="prix"        optional="show"/>
                                 <field name="date_achat"  optional="hide"/>
                                 <field name="montant"     optional="show" sum="Total"/>
                                 <field name="marge"       optional="show"/>
-                                <field name="montant_avec_marge" optional="show" sum="Total"/>
+                                <field name="marge_equipement_variante" optional="hide"/>
+                                <field name="montant_avec_marge"        optional="show" sum="Total"/>
+                                <field name="prix_avec_marge_devise"    optional="hide"/>
+                                <field name="montant_avec_marge_devise" optional="hide" sum="Total"/>
+                                <field name="devise_client_id" invisible="1"/>
                                 <field name="tps_montage"        optional="show" sum="Total" widget="float_time"/>
                                 <field name="tps_montage_force"  optional="show" sum="Total" widget="float_time"/>
-
-
-
                             </tree>
                         </field>
                     </sheet>

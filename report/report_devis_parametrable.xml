@@ -149,6 +149,18 @@
                         </thead>
                         <tbody>
                             <t t-set="pos" t-value="1"/>
+                            <t t-if="o.devis_id.descriptif">
+                                <tr style="border-bottom: 1px solid">
+                                    <td style="border-left:0;border-right:0;" class="text-center"><span t-esc="pos"/></td>
+                                    <td style="border-left:0;border-right:0;" class="text-left">
+                                        <div t-field="o.devis_id.descriptif"/>
+                                    </td>
+                                    <td style="border-left:0;border-right:0;" class="text-center">1</td>
+                                    <td style="border-left:0;border-right:0;" class="text-right"><span t-field="o.montant_bassin_marge_devise"/></td>
+                                    <td style="border-left:0;border-right:0;" class="text-right"><span t-field="o.montant_bassin_marge_devise"/></td>
+                                </tr>
+                                <t t-set="pos" t-value="pos+1"/>
+                            </t>
                             <t t-foreach="o.devis_id.section_ids" t-as="section">
                                 <t t-foreach="section.product_ids" t-as="l">
                                     <tr style="border-bottom: 1px solid">
@@ -158,8 +170,8 @@
                                             <div t-if="l.description_detaillee" t-field="l.description_detaillee"/>
                                         </td>
                                         <td style="border-left:0;border-right:0;" class="text-center"><span t-field="l.quantite"/></td>
-                                        <td style="border-left:0;border-right:0;" class="text-right"><span t-field="l.prix"/></td>
-                                        <td style="border-left:0;border-right:0;" class="text-right"><span t-field="l.montant"/></td>
+                                        <td style="border-left:0;border-right:0;" class="text-right"><span t-field="l.prix_avec_marge_devise"/></td>
+                                        <td style="border-left:0;border-right:0;" class="text-right"><span t-field="l.montant_avec_marge_devise"/></td>
                                     </tr>
                                     <t t-set="pos" t-value="pos+1"/>
                                 </t>

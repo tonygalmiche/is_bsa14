@@ -430,6 +430,105 @@
 
 
 
-
+        <!-- is.dispo.ressource.plage -->
+        <record model="ir.ui.view" id="is_dispo_ressource_plage_form_view">
+            <field name="name">is_dispo_ressource_plage_form_view</field>
+            <field name="model">is.dispo.ressource.plage</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="employe_id"/> 
+                            <field name="workcenter_id"/> 
+                            <field name="heure_debut"/> 
+                            <field name="heure_fin"/> 
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_dispo_ressource_plage_tree_view">
+            <field name="name">is_dispo_ressource_plage_tree_view</field>
+            <field name="model">is.dispo.ressource.plage</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="employe_id"/> 
+                    <field name="workcenter_id"/> 
+                    <field name="heure_debut"/> 
+                    <field name="heure_fin"/> 
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_dispo_ressource_plage_filter_view" >
+            <field name="name">is_dispo_ressource_plage_filter_view</field>
+            <field name="model">is.dispo.ressource.plage</field>
+            <field name="arch" type="xml">
+            <search>
+                <field name="employe_id"/> 
+                <field name="workcenter_id"/> 
+                <group expand="1" string="Regrouper par">
+                    <filter string="Employé"          name='employe_id'    context="{'group_by':'employe_id'}"/>
+                    <filter string="Poste de charges" name='workcenter_id' context="{'group_by':'workcenter_id'}"/>
+                    <filter string="Date"             name="day"           context="{'group_by':'heure_debut'}"/>
+                </group>
+            </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_dispo_ressource_plage_employe_calendar_view" >
+            <field name="name">is_dispo_ressource_plage_employe_calendar_view</field>
+            <field name="model">is.dispo.ressource.plage</field>
+            <field name="arch" type="xml">
+                <calendar 
+                    date_start="heure_debut" 
+                    date_stop="heure_fin" 
+                    color="employe_id" 
+                    hide_time="false" 
+                    event_limit="100"
+                    event_open_popup="false"
+                    form_view_id="is_dispo_ressource_plage_form_view"
+                    quick_add="false"
+                >
+                    <field name="employe_id" filters="1" invisible="1"/>
+                    <field name="heure_debut"/> 
+                    <field name="heure_fin"/> 
+                </calendar>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_dispo_ressource_plage_employe_action">
+            <field name="name">Calendrier des disponibilités des employés</field>
+            <field name="res_model">is.dispo.ressource.plage</field>
+            <field name="view_mode">calendar,tree,form</field>
+            <field name="view_id" ref="is_dispo_ressource_plage_employe_calendar_view"/>
+            <field name="domain">[('employe_id','!=',False)]</field>
+        </record>
+        <record model="ir.ui.view" id="is_dispo_ressource_plage_workcenter_calendar_view" >
+            <field name="name">is_dispo_ressource_plage_workcenter_calendar_view</field>
+            <field name="model">is.dispo.ressource.plage</field>
+            <field name="arch" type="xml">
+                <calendar 
+                    date_start="heure_debut" 
+                    date_stop="heure_fin" 
+                    color="workcenter_id" 
+                    hide_time="false" 
+                    event_limit="100"
+                    event_open_popup="false"
+                    form_view_id="is_dispo_ressource_plage_form_view"
+                    quick_add="false"
+                >
+                    <field name="workcenter_id" filters="1" invisible="1"/>
+                    <field name="heure_debut"/> 
+                    <field name="heure_fin"/> 
+                </calendar>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_dispo_ressource_plage_workcenter_action">
+            <field name="name">Calendrier des disponibilité des postes de charges</field>
+            <field name="res_model">is.dispo.ressource.plage</field>
+            <field name="view_mode">calendar,tree,form</field>
+            <field name="view_id" ref="is_dispo_ressource_plage_workcenter_calendar_view"/>
+            <field name="domain">[('workcenter_id','!=',False)]</field>
+        </record>
     </data>
 </odoo>

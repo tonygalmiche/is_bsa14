@@ -191,11 +191,146 @@ class is_dispo_ressource(models.Model):
 
 
 
-
-
     def calculer_charge_action(self):
-        debut = datetime.now() 
+        self.calculer_plage_dispo_ressource()
 
+
+
+
+    def calculer_plage_dispo_ressource(self):
+        "Calculer les plages de disponibilités des ressources"
+
+        #** Calcul des plages pour les employés *******************************
+        employes = self.env['hr.employee'].search([])
+        for employe in employes:
+            employe_id = employe.id
+
+            #** Suppression des lignes ****************************************
+            cr=self._cr
+            sql="delete from is_dispo_ressource_plage where employe_id=%s"
+            cr.execute(sql,[employe_id])
+            #**********************************************************************
+
+            #** Disponibilité des ressources **************************************
+            debut = datetime.now() 
+            dispos = [{
+                "heure_debut"  : line.heure_debut,
+                "heure_fin"    : line.heure_fin,
+                "employe"      : line.employe_id.name,
+                "employe_id"   : str(line.employe_id.id),
+                "workcenter_id": line.workcenter_id.id,
+                "disponibilite": line.disponibilite,
+            } for line in self.env['is.dispo.ressource'].search([("employe_id","=", employe_id)], order="heure_debut")]
+            #_logger.info("Création de la liste 'dispos' en %sms"%duree(debut))
+            #******************************************************************
+
+            if len(dispos)>0:
+                _logger.info("Calcul des plages de disponibilité pour %s"%employe.name)
+
+                #** Convertir la liste en DataFrame ***************************
+                debut = datetime.now() 
+                pd.set_option('display.max_rows', 7,) # Il est inutile de metttre plus de 10, car cela n'est pas pris en compte
+                df_dispos = pd.DataFrame(dispos)
+                #_logger.info("Convertion de la liste 'dispos' en DataFrame en %sms"%duree(debut))
+                #print(df_dispos)
+                #**************************************************************
+
+                #** Extraire les lignes avec une disponibilité à 0 ************
+                df_open = df_dispos[df_dispos["disponibilite"]>0]
+                #print(df_open)
+                #**************************************************************
+
+                # Ajout d'info sur les lignes i+1 et i-1
+                # Ajouter une colomne qui a pour info le "start" de la prochaine ligne et le "end" de la ligne d'avant, afin de savoir si c'est une fermeture "nouvelle" ou bien une qui s'arrête ou encore une qui continue son petit bonhomme de chemin.
+                # `shift` permet d'accéder aux lignes d'avant/après. Vu sur [StackOverflow](https://stackoverflow.com/questions/30673209/pandas-compare-next-row)
+                df_aug = df_open.copy()
+                df_aug["heure_debut_next"] = df_open["heure_debut"].shift(-1) # Heure de début de la ligne suivante
+                df_aug["heure_fin_prev"]   = df_open["heure_fin"].shift(1)    # Heure de fin de la ligne précédente
+                #print(df_aug)
+
+                #Pour chaque ligne, vérifier si on est dans le cas d'un début de fermeture ou la fin d'une fermeture (il y a le cas où on est au milieu d'une fermeture qui est le cas dont on veut justement se débarasser)
+                df_aug["end_open"] = (df_aug["heure_debut_next"] != df_aug["heure_fin"])
+                df_aug["start_open"] = (df_aug["heure_fin_prev"] != df_aug["heure_debut"])
+                #print(df_aug)
+
+                ### Extraire toutes les dates de début
+                df_start = df_aug[df_aug["start_open"] == True]["heure_debut"]
+                #print(df_start)
+
+                ### Extraire toutes les dates de fin
+                df_end = df_aug[df_aug["end_open"] == True]["heure_fin"]
+                #print(df_end)
+
+                #Combiner le tout (et le tout dans le même format d'origine)
+                N = len(df_start)
+                res = [{
+                    "start" : df_start.iloc[i],
+                    "end" : df_end.iloc[i],
+                } for i in range(N)]
+                for line in res:
+                    vals={
+                        "employe_id" : employe_id,
+                        "heure_debut": line["start"],
+                        "heure_fin"  : line["end"],
+                    }
+                    id=self.env['is.dispo.ressource.plage'].create(vals)
+
+
+
+
+        #** Calcul des plages pour les postes de charges **********************
+        workcenters = self.env['mrp.workcenter'].search([])
+        for workcenter in workcenters:
+            #** Suppression des lignes ****************************************
+            cr=self._cr
+            sql="delete from is_dispo_ressource_plage where workcenter_id=%s"
+            cr.execute(sql,[workcenter.id])
+
+            #** Disponibilité des ressources **************************************
+            dispos = [{
+                "heure_debut"  : line.heure_debut,
+                "heure_fin"    : line.heure_fin,
+                "workcenter_id": line.workcenter_id.id,
+                "disponibilite": line.disponibilite,
+            } for line in self.env['is.dispo.ressource'].search([("workcenter_id","=", workcenter.id)], order="heure_debut")]
+            #******************************************************************
+
+            if len(dispos)>0:
+                df_dispos = pd.DataFrame(dispos)                              # Convertir la liste en DataFrame
+                df_open = df_dispos[df_dispos["disponibilite"]>0]             # Extraire les lignes avec une disponibilité >0
+                df_aug = df_open.copy()
+                df_aug["heure_debut_next"] = df_open["heure_debut"].shift(-1) # Heure de début de la ligne suivante
+                df_aug["heure_fin_prev"]   = df_open["heure_fin"].shift(1)    # Heure de fin de la ligne précédente
+                #Pour chaque ligne, vérifier si on est dans le cas d'un début de fermeture ou la fin d'une fermeture
+                df_aug["end_open"] = (df_aug["heure_debut_next"] != df_aug["heure_fin"])
+                df_aug["start_open"] = (df_aug["heure_fin_prev"] != df_aug["heure_debut"])
+                df_start = df_aug[df_aug["start_open"] == True]["heure_debut"] # Extraire toutes les dates de début
+                df_end   = df_aug[df_aug["end_open"] == True]["heure_fin"]     # Extraire toutes les dates de fin
+                #Combiner le tout et création des plages
+                N = len(df_start)
+                res = [{
+                    "start" : df_start.iloc[i],
+                    "end" : df_end.iloc[i],
+                } for i in range(N)]
+                for line in res:
+                    vals={
+                        "workcenter_id" : workcenter.id,
+                        "heure_debut": line["start"],
+                        "heure_fin"  : line["end"],
+                    }
+                    id=self.env['is.dispo.ressource.plage'].create(vals)
+
+
+
+
+
+
+
+
+
+
+    def calculer_charge_action2(self):
+        debut = datetime.now() 
 
         #** Disponibilité des ressources **************************************
         listd = [{
@@ -456,6 +591,22 @@ class is_dispo_ressource(models.Model):
         #     #   print(workcenter_id,line["start"].to_pydatetime(),  line["end"].to_pydatetime())
 
         # _logger.info("Traitement du DateFrame en %sms"%duree(debut))
+
+
+
+
+
+
+class is_dispo_ressource_plage(models.Model):
+    _name='is.dispo.ressource.plage'
+    _description='Plages de disponibilité des employés et des postes de charges pour vue agenda'
+    _order='heure_debut'
+    _rec_name = 'heure_debut'
+
+    heure_debut   = fields.Datetime('Heure début'                      , required=True, index=True)
+    heure_fin     = fields.Datetime('Heure fin'                        , required=True)
+    employe_id    = fields.Many2one('hr.employee', 'Employé'           , required=False, index=True)
+    workcenter_id = fields.Many2one('mrp.workcenter', 'Poste de charge', required=False, index=True)
 
 
 class is_calcul_dispo_ressource_wizard(models.TransientModel):

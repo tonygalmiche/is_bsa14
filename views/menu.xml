@@ -661,6 +661,20 @@
             parent="dispo_ressource_menu" 
             action="calculer_charge_actions_server"
         />
+        <menuitem 
+            id="is_dispo_ressource_plage_employe_menu" 
+            sequence="94" 
+            name="Calendrier des disponibilités des employés" 
+            parent="dispo_ressource_menu" 
+            action="is_dispo_ressource_plage_employe_action"
+        />
+        <menuitem 
+            id="is_dispo_ressource_plage_workcenter_menu" 
+            sequence="96" 
+            name="Calendrier des disponibilité des postes de charges" 
+            parent="dispo_ressource_menu" 
+            action="is_dispo_ressource_plage_workcenter_action"
+        />
 
 
 

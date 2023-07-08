@@ -8,8 +8,8 @@ class res_company(models.Model):
     is_nom_imprimante = fields.Char('Imprimante Etiquettes')
     is_imprimante_bl  = fields.Char('Imprimante BL')
     is_site = fields.Selection([
-        ("bsa"     , "BSA"),
-        ("bressane", "Bressane"),
+        ("bsa"     , "BSA Inox"),
+        ("bressane", "BSA Acier"),
     ], "Site", default="bsa", help="Champ utilisé pour diférencier les sites de production (ex : CGV)")
     is_seuil_validation_rsp_achat   = fields.Integer('Seuil de validation par le responsable achat'   , default=5000)
     is_seuil_validation_dir_finance = fields.Integer('Seuil de validation par la direction financière', default=10000)

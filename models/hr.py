@@ -230,7 +230,7 @@ class is_dispo_ressource(models.Model):
                 "sequence"    : line.sequence,
                 "date_prevue" : line.date_prevue,
                 "ordre_id"    : line.ordre_id.id,
-                "tache"       : line.ordre_id.name,
+                "ordre"       : line.ordre_id.name,
                 "production"  : line.production_id.name,
                 "reste"       : int(line.reste),
                 "recouvrement": 0 # 0.5 => la tache suivante commence à 50% de la tache en cours
@@ -263,8 +263,11 @@ class is_dispo_ressource(models.Model):
 
 
         # Ajouter une colonne 'employe_ids' pour la liste des employes
-        df_bureau["employe_ids"] = ""
-        print(df_bureau)
+        #df_bureau["employe_ids"] = ""
+        #df_bureau["employe_ids"] = ["" for _ in range(len(df_bureau))]
+        #df_bureau.insert(1, 'employe_ids', '')
+        #df_bureau = df_bureau.assign(employe_ids='')
+        #print(df_bureau)
 
 
         # Faire un groupby magique
@@ -317,6 +320,9 @@ class is_dispo_ressource(models.Model):
             
             # Mettre à jour la Dataframe avec la Tache courante
             
+
+
+
             # -------------  Version naive avec une boucle -------------
             #for i in range(T_start, T_end):
             #    print(i,col_taches,aggr_bureau.iloc[i, col_taches])
@@ -326,7 +332,7 @@ class is_dispo_ressource(models.Model):
             # -------------  Version efficace avec un apply -------------
             # .apply() va appliquer une function à chaque ligne
             # .apply() prend en premier paramètre la valeur de ligne actuelle
-            aggr_bureau.iloc[T_start: T_end, col_taches].apply(lambda l: f_apply(l, t["tache"]) )
+            aggr_bureau.iloc[T_start: T_end, col_taches].apply(lambda l: f_apply(l, t["tache_id"]) )
             
             # Preparer la prochaine iteration 
             Temps_prev = t["reste"]
@@ -353,12 +359,14 @@ class is_dispo_ressource(models.Model):
 
 
         # Ajouter une colonne "nombre de la semaine" depuis la date
-        aggr_bureau["semaine"] = aggr_bureau['heure_debut'].dt.week
+        aggr_bureau["semaine"] = aggr_bureau['heure_debut'].dt.isocalendar().week
         print(aggr_bureau)
 
 
+
         # Test de filtre (sans intéret pour la suite)
-        df_test = aggr_bureau[(aggr_bureau["nb_taches"]>2) & (aggr_bureau["nb_employes"] >1)]
+        print("### df_test ###")
+        df_test = aggr_bureau[(aggr_bureau["nb_taches"]>0) & (aggr_bureau["nb_employes"] >0)]
         print(df_test)
 
 

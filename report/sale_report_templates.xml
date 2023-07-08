@@ -101,7 +101,8 @@
                                     <span t-field="line.price_unit"/>
                                 </td>
                                 <td class="text-center">
-                                    <span t-field="line.is_date_prevue"/>
+                                    <span t-if="res_company.is_site != 'bsa'" t-field="line.is_date_prevue"/>
+                                    <span t-if="res_company.is_site == 'bsa'" t-esc="line.is_date_prevue.strftime('S%U/%Y')"/>
                                 </td>
                                 <td t-if="display_discount" class="text-right" groups="product.group_discount_per_so_line">
                                     <span t-field="line.discount"/>%

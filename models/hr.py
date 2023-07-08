@@ -276,8 +276,6 @@ class is_dispo_ressource(models.Model):
                     id=self.env['is.dispo.ressource.plage'].create(vals)
 
 
-
-
         #** Calcul des plages pour les postes de charges **********************
         workcenters = self.env['mrp.workcenter'].search([])
         for workcenter in workcenters:
@@ -287,20 +285,27 @@ class is_dispo_ressource(models.Model):
             cr.execute(sql,[workcenter.id])
 
             #** Disponibilité des ressources **************************************
+            SQL="select distinct heure_debut, heure_fin from is_dispo_ressource where workcenter_id=%s and disponibilite>0 order by heure_debut"
+            cr.execute(SQL,[workcenter.id])
+            # rows = cr.fetchall()
+            # dispos=[]
+            # for row in rows:
+            #     dispos.append({
+            #         "heure_debut"  : row[0],
+            #         "heure_fin"    : row[1],
+            #     })
             dispos = [{
-                "heure_debut"  : line.heure_debut,
-                "heure_fin"    : line.heure_fin,
-                "workcenter_id": line.workcenter_id.id,
-                "disponibilite": line.disponibilite,
-            } for line in self.env['is.dispo.ressource'].search([("workcenter_id","=", workcenter.id)], order="heure_debut")]
+                "heure_debut"  : row[0],
+                "heure_fin"    : row[1],
+            } for row in cr.fetchall()]
             #******************************************************************
 
             if len(dispos)>0:
-                df_dispos = pd.DataFrame(dispos)                              # Convertir la liste en DataFrame
-                df_open = df_dispos[df_dispos["disponibilite"]>0]             # Extraire les lignes avec une disponibilité >0
-                df_aug = df_open.copy()
-                df_aug["heure_debut_next"] = df_open["heure_debut"].shift(-1) # Heure de début de la ligne suivante
-                df_aug["heure_fin_prev"]   = df_open["heure_fin"].shift(1)    # Heure de fin de la ligne précédente
+                _logger.info("Calcul des plages de disponibilité pour %s"%workcenter.name)
+                df_dispos = pd.DataFrame(dispos)                                # Convertir la liste en DataFrame
+                df_aug = df_dispos.copy()
+                df_aug["heure_debut_next"] = df_dispos["heure_debut"].shift(-1) # Heure de début de la ligne suivante
+                df_aug["heure_fin_prev"]   = df_dispos["heure_fin"].shift(1)    # Heure de fin de la ligne précédente
                 #Pour chaque ligne, vérifier si on est dans le cas d'un début de fermeture ou la fin d'une fermeture
                 df_aug["end_open"] = (df_aug["heure_debut_next"] != df_aug["heure_fin"])
                 df_aug["start_open"] = (df_aug["heure_fin_prev"] != df_aug["heure_debut"])

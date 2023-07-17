@@ -10,15 +10,16 @@ class is_ordre_travail(models.Model):
     _inherit = ['mail.thread']
     _order='name desc'
 
-    name                = fields.Char("N°", readonly=True)
-    createur_id         = fields.Many2one('res.users', 'Créateur', required=True, default=lambda self: self.env.user.id)
-    date_creation       = fields.Date("Date de création"         , required=True, default=lambda *a: fields.Date.today())
-    production_id       = fields.Many2one('mrp.production', 'Ordre de production', required=True)
-    quantite            = fields.Float('Qt prévue', digits=(14,2))
-    date_prevue         = fields.Datetime('Date prévue' , related='production_id.date_planned_start')
-    product_id          = fields.Many2one('product.product', 'Article', related='production_id.product_id')
-    bom_id              = fields.Many2one('mrp.bom', 'Nomenclature', related='production_id.bom_id')
-    state               = fields.Selection([
+    name                 = fields.Char("N°", readonly=True)
+    createur_id          = fields.Many2one('res.users', 'Créateur', required=True, default=lambda self: self.env.user.id)
+    date_creation        = fields.Date("Date de création"         , required=True, default=lambda *a: fields.Date.today())
+    production_id        = fields.Many2one('mrp.production', 'Ordre de production', required=True)
+    procurement_group_id = fields.Many2one('procurement.group', "Groupe d'approvisionnement")
+    quantite             = fields.Float('Qt prévue', digits=(14,2))
+    date_prevue          = fields.Datetime('Date prévue' , related='production_id.date_planned_start')
+    product_id           = fields.Many2one('product.product', 'Article', related='production_id.product_id')
+    bom_id               = fields.Many2one('mrp.bom', 'Nomenclature', related='production_id.bom_id')
+    state                = fields.Selection([
             ('encours', 'En cours'),
             ('termine', 'Terminé'),
         ], "État", default='encours')
@@ -106,8 +107,10 @@ class is_ordre_travail_line(models.Model):
     sequence       = fields.Integer("Séquence"                              , required=True)
     ordre_planning = fields.Integer("Ordre", help="Ordre dans le planning")
     workcenter_id  = fields.Many2one('mrp.workcenter', 'Poste de Travail'   , required=True)
+    recouvrement   = fields.Integer("Recouvrement (%)", required=True, default=0, help="0%: Cette ligne commence à la fin de la ligne précédente\n50%: Cette ligne commence quand la ligne précédente est terminée à 50%\n100%: Cette ligne commence en même temps que la ligne précédente" )
     duree_unitaire = fields.Float("Durée unitaire (H)"                      , required=True)
     duree_totale   = fields.Float("Durée totale (H)", compute='_compute_reste', store=True)
+    duree_reelle   = fields.Float("Durée réelle (H)", compute='_compute_duree_reelle', store=True, help="Durée entre Heure début et Heure fin")
     realisee       = fields.Float("Durée réalisee (H)")
     reste          = fields.Float("Reste (H)", compute='_compute_reste', store=True)
     heure_debut    = fields.Datetime("Heure début"                          , required=False)
@@ -127,6 +130,13 @@ class is_ordre_travail_line(models.Model):
             duree_totale = obj.ordre_id.quantite*obj.duree_unitaire
             obj.duree_totale=duree_totale
             obj.reste=duree_totale-obj.realisee
+
+
+    @api.depends('heure_debut','heure_fin')
+    def _compute_duree_reelle(self):
+        for obj in self:
+            duree_reelle = (obj.heure_fin-obj.heure_debut).total_seconds()/3600
+            obj.duree_reelle=duree_reelle
 
 
 

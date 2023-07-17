@@ -21,3 +21,4 @@ class is_gamme_generique_ligne(models.Model):
     sequence      = fields.Integer("Séquence", default=100)
     workcenter_id = fields.Many2one('mrp.workcenter', 'Poste de Travail', required=True)
     duree         = fields.Float("Durée (HH:MN)", required=True)
+    recouvrement  = fields.Integer("Recouvrement (%)", required=True, default=0, help="0%: Cette ligne commence à la fin de la ligne précédente\n50%: Cette ligne commence quand la ligne précédente est terminée à 50%\n100%: Cette ligne commence en même temps que la ligne précédente" )

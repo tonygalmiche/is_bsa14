@@ -264,7 +264,11 @@
                             <field name="workcenter_id"/> 
                             <field name="heure_debut"/> 
                             <field name="heure_fin"/> 
+                        </group>
+                        <group>
                             <field name="disponibilite"/> 
+                            <field name="charge"/> 
+                            <field name="restant"/> 
                         </group>
                     </sheet>
                 </form>
@@ -281,6 +285,8 @@
                     <field name="heure_debut"/> 
                     <field name="heure_fin"/> 
                     <field name="disponibilite" sum="Total"/> 
+                    <field name="charge" sum="Total"/> 
+                    <field name="restant" sum="Total"/> 
                 </tree>
             </field>
         </record>
@@ -328,6 +334,7 @@
             <field name="res_model">is.dispo.ressource</field>
             <field name="view_mode">graph,pivot,tree,form</field>
             <field name="view_id" ref="is_dispo_ressource_day_graph_view"/>
+            <field name="domain">[('employe_id','!=',False)]</field>
         </record>
 
         <record model="ir.ui.view" id="is_dispo_ressource_week_graph_view" >
@@ -346,6 +353,7 @@
             <field name="res_model">is.dispo.ressource</field>
             <field name="view_mode">graph,pivot,tree,form</field>
             <field name="view_id" ref="is_dispo_ressource_week_graph_view"/>
+            <field name="domain">[('employe_id','!=',False)]</field>
         </record>
 
         <record model="ir.ui.view" id="is_dispo_ressource_week_employe_graph_view" >
@@ -364,6 +372,7 @@
             <field name="res_model">is.dispo.ressource</field>
             <field name="view_mode">graph,pivot,tree,form</field>
             <field name="view_id" ref="is_dispo_ressource_week_employe_graph_view"/>
+            <field name="domain">[('employe_id','!=',False)]</field>
         </record>
         <record id="calculer_dispo_ressource_ir_cron" model="ir.cron">
             <field name="name">Calculer la disponibilité des ressources</field>
@@ -373,6 +382,27 @@
             <field name="interval_type">days</field>
             <field name="numbercall">-1</field>
         </record>
+
+
+
+
+
+
+        <record model="ir.actions.act_window" id="is_charge_ressource_week_action">
+            <field name="name">Charge des ressources par semaine</field>
+            <field name="res_model">is.dispo.ressource</field>
+            <field name="view_mode">graph,pivot,tree,form</field>
+            <field name="view_id" ref="is_dispo_ressource_week_graph_view"/>
+            <field name="domain">[('employe_id','=',False),('disponibilite','&gt;',0)]</field>
+        </record>
+
+
+
+
+
+
+
+
 
 
         <!-- resource.calendar -->
@@ -443,6 +473,7 @@
                             <field name="workcenter_id"/> 
                             <field name="heure_debut"/> 
                             <field name="heure_fin"/> 
+                            <field name="duree"/> 
                         </group>
                     </sheet>
                 </form>
@@ -458,7 +489,29 @@
                     <field name="workcenter_id"/> 
                     <field name="heure_debut"/> 
                     <field name="heure_fin"/> 
+                    <field name="duree" sum="Total"/> 
                 </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_dispo_ressource_plage_pivot_view" >
+            <field name="name">is_dispo_ressource_plage_pivot_view</field>
+            <field name="model">is.dispo.ressource.plage</field>
+            <field name="arch" type="xml">
+                <pivot string="Pivot"> 
+                        <field name="workcenter_id" type="row"/>
+                        <field name="duree" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_dispo_ressource_plage_graph_view" >
+            <field name="name">is_dispo_ressource_plage_graph_view</field>
+            <field name="model">is.dispo.ressource.plage</field>
+            <field name="arch" type="xml">
+                <graph string="Graph"> 
+                        <field name="heure_debut" interval="day"/>
+                        <field name="workcenter_id"/>
+                        <field name="duree" type="measure"/>
+                </graph>
             </field>
         </record>
         <record model="ir.ui.view" id="is_dispo_ressource_plage_filter_view" >
@@ -499,7 +552,7 @@
         <record model="ir.actions.act_window" id="is_dispo_ressource_plage_employe_action">
             <field name="name">Calendrier des disponibilités des employés</field>
             <field name="res_model">is.dispo.ressource.plage</field>
-            <field name="view_mode">calendar,tree,form</field>
+            <field name="view_mode">calendar,pivot,graph,tree,form</field>
             <field name="view_id" ref="is_dispo_ressource_plage_employe_calendar_view"/>
             <field name="domain">[('employe_id','!=',False)]</field>
         </record>
@@ -526,7 +579,7 @@
         <record model="ir.actions.act_window" id="is_dispo_ressource_plage_workcenter_action">
             <field name="name">Calendrier des disponibilité des postes de charges</field>
             <field name="res_model">is.dispo.ressource.plage</field>
-            <field name="view_mode">calendar,tree,form</field>
+            <field name="view_mode">calendar,pivot,graph,tree,form</field>
             <field name="view_id" ref="is_dispo_ressource_plage_workcenter_calendar_view"/>
             <field name="domain">[('workcenter_id','!=',False)]</field>
         </record>

@@ -7,6 +7,9 @@
             <field name="model">mrp.routing.workcenter</field>
             <field name="inherit_id" ref="mrp.mrp_routing_workcenter_form_view"/>
             <field name="arch" type="xml">
+                <field name="sequence" position="after">
+                    <field name="is_recouvrement"/>
+                </field>
                 <label for="time_cycle_manual" position="replace">
                     <label for="is_duree_heure"/>
                     <div>
@@ -17,7 +20,6 @@
                 <field name="time_cycle_manual" position="replace">
                     <field name="time_cycle_manual" widget="float_time" class="oe_inline"/> MM:SS
                 </field>
-
                 <field name="time_cycle" position="replace">
                     <field name="time_cycle" invisible="1"  widget="float_time"/>
                 </field>
@@ -31,6 +33,7 @@
                 <field name="time_cycle" position="replace">
                     <field name="time_cycle"     widget="float_time" string="Durée (MM:SS)" sum="Total" width="1.5" optional="hide"/>
                     <field name="is_duree_heure" widget="float_time" string="Durée (HH:MM)" sum="Total" width="1.5" optional="show"/>
+                    <field name="is_recouvrement" optional="show"/>
                 </field>
             </field>
         </record>
@@ -461,5 +464,3 @@
             <field name="view_mode">tree,form</field>
         </record>
  -->
-
-

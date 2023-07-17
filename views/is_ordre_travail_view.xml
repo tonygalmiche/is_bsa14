@@ -25,13 +25,14 @@
                          <header>
                               <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                          </header>
-                         <sheet>
+                         <!-- <sheet>
                               <notebook>
-                                   <page string="Ordre de travail">
+                                   <page string="Ordre de travail"> -->
                                         <group>
                                              <group>
                                                   <field name="name"/> 
                                                   <field name="production_id"/> 
+                                                  <field name="procurement_group_id"/> 
                                                   <field name="bom_id"/> 
                                                   <field name="quantite"/> 
                                                   <field name="date_prevue"/> 
@@ -46,20 +47,27 @@
                                                   <field name="sequence" widget="handle"/>
                                                   <field name="name"/>
                                                   <field name="workcenter_id"/>
+                                                  <field name="recouvrement"/>
                                                   <field name="duree_unitaire" widget="float_time" sum="Total"/>
                                                   <field name="duree_totale"   widget="float_time" sum="Total"/>
+                                                  <field name="duree_reelle"   widget="float_time" sum="Total"/>
                                                   <field name="realisee"       widget="float_time" sum="Total"/>
                                                   <field name="reste"          widget="float_time" sum="Total"/>
+
+                                                  <field name="heure_debut" readonly="1" optional="show"/>
+                                                  <field name="heure_fin"   readonly="1" optional="show"/>
+
+
                                              </tree>
                                         </field>
-                                   </page>
+                                   <!-- </page> -->
                                    <!-- <page string="Planning">
                                         <group>
                                              <field name="planning" nolabel="1"  widget="html" readonly="1"/>
                                         </group>
                                    </page> -->
-                              </notebook>
-                         </sheet>
+                              <!-- </notebook> 
+                         </sheet>-->
                     </form>
                </field>
           </record>
@@ -71,6 +79,7 @@
                     <tree>
                          <field name="name"/>
                          <field name="production_id"/>
+                         <field name="procurement_group_id"/> 
                          <field name="bom_id"/>
                          <field name="quantite"/>
                          <field name="date_prevue"/>
@@ -134,8 +143,10 @@
                                         <field name="workcenter_id" readonly="1"/> 
                                    </group>
                                    <group>
+                                        <field name="recouvrement"/> 
                                         <field name="duree_unitaire"            widget="float_time"/> 
                                         <field name="duree_totale" readonly="1" widget="float_time"/> 
+                                        <field name="duree_reelle" readonly="1" widget="float_time"/> 
                                         <field name="realisee"                  widget="float_time"/> 
                                         <field name="reste" readonly="1"        widget="float_time"/> 
                                         <field name="heure_debut"/> 
@@ -157,12 +168,14 @@
                          <field name="product_id"     optional="show"/> 
                          <field name="date_prevue"    optional="show"/> 
                          <field name="sequence"       optional="show"/> 
-                         <field name="ordre_planning" optional="show"/> 
+                         <field name="ordre_planning" optional="hide"/> 
                          <field name="workcenter_id"  optional="show"/> 
-                         <field name="duree_unitaire" optional="show"             widget="float_time"/> 
-                         <field name="duree_totale"   optional="show" sum="Total" widget="float_time"/> 
-                         <field name="realisee"       optional="show" sum="Total" widget="float_time"/> 
+                         <field name="recouvrement"   optional="show"/> 
+                         <field name="duree_unitaire" optional="hide"             widget="float_time"/> 
+                         <field name="duree_totale"   optional="hide" sum="Total" widget="float_time"/> 
+                         <field name="realisee"       optional="hide" sum="Total" widget="float_time"/> 
                          <field name="reste"          optional="show" sum="Total" widget="float_time"/> 
+                         <field name="duree_reelle"   optional="show" sum="Total" widget="float_time"/> 
                          <field name="heure_debut"    optional="show"/> 
                          <field name="heure_fin"      optional="show"/> 
                          <field 

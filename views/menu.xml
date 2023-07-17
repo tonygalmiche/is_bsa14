@@ -648,19 +648,12 @@
         />
         <menuitem 
             id="recalculer_dispo_ressource_menu" 
-            sequence="90" 
+            sequence="20" 
             name="Calculer la disponibilité des ressources" 
             parent="dispo_ressource_menu" 
             action="is_calcul_dispo_ressource_wizard_action"
         />
 
-        <menuitem 
-            id="calculer_charge_menu" 
-            sequence="92" 
-            name="Calculer la charge" 
-            parent="dispo_ressource_menu" 
-            action="calculer_charge_actions_server"
-        />
         <menuitem 
             id="is_dispo_ressource_plage_employe_menu" 
             sequence="94" 
@@ -676,9 +669,26 @@
             action="is_dispo_ressource_plage_workcenter_action"
         />
 
-
-
-
+        <menuitem 
+            id="charge_ressource_menu" 
+            sequence="70" 
+            name="Charges des ressources" 
+            parent="ressource_main_menu" 
+        />
+        <menuitem 
+            id="calculer_charge_menu" 
+            sequence="10" 
+            name="Calculer la charge" 
+            parent="charge_ressource_menu" 
+            action="calculer_charge_actions_server"
+        />
+        <menuitem 
+            id="is_charge_ressource_week_menu" 
+            sequence="20" 
+            name="Charge des ressources par semaine" 
+            parent="charge_ressource_menu" 
+            action="is_charge_ressource_week_action"
+        />
 
 
         <!-- Projets -->

@@ -18,38 +18,52 @@ class mrp_production(models.Model):
     etiquette_ids         = fields.One2many('is.tracabilite.livraison', 'production_id', 'Etiquettes', copy=False)
     is_gestion_lot        = fields.Boolean('Gestion par lots')
     is_ref_client         = fields.Char("Référence client")
-    is_ordre_travail_id   = fields.Many2one("is.ordre.travail", "Ordre de travail")
+    is_ordre_travail_id   = fields.Many2one("is.ordre.travail", "Ordre de travail", copy=False)
+    is_planification      = fields.Selection([
+            ('au_plus_tot' , 'Au plus tôt'),
+            ('au_plus_tard', 'Au plus tard'),
+        ], "Planification", required=True, default="au_plus_tard", help="Au plus tôt : Démarré dés maintenant\nAu plus tard : Terminé pour la date prévue")
 
 
     def creer_ordre_travail_action(self):
         for obj in self:
             print(obj,obj.mrp_production_backorder_count)
-            if obj.qty_producing==0 and obj.mrp_production_backorder_count==1 and obj.bom_id.operation_ids:
+
+            if obj.state not in ['cancel','done'] and obj.bom_id.operation_ids:
                 filtre=[
-                    ("production_id","=",obj.id),
+                    ("procurement_group_id","=",obj.procurement_group_id.id),
                 ]
                 ordres = self.env["is.ordre.travail"].search(filtre)
-                if len(ordres)==0:
-                    line_ids=[]
-                    for line in obj.bom_id.operation_ids:
-                        vals={
-                            'sequence'      : line.sequence,
-                            'name'          : line.name,
-                            'workcenter_id' : line.workcenter_id.id,
-                            'duree_unitaire': line.is_duree_heure,
-                            'duree_totale'  : line.is_duree_heure*obj.product_qty,
-                            'heure_debut'   : obj.date_planned_start,
-                            'heure_fin'     : obj.date_planned_start,
+                if len(ordres)>0:
+                    obj.is_ordre_travail_id=ordres[0].id
+                else:
+                    filtre=[
+                        ("production_id","=",obj.id),
+                    ]
+                    ordres = self.env["is.ordre.travail"].search(filtre)
+                    if len(ordres)==0:
+                        line_ids=[]
+                        for line in obj.bom_id.operation_ids:
+                            vals={
+                                'sequence'      : line.sequence,
+                                'name'          : line.name,
+                                'workcenter_id' : line.workcenter_id.id,
+                                'recouvrement'  : line.is_recouvrement,
+                                'duree_unitaire': line.is_duree_heure,
+                                'duree_totale'  : line.is_duree_heure*obj.product_qty,
+                                'heure_debut'   : obj.date_planned_start,
+                                'heure_fin'     : obj.date_planned_start,
+                            }
+                            line_ids.append((0, 0, vals))
+                        vals = {
+                            'production_id'       : obj.id,
+                            'procurement_group_id': obj.procurement_group_id.id,
+                            'quantite'            : obj.product_qty,
+                            'line_ids'            : line_ids,
                         }
-                        line_ids.append((0, 0, vals))
-                    vals = {
-                        'production_id': obj.id,
-                        'quantite'     : obj.product_qty,
-                        'line_ids'     : line_ids,
-                    }
-                    ordre = self.env['is.ordre.travail'].create(vals)
-                    if ordre:
-                        obj.is_ordre_travail_id=ordre.id
+                        ordre = self.env['is.ordre.travail'].create(vals)
+                        if ordre:
+                            obj.is_ordre_travail_id=ordre.id
 
 
     def declarer_une_fabrication_action(self):

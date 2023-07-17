@@ -58,6 +58,7 @@ class mrp_bom(models.Model):
                     'workcenter_id'    : line.workcenter_id.id,
                     'time_cycle_manual': line.duree*60,
                     'is_duree_heure'   : line.duree,
+                    'is_recouvrement'  : line.recouvrement,
                 }
                 self.env['mrp.routing.workcenter'].create(vals)
 
@@ -84,8 +85,9 @@ class mrp_bom_line(models.Model):
 class mrp_routing_workcenter(models.Model):
     _inherit  = "mrp.routing.workcenter"
 
-    is_offset      = fields.Integer("Offset (jour)", help="Offset en jours par rapport à l'opération précédente pour le calcul du planning")
-    is_duree_heure = fields.Float("Durée (Heures)")
+    is_offset       = fields.Integer("Offset (jour)", help="Offset en jours par rapport à l'opération précédente pour le calcul du planning")
+    is_duree_heure  = fields.Float("Durée (Heures)")
+    is_recouvrement = fields.Integer("Recouvrement (%)", required=True, default=0, help="0%: Cette ligne commence à la fin de la ligne précédente\n50%: Cette ligne commence quand la ligne précédente est terminée à 50%\n100%: Cette ligne commence en même temps que la ligne précédente" )
 
 
     @api.onchange('is_duree_heure')

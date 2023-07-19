@@ -547,18 +547,25 @@
 
 
         <!-- Production / Planification -->
-        <menuitem 
+        <!-- <menuitem 
             name="Postes de charge"
             id="is_poste_charge_menu" 
             parent="mrp.mrp_planning_menu_root" 
             action="mrp.mrp_workcenter_action" 
             sequence="10"
-        />
+        /> -->
         <menuitem 
             name="Ordres de production"
             id="is_ordre_production_menu" 
             parent="mrp.mrp_planning_menu_root" 
             action="bsa_mrp_production_action" 
+            sequence="20"
+        />
+        <menuitem 
+            name="Ordres de fabrication (Calendier)"
+            id="mrp_production_calendrier_menu" 
+            parent="mrp.mrp_planning_menu_root" 
+            action="mrp_production_calendrier_action" 
             sequence="20"
         />
         <menuitem 

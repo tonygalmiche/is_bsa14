@@ -94,15 +94,16 @@ class is_dispo_ressource(models.Model):
     employe_id    = fields.Many2one('hr.employee', 'Employé'           , required=False, index=True)
     workcenter_id = fields.Many2one('mrp.workcenter', 'Poste de charge', required=True, index=True)
     disponibilite = fields.Float('Disponibilité (H)', default=0)
-    charge        = fields.Float('Charge (H)', default=0)
-    restant       = fields.Float('Restant (H)', default=0, compute='_compute_restant', store=True)
+    charge        = fields.Float('Charge (H)' , default=0, compute='_compute_charge', store=True)
+    restant       = fields.Float('Restant (H)', default=0, compute='_compute_charge', store=True)
+    taches_ids    = fields.Many2many('is.ordre.travail.line', 'is_dispo_ressource_ordre_travail_line_rel', 'dispo_id', 'tache_id', 'Tâches')
 
 
-    @api.depends('disponibilite','charge')
-    def _compute_restant(self):
+    @api.depends('disponibilite','taches_ids')
+    def _compute_charge(self):
         for obj in self:
+            obj.charge = len(obj.taches_ids)*0.5 # Une tache = 1 personne = 0.5H
             obj.restant=obj.disponibilite-obj.charge
-
 
 
     def search_absences(self,heure_debut, employe):
@@ -262,10 +263,15 @@ class is_dispo_ressource(models.Model):
 
     @api.model
     def calculer_dispo_ressource_ir_cron(self):
+        debut = datetime.now() 
+        _logger.info("calculer_dispo_ressource_ir_cron : ** DEBUT ***********************")
         date_debut = datetime.now()
         date_fin   = date_debut + timedelta(days=366)
         self.env['is.dispo.ressource'].calculer_dispo_ressource(date_debut, date_fin)
         self.env['is.dispo.ressource'].calculer_plage_dispo_ressource()
+        self.env['mrp.production'].calculer_charge_action()
+        duree = (datetime.now() - debut).total_seconds()
+        _logger.info("calculer_dispo_ressource_ir_cron : ** FIN en %.1fs ****************"%duree)
         return True
 
 
@@ -404,117 +410,21 @@ class is_dispo_ressource(models.Model):
                     id=self.env['is.dispo.ressource.plage'].create(vals)
 
 
+    def voir_productions_action(self):
+        for obj in self:
+            ids=[]
+            for tache in obj.taches_ids:
+                ids.append(tache.production_id.id)
+            return {
+                "name": "Productions",
+                "view_mode": "tree,form",
+                "res_model": "mrp.production",
+                "domain": [
+                    ("id" ,"in",ids),
+                ],
+                "type": "ir.actions.act_window",
+            }
 
-
-
-
-
-    def calculer_charge_action(self):
-        cr = self._cr
-        now = datetime.now()
-        charge={}
-
-        #** Calcul des ordres au plus tôt ***********************************************
-        filtre=[
-            ('state', '=', 'encours'),
-            #('production_id.is_planification', '=', 'au_plus_tot'),
-        ]
-        ordres=self.env['is.ordre.travail'].search(filtre) #, limit=100)
-        for ordre in ordres:
-            print(ordre.name, ordre.date_prevue)
-            heure_debut = now
-            duree_precedente=0
-            for tache in ordre.line_ids:
-                duree_recouvrement = duree_precedente*tache.recouvrement/100
-                heure_debut = heure_debut - timedelta(hours=duree_recouvrement)
-                tache.heure_debut=heure_debut
-                duree = tache.reste
-                # Heure de fin si le poste de charge est dispobile 100% du temps ce qui ne sera pas le cas
-                heure_fin = heure_debut + timedelta(hours=duree)
-                # Calcul heure_fin en tenant compte de la dispo du workcenter_id
-                # Recherche des ouvertues du poste de charge 
-                # Comme chaque ligne fait 30mn, il suffit de mettre une limite en fonction de la durée de la tache
-                limit = ceil(duree*2) # La dispo des ressources est par plage de 30mn
-                workcenter_id = tache.workcenter_id.id
-                filtre=[
-                    ('workcenter_id', '=' , workcenter_id),
-                    ('disponibilite', '>' , 0),
-                    ('employe_id'   , '=' , False),
-                    ('heure_debut'  , '>=', heure_debut),
-                ]
-                dispos=self.env['is.dispo.ressource'].search(filtre, limit=limit, order="heure_debut")
-                for dispo in dispos:
-                    if dispo not in charge:
-                        charge[dispo]=0
-                    charge[dispo]+=0.5
-                if len(dispos)>0:
-                    heure_fin = dispos[len(dispos)-1].heure_fin
-                tache.heure_fin=heure_fin 
-                duree_relle = (heure_fin-heure_debut).total_seconds()/3600
-                heure_debut = heure_fin
-                duree_precedente = duree_relle
-        #********************************************************************************
-
-
-        # #** Calcul des ordres au plus tard => A revoir car pour le moement tous les OF sont en retard ***********************************************
-        # filtre=[
-        #     ('state', '=', 'encours'),
-        #     ('production_id.is_planification', '=', 'au_plus_tard'),
-        #     ('date_prevue', '>', now),
-        # ]
-        # ordres=self.env['is.ordre.travail'].search(filtre, limit=5)
-        # for ordre in ordres:
-        #     heure_fin = ordre.date_prevue
-
-        #     print(ordre.name, heure_fin)
-        #     duree_precedente=0
-
-        #     taches=self.env['is.ordre.travail.line'].search([('ordre_id', '=', ordre.id)], order="sequence desc")
-        #     print(taches)
-
-        #     for tache in taches:
-        #         print("-",tache.sequence)
-        #         tache.heure_fin=heure_fin
-
-        #         #duree_recouvrement = duree_precedente*tache.recouvrement/100
-        #         duree = tache.reste
-
-        #         # Heure de début si le poste de charge est dispobile 100% du temps ce qui ne sera pas le cas
-        #         heure_debut = heure_fin - timedelta(hours=duree)
-
-        #         # Calcul heure_debut en tenant compte de la dispo du workcenter_id
-        #         # Recherche des ouvertues du poste de charge 
-        #         # Comme chaque ligne fait 30mn, il suffit de mettre une limite en fonction de la durée de la tache
-        #         limit = ceil(duree*2) # La dispo des ressources est par plage de 30mn
-        #         workcenter_id = tache.workcenter_id.id
-        #         filtre=[
-        #             ('workcenter_id', '=' , workcenter_id),
-        #             ('disponibilite', '>' , 0),
-        #             ('employe_id'   , '=' , False),
-        #             ('heure_fin'    , '<=', heure_fin),
-        #         ]
-        #         dispos=self.env['is.dispo.ressource'].search(filtre, limit=limit, order="heure_debut desc")
-        #         print(dispos)
-        #         for dispo in dispos:
-        #             print("--",dispo.heure_debut)
-        #             if dispo not in charge:
-        #                 charge[dispo]=0
-        #             charge[dispo]+=0.5
-        #         if len(dispos)>0:
-        #             heure_debut = dispos[len(dispos)-1].heure_debut
-        #         tache.heure_debut=heure_debut 
-        #         duree_relle = (heure_fin-heure_debut).total_seconds()/3600
-        #         heure_fin = heure_debut
-        #         duree_precedente = duree_relle
-        # #********************************************************************************
-
-
-
-
-        #** Enregistrement de la charge par plage de 30mn *******************************
-        for dispo in charge:
-            dispo.charge = charge[dispo]
-        #********************************************************************************
 
 
 
@@ -554,249 +464,3 @@ class is_calcul_dispo_ressource_wizard(models.TransientModel):
         }
 
 
-
-
-
-
-
-
-
-
-
-
-    # def calculer_charge_action(self):
-    #     "version panda mais non finalisée et qui ne fonctionne pas"
-    #     debut = datetime.now() 
-
-    #     #** Disponibilité des ressources **************************************
-    #     listd = [{
-    #         "heure_debut"  : line.heure_debut,
-    #         "heure_fin"    : line.heure_fin,
-    #         "employe"      : line.employe_id.name,
-    #         "employe_id"   : str(line.employe_id.id),
-    #         "workcenter_id": line.workcenter_id.id,
-    #         "disponibilite": line.disponibilite,
-    #     } for line in self.env['is.dispo.ressource'].search([])]
-    #     _logger.info("Création de listd en %sms"%duree(debut))
-
-    #     pd.set_option('display.max_rows', 7,) # Il est inutile de metttre plus de 10, car cela n'est pas pris en compte
-    #     df_pers = pd.DataFrame(listd)
-
-    #     print("#### Affichage de listd au format DataFrame de Pandas = Table is_dispo_ressource ####")
-    #     print(df_pers)
-    #     #**********************************************************************
-
-
-    #     #** Liste des taches **************************************************
-    #     workcenter_id = 15 # Soudage manuel
-    #     ordre_id = 82 # 14 taches
-
-    #     lines=self.env['is.ordre.travail.line'].search([('ordre_id','=',ordre_id)],order="sequence")
-    #     taches=[]
-    #     num=1
-    #     for line in lines:
-    #         taches.append({
-    #             "num"         : num,
-    #             "tache_id"    : line.id,
-    #             "sequence"    : line.sequence,
-    #             "date_prevue" : line.date_prevue,
-    #             "ordre_id"    : line.ordre_id.id,
-    #             "ordre"       : line.ordre_id.name,
-    #             "production"  : line.production_id.name,
-    #             "reste"       : int(line.reste),
-    #             "recouvrement": 0 # 0.5 => la tache suivante commence à 50% de la tache en cours
-    #         })
-    #         num+=1
-    #     df_taches = pd.DataFrame(taches)
-    #     print("#### Liste des taches ####")
-    #     print(df_taches)
-
-    #     # #### Liste des taches ####
-    #     #     num  sequence         date_prevue  ordre_id  tache production  reste
-    #     # 0     1       100 2023-04-24 05:19:20        82  00082   OFA02165    0.0
-    #     # 1     2       101 2023-04-24 05:19:20        82  00082   OFA02165  168.0
-    #     # 2     3       102 2023-04-24 05:19:20        82  00082   OFA02165  258.0
-    #     # ..  ...       ...                 ...       ...    ...        ...    ...
-    #     # 11   12       111 2023-04-24 05:19:20        82  00082   OFA02165    8.0
-    #     # 12   13       112 2023-04-24 05:19:20        82  00082   OFA02165    4.0
-    #     # 13   14       113 2023-04-24 05:19:20        82  00082   OFA02165    2.0
-    #     #**********************************************************************
-
-    #     # Ajouter une colonne 'taches'
-    #     df_pers["taches"] = [[] for _ in range(len(df_pers))]
-    #     print(df_pers)
-
-
-    #     # Ne garder que les lignes qui concernent le workcenter avec des gens qui sont vraiment là
-    #     #df_bureau = df_pers[(df_pers["workcenter_id"] == workcenter_id) & (df_pers["disponibilite"] >0)]
-    #     df_bureau = df_pers[(df_pers["disponibilite"]>0)]
-    #     print(df_bureau)
-
-
-    #     # Ajouter une colonne 'employe_ids' pour la liste des employes
-    #     #df_bureau["employe_ids"] = ""
-    #     #df_bureau["employe_ids"] = ["" for _ in range(len(df_bureau))]
-    #     #df_bureau.insert(1, 'employe_ids', '')
-    #     #df_bureau = df_bureau.assign(employe_ids='')
-    #     #print(df_bureau)
-
-
-    #     # Faire un groupby magique
-    #     # Voir doc sur `agg`=> https://pandas.pydata.org/docs/reference/api/pandas.core.groupby.DataFrameGroupBy.aggregate.html
-    #     aggr_bureau = df_bureau.groupby(["heure_debut", "heure_fin"], as_index=False)[["employe", "employe_id", "taches"]].agg({
-    #         "employe"   : lambda x: ', '.join(x), # On joint les noms des employés
-    #         "employe_id": lambda x: ','.join(x),  # On joint les noms des employés
-    #         "taches"    : lambda x: [],           # On met la valeur [] partout
-    #     })
-    #     print(aggr_bureau)
-
-    #     ## Commencer à calculer les horaires des tâches (Le gros du travail)
-
-    #     # Quand la dernière tache a commencé / quand on doit commencer la courante
-    #     T_start = 0
-    #     # Quand la dernière tache a fini / quand on doit finir la courante
-    #     T_end = 0
-    #     # Combien de temps a duré la dernière tache
-    #     Temps_prev = 0
-
-    #     # Fonction à utiliser dans le 'apply'
-    #     def f_apply(l, x):
-    #         # Append la nouvelle tache à la liste actuelle des taches
-    #         l.append(x)
-
-    #     # Connaître l'index de la colonne 'Taches' pour pouvoir utiliser .iloc
-    #     col_taches = aggr_bureau.columns.get_loc("taches")
-    #     #print("col_taches=",col_taches)
-
-    #     res={}
-
-    #     for i, t in enumerate(taches):
-
-    #         tache_id = t["tache_id"]
-    #         res[tache_id] = tache_id
-    #         # Savoir quand commencer/finir la nouvelle tache
-    #         # En fonction du précédent T_end en Temps et du recouvrement actuel
-    #         T_start = T_end - ceil(t["recouvrement"]*Temps_prev)
-    #         T_end = T_start+t["reste"]
-            
-    #         #print(T_start,T_end,t["recouvrement"],t["reste"] )
-            
-    #         # Mettre à jour la Dataframe avec la Tache courante
-            
-    #         # -------------  Version naive avec une boucle -------------
-    #         #for i in range(T_start, T_end):
-    #         #    print(i,col_taches,aggr_bureau.iloc[i, col_taches])
-    #         #    # syntaxe : .iloc[row_index, column_index]
-    #         #    aggr_bureau.iloc[i, col_taches].append(t["tache"])
-            
-    #         # -------------  Version efficace avec un apply -------------
-    #         # .apply() va appliquer une function à chaque ligne
-    #         # .apply() prend en premier paramètre la valeur de ligne actuelle
-    #         aggr_bureau.iloc[T_start: T_end, col_taches].apply(lambda l: f_apply(l, t["tache_id"]) )
-            
-    #         # Preparer la prochaine iteration 
-    #         Temps_prev = t["reste"]
-
-    #         date_debut = aggr_bureau["heure_debut"].iloc[T_start]
-    #         date_fin   = aggr_bureau["heure_fin"].iloc[T_end-1]
-    #         print(t["num"],t["tache_id"],date_debut, date_fin)
-            
-    #     print(aggr_bureau)
-
-    #     ### Ajouter le nombre d'employés par tranche horaire
-    #     aggr_bureau["nb_employes"] = aggr_bureau["employe_id"].str.split(",").str.len()
-
-    #     ### Ajouter le nombre de tache par tranche horaire
-    #     aggr_bureau["nb_taches"] = aggr_bureau["taches"].str.len()
-    #     print(aggr_bureau)
-
-    #     # Ajouter une colonne "nombre de la semaine" depuis la date
-    #     aggr_bureau["semaine"] = aggr_bureau['heure_debut'].dt.isocalendar().week
-    #     print(aggr_bureau)
-
-    #     # Test de filtre (sans intéret pour la suite)
-    #     print("### df_test ###")
-    #     df_test = aggr_bureau[(aggr_bureau["nb_taches"]>0) & (aggr_bureau["nb_employes"] >0)]
-    #     print(df_test)
-
-    #     # ## Ajouter le nombre d'employés
-    #     # aggr_bureau["nb_employes"] = aggr_bureau["employe"].str.len()
-    #     # print(aggr_bureau)
-
-    #     # #Test de filtre (sans intéret pour la suite)
-    #     # #df_test = aggr_bureau[(aggr_bureau["nb_employes"]>1)]
-    #     # #print(df_test)
-
-        # _logger.info("Convertion listd en DateFrame en %sms"%duree(debut))
-
-        # employes=self.env['hr.employee'].search([
-        #     ('is_workcenter_id', '!=', False),
-        #     #('id', '=', 9),
-        # ])
-        # for employe in employes:
-        #     print("####",employe.name, employe.is_workcenter_id.name, employe.is_workcenter_id.id)
-
-        #     df_workcenter = df[df["workcenter_id"] == employe.is_workcenter_id.id]
-        #     print(df_workcenter)
-
-        # print(df.workcenter_id.unique())
-        # for workcenter_id in df.workcenter_id.unique():
-        #     print("#### workcenter_id=",workcenter_id)
-
-        #     df_workcenter = df[df["workcenter_id"] == workcenter_id]
-        #     print(df_workcenter)
-
-        #     df_workcenter_groupby = df_workcenter.groupby(["heure_debut","heure_fin","workcenter_id"], as_index=False)[["disponibilite"]].sum()
-
-        #     #Juste pour l'exemple (sans utilité par la suite), ajout d'une colonne 'week' à la DataFrame
-        #     df_workcenter_groupby["week"] = df_workcenter_groupby["heure_debut"].dt.isocalendar().week
-        #     print(df_workcenter_groupby)
-
-        #     #context pour afficher toutes les lignes
-        #     #with pd.option_context('display.max_rows', None,):
-        #     #   print(df_workcenter_groupby)
-
-        #     # Extraire les ligne avec "disponibilite=0"
-        #     df_closed = df_workcenter_groupby[df_workcenter_groupby["disponibilite"] == 0]
-        #     print(df_closed)
-
-
-        #     # next_closed = heure_debut de la ligne précédente, prev_closed = heure_fin de la ligne suivant 
-        #     df_aug = df_closed.copy()
-        #     df_aug["next_closed"] = df_closed["heure_debut"].shift(-1)
-        #     df_aug["prev_closed"] = df_closed["heure_fin"].shift(1)
-        #     print(df_aug)
-
-        #     df_aug["end_closing"]   = (df_aug["next_closed"] != df_aug["heure_fin"])
-        #     df_aug["start_closing"] = (df_aug["prev_closed"] != df_aug["heure_debut"])
-        #     print(df_aug)
-
-        #     # Extraire toutes les dates de début
-        #     df_start = df_aug[df_aug["start_closing"] == True]["heure_debut"]
-        #     print(df_start)
-
-        #     # Extraire toutes les dates de fin
-        #     df_end   = df_aug[df_aug["end_closing"] == True]["heure_fin"]
-        #     print(df_end)
-
-        #     # Combiner le tout (et le tout dans le même format d'origine)
-        #     res_plus_efficace = [{
-        #         "start" : dstart,
-        #         "end" : dend,
-        #     } for (dstart, dend) in zip(df_start, df_end)]
-
-        #     #print("#### Liste des plages fermées pour mettre dans gantt pour ce poste de charge ###")
-        #     #for line in res_plus_efficace:
-        #     #   print(workcenter_id,line["start"].to_pydatetime(),  line["end"].to_pydatetime())
-
-        # _logger.info("Traitement du DateFrame en %sms"%duree(debut))
-
-
-           
-
-
-#    def utc_offset(self):
-#         now = datetime.now()
-#         tz = pytz.timezone('Europe/Paris')
-#         offset = tz.localize(now).utcoffset()
-#         return offset

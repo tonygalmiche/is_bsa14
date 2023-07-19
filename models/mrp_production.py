@@ -1,4 +1,9 @@
 from odoo import models,fields,api,tools, SUPERUSER_ID
+from math import ceil
+from datetime import datetime, timedelta
+import logging
+_logger = logging.getLogger(__name__)
+
 
 
 class mrp_production(models.Model):
@@ -27,15 +32,29 @@ class mrp_production(models.Model):
 
     def creer_ordre_travail_action(self):
         for obj in self:
-            print(obj,obj.mrp_production_backorder_count)
+            #print(obj,obj.mrp_production_backorder_count)
+
+            #** Recherche de la qty restant à fabriquer ***********************
+            qty=0
+            filtre=[
+                ("procurement_group_id","=",obj.procurement_group_id.id),
+                ("state","not in",['cancel','done']),
+            ]
+            productions = self.env["mrp.production"].search(filtre)
+            for production in productions:
+                qty=production.product_qty
+            #******************************************************************
 
             if obj.state not in ['cancel','done'] and obj.bom_id.operation_ids:
+                ordre=False
                 filtre=[
                     ("procurement_group_id","=",obj.procurement_group_id.id),
                 ]
                 ordres = self.env["is.ordre.travail"].search(filtre)
                 if len(ordres)>0:
-                    obj.is_ordre_travail_id=ordres[0].id
+                    ordre=ordres[0]
+                    #obj.is_ordre_travail_id=ordres[0].id
+                    #ordres[0].quantite = qty
                 else:
                     filtre=[
                         ("production_id","=",obj.id),
@@ -62,17 +81,17 @@ class mrp_production(models.Model):
                             'line_ids'            : line_ids,
                         }
                         ordre = self.env['is.ordre.travail'].create(vals)
-                        if ordre:
-                            obj.is_ordre_travail_id=ordre.id
+                if ordre:
+                    obj.is_ordre_travail_id=ordre.id
+                    ordre.quantite = qty
+                    ordre.calculer_charge_ordre_travail()
+
+
 
 
     def declarer_une_fabrication_action(self):
         res=False
         for obj in self:
-
-            print("obj=",obj)
-
-
             qt=1
             if obj.is_gestion_lot:
                 qt=obj.product_qty
@@ -84,7 +103,6 @@ class mrp_production(models.Model):
             else:
                 res=obj.with_context(skip_backorder=True, mo_ids_to_backorder=obj.id).button_mark_done()
             return res
-            #print('res=',res)
             if res!=True and 'name' in res:
                 obj.qty_producing=0
                 err="La nomenclature de l'article ne correspond plus a la nomenclature de l'OF"
@@ -238,6 +256,39 @@ class mrp_production(models.Model):
         if self.bom_id:
             print("## TEST ##")
             #self._create_workorder()
+
+
+    def calculer_charge_action(self):
+        debut = datetime.now() 
+        _logger.info("calculer_charge_action : ** DEBUT")
+        filtre=[
+            ('state', 'not in', ['cancel','done'])
+        ]
+        productions=self.env['mrp.production'].search(filtre)
+        nb=len(productions)
+        ct=1
+        for production in productions:
+            _logger.info("calculer_charge_action : %s/%s %s"%(ct,nb,production.name))
+            production.creer_ordre_travail_action()
+            if production.is_ordre_travail_id:
+                production.is_ordre_travail_id.calculer_charge_ordre_travail()
+            ct+=1
+
+
+        duree = (datetime.now() - debut).total_seconds()
+        _logger.info("calculer_charge_action : ** FIN en %.1fs"%duree)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

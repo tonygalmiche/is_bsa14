@@ -23,51 +23,39 @@
                          }
                          </style>
                          <header>
+                              <button name="calculer_charge_ordre_travail" string="Calculer la charge" type="object"/>
+                              <button name="vue_gantt_action"              string="Vue Gantt"          type="object"/>
                               <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                          </header>
-                         <!-- <sheet>
-                              <notebook>
-                                   <page string="Ordre de travail"> -->
-                                        <group>
-                                             <group>
-                                                  <field name="name"/> 
-                                                  <field name="production_id"/> 
-                                                  <field name="procurement_group_id"/> 
-                                                  <field name="bom_id"/> 
-                                                  <field name="quantite"/> 
-                                                  <field name="date_prevue"/> 
-                                             </group>
-                                             <group>
-                                                  <field name="createur_id"/> 
-                                                  <field name="date_creation"/> 
-                                             </group>
-                                        </group>
-                                        <field name="line_ids" >
-                                             <tree editable="bottom">
-                                                  <field name="sequence" widget="handle"/>
-                                                  <field name="name"/>
-                                                  <field name="workcenter_id"/>
-                                                  <field name="recouvrement"/>
-                                                  <field name="duree_unitaire" widget="float_time" sum="Total"/>
-                                                  <field name="duree_totale"   widget="float_time" sum="Total"/>
-                                                  <field name="duree_reelle"   widget="float_time" sum="Total"/>
-                                                  <field name="realisee"       widget="float_time" sum="Total"/>
-                                                  <field name="reste"          widget="float_time" sum="Total"/>
-
-                                                  <field name="heure_debut" readonly="1" optional="show"/>
-                                                  <field name="heure_fin"   readonly="1" optional="show"/>
-
-
-                                             </tree>
-                                        </field>
-                                   <!-- </page> -->
-                                   <!-- <page string="Planning">
-                                        <group>
-                                             <field name="planning" nolabel="1"  widget="html" readonly="1"/>
-                                        </group>
-                                   </page> -->
-                              <!-- </notebook> 
-                         </sheet>-->
+                         <group>
+                              <group>
+                                   <field name="name"/> 
+                                   <field name="production_id"/> 
+                                   <field name="procurement_group_id"/> 
+                                   <field name="bom_id"/> 
+                                   <field name="quantite"/> 
+                                   <field name="date_prevue"/> 
+                              </group>
+                              <group>
+                                   <field name="createur_id"/> 
+                                   <field name="date_creation"/> 
+                              </group>
+                         </group>
+                         <field name="line_ids" >
+                              <tree editable="bottom">
+                                   <field name="sequence" widget="handle"/>
+                                   <field name="name"/>
+                                   <field name="workcenter_id"/>
+                                   <field name="recouvrement"/>
+                                   <field name="duree_unitaire" widget="float_time" sum="Total"/>
+                                   <field name="duree_totale"   widget="float_time" sum="Total"/>
+                                   <field name="duree_reelle"   widget="float_time" sum="Total"/>
+                                   <!-- <field name="realisee"       widget="float_time" sum="Total"/>
+                                   <field name="reste"          widget="float_time" sum="Total"/> -->
+                                   <field name="heure_debut" readonly="1" optional="show"/>
+                                   <field name="heure_fin"   readonly="1" optional="show"/>
+                              </tree>
+                         </field>
                     </form>
                </field>
           </record>

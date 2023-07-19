@@ -144,6 +144,22 @@
                 </xpath> -->
             </field>
         </record>
+
+
+        <record id="is_mrp_production_tree_view_inherit" model="ir.ui.view">
+            <field name="name">is_mrp_production_tree_view_inherit</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_tree_view" />
+            <field name="arch" type="xml">
+                <field name="product_qty" position="after">
+                    <field name="is_ordre_travail_id" optional="show"/>
+                    <field name="is_date_planifiee" optional="show"/>
+                    <field name="is_date_planifiee_fin" optional="show"/>
+                </field>
+            </field>
+        </record>
+
+
         <record id="bsa_mrp_production_tree_view2" model="ir.ui.view">
             <field name="name">bsa_mrp_production_tree_view2</field>
             <field name="model">mrp.production</field>
@@ -289,6 +305,39 @@
         </record>
 
 
+
+
+        <!-- Ordres de fabrication (Calendier) -->
+        <record id="mrp_production_calendrier_calendar_view" model="ir.ui.view">
+            <field name="name">mrp_production_calendrier_calendar_view</field>
+            <field name="model">mrp.production</field>
+            <field name="arch" type="xml">
+                <calendar color="user_id" date_start="date_planned_start"  mode="month">
+                    <field name="name"/>
+                    <field name="user_id" filters="1"/>
+                    <field name="product_id"/>
+                    <field name="is_ordre_travail_id"/>
+                    <field name="date_planned_start"/>
+                </calendar>
+            </field>
+        </record>
+        <record id="mrp_production_calendrier_action" model="ir.actions.act_window">
+            <field name="name">Ordres de fabrication (Calendier)</field>
+            <field name="res_model">mrp.production</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_mode">calendar,tree,form</field>
+            <field name="domain">[('state', 'not in', ['done', 'cancel']),('is_ordre_travail_id', '!=', False)]</field>
+        </record>
+        <record id="mrp_production_calendrier_action_calendar" model="ir.actions.act_window.view">
+            <field name="view_mode">calendar</field>
+            <field name="view_id" ref="mrp_production_calendrier_calendar_view" />
+            <field name="act_window_id" ref="mrp_production_calendrier_action" />
+        </record>
+        <record id="mrp_production_calendrier_action_tree" model="ir.actions.act_window.view">
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="bsa_mrp_production_tree_view3" />
+            <field name="act_window_id" ref="mrp_production_calendrier_action" />
+        </record>
 
 
 

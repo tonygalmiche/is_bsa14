@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api
 from odoo.exceptions import Warning
-import datetime
+from math import ceil
+from datetime import datetime, timedelta
 
 
 class is_ordre_travail(models.Model):
@@ -15,7 +16,7 @@ class is_ordre_travail(models.Model):
     date_creation        = fields.Date("Date de création"         , required=True, default=lambda *a: fields.Date.today())
     production_id        = fields.Many2one('mrp.production', 'Ordre de production', required=True)
     procurement_group_id = fields.Many2one('procurement.group', "Groupe d'approvisionnement")
-    quantite             = fields.Float('Qt prévue', digits=(14,2))
+    quantite             = fields.Float('Qt prévue', digits=(14,2), readonly=True)
     date_prevue          = fields.Datetime('Date prévue' , related='production_id.date_planned_start')
     product_id           = fields.Many2one('product.product', 'Article', related='production_id.product_id')
     bom_id               = fields.Many2one('mrp.bom', 'Nomenclature', related='production_id.bom_id')
@@ -24,7 +25,6 @@ class is_ordre_travail(models.Model):
             ('termine', 'Terminé'),
         ], "État", default='encours')
     line_ids            = fields.One2many('is.ordre.travail.line', 'ordre_id', 'Lignes')
-    #planning            = fields.Char("Planning", store=True, readonly=True, compute='_compute_planning')
 
 
     @api.model
@@ -34,62 +34,153 @@ class is_ordre_travail(models.Model):
         return res
 
 
-    # @api.onchange('quantite')
-    # def onchange_quantite(self):
-    #     for obj in self:
-    #         for line in obj.line_ids:
-    #             line.duree_totale=obj.quantite*line.duree_unitaire
 
 
 
-    # @api.depends('line_ids')
-    # def _compute_planning(self):
-    #     for obj in self:
-    #         html='<div style="height:2000px"/>'
-    #         height=22
-    #         top=left=0
-    #         color=""
-    #         for line in obj.line_ids:
-    #             if color=="orange":
-    #                 color="LightGreen"
-    #             else:
-    #                 color="orange"
-    #             height
-    #             width=line.duree_totale*50
-    #             name=line.name
-    #             title="Durée: %sH, Début: %s, Fin: %s"%(
-    #                 round(line.duree_totale,1),
-    #                 line.heure_debut.strftime("%m/%d/%Y, %HH"),
-    #                 line.heure_fin.strftime("%m/%d/%Y, %HH")
-    #             )
-    #             html+="""
-    #                 <div style="
-    #                     background-color:%s;
-    #                     width:%spx;
-    #                     height:%spx;
-    #                     position:absolute;left:%spx;top:%spx;
-    #                     border-top: 1px solid gray;
-    #                     border-bottom: 1px solid gray;
-    #                 "/>
-    #             """%(color,width,height,left,top)
 
-    #             html+="""
-    #                 <div 
-    #                     title="%s"
-    #                     style="
-    #                         height:%spx;
-    #                         position:absolute;left:%spx;top:%spx;
-    #                         font-weight:bold;
-    #                     ">
-    #                     %s
-    #                 </div>
-    #             """%(title,height,(left+2),top,name)
+    def get_heure_debut_fin(self,workcenter_id, duree, heure_debut=False, heure_fin=False, tache=False):
+        cr=self._cr
+        """Rechercher l'heure de fin si l'heure de début est fourni en fonction de la duree et des dispos et vis et versa"""
+        # Recherche des ouvertues du poste de charge 
+        # Comme chaque ligne fait 30mn, il suffit de mettre une limite en fonction de la durée de la tache
+        limit = ceil(duree*2) # La dispo des ressources est par plage de 30mn
+        res=False
+        if heure_debut:
+            res = heure_debut + timedelta(hours=duree) # Théorique si pas de fermeture
+            filtre=[
+                ('workcenter_id', '=' , workcenter_id),
+                ('disponibilite', '>' , 0),
+                ('employe_id'   , '=' , False),
+                ('heure_debut'  , '>=', heure_debut),
+            ]
+            dispos=self.env['is.dispo.ressource'].search(filtre, limit=limit, order="heure_debut")
+            if len(dispos)>0:
+                res = dispos[len(dispos)-1].heure_fin
+        if heure_fin:
+            res = heure_fin - timedelta(hours=duree) # Théorique si pas de fermeture
+            filtre=[
+                ('workcenter_id', '=' , workcenter_id),
+                ('disponibilite', '>' , 0),
+                ('employe_id'   , '=' , False),
+                ('heure_fin'  , '<=', heure_fin),
+            ]
+            dispos=self.env['is.dispo.ressource'].search(filtre, limit=limit, order="heure_fin desc")
+            if len(dispos)>0:
+                res = dispos[len(dispos)-1].heure_debut
+        if tache:
+            #Supprimer la tache des dispos avant de la recéer
+            filtre=[
+                ('taches_ids'  , 'in', tache.id),
+            ]
+            lines=self.env['is.dispo.ressource'].search(filtre)
+            for line in lines:
+                line.taches_ids=[(3, tache.id)] 
+            #******************************************************************
+
+            #** Ajout des relations *******************************************
+            for dispo in dispos:
+                dispo.taches_ids=[(4, tache.id)] 
+        return res
 
 
-    #             left+=width
-    #             top+=height
 
-    #         obj.planning=html
+
+    def calculer_charge_ordre_travail(self):
+        for ordre in self:
+            #print(ordre.production_id.name, ordre.name)
+            date_debut_ordre_production = date_fin_ordre_production = False
+            now = datetime.now()
+            #Pour un calcul au plus tard, il faut que la date prévue soit dans plus de 20 jours => Sinon, calcul au plus tôt
+            date_limite_au_plus_tard = now + timedelta(days=20)
+            if ordre.production_id.is_planification=='au_plus_tot' or ordre.date_prevue<date_limite_au_plus_tard:
+                heure_debut = now
+                date_debut_ordre_production = heure_debut
+                date_fin_ordre_production = heure_debut
+                duree_precedente=0
+                for tache in ordre.line_ids:
+                    workcenter_id = tache.workcenter_id.id
+                    duree_recouvrement = duree_precedente*tache.recouvrement/100
+                    heure_debut = heure_debut - timedelta(hours=duree_recouvrement)
+                    duree = tache.reste
+                    heure_fin = self.get_heure_debut_fin(workcenter_id, duree, heure_debut=heure_debut, tache=tache)
+                    tache.heure_debut = heure_debut
+                    tache.heure_fin   = heure_fin 
+                    duree_relle = (heure_fin-heure_debut).total_seconds()/3600
+                    heure_debut = heure_fin
+                    duree_precedente = duree_relle
+                    if heure_fin>date_fin_ordre_production:
+                        date_fin_ordre_production=heure_fin
+
+            else:
+                heure_fin = ordre.date_prevue
+                date_debut_ordre_production = date_fin_ordre_production = heure_fin
+                duree_precedente=0
+                taches=self.env['is.ordre.travail.line'].search([('ordre_id', '=', ordre.id)], order="sequence desc")
+                recouvrement_suivant = 0
+                heure_debut_precedent=False
+                for tache in taches:
+                    workcenter_id = tache.workcenter_id.id
+                    #Calcul de la durée de decalage de la tache en cours en fonction du recouvrement
+                    decale = tache.reste*recouvrement_suivant/100
+                    if decale>0:
+                        heure_debut = heure_debut_precedent
+                        #Recherche de la date de fin en partant de l'heure de début de la tache de fin et de la durée de recouvrement
+                        heure_fin = self.get_heure_debut_fin(workcenter_id, decale, heure_debut=heure_debut)
+                    #Recherche de la date de début à partir de l'heure de fin précédente
+                    duree = tache.reste
+                    heure_debut = self.get_heure_debut_fin(workcenter_id, duree, heure_fin=heure_fin, tache=tache)
+                    tache.heure_debut = heure_debut 
+                    tache.heure_fin   = heure_fin 
+                    heure_fin = heure_debut
+                    recouvrement_suivant = tache.recouvrement
+                    heure_debut_precedent=tache.heure_debut
+                    if tache.heure_debut<date_debut_ordre_production:
+                        date_debut_ordre_production = tache.heure_debut
+                    if tache.heure_fin>date_fin_ordre_production:
+                        date_fin_ordre_production = tache.heure_fin
+
+            ordre.production_id.is_date_planifiee     = date_debut_ordre_production
+            ordre.production_id.is_date_planifiee_fin = date_fin_ordre_production
+            #********************************************************************************
+
+
+        #TODO : 
+        #Commencer par créer les ordres de travail si ce n'est pas le cas
+        #A la fin, mettre à jour la date de début et de fin de l'ordre de fabrication
+        #Revoir la charge par plage de 30mn => cf ci-dessous
+
+        #TODO : A revoir car le tableau charge est toujours vide suite aux modifiications précentes
+        #Pour chaque plage de 30mn, rechercher les taches et enregister la liste des taches
+        #Ajouter un champ pour sauvuegarder cette liste de tache et faire un champ calculé pour le nombre de taches
+        #Il faudrait limiter ce calcul à la liste des taches traitées précédenmment
+        #Comme cela il suffirait de mémoriser la liste des taches à actualiser pour étiter de tout recalculer juste pour un OF à calculer
+        #=> Memoriser la liste des odres de fabrication est suffisant
+        #** Enregistrement de la charge par plage de 30mn *******************************
+        # charge={}
+        # for dispo in charge:
+        #     dispo.charge = charge[dispo]
+        #********************************************************************************
+
+
+
+
+    def vue_gantt_action(self):
+        for obj in self: 
+            return {
+                "name": "Gantt",
+                "view_mode": "dhtmlx_gantt_ot,tree,form",
+                "res_model": "is.ordre.travail.line",
+                "domain": [
+                    ("ordre_id" ,"=",obj.id),
+                ],
+                "type": "ir.actions.act_window",
+            }
+
+
+
+
+
+
 
 
 
@@ -137,6 +228,21 @@ class is_ordre_travail_line(models.Model):
         for obj in self:
             duree_reelle = (obj.heure_fin-obj.heure_debut).total_seconds()/3600
             obj.duree_reelle=duree_reelle
+
+
+
+    # def add_taches_sur_dispo(self):
+    #     for tache in self:
+    #         print("add_taches_sur_dispo",tache, tache.heure_debut, tache.heure_fin)
+
+
+            # filtre=[
+            #     ('workcenter_id', '=' , workcenter_id),
+            #     ('disponibilite', '>' , 0),
+            #     ('employe_id'   , '=' , False),
+            #     ('heure_debut'  , '>=', heure_debut),
+            # ]
+            # dispos=self.env['is.dispo.ressource'].search(filtre, limit=limit, order="heure_debut")
 
 
 

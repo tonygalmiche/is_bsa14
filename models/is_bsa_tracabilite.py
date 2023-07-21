@@ -232,6 +232,9 @@ class is_tracabilite_livraison(models.Model):
             txt=txt+datamax(x=120,y=120  ,sizex=3,sizey=4,txt=eti.name) #.encode("utf-8"))
             txt=txt+datamax(x=200,y=140,sizex=2,sizey=2,txt="OF:")
             txt=txt+datamax(x=200,y=120,sizex=3,sizey=4,txt=eti.production_id.name) #.encode("utf-8"))
+
+            txt=txt+datamax(x=250,y=55,sizex=6,sizey=6,txt="BSA")
+
             t=str(eti.name)
             sizex="3"
             sizey="7"
@@ -242,6 +245,8 @@ class is_tracabilite_livraison(models.Model):
             txt=txt+"Q0001"+chr(10)
             txt=txt+"E"+chr(10)
             return txt
+
+
 
 
     def get_picking_id(self, pick_ids):

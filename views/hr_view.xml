@@ -79,7 +79,7 @@
                         </group>
 			<group>
                             <group string="Détachement">
-                                <field name="detachement_ids" nolabel="1">
+                                <field name="is_detachement_ids" nolabel="1">
                                     <tree editable="bottom">
                                         <field name="employe_id" invisible="1"/>
                                         <field name="date_debut"/>

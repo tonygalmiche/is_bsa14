@@ -120,3 +120,4 @@ InfoSaône - Module Odoo 14 pour BSA
     "active": False,
     "application": True
 }
+

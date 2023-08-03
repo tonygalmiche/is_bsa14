@@ -64,6 +64,8 @@ class sale_order(models.Model):
             obj.is_montant_hors_commission=obj.amount_untaxed-(obj.amount_untaxed*obj.is_pourcentage_commission/100 + obj.is_montant_commission)
 
 
+    # renommage de la description
+    #date_order                 = fields.Datetime("Date AR")
     is_societe_commerciale_id  = fields.Many2one("is.societe.commerciale", "Société commerciale")
     is_condition_livraison     = fields.Char("Conditions de livraison")
     is_apporteur_affaire_id    = fields.Many2one("res.partner", "Apporteur d'affaire")
@@ -71,11 +73,12 @@ class sale_order(models.Model):
     is_pourcentage_commission  = fields.Float("Pourcentage de la commission", digits=(14,2))
     is_montant_hors_commission = fields.Float("Montant hors commission"     , digits=(14,2), compute="_compute_montant_hors_commission", readonly=True, store=True)
     is_arc_a_faire             = fields.Boolean("ARC à faire")
-    is_date_ar                 = fields.Date("Date AR")
+    is_date_ar                 = fields.Date("Date AR (champs desactivé))")
     is_notre_ref_devis         = fields.Char("Notre référence de devis")
     is_nom_affaire             = fields.Char("Nom de l'affaire")
     is_group_line_ids          = fields.One2many('is.sale.order.line.group', 'order_id', 'Lignes par article', copy=False, readonly=True)
     is_group_line_print        = fields.Boolean("Imprimer le regroupement par article", default=False)
+    is_date_commande_client    = fields.Date("Date commande client")
 
 
     def maj_prix_par_quantite_action(self):

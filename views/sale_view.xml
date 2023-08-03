@@ -157,6 +157,9 @@
                     <field name="is_remise1" on_change="onchange_remise(is_remise1,is_remise2)" optional="show"/>
                     <field name="is_remise2" on_change="onchange_remise(is_remise1,is_remise2)" optional="show"/>
                 </xpath>
+                <field name="validity_date" position="after">
+                    <field name="is_date_commande_client"/>
+                </field>
                 <field name="currency_id" position="before">
                     <field name="is_apporteur_affaire_id"/>
                     <field name="is_montant_commission"/>

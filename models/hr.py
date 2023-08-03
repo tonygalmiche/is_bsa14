@@ -35,6 +35,7 @@ class hr_employee(models.Model):
     is_interimaire    = fields.Boolean('Intérimaire',  help="Cocher pour indiquer que c'est un intérimaire")
     is_badge_count    = fields.Integer(string='# Badges'   , compute="_badge_count")
     is_pointage_count = fields.Integer(string='# Pointages', compute="_pointage_count")
+    detachement_ids      = fields.One2many('is.detachement', 'employe_id', 'Détachement')
     is_jour1 = fields.Float('Lundi')
     is_jour2 = fields.Float('Mardi')
     is_jour3 = fields.Float('Mercredi')
@@ -67,6 +68,16 @@ class is_motif_absence(models.Model):
     _order='name'
 
     name = fields.Char("Motif", required=True, index=True)
+
+
+class is_detachement(models.Model):
+    _name="is.detachement"
+    _description="L'employé est détaché"
+    _ordre="is_detachement_debut desc"
+
+    employe_id = fields.Many2one('hr.employee', 'Employé', required=True, ondelete='cascade')
+    date_debut = fields.Date('Date début', required=True)
+    date_fin   = fields.Date('Date fin', required=True)
 
 
 class is_absence(models.Model):

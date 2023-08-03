@@ -77,6 +77,17 @@
                                 <field name="is_jour7"/>
                             </group>
                         </group>
+			<group>
+                            <group string="Détachement">
+                                <field name="detachement_ids" nolabel="1">
+                                    <tree editable="bottom">
+                                        <field name="employe_id" invisible="1"/>
+                                        <field name="date_debut"/>
+                                        <field name="date_fin"/>
+                                    </tree>
+                                </field>
+                            </group>
+		        </group>
                         <group>
                             <field name="is_observation"/>
                         </group>

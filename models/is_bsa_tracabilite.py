@@ -227,7 +227,9 @@ class is_tracabilite_livraison(models.Model):
             txt=txt+datamax(x=200,y=180,sizex=2,sizey=2,txt="QT:")
             txt=txt+datamax(x=200,y=160,sizex=3,sizey=4,txt=str(eti.lot_fabrication))
             txt=txt+datamax(x=15,y=140 ,sizex=2,sizey=2,txt="DATE:")
-            txt=txt+datamax(x=15,y=120  ,sizex=3,sizey=4,txt=str(eti.production_id.date_planned)[0:10])
+            #txt=txt+datamax(x=15,y=120  ,sizex=3,sizey=4,txt=str(eti.production_id.date_planned)[0:10])
+            txt=txt+datamax(x=15,y=120  ,sizex=3,sizey=4,txt=str(eti.create_date)[0:10])
+
             txt=txt+datamax(x=120,y=140 ,sizex=2,sizey=2,txt="LOT:")
             txt=txt+datamax(x=120,y=120  ,sizex=3,sizey=4,txt=eti.name) #.encode("utf-8"))
             txt=txt+datamax(x=200,y=140,sizex=2,sizey=2,txt="OF:")

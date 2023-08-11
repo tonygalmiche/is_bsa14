@@ -2,8 +2,6 @@
 
 <odoo>
      <data>
-
-
           <!-- is.paye.employe -->
           <record model="ir.ui.view" id="is_paye_employe_form_view">
                <field name="name">is_paye_employe_form_view</field>
@@ -46,19 +44,6 @@
                                    </field>
                               </group>
                               <group>
-                                   <!-- <group>
-                                        <field name="intitule_calcule_ids" nolabel="1">
-                                             <tree editable="bottom" default_order="intitule_calcule">
-                                                  <field name="employe_id" invisible="1"/>
-                                                  <field name="intitule_calcule"/>
-                                                  <field name="heure"/>
-                                                  <field name="commentaire"/>
-                                             </tree>
-                                        </field>
-                                        <br />
-                                        <button name="maj_intitule_calcule_ids_action" type="object" string="Actualiser"/>
-                                   </group> -->
-
                                    <group>
                                         <field name="heures_semaine"/>
                                         <field name="balance"/>

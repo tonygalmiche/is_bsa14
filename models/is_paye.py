@@ -33,8 +33,14 @@ class is_paye(models.Model):
                 raise ValidationError("Période incorecte")
             obj.employe_ids.unlink()
             intitules = self.env['is.paye.intitule'].search([])
-            employees = self.env['hr.employee'].search([('department_id','!=','Inactif'),('department_id','!=','Détaché'),('is_interimaire','=',False)])
-            #employees = self.env['hr.employee'].search([('id','=',842)])
+            filtre=[
+                ('department_id','!=','Inactif'),
+                ('department_id','!=','Détaché'),
+                ('is_interimaire','=',False),
+                #('id','in',[774,789,812,821,843]),
+                ('id','in',[798,942]),
+            ]
+            employees = self.env['hr.employee'].search(filtre)
             for employee in employees:
                 #** Recherche compteur du mois précédent **********************
                 compteur=False
@@ -65,6 +71,7 @@ class is_paye(models.Model):
                 total_heures_semaine=total_balance=0
                 total_balance_heure_sup=0
                 total_cp_heure=total_cp_jour=total_maladie=total_at=total_ecole=total_abs=0
+                heures_samedi=nb_detachements=0
                 for i in range(0,nb_jours):                    
                     if date.weekday()==0:
                         semaine = date.isocalendar().week
@@ -72,12 +79,26 @@ class is_paye(models.Model):
                     cp_heure=cp_jour=maladie=at=ecole=abs=heures_semaine=balance=hs25=hs50=0
                     balance_heure_sup=0
                     if date.weekday()!=6:
+                        #** Recherche Détachement *****************************
+                        detachement=False
+                        filtre=[
+                            ('employe_id','=' ,employee.id),
+                            ('date_debut','<=',date),
+                            ('date_fin'  ,'>=',date),
+                        ]
+                        detachements = self.env['is.detachement'].search(filtre)
+                        if len(detachements):
+                            detachement=True
+                        print(employee.name, date, detachements, detachement)
+                        #******************************************************
                         jour=date
                         jour_char = jour.strftime('%d/%m/%Y')
                         if date<=obj.date_pointage:
                             heures = self.env['is.heure.effective'].search([('employee_id','=',employee.id),('name','=',jour)])
                             for heure in heures:
                                 heures_semaine      = heure.effectif_reel
+                                if date.weekday()==5:
+                                    heures_samedi = heure.effectif_reel
                                 balance             = heure.balance_reelle
                                 balance_heure_sup = 0
                                 if balance>0:
@@ -99,7 +120,6 @@ class is_paye(models.Model):
                                     balance=0
                                     balance_heure_sup = 0
                                     cp_heure=0
-                                #print(heure,balance_heure_sup)
                         else:
                             if date.weekday()==0:
                                 heures_semaine = employee.is_jour1
@@ -113,8 +133,17 @@ class is_paye(models.Model):
                                 heures_semaine = employee.is_jour5
                             if date.weekday()==5:
                                 heures_semaine = employee.is_jour6
+                                heures_samedi  = employee.is_jour6
                             if date.weekday()==6:
                                 heures_semaine = employee.is_jour7
+
+                        if detachement and heures_semaine>0:
+                            nb_detachements+=1
+                            if info_complementaire:
+                                info_complementaire="Détachement, "+info_complementaire
+                            else:
+                                info_complementaire="Détachement"
+
                         total_heures_semaine+=heures_semaine
                         total_balance+=balance
                         total_balance_heure_sup+=balance_heure_sup
@@ -125,6 +154,11 @@ class is_paye(models.Model):
                         total_abs      += abs
                         total_ecole    += ecole
                     if date.weekday()==6 or i==(nb_jours-1):
+                        info_complementaire=False
+                        if heures_samedi>0:
+                            x=total_heures_semaine-heures_samedi
+                            info_complementaire="Sem:%.2f, Sa:%.2f"%(x,heures_samedi)
+
                         jour=False
                         jour_char = "Semaine %s"%(semaine)
                         heures_semaine = total_heures_semaine
@@ -135,6 +169,9 @@ class is_paye(models.Model):
                         at             = total_at
                         abs            = total_abs
                         ecole          = total_ecole
+
+                        #Le samedi est toujours compté à 50%
+                        total_balance_heure_sup=total_balance_heure_sup-heures_samedi
                         if total_balance_heure_sup>0:
                             if total_balance_heure_sup<=4:
                                 hs25=total_balance_heure_sup
@@ -142,6 +179,8 @@ class is_paye(models.Model):
                                 hs25=4
                         if total_balance_heure_sup>4:
                             hs50=total_balance_heure_sup-4
+                        if heures_samedi>0:
+                            hs50+=heures_samedi
 
 
 
@@ -172,6 +211,7 @@ class is_paye(models.Model):
                     if date.weekday()==6:
                         total_heures_semaine=total_balance=total_balance_heure_sup=0
                         total_cp_heure=total_cp_jour=total_maladie=total_at=total_ecole=total_abs=0
+                        heures_samedi=0
                     date = date + datetime.timedelta(days=1)
                 employe.onchange_jour_ids()
                 #employe.maj_intitule_calcule_ids_action()
@@ -185,11 +225,11 @@ class is_paye(models.Model):
                 #******************************************************************
 
                 #** Détachement ***************************************************
-                v = 0
-                for line in employe.jour_ids:
-                    if line.info_id.name=="Détachement":
-                        v+=1
-                employe.detachement=v
+                # v = 0
+                # for line in employe.jour_ids:
+                #     if line.info_id.name=="Détachement":
+                #         v+=1
+                employe.detachement=nb_detachements
                 #******************************************************************
 
                 #** Ticket restaurant *********************************************
@@ -201,12 +241,6 @@ class is_paye(models.Model):
                     v=11
                 employe.ticket_restaurant = v
                 #******************************************************************
-
-
-
-
-
-
 
 
 class is_paye_employe(models.Model):
@@ -231,13 +265,11 @@ class is_paye_employe(models.Model):
     at             = fields.Float("AT", digits=(14,2))
     abs            = fields.Float("Abs non rémunérée", digits=(14,2))
     ecole          = fields.Float("Ecole", digits=(14,2))
-
     deplacement       = fields.Float("Déplacement"      , digits=(14,2))
     detachement       = fields.Float("Détachement"      , digits=(14,2))
     ticket_restaurant = fields.Float("Ticket restaurant", digits=(14,2))
-
-    intitules      = fields.Text("Intitulés", store=False, readonly=True, compute='_compute_intitules')
-    commentaire    = fields.Text("Commentaire")
+    intitules         = fields.Text("Intitulés", store=False, readonly=True, compute='_compute_intitules')
+    commentaire       = fields.Text("Commentaire")
 
     @api.depends('intitule_ids')
     def _compute_intitules(self):

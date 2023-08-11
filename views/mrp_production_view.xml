@@ -2,46 +2,6 @@
 <odoo>
     <data>
         <!-- mrp.production -->
-        <!-- <record id="is_planifier_operation_mrp_production_action_server" model="ir.actions.server">
-             <field name="name">Planifier les opérations</field>
-            <field name="model_id" ref="model_mrp_production"/>
-            <field name="code">action = self.planifier_operation_action(cr, uid, context.get('active_ids', []), context=context)</field>
-        </record>
-        <record id="is_planifier_operation_mrp_production_ir_value" model="ir.values">
-            <field eval="'client_action_multi'" name="key2"/>
-            <field eval="'mrp.production'" name="model"/>
-            <field name="name">Planifier les opérations</field>
-            <field eval="'ir.actions.server,%d'%is_planifier_operation_mrp_production_action_server" name="value"/>
-        </record> -->
-
-
-        <!-- is.imprimer.etiquette.mrp -->
-        <!-- <record id="is_imprimer_etiquette_mrp_view" model="ir.ui.view">
-            <field name="name">is.imprimer.etiquette.view</field>
-            <field name="model">is.imprimer.etiquette.mrp</field>
-            <field name="arch" type="xml">
-                <form string="Impression des étiquettes de livraison">
-                    <p>
-                        La validation de cet assistant permet de créer des étiquettes de livraison pour chaque article à fabriquer ou pour le lot.
-                        
-                    </p>
-                    <footer>
-                        <button name="imprimer_etiquette_livraison" string="Imprimer Etiquette" type="object" class="oe_highlight"/>
-                        or 
-                        <button string="Annuler" class="oe_link" special="cancel" />
-                    </footer>
-                </form>
-            </field>
-        </record>
-        <record id="action_is_imprimer_etiquette_mrp" model="ir.actions.act_window">
-            <field name="name">Impression des étiquettes de livraison</field>
-            <field name="res_model">is.imprimer.etiquette.mrp</field>
-            <field name="view_mode">form</field>
-            <field name="view_id" ref="is_imprimer_etiquette_mrp_view"/>
-            <field name="target">new</field>
-        </record> -->
-
-        <!-- mrp.production -->
         <record id="creer_ordre_travail_action_server" model="ir.actions.server">
             <field name="name">Créer ordre de travail</field>
             <field name="model_id" ref="mrp.model_mrp_production"/>
@@ -90,18 +50,50 @@
                         groups="base.group_user" type="object"
                     />
                 </xpath>
-
                 <xpath expr="//sheet/group/group/field[@name='product_id']" position="attributes">
                     <attribute name="domain">[('bom_ids', '!=', False)]</attribute>
                 </xpath>
-
-
-                    
                 <page name="operations" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </page>
-
                 <page name="miscellaneous" position="before">
+                    <page string="Opérations">
+                        <div style="margin-bottom:10px">
+                            <button 
+                                string="Calculer la charge" 
+                                name="calculer_charge_ordre_travail" 
+                                type="object"
+                                class="oe_inline btn btn-sm btn-secondary"
+                                style="margin-right:10px"
+                            />
+                            <button 
+                                string="Vue Gantt ordre de production"
+                                name="vue_gantt_ordre_production_action" 
+                                type="object"
+                                class="oe_inline btn btn-sm btn-secondary"
+                                style="margin-right:10px"
+                            />        
+                            <button 
+                                string="Vue Gantt commande (Affaire)"
+                                name="vue_gantt_commande_action" 
+                                type="object"
+                                class="oe_inline btn btn-sm btn-secondary"
+                                style="margin-right:10px"
+                            />
+                        </div>
+                        <field name="is_operation_ids">
+                            <tree>
+                                <field name="name"/>
+                                <field name="workcenter_id"/>
+                                <field name="recouvrement"/>
+                                <field name="duree_unitaire" widget="float_time" sum="Total"/>
+                                <field name="duree_totale"   widget="float_time" sum="Total"/>
+                                <field name="duree_reelle"   widget="float_time" sum="Total"/>
+                                <field name="heure_debut" readonly="1" optional="show"/>
+                                <field name="heure_fin"   readonly="1" optional="show"/>
+                            </tree>
+                        </field>
+                    </page>
                     <page string="Etiquettes">
                         <field name="etiquette_ids">
                             <tree string="Etiquettes" >
@@ -115,36 +107,33 @@
                         <field name="generer_etiquette" invisible="0"/>
                     </page>
                 </page>
-                <!-- <field name="date_planned_start" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </field> -->
-
                 <field name="bom_id" position="after">
                     <field name="is_ordre_travail_id"  readonly="1"/>
-                    <field name="procurement_group_id" readonly="1"/>
-                    <field name="is_ref_client"/>
+                    <field name="is_planification"/>
+                    <field name="is_date_planifiee"/>
+                    <field name="is_date_planifiee_fin" />
+                    <field name="is_ecart_date"/>
+                    <!-- <field name="is_ref_client"/> -->
                 </field>
                 <field name="user_id" position="before">
                     <field name="is_gabarit_id"/>
                 </field>
                 <field name="user_id" position="after">
                     <field name="is_sale_order_line_id"/>
-                    <field name="is_date_prevue" string="Date prévue commande client"/>
-                    <field name="is_planification"/>
-                    <field name="is_date_planifiee"/>
-                    <field name="is_date_planifiee_fin" />
-                    <field name="is_ecart_date"/>
                     <field name="is_sale_order_id"/>
+                    <field name="is_client_order_ref"/>
+                    <field name="is_date_prevue"/>
                 </field>
-                <!-- <xpath expr="//field[@name='workcenter_lines']/form/group/field[@name='sequence']" position="after">
-                    <field name="is_offset" />
+
+                <xpath expr="//page[@name='miscellaneous']/group/group/field[@name='picking_type_id']" position="attributes">
+                    <field name="procurement_group_id" readonly="1"/>
                 </xpath>
-                <xpath expr="//field[@name='workcenter_lines']/tree/field[@name='sequence']" position="after">
-                    <field name="is_offset" />
-                </xpath> -->
+
+    
+
+
             </field>
         </record>
-
 
         <record id="is_mrp_production_tree_view_inherit" model="ir.ui.view">
             <field name="name">is_mrp_production_tree_view_inherit</field>
@@ -152,13 +141,16 @@
             <field name="inherit_id" ref="mrp.mrp_production_tree_view" />
             <field name="arch" type="xml">
                 <field name="product_qty" position="after">
-                    <field name="is_ordre_travail_id" optional="show"/>
-                    <field name="is_date_planifiee" optional="show"/>
+                    <field name="is_ordre_travail_id"   optional="show"/>
+                    <field name="is_planification"      optional="show"/>
+                    <field name="is_date_prevue"        optional="show"/>
+                    <field name="is_date_planifiee"     optional="show"/>
                     <field name="is_date_planifiee_fin" optional="show"/>
+                    <field name="is_sale_order_id"      optional="show"/>
+                    <field name="is_client_order_ref"   optional="show"/>
                 </field>
             </field>
         </record>
-
 
         <record id="bsa_mrp_production_tree_view2" model="ir.ui.view">
             <field name="name">bsa_mrp_production_tree_view2</field>
@@ -171,14 +163,15 @@
                     <field name="product_id"/>
                     <field name="is_ordre_travail_id" optional="show"/>
                     <field name="product_qty"/>
-                    <field name="is_date_prevue" string="Date prévue commande client" optional="show"/>
+                    <field name="is_date_prevue" optional="show"/>
                     <field name="is_planification" optional="show"/>
                     <field name="is_date_planifiee" optional="show"/>
                     <field name="is_date_planifiee_fin" optional="show"/>
                     <field name="is_ecart_date" optional="show"/>
                     <field name="is_gabarit_id"  optional="show"/>
-                    <!-- <field name="hour_total" sum="Total Hours"/> -->
-                    <field name="is_sale_order_line_id" readonly="1" optional="show"/>
+                    <field name="is_sale_order_line_id" readonly="1" optional="hide"/>
+                    <field name="is_sale_order_id"                   optional="show"/>
+                    <field name="is_client_order_ref"                optional="show"/>
                     <field name="state"/>
                     <field name="company_id" invisible="1"/>
                 </tree>
@@ -196,14 +189,16 @@
                     <field name="is_ordre_travail_id"                                 optional="show"/>
                     <field name="product_qty"/>
                     <field name="date_planned_start"                                  optional="show"/>
-                    <field name="is_date_prevue" string="Date prévue commande client" optional="hide"/>
+                    <field name="is_date_prevue"                                      optional="hide"/>
                     <field name="is_planification"                                    optional="hide"/>
                     <field name="is_date_planifiee"                                   optional="hide"/>
                     <field name="is_date_planifiee_fin"                               optional="hide"/>
                     <field name="is_ecart_date"                                       optional="hide"/>
                     <field name="is_gabarit_id"                                       optional="hide"/>
                     <field name="is_sale_order_line_id" readonly="1"                  optional="hide"/>
-                    <field name="is_ref_client"                                       optional="show"/>
+                    <field name="is_sale_order_id"                                    optional="show"/>
+                    <field name="is_client_order_ref"                                 optional="show"/>
+                    <!-- <field name="is_ref_client"                                       optional="show"/> -->
                     <field name="state"/>
                 </tree>
             </field>
@@ -221,7 +216,8 @@
                     <templates>
                         <t t-name="kanban-box">
                             <div class="oe_kanban_content" style="background-color:white;margin:0.5em;padding:0.5em">
-                                <h4><a type="open"><field name="name"/></a> <field name="is_sale_order_id"/></h4>
+                                <!-- <h4><a type="open"><field name="name"/></a> <field name="is_sale_order_id"/></h4> -->
+                                <h4><a type="open"><field name="name"/></a> <field name="is_client_order_ref"/></h4>
                                 <ul>
                                     <li><field name="product_id"/></li>
                                     <li>Qt : <field name="product_qty"/></li>
@@ -240,12 +236,16 @@
             <field name="inherit_id" ref="mrp.view_mrp_production_filter"/>
             <field name="arch" type="xml">
                 <field name="name" position="after">
+                    <field name="is_sale_order_id"/>
+                    <field name="is_client_order_ref"/>
                     <field name="is_gabarit_id"/>
-                    <field name="is_ref_client"/>
+                    <!-- <field name="is_ref_client"/> -->
                     <field name="is_planification"/>
                 </field>
                 <filter name="scheduled_date" position="after">
-                    <filter name="group_by_gabarit" string="Gabarit" context="{'group_by':'is_gabarit_id'}"/>
+                    <filter name="group_by_gabarit"          string="Gabarit"     context="{'group_by':'is_gabarit_id'}"/>
+                    <filter name="group_by_is_sale_order_id" string="Commande"    context="{'group_by':'is_sale_order_id'}"/>
+                    <filter name="group_by_is_date_prevue"   string="Date client" context="{'group_by':'is_date_prevue'}"/>
                 </filter>
             </field>
         </record>
@@ -266,6 +266,7 @@
                 <calendar color="is_gabarit_id" date_start="is_date_planifiee">
                     <field name="name"/>
                     <field name="is_sale_order_id"/>
+                    <field name="is_client_order_ref"/>
                     <field name="product_id"/>
                     <field name="is_date_prevue"/>
                     <field name="is_date_planifiee"/>
@@ -304,9 +305,6 @@
             <field name="act_window_id" ref="bsa_mrp_production_action" />
         </record>
 
-
-
-
         <!-- Ordres de fabrication (Calendier) -->
         <record id="mrp_production_calendrier_calendar_view" model="ir.ui.view">
             <field name="name">mrp_production_calendrier_calendar_view</field>
@@ -317,7 +315,11 @@
                     <field name="user_id" filters="1"/>
                     <field name="product_id"/>
                     <field name="is_ordre_travail_id"/>
+                    <field name="is_planification"/>
                     <field name="date_planned_start"/>
+                    <field name="is_date_prevue"/>
+                    <field name="is_sale_order_id"/>
+                    <field name="is_client_order_ref"/>
                 </calendar>
             </field>
         </record>
@@ -338,8 +340,5 @@
             <field name="view_id" ref="bsa_mrp_production_tree_view3" />
             <field name="act_window_id" ref="mrp_production_calendrier_action" />
         </record>
-
-
-
     </data>
 </odoo>

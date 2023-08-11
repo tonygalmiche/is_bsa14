@@ -10,24 +10,54 @@ class mrp_production(models.Model):
     _inherit = "mrp.production"
     _order = "id desc"
 
+    @api.depends('is_sale_order_line_id','is_sale_order_line_id.order_id.client_order_ref')
+    def _compute_is_sale_order_id(self):
+        for obj in self:
+            obj.is_sale_order_id    = obj.is_sale_order_line_id.order_id.id
+            obj.is_client_order_ref = obj.is_sale_order_line_id.order_id.client_order_ref or "??"
+
+
+    @api.depends('is_sale_order_line_id','is_sale_order_line_id.is_date_prevue')
+    def _compute_is_date_prevue(self):
+        for obj in self:
+            obj.is_date_prevue = obj.is_sale_order_line_id.is_date_prevue # or obj.date_planned_start
+
+
     date_planned          = fields.Datetime("Date plannifiée", required=False, index=True, readonly=False, states={}, copy=False)
-    is_date_prevue        = fields.Date("Date prévue commande client", related="is_sale_order_line_id.is_date_prevue", readonly=True, help="Date de prévue sur la ligne de commande client")
+    is_date_prevue        = fields.Date(string="Date client" , compute='_compute_is_date_prevue'  , store=True, readonly=True, help="Date prévue sur la ligne de commande client")
+    is_client_order_ref   = fields.Char(string="Référence client", compute='_compute_is_sale_order_id', store=True, readonly=True)
     is_date_planifiee     = fields.Date("Date planifiée début")
     is_date_planifiee_fin = fields.Date("Date planifiée fin", readonly=True)
     is_ecart_date         = fields.Integer("Ecart date", readonly=True)
     is_gabarit_id         = fields.Many2one("is.gabarit", "Gabarit")
     is_sale_order_line_id = fields.Many2one("sale.order.line", "Ligne de commande")
-    is_sale_order_id      = fields.Many2one("sale.order", "Commande", related="is_sale_order_line_id.order_id", readonly=True)
+    is_sale_order_id      = fields.Many2one("sale.order", "Commande", compute='_compute_is_sale_order_id', store=True, readonly=True)
     generer_etiquette     = fields.Boolean('Etiquettes générées', default=False, copy=False)
-    #etiquette_ids        = fields.Many2many('is.tracabilite.livraison', 'mrp_production_tacabilite_livraison_rel', 'production_id', 'etiquette_id', 'Etiquettes', readonly=True, copy=False)
     etiquette_ids         = fields.One2many('is.tracabilite.livraison', 'production_id', 'Etiquettes', copy=False)
     is_gestion_lot        = fields.Boolean('Gestion par lots')
-    is_ref_client         = fields.Char("Référence client")
+    is_ref_client         = fields.Char("Référence client (champ obsolète)")
     is_ordre_travail_id   = fields.Many2one("is.ordre.travail", "Ordre de travail", copy=False)
     is_planification      = fields.Selection([
             ('au_plus_tot' , 'Au plus tôt'),
             ('au_plus_tard', 'Au plus tard'),
-        ], "Planification", required=True, default="au_plus_tard", help="Au plus tôt : Démarré dés maintenant\nAu plus tard : Terminé pour la date prévue")
+            ('date_fixee'  , 'Date fixée'),
+        ], "Planification", required=True, default="au_plus_tard", 
+        help="Au plus tôt : Démarrer dés maintenant\nAu plus tard : Terminer pour date client\nDate fixée : Commence à la date prévue fixée manuellement")
+
+    is_operation_ids = fields.One2many('is.ordre.travail.line', 'production_id', 'Opérations')
+
+
+    def write(self, vals):
+        if "date_planned_start" in vals:
+            vals["is_planification"]="date_fixee"
+        res = super(mrp_production, self).write(vals)
+
+        print(res, vals)
+
+        if "date_planned_start" in vals:
+            self.calculer_charge_ordre_travail()
+
+        return res
 
 
     def creer_ordre_travail_action(self):
@@ -170,13 +200,13 @@ class mrp_production(models.Model):
 
 
 
-    def planifier_operation_action(self):
-        for obj in self:
-            if obj.state in ["confirmed","ready","in_production"]:
-                ops = self.env["mrp.production.workcenter.line"].search([("production_id","=",obj.id),("state","in",["draft","pause","startworking"])],order="production_id,sequence")
-                if ops:
-                    ops[0].is_date_debut = obj.is_date_planifiee
-                    ops[0].planifier_operation_action()
+    # def planifier_operation_action(self):
+    #     for obj in self:
+    #         if obj.state in ["confirmed","ready","in_production"]:
+    #             ops = self.env["mrp.production.workcenter.line"].search([("production_id","=",obj.id),("state","in",["draft","pause","startworking"])],order="production_id,sequence")
+    #             if ops:
+    #                 ops[0].is_date_debut = obj.is_date_planifiee
+    #                 ops[0].planifier_operation_action()
 
 
     # def copy(self):
@@ -282,7 +312,45 @@ class mrp_production(models.Model):
 
 
 
+    def vue_gantt_ordre_production_action(self):
+        for obj in self:
+            return {
+                "name": "Gantt",
+                "view_mode": "dhtmlx_gantt_ot,tree,form",
+                "res_model": "is.ordre.travail.line",
+                "domain": [
+                    ("ordre_id" ,"=",obj.is_ordre_travail_id.id),
+                ],
+                "type": "ir.actions.act_window",
+            }
 
+
+    def vue_gantt_commande_action(self):
+        for obj in self:
+            filtre=[
+                ("is_sale_order_id","=",obj.is_sale_order_id.id),
+                ("state","not in",['cancel','done']),
+            ]
+            productions = self.env["mrp.production"].search(filtre)
+            ids=[]
+            for production in productions:
+                ids.append(production.is_ordre_travail_id.id)
+            print(ids)
+
+            return {
+                "name": "Gantt",
+                "view_mode": "dhtmlx_gantt_ot,tree,form",
+                "res_model": "is.ordre.travail.line",
+                "domain": [
+                    ("ordre_id" ,"in",ids),
+                ],
+                "type": "ir.actions.act_window",
+            }
+
+
+    def calculer_charge_ordre_travail(self):
+        for obj in self:
+            obj.is_ordre_travail_id.calculer_charge_ordre_travail()
 
 
 

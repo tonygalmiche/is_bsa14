@@ -2,6 +2,7 @@
 #import cProfile
 from odoo import models,fields,api
 from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 from pytz import timezone
 import pandas as pd
 import numpy as np
@@ -421,20 +422,68 @@ class is_dispo_ressource(models.Model):
                     id=self.env['is.dispo.ressource.plage'].create(vals)
 
 
+    def voir_productions_act_window(self,ids,title):
+        return {
+            "name": title,
+            "view_mode": "tree,form",
+            "res_model": "mrp.production",
+            "domain": [
+                ("id" ,"in",ids),
+            ],
+            "type": "ir.actions.act_window",
+        }
+
+
     def voir_productions_action(self):
+        ids=[]
         for obj in self:
-            ids=[]
             for tache in obj.taches_ids:
                 ids.append(tache.production_id.id)
-            return {
-                "name": "Productions",
-                "view_mode": "tree,form",
-                "res_model": "mrp.production",
-                "domain": [
-                    ("id" ,"in",ids),
-                ],
-                "type": "ir.actions.act_window",
-            }
+        return self.voir_productions_act_window(ids,"Heure")
+
+
+    def voir_productions_jour_action(self):
+        ids=[]
+        for obj in self:
+            heure_debut = obj.heure_debut.replace(hour=0).replace(minute=0).replace(second=0).replace(microsecond=0)
+            heure_fin = heure_debut + timedelta(days=1)
+            print(heure_debut, heure_fin, heure_debut.weekday())
+            filtre=[
+                ('workcenter_id', '=' , obj.workcenter_id.id),
+                ('disponibilite', '>' , 0),
+                ('employe_id'   , '=' , False),
+                ('heure_debut'  , '>=', heure_debut),
+                ('heure_fin'    , '<=', heure_fin),
+            ]
+            dispos=self.env['is.dispo.ressource'].search(filtre)
+            ids=[]
+            for dispo in dispos:
+                for tache in dispo.taches_ids:
+                    ids.append(tache.production_id.id)
+        return self.voir_productions_act_window(ids,"Jour")
+
+
+    def voir_productions_semaine_action(self):
+        for obj in self:
+            heure_debut = obj.heure_debut.replace(hour=0).replace(minute=0).replace(second=0).replace(microsecond=0)
+            weekday = heure_debut.weekday() # 0=lundi
+            heure_debut = heure_debut - timedelta(days=weekday) #Date au lundi
+            heure_fin   = heure_debut + timedelta(days=7)      #+ jours
+            print(heure_debut, heure_fin, heure_debut.weekday())
+            filtre=[
+                ('workcenter_id', '=' , obj.workcenter_id.id),
+                ('disponibilite', '>' , 0),
+                ('employe_id'   , '=' , False),
+                ('heure_debut'  , '>=', heure_debut),
+                ('heure_fin'    , '<=', heure_fin),
+            ]
+            dispos=self.env['is.dispo.ressource'].search(filtre)
+            ids=[]
+            for dispo in dispos:
+                for tache in dispo.taches_ids:
+                    ids.append(tache.production_id.id)
+        return self.voir_productions_act_window(ids,"Semaine")
+
 
 
 

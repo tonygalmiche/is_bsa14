@@ -11,13 +11,29 @@ class is_ordre_travail(models.Model):
     _inherit = ['mail.thread']
     _order='name desc'
 
+
+    @api.depends('production_id','production_id.is_planification','production_id.is_date_prevue','production_id.date_planned_start')
+    def _compute_date_prevue(self):
+        for obj in self:
+            print(obj,obj.production_id,obj.production_id.is_planification, obj.production_id.is_date_prevue, obj.production_id.date_planned_start)
+            date_prevue=obj.production_id.date_planned_start
+            if obj.production_id.is_planification!="date_fixee":
+                print("TEST 1")
+                if obj.production_id.is_date_prevue:
+                    print("TEST 2")
+                    date_prevue=obj.production_id.is_date_prevue # Date prévue sur la ligne de commande client
+            obj.date_prevue = date_prevue
+
+
     name                 = fields.Char("N°", readonly=True)
     createur_id          = fields.Many2one('res.users', 'Créateur', required=True, default=lambda self: self.env.user.id)
     date_creation        = fields.Date("Date de création"         , required=True, default=lambda *a: fields.Date.today())
     production_id        = fields.Many2one('mrp.production', 'Ordre de production', required=True)
     procurement_group_id = fields.Many2one('procurement.group', "Groupe d'approvisionnement")
     quantite             = fields.Float('Qt prévue', digits=(14,2), readonly=True)
-    date_prevue          = fields.Datetime('Date prévue' , related='production_id.date_planned_start')
+    #date_prevue          = fields.Datetime('Date prévue' , related='production_id.date_planned_start')
+    #date_prevue          = fields.Datetime('Date client', related='production_id.is_date_prevue')
+    date_prevue          = fields.Datetime('Date prévue', compute='_compute_date_prevue', store=True, readonly=True)
     product_id           = fields.Many2one('product.product', 'Article', related='production_id.product_id')
     bom_id               = fields.Many2one('mrp.bom', 'Nomenclature', related='production_id.bom_id')
     state                = fields.Selection([
@@ -26,6 +42,8 @@ class is_ordre_travail(models.Model):
         ], "État", default='encours')
     line_ids            = fields.One2many('is.ordre.travail.line', 'ordre_id', 'Lignes')
 
+
+# 
 
     @api.model
     def create(self, vals):
@@ -92,8 +110,11 @@ class is_ordre_travail(models.Model):
             now = datetime.now()
             #Pour un calcul au plus tard, il faut que la date prévue soit dans plus de 20 jours => Sinon, calcul au plus tôt
             date_limite_au_plus_tard = now + timedelta(days=20)
-            if ordre.production_id.is_planification=='au_plus_tot' or ordre.date_prevue<date_limite_au_plus_tard:
-                heure_debut = now
+            if ordre.production_id.is_planification in ['au_plus_tot','date_fixee'] or ordre.date_prevue<date_limite_au_plus_tard:
+                if  ordre.production_id.is_planification=='au_plus_tot':
+                    heure_debut = now
+                else:
+                    heure_debut = ordre.date_prevue
                 date_debut_ordre_production = heure_debut
                 date_fin_ordre_production = heure_debut
                 duree_precedente=0
@@ -226,7 +247,9 @@ class is_ordre_travail_line(models.Model):
     @api.depends('heure_debut','heure_fin')
     def _compute_duree_reelle(self):
         for obj in self:
-            duree_reelle = (obj.heure_fin-obj.heure_debut).total_seconds()/3600
+            duree_reelle=0
+            if obj.heure_fin and obj.heure_debut:
+                duree_reelle = (obj.heure_fin-obj.heure_debut).total_seconds()/3600
             obj.duree_reelle=duree_reelle
 
 

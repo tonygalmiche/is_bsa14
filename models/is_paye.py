@@ -38,7 +38,7 @@ class is_paye(models.Model):
                 ('department_id','!=','Détaché'),
                 ('is_interimaire','=',False),
                 #('id','in',[774,789,812,821,843]),
-                ('id','in',[798,942]),
+                #('id','in',[798,942]),
             ]
             employees = self.env['hr.employee'].search(filtre)
             for employee in employees:

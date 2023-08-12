@@ -47,6 +47,7 @@
                                    <field name="name"/>
                                    <field name="workcenter_id"/>
                                    <field name="recouvrement"/>
+                                   <field name="tps_apres"      widget="float_time" sum="Total"/>
                                    <field name="duree_unitaire" widget="float_time" sum="Total"/>
                                    <field name="duree_totale"   widget="float_time" sum="Total"/>
                                    <field name="duree_reelle"   widget="float_time" sum="Total"/>
@@ -132,6 +133,7 @@
                                    </group>
                                    <group>
                                         <field name="recouvrement"/> 
+                                        <field name="tps_apres"                 widget="float_time" sum="Total"/>
                                         <field name="duree_unitaire"            widget="float_time"/> 
                                         <field name="duree_totale" readonly="1" widget="float_time"/> 
                                         <field name="duree_reelle" readonly="1" widget="float_time"/> 
@@ -159,6 +161,7 @@
                          <field name="ordre_planning" optional="hide"/> 
                          <field name="workcenter_id"  optional="show"/> 
                          <field name="recouvrement"   optional="show"/> 
+                         <field name="tps_apres"      optional="show" sum="Total" widget="float_time"/>
                          <field name="duree_unitaire" optional="hide"             widget="float_time"/> 
                          <field name="duree_totale"   optional="hide" sum="Total" widget="float_time"/> 
                          <field name="realisee"       optional="hide" sum="Total" widget="float_time"/> 
@@ -287,6 +290,7 @@
                          <field name="product_id"/> 
                          <field name="workcenter_id"/> 
                          <field name="state"/> 
+                         <!-- <filter string="Test" name="test" domain="" context="{'vue_gantt':'test'}"/> -->
                     </search>
                </field>
           </record>

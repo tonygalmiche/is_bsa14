@@ -24,9 +24,9 @@
                                 <field name="sequence" widget="handle"/>
                                 <field name="name" />
                                 <field name="workcenter_id"/>
-                                <!-- <field name="duree" widget="mrp_time_counter" sum="Total"/> -->
                                 <field name="duree" widget="float_time" sum="Total"/>
                                 <field name="recouvrement"/>
+                                <field name="tps_apres" widget="float_time" sum="Total"/>
                             </tree>
                         </field>
                     </sheet>

@@ -33,7 +33,8 @@
                 <field name="time_cycle" position="replace">
                     <field name="time_cycle"     widget="float_time" string="Durée (MM:SS)" sum="Total" width="1.5" optional="hide"/>
                     <field name="is_duree_heure" widget="float_time" string="Durée (HH:MM)" sum="Total" width="1.5" optional="show"/>
-                    <field name="is_recouvrement" optional="show"/>
+                    <field name="is_recouvrement"                                                                   optional="show"/>
+                    <field name="is_tps_apres"   widget="float_time"                        sum="Total"             optional="show"/>
                 </field>
             </field>
         </record>

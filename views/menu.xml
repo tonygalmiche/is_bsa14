@@ -547,47 +547,55 @@
 
 
         <!-- Production / Planification -->
-        <!-- <menuitem 
-            name="Postes de charge"
-            id="is_poste_charge_menu" 
-            parent="mrp.mrp_planning_menu_root" 
-            action="mrp.mrp_workcenter_action" 
-            sequence="10"
-        /> -->
         <menuitem 
-            name="Ordres de production"
-            id="is_ordre_production_menu" 
+            name="Ordres de fabrication (Liste)"
+            id="bsa_mrp_production_tree_menu" 
             parent="mrp.mrp_planning_menu_root" 
-            action="bsa_mrp_production_action" 
-            sequence="20"
+            action="bsa_mrp_production_tree_action" 
+            sequence="10"
         />
         <menuitem 
-            name="Ordres de fabrication (Calendier)"
+            name="Ordres de fabrication (Calendrier)"
             id="mrp_production_calendrier_menu" 
             parent="mrp.mrp_planning_menu_root" 
             action="mrp_production_calendrier_action" 
             sequence="20"
         />
         <menuitem 
+            name="Ordres de fabrication (Kanban par semaine))"
+            id="bsa_mrp_production_week_kanban_menu" 
+            parent="mrp.mrp_planning_menu_root" 
+            action="bsa_mrp_production_week_kanban_action" 
+            sequence="30"
+        />
+        <menuitem 
+            name="Ordres de fabrication (Kanban par mois))"
+            id="bsa_mrp_production_mouth_kanban_menu" 
+            parent="mrp.mrp_planning_menu_root" 
+            action="bsa_mrp_production_mouth_kanban_action" 
+            sequence="40"
+        />
+        <menuitem 
             name="Ordres de travail"
             id="is_ordre_travail_menu"
             parent="mrp.mrp_planning_menu_root" 
             action="is_ordre_travail_action"
-            sequence="30"
+            sequence="50"
         />
         <menuitem 
             name="Lignes Ordres de travail"
             id="is_ordre_travail_line_menu"
             parent="mrp.mrp_planning_menu_root" 
             action="is_ordre_travail_line_action"
-            sequence="40"
+            sequence="60"
         />
+
 
 
         <!-- Production / Ressources -->
         <menuitem 
             id="ressource_main_menu" 
-            sequence="98" 
+            sequence="16" 
             name="Ressources" 
             parent="mrp.menu_mrp_root" 
         />
@@ -676,26 +684,39 @@
             action="is_dispo_ressource_plage_workcenter_action"
         />
 
+
+        <!-- Production / Charge -->
         <menuitem 
-            id="charge_ressource_menu" 
-            sequence="70" 
-            name="Charges des ressources" 
-            parent="ressource_main_menu" 
-        />
-        <menuitem 
-            id="calculer_charge_menu" 
-            sequence="10" 
-            name="Calculer la charge" 
-            parent="charge_ressource_menu" 
-            action="calculer_charge_actions_server"
+            id="charge_main_menu" 
+            sequence="17" 
+            name="Charge" 
+            parent="mrp.menu_mrp_root" 
         />
         <menuitem 
             id="is_charge_ressource_week_menu" 
-            sequence="20" 
+            sequence="10" 
             name="Charge des ressources par semaine" 
-            parent="charge_ressource_menu" 
+            parent="charge_main_menu" 
             action="is_charge_ressource_week_action"
         />
+        <menuitem 
+            id="is_charge_ressource_month_menu" 
+            sequence="20" 
+            name="Charge des ressources par mois" 
+            parent="charge_main_menu" 
+            action="is_charge_ressource_month_action"
+        />
+        <menuitem 
+            id="calculer_charge_menu" 
+            sequence="900" 
+            name="Calculer la charge" 
+            parent="charge_main_menu" 
+            action="calculer_charge_actions_server"
+        />
+
+        
+
+
 
 
         <!-- Projets -->

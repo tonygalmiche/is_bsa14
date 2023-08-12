@@ -269,8 +269,19 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <form>
+                    <style>
+                        .o_form_view .o_form_sheet_bg > .o_form_sheet{
+                            max-width: 1800px;
+                        }
+                        .o_form_label{
+                            white-space: nowrap;
+                        }
+                    </style>
                     <header>
-                        <button name="voir_productions_action" string="Voir les productions" type="object"/>
+                        <button name="voir_productions_action"         string="Voir les productions"               type="object"/>
+                        <button name="voir_productions_jour_action"    string="Voir les productions du jour"       type="object" />
+                        <button name="voir_productions_semaine_action" string="Voir les productions de la semaine" type="object" />
+
                     </header>
                     <sheet>
                         <group>
@@ -283,7 +294,20 @@
                             <field name="disponibilite"/> 
                             <field name="charge"/> 
                             <field name="restant"/> 
-                            <field name="taches_ids" widget="many2many_tags" />
+                            <field name="taches_ids">
+                                <tree>
+                                    <field name="production_id"       optional="show" widget="many2one_clickable"/>
+                                    <field name="is_sale_order_id"    optional="show" widget="many2one_clickable"/>
+                                    <field name="is_client_order_ref" optional="show"/>
+                                    <field name="name"             optional="show"/>
+                                    <field name="recouvrement"     optional="hide"/>
+                                    <field name="duree_unitaire"   optional="hide" widget="float_time" sum="Total"/>
+                                    <field name="duree_totale"     optional="hide" widget="float_time" sum="Total"/>
+                                    <field name="duree_reelle"     optional="hide" widget="float_time" sum="Total"/>
+                                    <field name="heure_debut"      optional="show" readonly="1" />
+                                    <field name="heure_fin"        optional="show" readonly="1" />
+                                </tree>
+                            </field>
                         </group>
                     </sheet>
                 </form>
@@ -306,6 +330,7 @@
                     <button name="voir_productions_jour_action"    type="object" icon="fa-list" title="Voir les productions du jour"/>
                     <button name="voir_productions_semaine_action" type="object" icon="fa-list" title="Voir les productions de la semaine"/>
                     <field name="taches_ids" widget="many2many_tags" optional="hide"/>
+                    <field name="description_taches" optional="show"/> 
                 </tree>
             </field>
         </record>
@@ -316,6 +341,7 @@
             <search>
                 <field name="employe_id"/> 
                 <field name="workcenter_id"/> 
+                <field name="description_taches"/> 
                 <field name="taches_ids"/>
                 <group expand="1" string="Regrouper par">
                     <filter string="Employé"          name='employe_id'    context="{'group_by':'employe_id'}"/>
@@ -424,6 +450,27 @@
             <field name="view_id" ref="is_charge_ressource_week_graph_view"/>
             <field name="domain">[('employe_id','=',False),('disponibilite','&gt;',0)]</field>
         </record>
+
+
+        <record model="ir.ui.view" id="is_charge_ressource_month_graph_view" >
+            <field name="name">is_charge_ressource_month_graph_view</field>
+            <field name="model">is.dispo.ressource</field>
+            <field name="arch" type="xml">
+                <graph string="Graph"> 
+                        <field name="heure_debut" interval="month"/>
+                        <field name="workcenter_id"/>
+                        <field name="restant" type="measure"/>
+                </graph>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_charge_ressource_month_action">
+            <field name="name">Charge disponible des ressources par mois</field>
+            <field name="res_model">is.dispo.ressource</field>
+            <field name="view_mode">graph,pivot,tree,form</field>
+            <field name="view_id" ref="is_charge_ressource_month_graph_view"/>
+            <field name="domain">[('employe_id','=',False),('disponibilite','&gt;',0)]</field>
+        </record>
+
 
 
 

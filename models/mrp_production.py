@@ -1,6 +1,7 @@
 from odoo import models,fields,api,tools, SUPERUSER_ID
 from math import ceil
 from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -21,6 +22,13 @@ class mrp_production(models.Model):
     def _compute_is_date_prevue(self):
         for obj in self:
             obj.is_date_prevue = obj.is_sale_order_line_id.is_date_prevue # or obj.date_planned_start
+
+
+    # @api.depends('date_planned_start')
+    # def _compute_is_semaine_prevue(self):
+    #     for obj in self:
+    #         obj.is_semaine_prevue = obj.date_planned_start.strftime("%Y-S%V")
+    #         obj.is_mois_prevu = obj.date_planned_start.strftime("%Y-%m")
 
 
     date_planned          = fields.Datetime("Date plannifiée", required=False, index=True, readonly=False, states={}, copy=False)
@@ -44,26 +52,70 @@ class mrp_production(models.Model):
         ], "Planification", required=True, default="au_plus_tard", 
         help="Au plus tôt : Démarrer dés maintenant\nAu plus tard : Terminer pour date client\nDate fixée : Commence à la date prévue fixée manuellement")
 
-    is_operation_ids = fields.One2many('is.ordre.travail.line', 'production_id', 'Opérations')
+    is_operation_ids  = fields.One2many('is.ordre.travail.line', 'production_id', 'Opérations')
+    is_semaine_prevue = fields.Char(string="Semaine prévue") #compute='_compute_is_semaine_prevue', store=True, readonly=True)
+    is_mois_prevu     = fields.Char(string="Mois prévu")     #compute='_compute_is_semaine_prevue', store=True, readonly=True)
+
+
+
+    def name_get(self):
+        result = []
+        for obj in self:
+            t=[]
+            if obj.name:
+                t.append(obj.name)
+            if obj.is_client_order_ref:
+                t.append(obj.is_client_order_ref)
+            name=" / ".join(t)
+            result.append((obj.id, name))
+        return result
+
+
+
 
 
     def write(self, vals):
         if "date_planned_start" in vals:
+            if type(vals["date_planned_start"]) is str:
+                dt=datetime.strptime(vals["date_planned_start"], "%Y-%m-%d %H:%M:%S")
+            else:
+                dt=vals["date_planned_start"]
+            vals["is_semaine_prevue"] = dt.strftime("%Y-S%V")
+            vals["is_mois_prevu"]     = dt.strftime("%Y-%m")
+        else:
+            for obj in self:
+                if "is_semaine_prevue" in vals:
+                    AA1=int(obj.is_semaine_prevue[0:4])
+                    AA2=int(vals["is_semaine_prevue"][0:4])
+                    S1=int(obj.is_semaine_prevue[6:8])
+                    S2=int(vals["is_semaine_prevue"][6:8])
+                    dt=obj.date_planned_start + relativedelta(years=AA2-AA1, days=(S2-S1)*7)
+                    vals["date_planned_start"] = dt
+                if "is_mois_prevu" in vals:
+                    AA1=int(obj.is_mois_prevu[0:4])
+                    AA2=int(vals["is_mois_prevu"][0:4])
+                    MM1=int(obj.is_mois_prevu[5:7])
+                    MM2=int(vals["is_mois_prevu"][5:7])
+                    years=AA2-AA1
+                    months=MM2-MM1
+                    if months<1:
+                        months=months+12
+                        years=years-1
+                    dt=obj.date_planned_start + relativedelta(years=years, months=months)
+                    print(obj.date_planned_start, dt, years, months)
+                    vals["date_planned_start"] = dt
+        if "date_planned_start" in vals and not "is_date_planifiee" in vals:
             vals["is_planification"]="date_fixee"
         res = super(mrp_production, self).write(vals)
-
-        print(res, vals)
-
-        if "date_planned_start" in vals:
-            self.calculer_charge_ordre_travail()
-
+        if "date_planned_start" in vals or "is_planification" in vals:
+            #Ne pas lancer le calcul en récursif
+            if not "is_date_planifiee" in vals:
+                self.calculer_charge_ordre_travail()
         return res
 
 
     def creer_ordre_travail_action(self):
         for obj in self:
-            #print(obj,obj.mrp_production_backorder_count)
-
             #** Recherche de la qty restant à fabriquer ***********************
             qty=0
             filtre=[
@@ -98,6 +150,7 @@ class mrp_production(models.Model):
                                 'name'          : line.name,
                                 'workcenter_id' : line.workcenter_id.id,
                                 'recouvrement'  : line.is_recouvrement,
+                                'tps_apres'     : line.is_tps_apres,
                                 'duree_unitaire': line.is_duree_heure,
                                 'duree_totale'  : line.is_duree_heure*obj.product_qty,
                                 'heure_debut'   : obj.date_planned_start,
@@ -133,13 +186,12 @@ class mrp_production(models.Model):
             else:
                 res=obj.with_context(skip_backorder=True, mo_ids_to_backorder=obj.id).button_mark_done()
             return res
-            if res!=True and 'name' in res:
-                obj.qty_producing=0
-                err="La nomenclature de l'article ne correspond plus a la nomenclature de l'OF"
-                print(err)
-                return err
-                #res["err"]=err
-                #return {"err": err}
+            # if res!=True and 'name' in res:
+            #     obj.qty_producing=0
+            #     err="La nomenclature de l'article ne correspond plus a la nomenclature de l'OF"
+            #     return err
+            #     #res["err"]=err
+            #     #return {"err": err}
         return True
 
 
@@ -274,7 +326,7 @@ class mrp_production(models.Model):
             (production.move_raw_ids | production.move_finished_ids)._action_confirm()
             production.workorder_ids._action_confirm()
 
-            print("## desactivation _trigger_scheduler => Ne pas générer de commande d'achat lors de la validation => Fait le 15/06/22")
+            #print("## desactivation _trigger_scheduler => Ne pas générer de commande d'achat lors de la validation => Fait le 15/06/22")
             # run scheduler for moves forecasted to not have enough in stock
             #production.move_raw_ids._trigger_scheduler()
         return True
@@ -316,12 +368,13 @@ class mrp_production(models.Model):
         for obj in self:
             return {
                 "name": "Gantt",
-                "view_mode": "dhtmlx_gantt_ot,tree,form",
+                "view_mode": "dhtmlx_gantt_ot,timeline,tree,form",
                 "res_model": "is.ordre.travail.line",
                 "domain": [
                     ("ordre_id" ,"=",obj.is_ordre_travail_id.id),
                 ],
                 "type": "ir.actions.act_window",
+                "context": {"vue_gantt":"production"},
             }
 
 
@@ -335,8 +388,6 @@ class mrp_production(models.Model):
             ids=[]
             for production in productions:
                 ids.append(production.is_ordre_travail_id.id)
-            print(ids)
-
             return {
                 "name": "Gantt",
                 "view_mode": "dhtmlx_gantt_ot,tree,form",
@@ -345,6 +396,7 @@ class mrp_production(models.Model):
                     ("ordre_id" ,"in",ids),
                 ],
                 "type": "ir.actions.act_window",
+                "context": {"vue_gantt":"production"},
             }
 
 
@@ -381,11 +433,9 @@ class mrp_production(models.Model):
     #         obj.qty_producing=qt
 
     #         #res=obj.button_mark_done()
-    #         print(obj,obj.qty_producing)
 
     #         for move in obj.move_raw_ids:
     #             move.quantity_done = move.should_consume_qty
-    #             print(move, move.product_uom_qty, move.product_qty, move.quantity_done, move.should_consume_qty)
 
     #         #Sans créer de relicat
     #         res=obj.with_context(skip_backorder=True).button_mark_done()
@@ -397,7 +447,6 @@ class mrp_production(models.Model):
     #         #res=obj.with_context(skip_backorder=True, mo_ids_to_backorder=[obj.id]).button_mark_done()
 
     #         #res=obj.with_context(skip_backorder=True).button_mark_done()
-    #         #print("res=",res)
 
     #     if err!="":
     #         return {"err": err}

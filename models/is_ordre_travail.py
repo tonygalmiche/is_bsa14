@@ -15,12 +15,9 @@ class is_ordre_travail(models.Model):
     @api.depends('production_id','production_id.is_planification','production_id.is_date_prevue','production_id.date_planned_start')
     def _compute_date_prevue(self):
         for obj in self:
-            print(obj,obj.production_id,obj.production_id.is_planification, obj.production_id.is_date_prevue, obj.production_id.date_planned_start)
             date_prevue=obj.production_id.date_planned_start
             if obj.production_id.is_planification!="date_fixee":
-                print("TEST 1")
                 if obj.production_id.is_date_prevue:
-                    print("TEST 2")
                     date_prevue=obj.production_id.is_date_prevue # Date prévue sur la ligne de commande client
             obj.date_prevue = date_prevue
 
@@ -43,17 +40,11 @@ class is_ordre_travail(models.Model):
     line_ids            = fields.One2many('is.ordre.travail.line', 'ordre_id', 'Lignes')
 
 
-# 
-
     @api.model
     def create(self, vals):
         vals['name'] = self.env['ir.sequence'].next_by_code('is.ordre.travail')
         res = super(is_ordre_travail, self).create(vals)
         return res
-
-
-
-
 
 
     def get_heure_debut_fin(self,workcenter_id, duree, heure_debut=False, heure_fin=False, tache=False):
@@ -101,11 +92,8 @@ class is_ordre_travail(models.Model):
         return res
 
 
-
-
     def calculer_charge_ordre_travail(self):
         for ordre in self:
-            #print(ordre.production_id.name, ordre.name)
             date_debut_ordre_production = date_fin_ordre_production = False
             now = datetime.now()
             #Pour un calcul au plus tard, il faut que la date prévue soit dans plus de 20 jours => Sinon, calcul au plus tôt
@@ -118,8 +106,12 @@ class is_ordre_travail(models.Model):
                 date_debut_ordre_production = heure_debut
                 date_fin_ordre_production = heure_debut
                 duree_precedente=0
+                mem_tps_apres=0
                 for tache in ordre.line_ids:
                     workcenter_id = tache.workcenter_id.id
+                    #Décale la date de début car 'Tps passage après' est renseigné (en heures ouvrées)
+                    if mem_tps_apres>0:
+                        heure_debut = self.get_heure_debut_fin(workcenter_id, mem_tps_apres, heure_debut=heure_debut, tache=False)
                     duree_recouvrement = duree_precedente*tache.recouvrement/100
                     heure_debut = heure_debut - timedelta(hours=duree_recouvrement)
                     duree = tache.reste
@@ -131,6 +123,7 @@ class is_ordre_travail(models.Model):
                     duree_precedente = duree_relle
                     if heure_fin>date_fin_ordre_production:
                         date_fin_ordre_production=heure_fin
+                    mem_tps_apres=tache.tps_apres
 
             else:
                 heure_fin = ordre.date_prevue
@@ -141,6 +134,9 @@ class is_ordre_travail(models.Model):
                 heure_debut_precedent=False
                 for tache in taches:
                     workcenter_id = tache.workcenter_id.id
+                    #Décale la date de fin car 'Tps passage après' est renseigné (en heures ouvrées)
+                    if tache.tps_apres>0 and heure_debut_precedent:
+                        heure_fin = self.get_heure_debut_fin(workcenter_id, tache.tps_apres, heure_fin=heure_debut_precedent, tache=False)
                     #Calcul de la durée de decalage de la tache en cours en fonction du recouvrement
                     decale = tache.reste*recouvrement_suivant/100
                     if decale>0:
@@ -160,8 +156,16 @@ class is_ordre_travail(models.Model):
                     if tache.heure_fin>date_fin_ordre_production:
                         date_fin_ordre_production = tache.heure_fin
 
-            ordre.production_id.is_date_planifiee     = date_debut_ordre_production
-            ordre.production_id.is_date_planifiee_fin = date_fin_ordre_production
+            # ordre.production_id.is_date_planifiee     = date_debut_ordre_production
+            # ordre.production_id.is_date_planifiee_fin = date_fin_ordre_production
+            # ordre.production_id.date_planned_start    = date_debut_ordre_production
+
+            ordre.production_id.write({
+                "is_date_planifiee"    : date_debut_ordre_production,
+                "is_date_planifiee_fin": date_fin_ordre_production,
+                "date_planned_start"   : date_debut_ordre_production,
+            })
+
             #********************************************************************************
 
 
@@ -187,24 +191,18 @@ class is_ordre_travail(models.Model):
 
     def vue_gantt_action(self):
         for obj in self: 
-            return {
+            action= {
                 "name": "Gantt",
-                "view_mode": "dhtmlx_gantt_ot,tree,form",
+                "view_mode": "dhtmlx_gantt_ot,timeline,tree,form",
                 "res_model": "is.ordre.travail.line",
                 "domain": [
                     ("ordre_id" ,"=",obj.id),
                 ],
                 "type": "ir.actions.act_window",
+                "context": {"vue_gantt":"production"}
             }
-
-
-
-
-
-
-
-
-
+            #print(action)
+            return action
 
 class is_ordre_travail_line(models.Model):
     _name='is.ordre.travail.line'
@@ -213,6 +211,8 @@ class is_ordre_travail_line(models.Model):
 
     ordre_id       = fields.Many2one('is.ordre.travail', 'Ordre de travail' , required=True, ondelete='cascade')
     production_id  = fields.Many2one('mrp.production', 'Ordre de production', related='ordre_id.production_id')
+    is_sale_order_id    = fields.Many2one(related='production_id.is_sale_order_id')
+    is_client_order_ref = fields.Char(related='production_id.is_client_order_ref')
     product_id     = fields.Many2one('product.product', 'Article'           , related='ordre_id.product_id')
     date_prevue    = fields.Datetime('Date prévue'                          , related='ordre_id.date_prevue')
     name           = fields.Char("Opération"                                , required=True)
@@ -220,12 +220,13 @@ class is_ordre_travail_line(models.Model):
     ordre_planning = fields.Integer("Ordre", help="Ordre dans le planning")
     workcenter_id  = fields.Many2one('mrp.workcenter', 'Poste de Travail'   , required=True)
     recouvrement   = fields.Integer("Recouvrement (%)", required=True, default=0, help="0%: Cette ligne commence à la fin de la ligne précédente\n50%: Cette ligne commence quand la ligne précédente est terminée à 50%\n100%: Cette ligne commence en même temps que la ligne précédente" )
+    tps_apres      = fields.Float("Tps passage après (HH:MN)", default=0, help="Temps d'attente après cette opération avant de commencer la suivante (en heures ouvrées)")
     duree_unitaire = fields.Float("Durée unitaire (H)"                      , required=True)
     duree_totale   = fields.Float("Durée totale (H)", compute='_compute_reste', store=True)
     duree_reelle   = fields.Float("Durée réelle (H)", compute='_compute_duree_reelle', store=True, help="Durée entre Heure début et Heure fin")
     realisee       = fields.Float("Durée réalisee (H)")
     reste          = fields.Float("Reste (H)", compute='_compute_reste', store=True)
-    heure_debut    = fields.Datetime("Heure début"                          , required=False)
+    heure_debut    = fields.Datetime("Heure début", index=True              , required=False)
     heure_fin      = fields.Datetime("Heure fin"                            , required=False)
     state          = fields.Selection([
             ('attente', 'Attente'),
@@ -256,9 +257,6 @@ class is_ordre_travail_line(models.Model):
 
     # def add_taches_sur_dispo(self):
     #     for tache in self:
-    #         print("add_taches_sur_dispo",tache, tache.heure_debut, tache.heure_fin)
-
-
             # filtre=[
             #     ('workcenter_id', '=' , workcenter_id),
             #     ('disponibilite', '>' , 0),

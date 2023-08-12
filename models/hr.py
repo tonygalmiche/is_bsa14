@@ -109,6 +109,17 @@ class is_dispo_ressource(models.Model):
     charge        = fields.Float('Charge (H)' , default=0, compute='_compute_charge', store=True)
     restant       = fields.Float('Restant (H)', default=0, compute='_compute_charge', store=True)
     taches_ids    = fields.Many2many('is.ordre.travail.line', 'is_dispo_ressource_ordre_travail_line_rel', 'dispo_id', 'tache_id', 'Tâches')
+    description_taches = fields.Text('Description tâches', compute="_compute_description_taches", store=True)
+
+
+    @api.depends('taches_ids')
+    def _compute_description_taches(self):
+        for obj in self:
+            descriptions=[]
+            for tache in obj.taches_ids:
+                x="%s : %s : %s : %s"%(tache.production_id.name, tache.name, tache.production_id.is_sale_order_id.name, (tache.production_id.is_client_order_ref or '?'))
+                descriptions.append(x)
+            obj.description_taches = "\n".join(descriptions)
 
 
     @api.depends('disponibilite','taches_ids')
@@ -447,7 +458,6 @@ class is_dispo_ressource(models.Model):
         for obj in self:
             heure_debut = obj.heure_debut.replace(hour=0).replace(minute=0).replace(second=0).replace(microsecond=0)
             heure_fin = heure_debut + timedelta(days=1)
-            print(heure_debut, heure_fin, heure_debut.weekday())
             filtre=[
                 ('workcenter_id', '=' , obj.workcenter_id.id),
                 ('disponibilite', '>' , 0),
@@ -469,7 +479,6 @@ class is_dispo_ressource(models.Model):
             weekday = heure_debut.weekday() # 0=lundi
             heure_debut = heure_debut - timedelta(days=weekday) #Date au lundi
             heure_fin   = heure_debut + timedelta(days=7)      #+ jours
-            print(heure_debut, heure_fin, heure_debut.weekday())
             filtre=[
                 ('workcenter_id', '=' , obj.workcenter_id.id),
                 ('disponibilite', '>' , 0),

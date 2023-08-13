@@ -34,8 +34,8 @@ class mrp_production(models.Model):
     date_planned          = fields.Datetime("Date plannifiée", required=False, index=True, readonly=False, states={}, copy=False)
     is_date_prevue        = fields.Date(string="Date client" , compute='_compute_is_date_prevue'  , store=True, readonly=True, help="Date prévue sur la ligne de commande client")
     is_client_order_ref   = fields.Char(string="Référence client", compute='_compute_is_sale_order_id', store=True, readonly=True)
-    is_date_planifiee     = fields.Date("Date planifiée début")
-    is_date_planifiee_fin = fields.Date("Date planifiée fin", readonly=True)
+    is_date_planifiee     = fields.Datetime("Date planifiée début")
+    is_date_planifiee_fin = fields.Datetime("Date planifiée fin", readonly=True)
     is_ecart_date         = fields.Integer("Ecart date", readonly=True)
     is_gabarit_id         = fields.Many2one("is.gabarit", "Gabarit")
     is_sale_order_line_id = fields.Many2one("sale.order.line", "Ligne de commande")
@@ -55,7 +55,6 @@ class mrp_production(models.Model):
     is_operation_ids  = fields.One2many('is.ordre.travail.line', 'production_id', 'Opérations')
     is_semaine_prevue = fields.Char(string="Semaine prévue") #compute='_compute_is_semaine_prevue', store=True, readonly=True)
     is_mois_prevu     = fields.Char(string="Mois prévu")     #compute='_compute_is_semaine_prevue', store=True, readonly=True)
-
 
 
     def name_get(self):
@@ -407,183 +406,4 @@ class mrp_production(models.Model):
 
 
 
-
-
-
-
-
-
-
-
-
-    # def action_close_mo(self):
-    #     return self.mrp_production_ids.with_context(skip_backorder=True).button_mark_done()
-
-    # def action_backorder(self):
-    #     mo_ids_to_backorder = self.mrp_production_backorder_line_ids.filtered(lambda l: l.to_backorder).mrp_production_id.ids
-    #     return self.mrp_production_ids.with_context(skip_backorder=True, mo_ids_to_backorder=mo_ids_to_backorder).button_mark_done()
-
-
-    # def is_act_mrp_declarer_produit(self):
-    #     err=""
-    #     for obj in self:
-    #         qt=1
-    #         if obj.is_gestion_lot:
-    #             qt=obj.product_qty
-    #         obj.qty_producing=qt
-
-    #         #res=obj.button_mark_done()
-
-    #         for move in obj.move_raw_ids:
-    #             move.quantity_done = move.should_consume_qty
-
-    #         #Sans créer de relicat
-    #         res=obj.with_context(skip_backorder=True).button_mark_done()
-
-    #         #Avec un relicat
-    #         #mo_ids_to_backorder = self.mrp_production_backorder_line_ids.filtered(lambda l: l.to_backorder).mrp_production_id.ids
-    #         #return self.mrp_production_ids.with_context(skip_backorder=True, mo_ids_to_backorder=mo_ids_to_backorder).button_mark_done()
-
-    #         #res=obj.with_context(skip_backorder=True, mo_ids_to_backorder=[obj.id]).button_mark_done()
-
-    #         #res=obj.with_context(skip_backorder=True).button_mark_done()
-
-    #     if err!="":
-    #         return {"err": err}
-    #     return True
-
-
-
-        # production = self.browse(cr, uid, ids[0], context=context)
-        # if production.state == 'confirmed':
-        #     self.force_production(cr, uid, ids, {})
-        
-        # wiz = self.get_wizard(cr, uid, production, context)
-        # qt=1
-        # if production.is_gestion_lot:
-        #     qt=production.product_qty
-
-        # self.action_produce(cr, uid, ids[0], qt, 'consume_produce', wiz, context=context)
-        # return {}
-    
-
-
-
-
-# class mrp_production_workcenter_line(models.Model):
-#     _inherit = "mrp.production.workcenter.line"
-
-#     @api.depends("is_temps_passe_ids")
-#     def compute_temps_passe(self):
-#         for obj in self:
-#             temps_passe = 0
-#             ecart = 0
-#             for line in obj.is_temps_passe_ids:
-#                 temps_passe+=line.temps_passe
-#             obj.is_temps_passe = temps_passe
-#             obj.is_ecart       = obj.hour - temps_passe
-
-
-#     @api.depends("is_date_debut")
-#     def compute_charge(self):
-#         for obj in self:
-#             lines = self.env["is.mrp.workcenter.temps.ouverture"].search([("workcenter_id","=",obj.workcenter_id.id),("date_ouverture","=",obj.is_date_debut)])
-#             charge = 0
-#             for line in lines:
-#                 charge = line.charge
-#             obj.is_charge = charge
-
-
-#     @api.depends("production_id")
-#     def compute_product_id(self):
-#         for obj in self:
-#             obj.is_product_id = obj.production_id.product_id.id
-
-
-#     is_product_id      = fields.Many2one("product.product", "Article", compute="compute_product_id", readonly=True, store=True)
-#     is_commentaire     = fields.Text("Commentaire")
-#     is_temps_passe_ids = fields.One2many("is.workcenter.line.temps.passe"  , "workcenter_line_id", u"Temps passé")
-#     is_temps_passe     = fields.Float("Temps passé", compute="compute_temps_passe", readonly=True, store=True)
-#     is_ecart           = fields.Float("Ecart", compute="compute_temps_passe", readonly=True, store=True)
-#     is_offset          = fields.Integer("Offset (jour)", help="Offset en jours par rapport à l'opération précédente pour le calcul du planning")
-#     is_date_debut      = fields.Date("Date de début opération", index=True)
-#     is_date_fin        = fields.Date("Date de fin opération")
-
-#     is_date_prevue_cde    = fields.Date("Date prévue commande client", related="production_id.is_date_prevue"    , readonly=True)
-#     is_date_planifiee_fin = fields.Date("Date planifiée fin"         , related="production_id.is_date_planifiee_fin", readonly=True)
-#     is_ecart_date         = fields.Integer("Ecart date"              , related="production_id.is_ecart_date"        , readonly=True)
-#     is_charge             = fields.Float(u"Charge (%)"         , compute="compute_charge", readonly=True, store=False, help="Charge pour la date de début de l'opération")
-
-
-#     def write(self, vals, update=True):
-#         if len(vals)==2 and "date_finished" in vals and "date_start" in vals:
-#             d = datetime.strptime(vals["date_start"], "%Y-%m-%d %H:%M:%S")
-#             vals["is_date_debut"] =  str(d)[:10]
-#             if self.is_offset:
-#                 offset = self.is_offset
-#                 d = d + timedelta(days=offset)
-#             vals["is_date_fin"] =  str(d)[:10]
-
-
-
-
-#         res=super(mrp_production_workcenter_line, self).write(vals, update=update)
-
-
-#         if "is_date_debut" in vals:
-#             self.workcenter_id.calculer_charge_action()
-
-
-#         return res
-
-
-
-#     def planifier_operation_action(self):
-#         for obj in self:
-#             date_debut = False
-#             date_fin=False
-#             if obj.is_date_debut:
-#                 filtre=[
-#                     ("production_id","=",obj.production_id.id),
-#                     ("sequence",">",obj.sequence),
-#                     ("id","!=",obj.id),
-#                 ]
-#                 ops = self.env["mrp.production.workcenter.line"].search(filtre,order="sequence")
-#                 d = datetime.strptime(obj.is_date_debut, "%Y-%m-%d")
-#                 if str(d)[:10]<str(date.today()):
-#                     d = datetime.now()
-#                 for op in ops:
-#                     date_debut = str(d)[:10]
-#                     offset = op.is_offset
-#                     d = d + timedelta(days=offset)
-#                     dates=[]
-#                     for line in op.workcenter_id.is_temps_ouverture_ids:
-#                         dates.append(str(line.date_ouverture))
-#                     date_fin=False
-#                     d2=d
-#                     for x in range(50):
-#                         if str(d2)[:10] in dates:
-#                             date_fin = str(d2)[:10]
-#                             break
-#                         else:
-#                             d2 = d2 + timedelta(days=1)
-#                     if not date_fin:
-#                         raise Warning("Aucune date d'ouverture disponible pour le poste de charge "+op.workcenter_id.name+" et pour le "+d.strftime("%d/%m/%Y"))
-#                     d=d2
-#                     vals={
-#                         "is_date_debut": date_debut,
-#                         "is_date_fin"  : date_fin,
-#                         "date_start"   : str(date_debut) + " 07:00:00",
-#                         "date_finished": str(date_debut) + " 16:00:00",
-#                     }
-#                     op.write(vals)
-
-
-#             if date_fin:
-#                 obj.production_id.is_date_planifiee_fin = date_fin
-#                 if date_fin and obj.production_id.is_date_prevue:
-#                     d1 = datetime.strptime(date_fin, "%Y-%m-%d")
-#                     d2 = datetime.strptime(obj.production_id.is_date_prevue, "%Y-%m-%d")
-#                     ecart = (d2-d1).days
-#                     obj.production_id.is_ecart_date = ecart
 

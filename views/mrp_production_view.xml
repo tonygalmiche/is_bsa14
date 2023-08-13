@@ -113,8 +113,7 @@
                     <field name="is_planification"/>
                     <field name="is_date_planifiee"/>
                     <field name="is_date_planifiee_fin" />
-                    <field name="is_ecart_date"/>
-                    <!-- <field name="is_ref_client"/> -->
+                    <!-- <field name="is_ecart_date"/> -->
                 </field>
                 <field name="user_id" position="before">
                     <field name="is_semaine_prevue" readonly="1"/>
@@ -127,14 +126,9 @@
                     <field name="is_client_order_ref"/>
                     <field name="is_date_prevue"/>
                 </field>
-
                 <xpath expr="//page[@name='miscellaneous']/group/group/field[@name='picking_type_id']" position="attributes">
                     <field name="procurement_group_id" readonly="1"/>
                 </xpath>
-
-    
-
-
             </field>
         </record>
 
@@ -170,7 +164,7 @@
                     <field name="is_planification" optional="show"/>
                     <field name="is_date_planifiee" optional="show"/>
                     <field name="is_date_planifiee_fin" optional="show"/>
-                    <field name="is_ecart_date" optional="show"/>
+                    <!-- <field name="is_ecart_date" optional="show"/> -->
                     <field name="is_gabarit_id"  optional="show"/>
                     <field name="is_sale_order_line_id" readonly="1" optional="hide"/>
                     <field name="is_sale_order_id"                   optional="show"/>
@@ -188,9 +182,9 @@
                 <tree>
                     <field name="message_unread" invisible="1"/>
                     <field name="name" />
-                    <field name="product_id"/>
+                    <field name="product_id"                                          optional="show"/>
                     <field name="is_ordre_travail_id"                                 optional="show"/>
-                    <field name="product_qty"/>
+                    <field name="product_qty"                                         optional="show"/>
                     <field name="is_planification"                                    optional="hide"/>
                     <field name="is_date_prevue"                                      optional="hide"/>
                     <field name="date_planned_start"                                  optional="show"/>
@@ -198,7 +192,7 @@
                     <field name="is_mois_prevu"                                       optional="hide"/>
                     <field name="is_date_planifiee"                                   optional="hide"/>
                     <field name="is_date_planifiee_fin"                               optional="hide"/>
-                    <field name="is_ecart_date"                                       optional="hide"/>
+                    <!-- <field name="is_ecart_date"                                       optional="hide"/> -->
                     <field name="is_gabarit_id"                                       optional="hide"/>
                     <field name="is_sale_order_line_id" readonly="1"                  optional="hide"/>
                     <field name="is_sale_order_id"                                    optional="show"/>

@@ -634,6 +634,7 @@
             parent="ressource_main_menu" 
             action="is_resource_calendar_action"
         />
+        <!-- Production / Ressources / Disponibilité des ressources -->
         <menuitem 
             id="dispo_ressource_menu" 
             sequence="60" 
@@ -642,47 +643,47 @@
         />
         <menuitem 
             id="is_dispo_ressource_day_menu" 
-            sequence="10" 
+            sequence="20" 
             name="Disponibilité des ressources par jour" 
             parent="dispo_ressource_menu" 
             action="is_dispo_ressource_day_action"
         />
         <menuitem 
             id="is_dispo_ressource_week_menu" 
-            sequence="10" 
+            sequence="30" 
             name="Disponibilité des ressources par semaine" 
             parent="dispo_ressource_menu" 
             action="is_dispo_ressource_week_action"
         />
         <menuitem 
             id="is_dispo_ressource_week_employe_menu" 
-            sequence="10" 
+            sequence="40" 
             name="Disponibilité des ressources par semaine et par employé" 
             parent="dispo_ressource_menu" 
             action="is_dispo_ressource_week_employe_action"
         />
-        <menuitem 
-            id="recalculer_dispo_ressource_menu" 
-            sequence="20" 
-            name="Calculer la disponibilité des ressources" 
-            parent="dispo_ressource_menu" 
-            action="is_calcul_dispo_ressource_wizard_action"
-        />
-
-        <menuitem 
+         <menuitem 
             id="is_dispo_ressource_plage_employe_menu" 
-            sequence="94" 
+            sequence="50" 
             name="Calendrier des disponibilités des employés" 
             parent="dispo_ressource_menu" 
             action="is_dispo_ressource_plage_employe_action"
         />
         <menuitem 
             id="is_dispo_ressource_plage_workcenter_menu" 
-            sequence="96" 
+            sequence="60" 
             name="Calendrier des disponibilité des postes de charges" 
             parent="dispo_ressource_menu" 
             action="is_dispo_ressource_plage_workcenter_action"
         />
+        <menuitem 
+            id="recalculer_dispo_ressource_menu" 
+            sequence="900" 
+            name="Calculer la disponibilité des ressources" 
+            parent="dispo_ressource_menu" 
+            action="is_calcul_dispo_ressource_wizard_action"
+        />
+
 
 
         <!-- Production / Charge -->

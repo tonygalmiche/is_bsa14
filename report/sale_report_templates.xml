@@ -44,8 +44,8 @@
                         <th t-if="doc.date_order and doc.state in ['draft','sent']"     class="text-left">Date du devis</th>
                         <th t-if="doc.validity_date and doc.state in ['draft', 'sent']" class="text-left">Validité</th>
                         <th t-if="doc.user_id"                                          class="text-left">Vendeur</th>
-                        <th t-if="doc.payment_term_id"                                  class="text-left">Conditions de règlement</th>
-                        <th t-if="doc.is_condition_livraison"                           class="text-left">Conditions de livraison</th>
+                        <!-- <th t-if="doc.payment_term_id"                                  class="text-left">Conditions de règlement</th> -->
+                        <!-- <th t-if="doc.is_condition_livraison"                           class="text-left">Conditions de livraison</th> -->
                      </tr>
                 </thead>
                 <tbody class="sale_tbody">
@@ -59,8 +59,8 @@
                         <td t-if="doc.date_order and doc.state in ['draft','sent']"     class="text-left"><span t-field="doc.date_order"/></td>
                         <td t-if="doc.validity_date and doc.state in ['draft', 'sent']" class="text-left"><span t-field="doc.validity_date"/></td>
                         <td t-if="doc.user_id"                                          class="text-left"><span t-field="doc.user_id"/></td>
-                        <td t-if="doc.payment_term_id"                                  class="text-left"><span t-field="doc.payment_term_id"/></td>
-                        <td t-if="doc.is_condition_livraison"                           class="text-left"><span t-field="doc.is_condition_livraison"/></td>
+                        <!-- <td t-if="doc.payment_term_id"                                  class="text-left"><span t-field="doc.payment_term_id"/></td> -->
+                        <!-- <td t-if="doc.is_condition_livraison"                           class="text-left"><span t-field="doc.is_condition_livraison"/></td> -->
                      </tr>
                 </tbody>
             </table>
@@ -104,8 +104,10 @@
                                     <span t-field="line.price_unit"/>
                                 </td>
                                 <td class="text-center">
-                                    <span t-if="res_company.is_site != 'bsa'" t-field="line.is_date_prevue"/>
-                                    <span t-if="res_company.is_site == 'bsa'" t-esc="line.is_date_prevue.strftime('S%U/%Y')"/>
+                                    <t t-if="line.is_date_prevue">
+                                        <span t-if="res_company.is_site != 'bsa'" t-field="line.is_date_prevue"/>
+                                        <span t-if="res_company.is_site == 'bsa'" t-esc="line.is_date_prevue.strftime('S%U/%Y')"/>    
+                                    </t>
                                 </td>
                                 <td t-if="display_discount" class="text-right" groups="product.group_discount_per_so_line">
                                     <span t-field="line.discount"/>%
@@ -220,6 +222,16 @@ Une fois les éventuelles modifications apportées et le plan validé par vos so
 Merci de votre confiance.<br />
 L'équipe <span t-field="res_company.name"/><br />
             </p> -->
+
+            <p t-if="doc.is_condition_livraison">
+                <strong>Conditions de livraison:</strong><br />
+                <span t-field="doc.is_condition_livraison"/>
+            </p>
+            <p t-if="doc.payment_term_id.note">
+                <strong>Conditions de règlement:</strong><br />
+                <span t-field="doc.payment_term_id.note"/>
+            </p>
+
             <p t-field="doc.note" />
             <div class="oe_structure"/>
 

@@ -40,9 +40,14 @@
                 <thead style="display: table-row-group">
                     <tr>
                         <th                                                             class="text-left">Référence</th>
-                        <th t-if="doc.date_order and doc.state not in ['draft','sent']" class="text-left">Date de commande</th>
+                        <th t-if="doc.date_order and doc.state not in ['draft','sent']" class="text-left">Date AR</th>
                         <th t-if="doc.date_order and doc.state in ['draft','sent']"     class="text-left">Date du devis</th>
                         <th t-if="doc.validity_date and doc.state in ['draft', 'sent']" class="text-left">Validité</th>
+
+                        <th t-if="doc.is_date_commande_client" class="text-left">Date cde client</th>
+
+
+
                         <th t-if="doc.user_id"                                          class="text-left">Vendeur</th>
                         <!-- <th t-if="doc.payment_term_id"                                  class="text-left">Conditions de règlement</th> -->
                         <!-- <th t-if="doc.is_condition_livraison"                           class="text-left">Conditions de livraison</th> -->
@@ -55,9 +60,10 @@
                             <div t-if="doc.is_notre_ref_devis">Notre référence de devis :  <span  t-field="doc.is_notre_ref_devis"/></div>
                             <div t-if="doc.is_nom_affaire">Nom de l'affaire :              <span  t-field="doc.is_nom_affaire"/></div>
                         </td>
-                        <td t-if="doc.date_order and doc.state not in ['draft','sent']" class="text-left"><span t-field="doc.date_order"/></td>
-                        <td t-if="doc.date_order and doc.state in ['draft','sent']"     class="text-left"><span t-field="doc.date_order"/></td>
+                        <td t-if="doc.date_order and doc.state not in ['draft','sent']" class="text-left"><span t-esc="doc.date_order.strftime('%d/%m/%Y')"/></td>
+                        <td t-if="doc.date_order and doc.state in ['draft','sent']"     class="text-left"><span t-esc="doc.date_order.strftime('%d/%m/%Y')"/></td>
                         <td t-if="doc.validity_date and doc.state in ['draft', 'sent']" class="text-left"><span t-field="doc.validity_date"/></td>
+                        <td t-if="doc.is_date_commande_client"                          class="text-left"><span t-field="doc.is_date_commande_client"/></td>
                         <td t-if="doc.user_id"                                          class="text-left"><span t-field="doc.user_id"/></td>
                         <!-- <td t-if="doc.payment_term_id"                                  class="text-left"><span t-field="doc.payment_term_id"/></td> -->
                         <!-- <td t-if="doc.is_condition_livraison"                           class="text-left"><span t-field="doc.is_condition_livraison"/></td> -->

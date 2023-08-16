@@ -78,7 +78,7 @@ class sale_order(models.Model):
     is_nom_affaire             = fields.Char("Nom de l'affaire")
     is_group_line_ids          = fields.One2many('is.sale.order.line.group', 'order_id', 'Lignes par article', copy=False, readonly=True)
     is_group_line_print        = fields.Boolean("Imprimer le regroupement par article", default=False)
-    is_date_commande_client    = fields.Date("Date commande client")
+    is_date_commande_client    = fields.Date("Date cde client")
 
 
     def maj_prix_par_quantite_action(self):

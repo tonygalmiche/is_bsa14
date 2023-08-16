@@ -124,16 +124,15 @@
                         attrs="{'invisible': [('state','in',('draft','sent'))]}"
                     />
                 </field>
+                 <xpath expr="//group[@name='order_details']/div[2]/label[@for='date_order']" position="attributes">
+                    <attribute name="string">Date AR</attribute>
+                </xpath>
                 <!-- <field name="date_order" position="after">
                     <field name="is_arc_a_faire"/>
                     <field name="is_date_ar"/>
                 </field> -->
-
                 <field name="client_order_ref" position="replace"/>
                 <field name="user_id" position="replace"/>
-
-
-
                 <field name="partner_shipping_id" position="after">
                     <field name="is_societe_commerciale_id"/>
                     <field name="is_condition_livraison"/>
@@ -196,6 +195,8 @@
             <field name="inherit_id" ref="sale.view_quotation_tree"/>
             <field name="arch" type="xml">
                 <field name="name" position="after">
+                    <field name="is_date_commande_client"     optional="hide"/>
+                    <field name="date_order" string="Date AR" optional="hide"/>
                     <field name="client_order_ref"   optional="show"/>
                     <field name="is_notre_ref_devis" optional="show"/>
                     <field name="is_nom_affaire"     optional="show"/>
@@ -208,13 +209,18 @@
             <field name="inherit_id" ref="sale.view_order_tree"/>
             <field name="arch" type="xml">
                 <field name="name" position="after">
+                    <field name="is_date_commande_client"     optional="hide"/>
+                    <field name="date_order" string="Date AR" optional="hide"/>
                     <field name="client_order_ref"   optional="show"/>
                     <field name="is_notre_ref_devis" optional="show"/>
                     <field name="is_nom_affaire"     optional="show"/>
                 </field>
-               <field name="date_order" position="attributes">
+                <!-- <field name="date_order" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </field>
+                <field name="date_order" position="attributes">
+                    <attribute name="string">Date AR</attribute>
+                </field> -->
                 <field name="state" position="replace">
                     <field name="state" optional="hide"/>
                 </field>

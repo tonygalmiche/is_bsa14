@@ -358,6 +358,9 @@ class is_devis_parametrable_affaire_variante(models.Model):
     capacite    = fields.Integer("Capacité", related="variante_id.capacite", readonly=True)
     unite       = fields.Selection(related="variante_id.unite", readonly=True)
     quantite    = fields.Integer(related="variante_id.quantite", readonly=True)
+    prix_a_afficher          = fields.Selection(related="variante_id.prix_a_afficher")
+    currency_id              = fields.Many2one(related="variante_id.currency_id")
+    montant_marge            = fields.Monetary(related="variante_id.montant_marge")
     devise_client_id         = fields.Many2one(related="variante_id.devise_client_id")
     prix_vente_remise_devise = fields.Integer(related="variante_id.prix_vente_remise_devise")
     montant                  = fields.Integer("Montant", compute='_compute_montant', store=False, readonly=True)
@@ -1031,16 +1034,14 @@ class is_devis_parametrable_variante(models.Model):
     prix_vente_remise        = fields.Integer("Prix de vente remisé"       , readonly=True, compute='_compute_montants')
     prix_par_hl              = fields.Integer("Prix par HL"                , readonly=True, compute='_compute_montants')
     afficher_prix_par_hl     = fields.Boolean("Afficher prix par HL", default=False)
-    montant_tva              = fields.Integer("TVA"                        , readonly=True, compute='_compute_montants')
-    prix_vente_ttc           = fields.Integer("Prix de vente TTC"          , readonly=True, compute='_compute_montants')
-
-    prix_vente_revendeur     = fields.Monetary("Prix de vente revendeur"   , readonly=True, compute='_compute_montants', currency_field='currency_id')
-    #prix_vente_revendeur_int = fields.Integer("Prix de vente revendeur (arrondi)", readonly=True, compute='_compute_montants')
-
-    montant_marge            = fields.Monetary("Marge"                     , readonly=True, compute='_compute_montants', currency_field='currency_id')
-    taux_marge_brute         = fields.Float("Taux de marge brute (%)"      , readonly=True, compute='_compute_montants')
-    taux_marge_commerciale   = fields.Float("Taux de marge commerciale (%)", readonly=True, compute='_compute_montants')
-    montant_marge_revendeur  = fields.Monetary("Marge revendeur"           , readonly=True, compute='_compute_montants', currency_field='currency_id')
+    montant_tva              = fields.Integer("TVA"                               , readonly=True, compute='_compute_montants')
+    prix_vente_ttc           = fields.Integer("Prix de vente TTC"                 , readonly=True, compute='_compute_montants')
+    prix_vente_revendeur     = fields.Monetary("Prix de vente revendeur"          , readonly=True, compute='_compute_montants', currency_field='currency_id')
+    prix_vente_revendeur_int = fields.Monetary("Prix de vente revendeur (arrondi)", readonly=True, compute='_compute_montants', currency_field='currency_id')
+    montant_marge            = fields.Monetary("Marge"                            , readonly=True, compute='_compute_montants', currency_field='currency_id')
+    taux_marge_brute         = fields.Float("Taux de marge brute (%)"             , readonly=True, compute='_compute_montants')
+    taux_marge_commerciale   = fields.Float("Taux de marge commerciale (%)"       , readonly=True, compute='_compute_montants')
+    montant_marge_revendeur  = fields.Monetary("Marge revendeur"                  , readonly=True, compute='_compute_montants', currency_field='currency_id')
 
     commentaire              = fields.Text("Commentaire")
 
@@ -1070,6 +1071,10 @@ class is_devis_parametrable_variante(models.Model):
             ('detaillee', 'Détaillée (avec le détail des prix)'),
             ('non'      , 'Non'),
         ], "Impression Équipements", default="standard")
+    prix_a_afficher = fields.Selection([
+            ('prix_vente_net'      , 'Prix de vente net'),
+            ('prix_vente_revendeur', 'Prix de vente revendeur'),
+        ], "Prix à afficher sur le PDF", default="prix_vente_net")
 
 
     @api.depends('name','quantite')
@@ -1189,10 +1194,6 @@ class is_devis_parametrable_variante(models.Model):
             obj.intitule_remise = intitule_remise
             obj.prix_vente_remise = prix_vente_int - montant_remise
 
-            prix_par_hl=False
-            if obj.devis_id.capacite>0:
-                prix_par_hl=obj.prix_vente_remise/obj.devis_id.capacite
-            obj.prix_par_hl = prix_par_hl
 
             obj.prix_vente_lot = obj.prix_vente_remise * quantite
 
@@ -1205,8 +1206,8 @@ class is_devis_parametrable_variante(models.Model):
 
             obj.prix_vente_revendeur    = prix_vente_revendeur
 
-            #prix_vente_revendeur_int = 10*ceil(prix_vente_revendeur/10)
-            #obj.prix_vente_revendeur_int = prix_vente_revendeur_int
+            prix_vente_revendeur_int = 10*ceil(prix_vente_revendeur/10)
+            obj.prix_vente_revendeur_int = prix_vente_revendeur_int
 
             obj.montant_marge           = obj.prix_vente_remise - montant_unitaire
 
@@ -1221,13 +1222,34 @@ class is_devis_parametrable_variante(models.Model):
                 taux_marge_commerciale  = 100*obj.montant_marge / obj.prix_vente_remise
             obj.taux_marge_commerciale = taux_marge_commerciale
 
-            obj.montant_marge_revendeur = prix_vente_revendeur - obj.prix_vente_remise
+            obj.montant_marge_revendeur = prix_vente_revendeur_int - obj.prix_vente_remise
+
+
+            prix_par_hl=False
+            if obj.devis_id.capacite>0:
+
+                print(obj.devis_id.capacite)
+
+
+                #prix_par_hl=obj.prix_vente_remise/obj.devis_id.capacite
+                if obj.prix_a_afficher=='prix_vente_net':
+                    prix_par_hl = obj.prix_vente_remise / obj.devis_id.capacite
+                else:
+                    prix_par_hl = obj.prix_vente_revendeur_int / obj.devis_id.capacite
+            obj.prix_par_hl = prix_par_hl
 
 
             #** Montants en devise ********************************************
             taux = obj.taux_devise or 1
-            obj.prix_vente_devise     = obj.prix_vente     / taux
-            obj.prix_par_hl_devise    = obj.prix_par_hl    / taux
+
+            prix_vente_devise=0
+            if obj.prix_a_afficher=='prix_vente_net':
+                prix_vente_devise = obj.prix_vente_int / taux
+            else:
+                prix_vente_devise = obj.prix_vente_revendeur_int / taux
+            obj.prix_vente_devise = prix_vente_devise
+
+            obj.prix_par_hl_devise    = obj.prix_par_hl / taux
             obj.prix_vente_int_devise = 10*ceil(obj.prix_vente_devise/10)
             montant_remise=0
             if obj.remise>0:

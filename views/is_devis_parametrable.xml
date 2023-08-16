@@ -94,12 +94,14 @@
                                         name="variante_id"
                                         domain="[('partner_id','=',parent.partner_id)]"
                                     />
-                                    <field name="capacite" sum="Total"/>
-                                    <field name="unite"/>
-                                    <field name="quantite" sum="Total"/>
-                                    <field name="prix_vente_remise_devise"/>
-                                    <field name="montant" sum="Total"/>
-                                    <field name="devise_client_id"/>
+                                    <field name="capacite" sum="Total"      optional="show"/>
+                                    <field name="unite"                     optional="show"/>
+                                    <field name="montant_marge" sum="Total" optional="show"/>
+                                    <field name="quantite" sum="Total"      optional="show"/>
+                                    <field name="prix_a_afficher"           optional="show"/>
+                                    <field name="prix_vente_remise_devise"  optional="show"/>
+                                    <field name="montant" sum="Total"       optional="show"/>
+                                    <field name="devise_client_id"          optional="show"/>
                                 </tree>
                             </field>
                         </group>
@@ -367,6 +369,7 @@
                                             <field name="montant_marge"               optional="hide"/>
                                             <field name="taux_marge_commerciale"      optional="hide"/>
                                             <field name="prix_vente_revendeur"        optional="hide"/>
+                                            <field name="prix_vente_revendeur_int"    optional="hide"/>
                                             <field name="montant_marge_revendeur"     optional="hide"/>
                                         </tree>
                                     </field>
@@ -598,11 +601,19 @@
                                 <field name="taux_marge_brute"/>
                                 <field name="taux_marge_commerciale"/>
                                 <field name="prix_vente_revendeur"/>
+                                <field name="prix_vente_revendeur_int"/>
                                 <field name="montant_marge_revendeur"/>
-                                <field name="prix_par_hl"/>
-                                <field name="afficher_prix_par_hl"/>
+                            </group>
+                            <group string="Paramétrage du PDF / Prix à afficher">
+                                <field name="prix_a_afficher"/>
+                                <field name="impression_matieres"/>
+                                <field name="impression_dimensions"/>
+                                <field name="impression_options"/>
+                                <field name="impression_equipements"/>
                             </group>
                             <group string="Prix de vente unitaire (Devise)">
+                                <field name="prix_par_hl"/>
+                                <field name="afficher_prix_par_hl"/>
                                 <field name="devise_client_id"/>
                                 <field name="taux_devise"/>
                                 <field name="prix_vente_devise"/>
@@ -611,12 +622,6 @@
                                 <field name="intitule_remise_devise"    attrs="{'invisible':[('montant_remise_devise','=',0)]}"/>
                                 <field name="prix_vente_remise_devise"  attrs="{'invisible':[('montant_remise_devise','=',0)]}"/>
                                 <field name="prix_par_hl_devise"/>
-                            </group>
-                            <group string="Paramétrage du PDF">
-                                <field name="impression_matieres"/>
-                                <field name="impression_dimensions"/>
-                                <field name="impression_options"/>
-                                <field name="impression_equipements"/>
                             </group>
                          </group>
                         <group>

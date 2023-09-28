@@ -128,7 +128,7 @@
             <field name="name">bsa_fnc_graph_view</field>
             <field name="model">bsa.fnc</field>
             <field name="arch" type="xml">
-                <graph string="view" type="pivot">
+                <graph string="view">
                     <field name="categorie_id"  type="row"/>
                     <field name="date_creation" type="col" interval="month"/>
                 </graph>

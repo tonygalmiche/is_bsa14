@@ -348,7 +348,7 @@
             <field name="name">Stock valorisé</field>
             <field name="res_model">product.template</field>
             <field name="view_id" ref="is_product_template_tree_view"/>
-            <field name="view_mode">tree,kanban,form,</field>
+            <field name="view_mode">tree,kanban,form</field>
             <field name="domain">[]</field>
         </record>
         <record model="ir.actions.act_window" id="sale.product_template_action">

@@ -832,6 +832,7 @@
             <field name="arch" type="xml">
                 <tree >
                     <field name="name"/>
+                    <field name="pourcentage_perte_matiere"/>
                 </tree>
             </field>
         </record>
@@ -852,7 +853,8 @@
                         </style>
                         <group>
                             <group>
-                                <field name="name" />
+                                <field name="name"/>
+                                <field name="pourcentage_perte_matiere"/>
                                 <field name="import_ids" widget="many2many_binary"/>
                             </group>
                          </group>
@@ -862,7 +864,6 @@
                                 string="Importer fichier .xlsx" type="object" 
                             />
                         </group>
-
                         <field name="calcul_ids" nolabel="1">
                             <tree editable="bottom" limit="2000">
                                 <field name="sequence" widget="handle" />

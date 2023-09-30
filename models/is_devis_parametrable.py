@@ -535,6 +535,9 @@ class is_devis_parametrable(models.Model):
     def recalculer_action(self):
         for obj in self:
             #** Initialiser les données d'entrées *****************************
+            for line in obj.calcul_ids:
+                if line.lien_id.name=="pourcentage_perte_matiere":
+                    line.formule=obj.type_cuve_id.pourcentage_perte_matiere
             for matiere in obj.matiere_ids:
                 lien_id = matiere.section_id.epaisseur_matiere_id
                 if lien_id:
@@ -1324,6 +1327,7 @@ class is_type_cuve(models.Model):
 
     name          = fields.Char("Type de cuve", required=True)
     image         = fields.Binary("Image")
+    pourcentage_perte_matiere = fields.Float("Perte matière (%)", default=15, help="La valeure indiquée ici sera utilisée comme donnée d'entrée avec le code 'pourcentage_perte_matiere'")
     perte_decoupe = fields.Integer("Perte à la découpe (%)")
     import_ids    = fields.Many2many('ir.attachment', 'is_type_cuve_import_ids_rel', 'type_cuve_id', 'attachment_id', 'Import xlsx')
     calcul_ids    = fields.One2many('is.type.cuve.calcul', 'type_cuve_id', 'Calculs', copy=True)

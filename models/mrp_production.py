@@ -1,7 +1,9 @@
 from odoo import models,fields,api,tools, SUPERUSER_ID
+from odoo.tools import float_compare, float_round, float_is_zero, format_datetime
 from math import ceil
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
+from odoo.exceptions import AccessError, UserError, ValidationError
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -167,6 +169,33 @@ class mrp_production(models.Model):
                     obj.is_ordre_travail_id=ordre.id
                     ordre.quantite = qty
                     ordre.calculer_charge_ordre_travail()
+
+
+
+
+
+    def _pre_button_mark_done(self):
+        productions_to_immediate = self._check_immediate()
+        if productions_to_immediate:
+            return productions_to_immediate._action_generate_immediate_wizard()
+
+        for production in self:
+            if float_is_zero(production.qty_producing, precision_rounding=production.product_uom_id.rounding):
+                raise UserError(_('The quantity to produce must be positive!'))
+            if not any(production.move_raw_ids.mapped('quantity_done')):
+                raise UserError(_("You must indicate a non-zero amount consumed for at least one of your components"))
+
+        #TODO : J'ai commenté ces lignes le 04/10/2023 pour désactver le wizard qui d'affiche si la nomenclature a changée
+        #consumption_issues = self._get_consumption_issues()
+        #if consumption_issues:
+        #    return self._action_generate_consumption_wizard(consumption_issues)
+
+        quantity_issues = self._get_quantity_produced_issues()
+        if quantity_issues:
+            return self._action_generate_backorder_wizard(quantity_issues)
+        return True
+
+
 
 
 

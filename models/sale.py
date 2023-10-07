@@ -15,9 +15,10 @@ class is_societe_commerciale(models.Model):
     _name = "is.societe.commerciale"
     _description = "Société commerciale"
 
-    name   = fields.Char("Nom",required=True)
-    logo   = fields.Binary("Logo", help="Logo utilisé dans les documents (ex : AR de commande)")
-    slogan = fields.Char("Slogan")
+    name    = fields.Char("Nom",required=True)
+    logo    = fields.Binary("Logo", help="Logo utilisé dans les documents (ex : AR de commande)")
+    made_in = fields.Binary("Logo 'Made in Jura' / 'Made in France'", help="Logo utilisé dans l'entête de l'affaire")
+    slogan  = fields.Char("Slogan")
     report_footer = fields.Text("Pied de page de rapport")
     cgv_ids       = fields.Many2many('ir.attachment', 'is_societe_commerciale_cgv_rel', 'societe_id', 'attachment_id', 'CGV')
 

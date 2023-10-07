@@ -253,9 +253,15 @@
             <field name="arch" type="xml">
                 <form>
                     <sheet>
+                        <style>
+                            .o_form_label{
+                                white-space: nowrap;
+                            }
+                        </style>
                         <group>
                             <field name="name"/>
-                            <field name="logo" widget="image"  class="oe_avatar oe_left"/>
+                            <field name="logo"    widget="image" class="oe_avatar oe_left"/>
+                            <field name="made_in" widget="image" class="oe_avatar oe_left"/>
                         </group>
                         <group string="Entête et pied de page des documents">
                             <field name="slogan"/>

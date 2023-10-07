@@ -688,7 +688,11 @@
                             </t>
                         </div>
                         <div style="text-align:center;margin-top:10mm">
-                            <img src='/is_bsa14/static/src/img/made-in-jura.jpg' style="height:30mm" />
+                            <img 
+                                t-if="o.is_societe_commerciale_id.made_in" 
+                                t-att-src="image_data_uri(o.is_societe_commerciale_id.made_in)" 
+                                style="max-height:30mm"
+                            />
                         </div>
                     </div>
                 </t>

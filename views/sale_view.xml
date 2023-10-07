@@ -282,7 +282,8 @@
                     <field name="name"/>
                     <field name="slogan"        optional="show"/>
                     <field name="report_footer" optional="show"/>
-                    <field name="logo" widget="image" options='{"size": [150,150]}' optional="show"/>
+                    <field name="logo"    widget="image" options='{"size": [False,70]}' optional="show"/>
+                    <field name="made_in" widget="image" options='{"size": [False,70]}' optional="show"/>
                 </tree>
             </field>
         </record>

@@ -77,7 +77,7 @@
             </field>
         </record>
         <record model="ir.actions.act_window" id="is_product_type_cuve_action">
-            <field name="name">Type de cuve</field>
+            <field name="name">Type de fabrication</field>
             <field name="res_model">is.product.type.cuve</field>
             <field name="view_mode">tree,form</field>
         </record>

@@ -246,8 +246,8 @@
                                 <field name="type_cuve_id"/>
                                 <field name="designation"/>
                                 <field name="designation_complementaire"/>
-                                <label for="capacite" string="Capacité"/>
-                                <div class="d-flex">
+                                <label for="capacite" string="Capacité"  attrs="{'invisible':[('type_devis','not in',['cuve','bassin'])]}"/>
+                                <div class="d-flex"                      attrs="{'invisible':[('type_devis','not in',['cuve','bassin'])]}">
                                     <field name="capacite" readonly="1"/>
                                     <span class="o_form_label mx-3"> </span>
                                     <field name="unite"/>
@@ -264,7 +264,7 @@
                         <notebook>
                             <page string="Devis">
 
-                                <group string="Dimensions">
+                                <group string="Dimensions" attrs="{'invisible':[('type_devis','not in',['cuve','bassin'])]}">
                                     <field name="dimension_ids" nolabel="1">
                                         <tree editable="bottom">
                                             <field name="sequence" widget="handle" />
@@ -278,7 +278,7 @@
                                     </field>
                                 </group>
                                 <group>
-                                    <group string="Temps">
+                                    <group string="Temps" attrs="{'invisible':[('type_devis','not in',['cuve','bassin'])]}">
                                         <field name="tps_montage"    widget="float_time" readonly="1" />
                                         <field name="tps_assemblage" widget="float_time"/>
                                         <field name="tps_majoration" widget="float_time"/>
@@ -287,7 +287,7 @@
                                         <field name="tps_be"         widget="float_time"/>
                                     </group>
                                 </group>
-                                <group string="Matières">
+                                <group string="Matières" attrs="{'invisible':[('type_devis','not in',['cuve','bassin'])]}">
                                     <field name="matiere_ids" nolabel="1">
                                         <tree editable="bottom">
                                             <field name="sequence" widget="handle" />
@@ -300,6 +300,21 @@
                                             <field name="date_actualisation"/>
                                             <field name="montant" sum="Total"/>
                                             <field name="imprimer"/>
+                                        </tree>
+                                    </field>
+                                </group>
+
+                                <group string="Articles" attrs="{'invisible':[('type_devis','not in',['structure'])]}">
+                                    <field name="article_ids" nolabel="1">
+                                        <tree editable="bottom">
+                                            <field name="sequence" widget="handle" />
+                                            <field name="devis_id" invisible="1"/>
+                                            <button title="Détail nomenclature et opérations" name="acceder_article_action" type="object" icon="fa-search-plus"/>
+                                            <field name="product_id"/>
+                                            <field name="description"/>
+                                            <field name="quantite"/>
+                                            <field name="cout_matiere"/>
+                                            <field name="cout_mo"/>
                                         </tree>
                                     </field>
                                 </group>
@@ -329,7 +344,7 @@
                                     <field name="montant_option_comprise"/>
                                     <field name="montant_option_thermo"/>
                                 </group>
-                                <group string="Sections des équipements">
+                                <group string="Sections des équipements" attrs="{'invisible':[('type_devis','not in',['cuve','bassin'])]}">
                                     <field name="section_ids" nolabel="1" readonly="0">
                                         <tree>
                                             <field name="sequence" widget="handle" />
@@ -896,7 +911,7 @@
             </field>
         </record>
         <record id="is_type_cuve_action" model="ir.actions.act_window">
-            <field name="name">Type de cuve</field>
+            <field name="name">Type de fabrication</field>
             <field name="res_model">is.type.cuve</field>
             <field name="view_mode">tree,form</field>
         </record>
@@ -1151,5 +1166,52 @@
 
 
 
+        <!-- is.devis.parametrable.article -->
+        <record id="is_devis_parametrable_article_tree" model="ir.ui.view">
+            <field name="name">is.devis.parametrable.article.tree</field>
+            <field name="model">is.devis.parametrable.article</field>
+            <field name="arch" type="xml">
+                <tree >
+                    <field name="devis_id" invisible="1"/>
+                    <field name="product_id"/>
+                    <field name="description"/>
+                    <field name="quantite"/>
+                    <field name="cout_matiere"/>
+                    <field name="cout_mo"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_devis_parametrable_article_form" model="ir.ui.view">
+            <field name="name">is.devis.parametrable.article.form</field>
+            <field name="model">is.devis.parametrable.article</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="devis_id" invisible="1"/>
+                                <field name="product_id"/>
+                                <field name="description"/>
+                                <field name="quantite"/>
+                            </group>
+                            <group>
+                                <field name="cout_matiere"/>
+                                <field name="cout_mo"/>
+                            </group>
+                         </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_devis_parametrable_article_search" model="ir.ui.view">
+            <field name="name">is.devis.parametrable.article.search</field>
+            <field name="model">is.devis.parametrable.article</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="product_id"/>
+                    <field name="description"/>
+               </search>
+            </field>
+        </record>
     </data>
 </odoo>

@@ -460,8 +460,9 @@ class is_devis_parametrable(models.Model):
     name                       = fields.Char("N°", readonly=True)
     version                    = fields.Char("Version")
     type_devis                 = fields.Selection([
-            ('cuve'  , 'Cuve'),
-            ('bassin', 'Bassin'),
+            ('cuve'     , 'Cuve'),
+            ('bassin'   , 'Bassin'),
+            ('structure', 'Structure'),
         ], "Type devis", default="cuve", required=True)
     nom_affaire                = fields.Char("Nom affaire")
     image                      = fields.Binary("Image", related="type_cuve_id.image")
@@ -478,7 +479,7 @@ class is_devis_parametrable(models.Model):
         ], "Unité")
 
     capacite_txt       = fields.Char("Capacité ", compute='_compute_capacite_txt')
-    type_cuve_id       = fields.Many2one('is.type.cuve', 'Type cuve/bassin', required=True)
+    type_cuve_id       = fields.Many2one('is.type.cuve', 'Type de fabrication', required=True)
     calcul_ids         = fields.One2many('is.type.cuve.calcul', 'devis_parametrable_id', 'Calculs', copy=True)
     createur_id        = fields.Many2one('res.users', 'Créateur', required=True, default=lambda self: self.env.user.id)
     date_creation      = fields.Date("Date de création"         , required=True, default=lambda *a: fields.Date.today())
@@ -496,6 +497,7 @@ class is_devis_parametrable(models.Model):
     tps_total          = fields.Float("Tps total hors BE (HH:MM)", store=False, readonly=True, compute='_compute_montant')
     tps_be             = fields.Float("Tps BE (HH:MM)", help="Le temps BE sera divisé par la quantité prévue dans les calculs")
 
+    article_ids        = fields.One2many('is.devis.parametrable.article'  , 'devis_id', 'Articles'  , copy=True)
     matiere_ids        = fields.One2many('is.devis.parametrable.matiere'  , 'devis_id', 'Matières'  , copy=True)
     dimension_ids      = fields.One2many('is.devis.parametrable.dimension', 'devis_id', 'Dimensions', copy=True)
     options_ids        = fields.One2many('is.devis.parametrable.option'   , 'devis_id', 'Options', copy=True)
@@ -773,6 +775,39 @@ class is_devis_parametrable_dimension(models.Model):
     unite_id     = fields.Many2one('is.devis.parametrable.unite', 'Unité', default=lambda self: self._get_unite_id())
     description  = fields.Char("Description"   , help="Information pour le client")
     imprimer     = fields.Boolean("Imprimer"   , help="Afficher cette ligne sur le PDF", default=True)
+
+
+class is_devis_parametrable_article(models.Model):
+    _name = 'is.devis.parametrable.article'
+    _description = "Articles pour les devis paramètrable de type structure"
+    _order='sequence,id'
+
+    devis_id     = fields.Many2one('is.devis.parametrable', 'Devis', required=True, ondelete='cascade')
+    sequence     = fields.Integer("Sequence")
+    product_id   = fields.Many2one('product.product', 'Article')
+    description  = fields.Char("Description", required=1)
+    quantite     = fields.Integer("Quantité", required=1, default=1)
+    cout_matiere = fields.Float("Coût matière", digits=(16, 2))
+    cout_mo      = fields.Float("Coût MO"     , digits=(16, 2))
+
+    @api.onchange('product_id')
+    def onchange_product_id(self):
+        for obj in self:
+            description=False
+            if obj.product_id.name_get():
+                description = obj.product_id.name_get()[0][1]
+            obj.description=description
+
+    def acceder_article_action(self):
+        for obj in self:
+            res={
+                'name': 'Article',
+                'view_mode': 'form',
+                'res_model': 'is.devis.parametrable.article',
+                'res_id': obj.id,
+                'type': 'ir.actions.act_window',
+            }
+            return res
 
 
 class is_devis_parametrable_option(models.Model):
@@ -1322,10 +1357,10 @@ class is_section_devis(models.Model):
 
 class is_type_cuve(models.Model):
     _name='is.type.cuve'
-    _description = "Type de cuve"
+    _description = "Type de fabrication"
     _order='name'
 
-    name          = fields.Char("Type de cuve", required=True)
+    name          = fields.Char("Type de fabrication", required=True)
     image         = fields.Binary("Image")
     pourcentage_perte_matiere = fields.Float("Perte matière (%)", default=15, help="La valeure indiquée ici sera utilisée comme donnée d'entrée avec le code 'pourcentage_perte_matiere'")
     perte_decoupe = fields.Integer("Perte à la découpe (%)")
@@ -1426,7 +1461,7 @@ class is_type_cuve_calcul(models.Model):
     _description = "Lignes de calcul du type de cuve"
     _order='sequence,id'
 
-    type_cuve_id = fields.Many2one('is.type.cuve', 'Type de cuve')
+    type_cuve_id = fields.Many2one('is.type.cuve', 'Type de fabrication')
     devis_parametrable_id = fields.Many2one('is.devis.parametrable', 'Devis paramètrable')
     sequence     = fields.Integer("Sequence")
     name         = fields.Char("Code")

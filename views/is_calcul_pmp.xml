@@ -218,7 +218,6 @@
             <field name="res_model">is.calcul.pmp</field>
             <field name="view_mode">tree,form</field>
         </record>
-        <menuitem id="is_calcul_pmp_menu" sequence="90" name="Calculer PMP" parent="is_valorisation_stock_menu" action="is_calcul_pmp_action" />
 
 
     </data>

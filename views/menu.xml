@@ -408,6 +408,15 @@
             action="bsa_stock_a_date_action"
         />
 
+        <menuitem 
+            id="is_calcul_pmp_menu" 
+            sequence="90" name="Calculer PMP" 
+            parent="is_valorisation_stock_menu" 
+            action="is_calcul_pmp_action"
+        />
+
+
+
 
         <!-- Facturation / Client -->
         <record id="is_livraisons_a_facturer_action_server" model="ir.actions.server">

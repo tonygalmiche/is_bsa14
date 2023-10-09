@@ -570,10 +570,15 @@
                         </t>
                         <img t-if="o.vendeur_id.is_image_signature" t-att-src="image_data_uri(o.vendeur_id.is_image_signature)" style="max-height: 25mm;"/>
                         <div style="text-align:center;margin-top:5mm">
-                            <img src='/is_bsa14/static/src/img/made-in-jura.jpg' style="height:30mm" />
+                            <img 
+                                t-if="o.is_societe_commerciale_id.made_in" 
+                                t-att-src="image_data_uri(o.is_societe_commerciale_id.made_in)" 
+                                style="max-height:30mm"
+                            />
                         </div>
-
-
+                        <!-- <div style="text-align:center;margin-top:5mm">
+                            <img src='/is_bsa14/static/src/img/made-in-jura.jpg' style="height:30mm" />
+                        </div>-->
                     </div>
                 </t>
             </t>

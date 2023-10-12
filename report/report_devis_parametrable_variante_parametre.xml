@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_variante_devis_parametrable_parametre">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <style>
+                            h1{
+                                font-size: 15pt;
+                                font-weight:bold;
+                            }
+                            h2{
+                                font-size: 13pt;
+                                font-weight:bold;
+                                margin-top:5mm;
+                            }
+                            .o_report_layout_boxed .page > table:not(.o_main_table) tr td:last-child {
+                                background-color: white;
+                            }
+                            .o_report_layout_boxed table {
+                                border: none;
+                            }
+                            .o_report_layout_boxed table tbody tr td,th {
+                                border-top: none;
+                                border-right: none;
+                                border-left: none;
+                                border-bottom: 1px solid #495057;
+                                vertical-align: top;
+                                font-size: 10pt;
+                            }
+                            .o_report_layout_boxed th {
+                                white-space: nowrap;
+                                text-align:left;
+                            }
+                            .o_report_layout_boxed td {
+                                text-align:right;
+                                font-weight:normal;
+                            }
+                        </style>
+                        <h1><span t-field="o.description"/></h1>
+                        <table style="width:100%">
+                            <tr>
+                                <th style="width:45%;border-bottom:none">
+                                    <h2>Paramètres</h2>
+                                    <table style="width:100%">
+                                        <tr><th>Devis paramètrable</th><td><span t-field="o.devis_id"/></td></tr>
+                                        <tr><th>Société commerciale</th><td><span t-field="o.is_societe_commerciale_id"/></td></tr>
+                                        <tr><th>Client</th><td><span t-field="o.partner_id"/></td></tr>
+                                        <tr><th>Nom</th><td><span t-field="o.name"/></td></tr>
+                                        <tr><th>Qt prévue</th><td><span t-field="o.quantite"/></td></tr>
+                                        <tr><th>Coût horaire montage</th><td><span t-field="o.cout_horaire_montage"/></td></tr>
+                                        <tr><th>Coût horaire BE</th><td><span t-field="o.cout_horaire_be"/></td></tr>
+                                        <tr><th>Coût de transport</th><td><span t-field="o.cout_transport"/></td></tr>
+                                        <tr><th>Marge matière (%)</th><td><span t-field="o.marge_matiere"/></td></tr>
+                                        <tr><th>Marge équipement (%)</th><td><span t-field="o.marge_equipement"/></td></tr>
+                                        <tr><th>Marge options (%)</th><td><span t-field="o.marge_option"/></td></tr>
+                                        <tr><th>Marge MO (%)</th><td><span t-field="o.marge_montage"/></td></tr>
+                                        <tr><th>Marge BE (%)</th><td><span t-field="o.marge_be"/></td></tr>
+                                        <tr><th>Marge revendeur (%)</th><td><span t-field="o.marge_revendeur"/></td></tr>
+                                        <tr><th>Gain de productivité (%)</th><td><span t-field="o.gain_productivite"/></td></tr>
+                                        <tr><th>Remise</th><td><span t-field="o.remise"/></td></tr>
+                                        <tr><th>Remise (%)</th><td><span t-field="o.remise_pourcent"/></td></tr>
+                                    </table>
+                                </th>
+                                <th style="width:10%;border-bottom:none"/>
+                                <th style="width:45%;border-bottom:none">
+                                    <h2>Temps unitaire</h2>
+                                    <table style="width:100%">
+                                        <tr><th>Tps montage (HH:MM)</th><td><span t-field="o.devis_id.tps_montage" t-options='{"widget": "float_time"}'/></td></tr>
+                                        <tr><th>Tps assemblage (HH:MM)</th><td><span t-field="o.tps_assemblage" t-options='{"widget": "float_time"}'/></td></tr>
+                                        <tr><th>Tps majoration (HH:MM)</th><td><span t-field="o.tps_majoration" t-options='{"widget": "float_time"}'/></td></tr>
+                                        <tr><th>Tps minoration (HH:MM)</th><td><span t-field="o.tps_minoration" t-options='{"widget": "float_time"}'/></td></tr>
+                                        <tr><th>Tps total hors BE (HH:MM)</th><td><span t-field="o.tps_total" t-options='{"widget": "float_time"}'/></td></tr>
+                                        <tr><th>Tps BE (HH:MM)</th><td><span t-field="o.tps_be" t-options='{"widget": "float_time"}'/></td></tr>
+                                    </table>
+                                </th>
+                            </tr>
+                            <tr>
+                                <th style="width:45%;border-bottom:none">
+                                    <h2>Prix de revient de l'affaire</h2>
+                                    <table style="width:100%">
+                                        <tr>
+                                            <th>Montant matière</th>
+                                            <td><span t-att-style="'display:block;margin:1mm;height:4mm;width: %smm;background-color:#495057' % (int(o.montant_matiere_pourcent/2))"></span></td>
+                                            <td><span t-esc="int(o.montant_matiere_pourcent)"/>%</td>
+                                            <td><span t-field="o.montant_matiere"/></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Montant equipements</th>
+                                            <td><span t-att-style="'display:block;margin:1mm;height:4mm;width: %smm;background-color:#495057' % (int(o.montant_equipement_pourcent/2))"></span></td>
+                                            <td><span t-esc="int(o.montant_equipement_pourcent)"/>%</td>
+                                            <td><span t-field="o.montant_equipement"/></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Montant options</th>
+                                            <td><span t-att-style="'display:block;margin:1mm;height:4mm;width: %smm;background-color:#495057' % (int(o.montant_option_pourcent/2))"></span></td>
+                                            <td><span t-esc="int(o.montant_option_pourcent)"/>%</td>
+                                            <td><span t-field="o.montant_option"/></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Montant MO</th>
+                                            <td><span t-att-style="'display:block;margin:1mm;height:4mm;width: %smm;background-color:#495057' % (int(o.montant_montage_productivite_pourcent/2))"></span></td>
+                                            <td><span t-esc="int(o.montant_montage_productivite_pourcent)"/>%</td>
+                                            <td><span t-field="o.montant_montage_productivite"/></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Montant BE</th>
+                                            <td><span t-att-style="'display:block;margin:1mm;height:4mm;width: %smm;background-color:#495057' % (int(o.montant_be_pourcent/2))"></span></td>
+                                            <td><span t-esc="int(o.montant_be_pourcent)"/>%</td>
+                                            <td><span t-field="o.montant_be"/></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Montant transport</th>
+                                            <td><span t-att-style="'display:block;margin:1mm;height:4mm;width: %smm;background-color:#495057' % (int(o.montant_transport_pourcent/2))"></span></td>
+                                            <td><span t-esc="int(o.montant_transport_pourcent)"/>%</td>
+                                            <td><span t-field="o.montant_transport"/></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Montant total</th>
+                                            <td></td>
+                                            <td></td>
+                                            <td><span t-field="o.montant_total"/></td>
+                                        </tr>
+                                    </table>
+                                </th>
+                                <th style="width:10%;border-bottom:none"/>
+                                <th style="width:45%;border-bottom:none">
+                                    <h2>Prix de revient unitaire</h2>
+                                    <table style="width:100%">
+                                        <tr><th>Montant unitaire HT</th><td><span t-field="o.montant_unitaire"/></td></tr>
+                                    </table>
+                                </th>
+                            </tr>
+                            <tr>
+                                <th style="width:45%;border-bottom:none">
+                                    <h2>Prix de vente de l'affaire</h2>
+                                    <table style="width:100%">
+                                        <tr><th>Prix de vente de l'affaire</th><td><span t-field="o.prix_vente_lot"/></td></tr>
+                                        <tr><th>Prix de vente revendeur de l'affaire</th><td><span t-field="o.prix_vente_revendeur_lot"/></td></tr>
+                                        <tr><th>Marge de l'affaire</th><td><span t-field="o.montant_marge_lot"/></td></tr>
+                                        <tr><th>Marge revendeur de l'affaire</th><td><span t-field="o.montant_marge_revendeur_lot"/></td></tr>
+                                    </table>
+                                    <h2>Prix de vente unitaire (Devise)</h2>
+                                    <table style="width:100%">
+                                        <tr><th>Devise client</th><td><span t-field="o.devise_client_id"/></td></tr>
+                                        <tr><th>Taux devise</th><td><span t-field="o.taux_devise"/></td></tr>
+                                        <tr><th>Prix de vente HT (devise)</th><td><span t-field="o.prix_vente_devise"/></td></tr>
+                                        <tr><th>Prix de vente HT (arrondi)(devise)</th><td><span t-field="o.prix_vente_int_devise"/></td></tr>
+                                        <tr><th>Intitulé remise</th><td><span t-field="o.intitule_remise_devise"/></td></tr>
+                                        <tr><th>Prix de vente remisé (devise)</th><td><span t-field="o.prix_vente_remise_devise"/></td></tr>
+                                        <tr><th>Prix par HL (devise)</th><td><span t-field="o.prix_par_hl_devise"/></td></tr>
+                                    </table>
+                                    <div>Commentaire : <span t-field="o.commentaire"/></div> 
+                                </th>
+                                <th style="width:10%;border-bottom:none"/>
+                                <th style="width:45%;border-bottom:none">
+                                    <h2>Prix de vente unitaire</h2>
+                                    <table style="width:100%">
+                                        <tr><th>Prix de vente HT</th><td><span t-field="o.prix_vente"/></td></tr>
+                                        <tr><th>Prix de vente HT (arrondi)</th><td><span t-field="o.prix_vente_int"/></td></tr>
+                                        <tr><th>Intitulé remise</th><td><span t-field="o.intitule_remise"/></td></tr>
+                                        <tr><th>Prix de vente remisé</th><td><span t-field="o.prix_vente_remise"/></td></tr>
+                                        <tr><th>Marge</th><td><span t-field="o.montant_marge"/></td></tr>
+                                        <tr><th>Taux de marge brute (%)</th><td><span t-field="o.taux_marge_brute"/></td></tr>
+                                        <tr><th>Taux de marge commerciale</th><td><span t-field="o.taux_marge_commerciale"/></td></tr>
+                                        <tr><th>Prix de vente revendeur</th><td><span t-field="o.prix_vente_revendeur"/></td></tr>
+                                        <tr><th>Marge revendeur</th><td><span t-field="o.montant_marge_revendeur"/></td></tr>
+                                        <tr><th>Prix par HL</th><td><span t-field="o.prix_par_hl"/></td></tr>
+                                        <tr><th>Affiche prix par HL</th><td><span t-field="o.afficher_prix_par_hl"/></td></tr>
+                                    </table>
+                                </th>
+                            </tr>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

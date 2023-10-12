@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_devis_parametrable_affaire_entete">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <style>
+                            .o_report_layout_boxed .page > table:not(.o_main_table) tr td:last-child {
+                                background-color: white;
+                            }
+                            .o_report_layout_boxed table tbody tr td {
+                                border-right: none;
+                            }
+                            th, td {
+                                padding: 0.2rem;
+                                padding-left:0;
+                                line-height: 1.1;
+                                background-color : white;
+                                color:black;
+                                font-size:12pt;
+                                vertical-align: top;
+                            }
+                            td {
+                                white-space: nowrap;
+                            }
+                        </style>
+                        <t t-if="o.is_societe_commerciale_id.id">
+                            <div style="text-align:center">
+                                <img 
+                                    t-if="o.is_societe_commerciale_id.logo" 
+                                    t-att-src="image_data_uri(o.is_societe_commerciale_id.logo)" 
+                                    style="max-height:25mm;max-width:80mm;"
+                                />
+                                <div style="margin-top:1mm;font-size:11pt" t-field="o.is_societe_commerciale_id.slogan"/>
+                                <div style="margin-top:5mm;font-size:22pt;font-weight:bold;color:black">Offre de prix</div>
+                            </div>
+                        </t>
+                        <br />
+                        <table style="width:100%;border:none; border-top:1px solid black">
+                            <tr>
+                                <th style="width:35mm">Client : </th>
+                                <th style="font-size:14pt"><span t-field="o.partner_id.name"/></th>
+                                <t t-if="o.partner_id.image_1920">
+                                    <td rowspan="3" style="width:10mm;text-align:right">
+                                        <img  t-att-src="image_data_uri(o.partner_id.image_1920)" style="max-width:100mm;max-height:60mm;"/>
+                                    </td>
+                                </t>
+                            </tr>
+                            <tr>
+                                <th>À l'attention de : </th>
+                                <td><span t-field="o.attention_de"/></td>
+                            </tr>
+                            <tr>
+                                <th>Adresse : </th>
+                                <td>
+                                    <div t-field="o.partner_id.street"/>
+                                    <div t-if="o.partner_id.street2" t-field="o.partner_id.street2"/>
+                                    <span t-field="o.partner_id.zip"/> <span t-field="o.partner_id.city"/>
+                                </td>
+                            </tr>
+                        </table>
+                        <div style="height:10mm"/>
+                        <table style="width:100%;border:none; border-top:1px solid black">
+                            <tr>
+                                <th style="width:35mm;color:black">Devis N° : </th>
+                                <th style="font-size:14pt"><span t-field="o.code_affare"/></th>
+                                <t t-if="o.image_affaire">
+                                    <td rowspan="5" style="width:10mm;text-align:right">
+                                        <img  t-att-src="image_data_uri(o.image_affaire)" style="max-width:100mm;max-height:60mm;"/>
+                                    </td>
+                                </t>
+                            </tr>
+                            <tr>
+                                <th>Affaire : </th>
+                                <td><span t-field="o.name"/></td>
+                            </tr>
+                            <tr>
+                                <th>Date : </th>
+                                <td><span t-field="o.date_modification"/></td>
+                            </tr>
+                            <tr>
+                                <th>Version : </th>
+                                <td><span t-field="o.version"/></td>
+                            </tr>
+                            <tr>
+                                <th>Chargé d'affaire : </th>
+                                <td><span t-field="o.vendeur_id.name"/></td>
+                            </tr>
+                        </table>
+                        <div style="height:5mm"/>
+                        <div style="text-align:center;border-top: 1px solid black;border-bottom:1px solid black;">
+                            <div style="padding:2mm;font-size:22pt;font-weight:bold;color:black">Descriptif de l'affaire</div>
+                        </div>
+
+                        <t t-if="o.descriptif_affaire">
+                            <div t-field="o.descriptif_affaire"/>
+                        </t>
+
+                        <div style="font-size:13pt;text-align:left;color:black;font-weight:bold;">
+                            <t t-foreach="o.variante_ids" t-as="variante">
+                                <div style="padding-top:5mm;padding-left:33mm">
+                                    - <span t-field="variante.variante_id.quantite"/> x 
+                                    <span t-field="variante.variante_id.devis_id.designation"/>
+                                </div>
+                            </t>
+                        </div>
+                        <div style="text-align:center;margin-top:10mm">
+                            <img 
+                                t-if="o.is_societe_commerciale_id.made_in" 
+                                t-att-src="image_data_uri(o.is_societe_commerciale_id.made_in)" 
+                                style="max-height:30mm"
+                            />
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

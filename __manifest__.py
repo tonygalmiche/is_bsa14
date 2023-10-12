@@ -30,10 +30,6 @@ InfoSaône - Module Odoo 14 pour BSA
         "security/res.groups.xml",
         "security/ir.model.access.csv",
         "views/assets.xml",
-
-# test_owl_01.xml
-
-
         "views/account_invoice_report_view.xml",
         "views/account_move_line_view.xml",
         "views/crm_lead_view.xml",
@@ -101,7 +97,12 @@ InfoSaône - Module Odoo 14 pour BSA
         "report/report_personnel_present.xml",
         "report/report_fiche_utilisateur.xml",
         "report/report_deliveryslip.xml",
-        "report/report_devis_parametrable.xml",
+
+        "report/report_devis_parametrable_affaire_entete.xml",
+        "report/report_devis_parametrable_affaire.xml",
+        "report/report_devis_parametrable_variante_parametre.xml",
+        "report/report_devis_parametrable_variante.xml",
+
         "report/report.xml", 
         "report/sale_report_templates.xml",
         "wizard/assistent_report_view.xml",

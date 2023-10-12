@@ -303,7 +303,6 @@
                                         </tree>
                                     </field>
                                 </group>
-
                                 <group string="Articles" attrs="{'invisible':[('type_devis','not in',['structure'])]}">
                                     <field name="article_ids" nolabel="1">
                                         <tree editable="bottom">
@@ -313,8 +312,12 @@
                                             <field name="product_id"/>
                                             <field name="description"/>
                                             <field name="quantite"/>
-                                            <field name="cout_matiere"/>
-                                            <field name="cout_mo"/>
+                                            <field name="cout_matiere_force"        optional="show"/>
+                                            <field name="cout_mo_force"             optional="show"/>
+                                            <field name="cout_matiere"              optional="show"/>
+                                            <field name="cout_mo"                   optional="show"/>
+                                            <field name="total_matiere" sum="Total" optional="show"/>
+                                            <field name="total_mo" sum="Total"      optional="show"/>
                                         </tree>
                                     </field>
                                 </group>

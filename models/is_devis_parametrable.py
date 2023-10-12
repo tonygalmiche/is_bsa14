@@ -391,12 +391,14 @@ class is_devis_parametrable(models.Model):
     _order='name desc'
 
 
-    @api.depends('matiere_ids')
+    @api.depends('matiere_ids','article_ids')
     def _compute_montant_matiere(self):
         for obj in self:
             montant=0
             for line in obj.matiere_ids:
                 montant+=line.montant
+            for line in obj.article_ids:
+                montant+=line.total_matiere
             obj.montant_matiere = montant
 
 
@@ -782,13 +784,25 @@ class is_devis_parametrable_article(models.Model):
     _description = "Articles pour les devis paramètrable de type structure"
     _order='sequence,id'
 
-    devis_id     = fields.Many2one('is.devis.parametrable', 'Devis', required=True, ondelete='cascade')
-    sequence     = fields.Integer("Sequence")
-    product_id   = fields.Many2one('product.product', 'Article')
-    description  = fields.Char("Description", required=1)
-    quantite     = fields.Integer("Quantité", required=1, default=1)
-    cout_matiere = fields.Float("Coût matière", digits=(16, 2))
-    cout_mo      = fields.Float("Coût MO"     , digits=(16, 2))
+    devis_id           = fields.Many2one('is.devis.parametrable', 'Devis', required=True, ondelete='cascade')
+    sequence           = fields.Integer("Sequence")
+    product_id         = fields.Many2one('product.product', 'Article')
+    description        = fields.Char("Description", required=1)
+    quantite           = fields.Integer("Quantité", required=1, default=1)
+    cout_matiere       = fields.Float("Coût matière", digits=(16, 2), readonly=1)
+    cout_mo            = fields.Float("Coût MO"     , digits=(16, 2), readonly=1)
+    cout_matiere_force = fields.Float("Coût matière forcé", digits=(16, 2))
+    cout_mo_force      = fields.Float("Coût MO forcé"     , digits=(16, 2))
+    total_matiere      = fields.Float("Total matière", digits=(16, 2), store=True, readonly=True, compute='_compute_total')
+    total_mo           = fields.Float("Total MO"     , digits=(16, 2), store=True, readonly=True, compute='_compute_total')
+
+
+    @api.depends('quantite','cout_matiere_force','cout_mo_force')
+    def _compute_total(self):
+        for obj in self:
+            obj.total_matiere = obj.quantite*obj.cout_matiere_force
+            obj.total_mo = obj.quantite*obj.cout_mo_force
+
 
     @api.onchange('product_id')
     def onchange_product_id(self):
@@ -1154,7 +1168,11 @@ class is_devis_parametrable_variante(models.Model):
             montant_matiere    = obj.devis_id.montant_matiere*quantite
             montant_equipement = obj.devis_id.total_equipement*quantite
             montant_option     = obj.devis_id.montant_option_comprise*quantite
+
             montant_montage    = tps_montage*obj.cout_horaire_montage
+            for line in obj.devis_id.article_ids:
+                montant_montage+=line.total_mo
+
             montant_montage_productivite = montant_montage-montant_montage*obj.gain_productivite/100
             montant_be         = obj.tps_be * obj.cout_horaire_be
             montant_transport  = obj.cout_transport*quantite

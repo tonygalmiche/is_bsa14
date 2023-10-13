@@ -1129,6 +1129,14 @@ class is_devis_parametrable_variante(models.Model):
         ], "Prix à afficher sur le PDF", default="prix_vente_net")
 
 
+    def name_get(self):
+        result = []
+        for obj in self:
+            name="%s (%s)"%(obj.name, obj.quantite)
+            result.append((obj.id, name))
+        return result
+
+
     @api.depends('name','quantite')
     def _compute_description(self):
         for obj in self:

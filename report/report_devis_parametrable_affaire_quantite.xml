@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_devis_parametrable_affaire_quantite">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <style>
+                        h3{
+                            font-size:14pt;
+                            font-weight:bold;
+                            padding:0;
+                            margin:0;
+                            margin-bottom:1mm;
+                            margin-top:3mm;
+                        }
+                    </style>
+                    <div class="page">
+                        <t t-if="o.descriptif_affaire_suite">
+                            <div t-field="o.descriptif_affaire_suite"/>
+                        </t>
+                        <t t-if="len(o.variante_ids)>0">
+                            <h3>Prix par quantité</h3>
+                            <table class="table table-sm o_main_table">
+                                <thead>
+                                    <tr>
+                                        <th class="text-left">Description</th>
+                                        <th class="text-center">Quantité prévue</th>
+                                        <th class="text-right">Prix unitaire</th>
+                                        <th class="text-right">Montant HT</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="o.variante_ids" t-as="variante">
+                                        <tr style="border-bottom: 1px solid;">
+                                            <td class="text-left"><span t-field="variante.variante_id.devis_id.designation"/></td>
+                                            <td class="text-center"><span t-field="variante.quantite"/></td>
+                                            <td class="text-right"><span t-field="variante.prix_vente_remise_devise"/> <span t-field="o.devise_client_id.symbol"/></td>
+                                            <td t-if="variante.quantite>0"  class="text-right"><span t-field="variante.montant"/> <span t-field="o.devise_client_id.symbol"/></td>
+                                            <td t-if="variante.quantite==0" class="text-right">0,00 <span t-field="o.devise_client_id.symbol"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table> 
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

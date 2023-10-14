@@ -1179,7 +1179,7 @@ class is_devis_parametrable_variante(models.Model):
 
             montant_montage    = tps_montage*obj.cout_horaire_montage
             for line in obj.devis_id.article_ids:
-                montant_montage+=line.total_mo
+                montant_montage+=line.total_mo*quantite
 
             montant_montage_productivite = montant_montage-montant_montage*obj.gain_productivite/100
             montant_be         = obj.tps_be * obj.cout_horaire_be

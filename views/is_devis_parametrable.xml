@@ -1237,6 +1237,7 @@
                                             <field name="article_id" invisible="1"/>
                                             <field name="product_id" optional="show" widget="many2one_clickable"/>
                                             <field name="niveau"     optional="hide"/>
+                                            <field name="product_qty"/>
                                             <field name="operation"/>
                                             <field name="workcenter_id"/>
                                             <field name="duree" widget="float_time"/>

@@ -888,6 +888,7 @@ class is_devis_parametrable_article(models.Model):
                     vals={
                         "article_id"   : obj.id,
                         "product_id"   : product_id.id,
+                        "product_qty"  : quantite,
                         "niveau"       : niveau,
                         "operation"    : operation,
                         "workcenter_id": line.workcenter_id.id,
@@ -952,6 +953,7 @@ class is_devis_parametrable_article_operation(models.Model):
     article_id    = fields.Many2one('is.devis.parametrable.article', 'Article du devis', required=True, ondelete='cascade')
     sequence      = fields.Integer("Sequence")
     product_id    = fields.Many2one('product.product', 'Article')
+    product_qty   = fields.Float("Quantité", digits='Product Unit of Measure')
     niveau        = fields.Integer('Niveau')
     operation     = fields.Char('Opération')
     workcenter_id = fields.Many2one('mrp.workcenter','Poste de charge')
@@ -960,10 +962,10 @@ class is_devis_parametrable_article_operation(models.Model):
     montant       = fields.Float("Montant", store=True, readonly=True, compute='_compute_montant')
 
 
-    @api.depends('duree','cout_horaire')
+    @api.depends('product_qty','duree','cout_horaire')
     def _compute_montant(self):
         for obj in self:
-            obj.montant = obj.duree*obj.cout_horaire
+            obj.montant = obj.product_qty*obj.duree*obj.cout_horaire
 
 
 

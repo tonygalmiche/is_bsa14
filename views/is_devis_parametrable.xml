@@ -1189,6 +1189,12 @@
             <field name="model">is.devis.parametrable.article</field>
             <field name="arch" type="xml">
                 <form>
+                    <header>
+                        <button 
+                            name="actualiser_nomenclatre_action" 
+                            string="Actualiser la nomenclature et les opérations" type="object" 
+                        />
+                    </header>
                     <sheet>
                         <group>
                             <group>
@@ -1202,6 +1208,45 @@
                                 <field name="cout_mo"/>
                             </group>
                          </group>
+
+
+                         <notebook>
+                            <page string="Nomenclature">
+                                <group>
+                                    <field name="nomenclature_ids" nolabel="1">
+                                        <tree editable="bottom" decoration-muted="type_article == 'compose'">
+                                            <field name="sequence" widget="handle" />
+                                            <field name="article_id" invisible="1"/>
+                                            <field name="niveau"       optional="hide"/>
+                                            <field name="type_article" optional="hide"/>
+                                            <field name="product_id"   optional="hide" widget="many2one_clickable"/>
+                                            <field name="designation"  optional="show"/>
+                                            <field name="product_qty"/>
+                                            <field name="uom_id"/>
+                                            <field name="cout"/>
+                                            <field name="montant" sum="Total"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                            </page>
+                            <page string="Opérations">
+                                <group>
+                                    <field name="operation_ids" nolabel="1">
+                                        <tree editable="bottom">
+                                            <field name="sequence" widget="handle" />
+                                            <field name="article_id" invisible="1"/>
+                                            <field name="product_id" optional="show" widget="many2one_clickable"/>
+                                            <field name="niveau"     optional="hide"/>
+                                            <field name="operation"/>
+                                            <field name="workcenter_id"/>
+                                            <field name="duree" widget="float_time"/>
+                                            <field name="cout_horaire"/>
+                                            <field name="montant" sum="Total"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                            </page>
+                        </notebook>
                     </sheet>
                 </form>
             </field>

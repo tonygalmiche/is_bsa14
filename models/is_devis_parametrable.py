@@ -783,25 +783,54 @@ class is_devis_parametrable_article(models.Model):
     _name = 'is.devis.parametrable.article'
     _description = "Articles pour les devis paramètrable de type structure"
     _order='sequence,id'
+    _rec_name='product_id'
 
     devis_id           = fields.Many2one('is.devis.parametrable', 'Devis', required=True, ondelete='cascade')
     sequence           = fields.Integer("Sequence")
     product_id         = fields.Many2one('product.product', 'Article')
     description        = fields.Char("Description", required=1)
     quantite           = fields.Integer("Quantité", required=1, default=1)
-    cout_matiere       = fields.Float("Coût matière", digits=(16, 2), readonly=1)
-    cout_mo            = fields.Float("Coût MO"     , digits=(16, 2), readonly=1)
+    cout_matiere       = fields.Float("Coût matière", digits=(16, 2), store=True, readonly=True, compute='_compute_cout_matiere')
+    cout_mo            = fields.Float("Coût MO"     , digits=(16, 2), store=True, readonly=True, compute='_compute_cout_mo')
     cout_matiere_force = fields.Float("Coût matière forcé", digits=(16, 2))
     cout_mo_force      = fields.Float("Coût MO forcé"     , digits=(16, 2))
     total_matiere      = fields.Float("Total matière", digits=(16, 2), store=True, readonly=True, compute='_compute_total')
     total_mo           = fields.Float("Total MO"     , digits=(16, 2), store=True, readonly=True, compute='_compute_total')
+    nomenclature_ids   = fields.One2many('is.devis.parametrable.article.nomenclature', 'article_id', 'Nomenclature', copy=True)
+    operation_ids      = fields.One2many('is.devis.parametrable.article.operation'   , 'article_id', 'Opérations', copy=True)
 
 
-    @api.depends('quantite','cout_matiere_force','cout_mo_force')
+    @api.depends('quantite','nomenclature_ids')
+    def _compute_cout_matiere(self):
+        for obj in self:
+            cout=0
+            for line in obj.nomenclature_ids:
+                cout+=line.montant
+            obj.cout_matiere = cout
+
+
+    @api.depends('quantite','operation_ids')
+    def _compute_cout_mo(self):
+        for obj in self:
+            cout=0
+            for line in obj.operation_ids:
+                cout+=line.montant
+            obj.cout_mo = cout
+
+
+    @api.depends('quantite','cout_matiere','cout_mo','cout_matiere_force','cout_mo_force')
     def _compute_total(self):
         for obj in self:
-            obj.total_matiere = obj.quantite*obj.cout_matiere_force
-            obj.total_mo = obj.quantite*obj.cout_mo_force
+            if obj.cout_matiere_force>0:
+                total_matiere = obj.quantite*obj.cout_matiere_force
+            else:
+                total_matiere = obj.quantite*obj.cout_matiere
+            if obj.cout_mo_force>0:
+                total_mo = obj.quantite*obj.cout_mo_force
+            else:
+                total_mo = obj.quantite*obj.cout_mo
+            obj.total_matiere = total_matiere
+            obj.total_mo      = total_mo
 
 
     @api.onchange('product_id')
@@ -822,6 +851,120 @@ class is_devis_parametrable_article(models.Model):
                 'type': 'ir.actions.act_window',
             }
             return res
+
+
+    def get_nomenclature(self, niveau, quantite, product_id):
+        for obj in self:
+            boms = self.env['mrp.bom'].search([('product_tmpl_id','=',product_id.product_tmpl_id.id)],limit=1)
+            for bom in boms:
+                for line in bom.bom_line_ids:
+                    coef = line.product_uom_id._compute_quantity(1,line.product_id.uom_id )
+                    cout = line.product_id.standard_price*coef
+                    boms2 = self.env['mrp.bom'].search([('product_tmpl_id','=',line.product_id.product_tmpl_id.id)],limit=1)
+                    type_article="composant"
+                    if boms2:
+                        cout=0
+                        type_article="compose"
+                    product_qty = line.product_qty*quantite
+                    vals={
+                        "article_id"  : obj.id,
+                        "product_id"  : line.product_id.id,
+                        "niveau"      : niveau,
+                        "product_qty" : product_qty,
+                        "uom_id"      : line.product_uom_id.id,
+                        "cout"        : cout,
+                        "type_article": type_article
+                    }
+                    res = self.env['is.devis.parametrable.article.nomenclature'].create(vals)
+                    obj.get_nomenclature(niveau+1, product_qty, line.product_id)
+
+
+    def get_operation(self, niveau, quantite, product_id):
+        for obj in self:
+            boms = self.env['mrp.bom'].search([('product_tmpl_id','=',product_id.product_tmpl_id.id)],limit=1)
+            for bom in boms:
+                for line in bom.operation_ids:
+                    operation= "%s %s"%('-  '*niveau, line.name)
+                    vals={
+                        "article_id"   : obj.id,
+                        "product_id"   : product_id.id,
+                        "niveau"       : niveau,
+                        "operation"    : operation,
+                        "workcenter_id": line.workcenter_id.id,
+                        "duree"        : line.is_duree_heure,
+                        "cout_horaire" : line.workcenter_id.costs_hour,
+                      
+                    }
+                    res = self.env['is.devis.parametrable.article.operation'].create(vals)
+                for line in bom.bom_line_ids:
+                    obj.get_operation(niveau+1, line.product_qty*quantite, line.product_id)
+
+
+
+
+    def actualiser_nomenclatre_action(self):
+        for obj in self:
+            obj.nomenclature_ids.unlink()
+            obj.get_nomenclature(0, 1, obj.product_id)
+            obj.operation_ids.unlink()
+            obj.get_operation(0, 1, obj.product_id)
+
+
+class is_devis_parametrable_article_nomenclature(models.Model):
+    _name = 'is.devis.parametrable.article.nomenclature'
+    _description = "Nomenclatures des articles des devis paramètrable de type structure"
+    _order='sequence,id'
+
+    article_id   = fields.Many2one('is.devis.parametrable.article', 'Article du devis', required=True, ondelete='cascade')
+    sequence     = fields.Integer("Sequence")
+    product_id   = fields.Many2one('product.product', 'Composant')
+    niveau       = fields.Integer('Niveau')
+    designation  = fields.Char('Désignation', store=True, readonly=False, compute='_compute_designation')
+    product_qty  = fields.Float("Quantité", digits='Product Unit of Measure')
+    uom_id       = fields.Many2one('uom.uom','Unité')
+    cout         = fields.Float("Coût")
+    montant      = fields.Float("Montant", store=True, readonly=True, compute='_compute_montant')
+    type_article = fields.Selection([
+            ('compose'  , 'Composé'),
+            ('composant', 'Composant'),
+        ], "Type", default="composant")
+
+
+    @api.depends('product_qty','cout')
+    def _compute_montant(self):
+        for obj in self:
+            obj.montant = obj.product_qty*obj.cout
+
+
+    @api.depends('product_id','niveau')
+    def _compute_designation(self):
+        for obj in self:
+            obj.designation = "%s %s"%('-  '*obj.niveau, obj.product_id.name)
+
+
+
+
+class is_devis_parametrable_article_operation(models.Model):
+    _name = 'is.devis.parametrable.article.operation'
+    _description = "Opérations des articles des devis paramètrable de type structure"
+    _order='sequence,id'
+
+    article_id    = fields.Many2one('is.devis.parametrable.article', 'Article du devis', required=True, ondelete='cascade')
+    sequence      = fields.Integer("Sequence")
+    product_id    = fields.Many2one('product.product', 'Article')
+    niveau        = fields.Integer('Niveau')
+    operation     = fields.Char('Opération')
+    workcenter_id = fields.Many2one('mrp.workcenter','Poste de charge')
+    duree         = fields.Float("Durée (HH:MM)")
+    cout_horaire  = fields.Float("Coût horaire")
+    montant       = fields.Float("Montant", store=True, readonly=True, compute='_compute_montant')
+
+
+    @api.depends('duree','cout_horaire')
+    def _compute_montant(self):
+        for obj in self:
+            obj.montant = obj.duree*obj.cout_horaire
+
 
 
 class is_devis_parametrable_option(models.Model):

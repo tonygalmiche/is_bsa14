@@ -94,14 +94,14 @@
                                         name="variante_id"
                                         domain="[('partner_id','=',parent.partner_id)]"
                                     />
-                                    <field name="capacite" sum="Total"      optional="show"/>
-                                    <field name="unite"                     optional="show"/>
-                                    <field name="montant_marge" sum="Total" optional="show"/>
-                                    <field name="quantite" sum="Total"      optional="show"/>
-                                    <field name="prix_a_afficher"           optional="show"/>
-                                    <field name="prix_vente_remise_devise"  optional="show"/>
-                                    <field name="montant" sum="Total"       optional="show"/>
-                                    <field name="devise_client_id"          optional="show"/>
+                                    <field name="capacite" sum="Total"       optional="show"/>
+                                    <field name="unite"                      optional="show"/>
+                                    <field name="montant_marge"  sum="Total" optional="show"/>
+                                    <field name="quantite" sum="Total"       optional="show"/>
+                                    <field name="prix_a_afficher"            optional="hide"/>
+                                    <field name="prix_vente_remise_devise"   optional="show"/>
+                                    <field name="montant" sum="Total"        optional="show"/>
+                                    <field name="devise_client_id"           optional="hide"/>
                                 </tree>
                             </field>
                         </group>
@@ -182,6 +182,7 @@
                     <field name="createur_id"      optional="show"/>
                     <field name="commentaire"      optional="hide"/>
                     <field name="total_equipement" optional="show" sum="Total"/>
+                    <field name="duree_totale"     optional="hide" sum="Total" widget="float_time"/>
                 </tree>
             </field>
         </record>
@@ -259,6 +260,7 @@
                                 <field name="date_actualisation" readonly="1"/>
                                 <field name="createur_id"/>
                                 <field name="montant_matiere" invisible="1"/>
+                                <field name="duree_totale"/>
                             </group>
                          </group>
                         <notebook>
@@ -309,7 +311,9 @@
                                             <field name="sequence" widget="handle" />
                                             <field name="devis_id" invisible="1"/>
                                             <button title="Détail nomenclature et opérations" name="acceder_article_action" type="object" icon="fa-search-plus"/>
-                                            <field name="product_id"/>
+                                            <field name="product_id"                optional="show"/>
+                                            <field name="product_tmpl_id"           invisible="1"/>
+                                            <field name="bom_id"                    optional="show" domain="[('product_tmpl_id', '=', product_tmpl_id)]"/>
                                             <field name="description"/>
                                             <field name="quantite"/>
                                             <field name="cout_matiere_force"        optional="show"/>
@@ -317,7 +321,8 @@
                                             <field name="cout_matiere"              optional="show"/>
                                             <field name="cout_mo"                   optional="show"/>
                                             <field name="total_matiere" sum="Total" optional="show"/>
-                                            <field name="total_mo" sum="Total"      optional="show"/>
+                                            <field name="total_mo"      sum="Total" optional="show"/>
+                                            <field name="duree_totale"  sum="Total" optional="show" widget="float_time"/>
                                         </tree>
                                     </field>
                                 </group>
@@ -366,19 +371,19 @@
                                             <button title="Variante" name="acceder_variante_action" type="object" icon="fa-search-plus"/>
                                             <field name="devis_id" invisible="1"/>
                                             <field name="name"              optional="show"/>
+                                            <field name="duree_unitaire"    optional="hide" widget="float_time" sum="Total"/>
                                             <field name="quantite"          optional="show"/>
-                                            <field name="cout_transport"    optional="show"/>
-                                            <field name="marge_matiere"     optional="show"/>
-                                            <field name="marge_equipement"  optional="show"/>
-                                            <field name="marge_option"      optional="show"/>
-                                            <field name="marge_montage"     optional="show"/>
-                                            <field name="tps_be"            optional="show" widget="float_time"/>
-                                            <field name="marge_be"          optional="show"/>
-                                            <field name="marge_revendeur"   optional="show"/>
-                                            <field name="gain_productivite" optional="show"/>
+                                            <field name="cout_transport"    optional="hide"/>
+                                            <field name="marge_matiere"     optional="hide"/>
+                                            <field name="marge_equipement"  optional="hide"/>
+                                            <field name="marge_option"      optional="hide"/>
+                                            <field name="marge_montage"     optional="hide"/>
+                                            <field name="tps_be"            optional="hide" widget="float_time"/>
+                                            <field name="marge_be"          optional="hide"/>
+                                            <field name="marge_revendeur"   optional="hide"/>
+                                            <field name="gain_productivite" optional="hide"/>
                                             <field name="remise"            optional="hide"/>
                                             <field name="remise_pourcent"   optional="hide"/>
-
                                             <field name="prix_vente_lot"              optional="show"/>
                                             <field name="prix_vente_revendeur_lot"    optional="hide"/>
                                             <field name="montant_marge_lot"           optional="hide"/>
@@ -515,7 +520,7 @@
                             }
                         </style>
                         <group>
-                            <field name="description" nolabel="1" class="description"/>
+                            <field name="description"       nolabel="1" class="description"/>
                         </group>
                         <group>
                             <group string="Paramètres">
@@ -526,27 +531,29 @@
                                 <field name="is_societe_commerciale_id" readonly="1"/>
                                 <field name="partner_id"                readonly="1"/>
                                 <field name="name"/>
-                                <field name="quantite"  attrs="{'invisible':[('type_devis','=','bassin')]}"/>
-                                <field name="cout_horaire_montage"/>
-                                <field name="cout_horaire_be"/>
+                                <field name="description_libre"    attrs="{'required':[('type_devis','=','structure')]}"/>
+                                <field name="quantite"             attrs="{'invisible':[('type_devis','=','bassin')]}"/>
+                                <field name="cout_horaire_montage" attrs="{'invisible':[('type_devis','=','structure')]}"/>
+                                <field name="cout_horaire_be"      attrs="{'invisible':[('type_devis','=','structure')]}"/>
                                 <field name="cout_transport"/>
                                 <field name="marge_matiere"/>
-                                <field name="marge_equipement"/>
+                                <field name="marge_equipement"     attrs="{'invisible':[('type_devis','=','structure')]}"/>
                                 <field name="marge_option"/>
                                 <field name="marge_montage"/>
-                                <field name="marge_be"/>
+                                <field name="marge_be"             attrs="{'invisible':[('type_devis','=','structure')]}"/>
                                 <field name="marge_revendeur"/>
                                 <field name="gain_productivite"/>
                                 <field name="remise"/>
                                 <field name="remise_pourcent"/>
                             </group>
                             <group string="Temps unitaire">
-                                <field name="tps_montage"    widget="float_time"/>
-                                <field name="tps_assemblage" widget="float_time"/>
-                                <field name="tps_majoration" widget="float_time"/>
-                                <field name="tps_minoration" widget="float_time"/>
-                                <field name="tps_total"      widget="float_time"/>
-                                <field name="tps_be"         widget="float_time"/>
+                                <field name="duree_unitaire" widget="float_time" attrs="{'invisible':[('type_devis','!=','structure')]}"/>
+                                <field name="tps_montage"    widget="float_time" attrs="{'invisible':[('type_devis','=','structure')]}"/>
+                                <field name="tps_assemblage" widget="float_time" attrs="{'invisible':[('type_devis','=','structure')]}"/>
+                                <field name="tps_majoration" widget="float_time" attrs="{'invisible':[('type_devis','=','structure')]}"/>
+                                <field name="tps_minoration" widget="float_time" attrs="{'invisible':[('type_devis','=','structure')]}"/>
+                                <field name="tps_total"      widget="float_time" attrs="{'invisible':[('type_devis','=','structure')]}"/>
+                                <field name="tps_be"         widget="float_time" attrs="{'invisible':[('type_devis','=','structure')]}"/>
                             </group>
                         </group>
                         <group>
@@ -560,8 +567,8 @@
                                     <field name="montant_matiere" class="oe_inline"/>
                                 </div>
 
-                                <label for="montant_equipement"/>
-                                <div class="o_row no-gutters d-flex">
+                                <label for="montant_equipement" attrs="{'invisible':[('type_devis','=','structure')]}"/>
+                                <div class="o_row no-gutters d-flex" attrs="{'invisible':[('type_devis','=','structure')]}">
                                     <field name="montant_equipement_pourcent" widget="progressbar" class="oe_inline"/>
                                     <field name="montant_equipement" class="oe_inline"/>
                                 </div>
@@ -579,8 +586,8 @@
                                     <field name="montant_montage_productivite" class="oe_inline"/>
                                 </div>
 
-                                <label for="montant_be"/>
-                                <div class="o_row no-gutters d-flex">
+                                <label for="montant_be" attrs="{'invisible':[('type_devis','=','structure')]}"/>
+                                <div class="o_row no-gutters d-flex" attrs="{'invisible':[('type_devis','=','structure')]}">
                                     <field name="montant_be_pourcent" widget="progressbar" class="oe_inline"/>
                                     <field name="montant_be" class="oe_inline"/>
                                 </div>
@@ -1177,6 +1184,7 @@
                 <tree >
                     <field name="devis_id" invisible="1"/>
                     <field name="product_id"/>
+                    <field name="bom_id"/>
                     <field name="description"/>
                     <field name="quantite"/>
                     <field name="cout_matiere"/>
@@ -1200,6 +1208,8 @@
                             <group>
                                 <field name="devis_id" invisible="1"/>
                                 <field name="product_id"/>
+                                <field name="product_tmpl_id" invisible="1"/>
+                                <field name="bom_id" domain="[('product_tmpl_id', '=', product_tmpl_id)]"/>
                                 <field name="description"/>
                                 <field name="quantite"/>
                             </group>
@@ -1242,7 +1252,8 @@
                                             <field name="workcenter_id"/>
                                             <field name="duree" widget="float_time"/>
                                             <field name="cout_horaire"/>
-                                            <field name="montant" sum="Total"/>
+                                            <field name="montant"      sum="Total"/>
+                                            <field name="duree_totale" sum="Total" optional="show" widget="float_time"/>
                                         </tree>
                                     </field>
                                 </group>

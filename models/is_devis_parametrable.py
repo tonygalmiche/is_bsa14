@@ -516,10 +516,16 @@ class is_devis_parametrable(models.Model):
     montant_option_comprise = fields.Float("Montant options comprises", store=False, readonly=True, compute='_compute_montant_option')
     montant_option_thermo   = fields.Float("Montant options Thermorégulation", store=False, readonly=True, compute='_compute_montant_option')
     commentaire        = fields.Text("Commentaire")
+    duree_totale       = fields.Float("Durée totale (HH:MM)", store=True, readonly=True, compute='_compute_duree_totale')
 
-    #prix_reveavec_marge_devise    = fields.Monetary("Prix avec marge (Devise)"   , readonly=True, compute='_compute_avec_marge', currency_field='devise_client_id')
 
-
+    @api.depends('article_ids','article_ids.duree_totale')
+    def _compute_duree_totale(self):
+        for obj in self:
+            duree=0
+            for line in obj.article_ids:
+                duree+=line.duree_totale
+            obj.duree_totale = duree
 
 
     @api.model
@@ -788,7 +794,9 @@ class is_devis_parametrable_article(models.Model):
     devis_id           = fields.Many2one('is.devis.parametrable', 'Devis', required=True, ondelete='cascade')
     sequence           = fields.Integer("Sequence")
     product_id         = fields.Many2one('product.product', 'Article')
-    description        = fields.Char("Description", required=1)
+    product_tmpl_id    = fields.Many2one('product.template', related="product_id.product_tmpl_id")
+    bom_id             = fields.Many2one('mrp.bom', 'Nomenclature')
+    description        = fields.Text("Description", required=1)
     quantite           = fields.Integer("Quantité", required=1, default=1)
     cout_matiere       = fields.Float("Coût matière", digits=(16, 2), store=True, readonly=True, compute='_compute_cout_matiere')
     cout_mo            = fields.Float("Coût MO"     , digits=(16, 2), store=True, readonly=True, compute='_compute_cout_mo')
@@ -798,6 +806,16 @@ class is_devis_parametrable_article(models.Model):
     total_mo           = fields.Float("Total MO"     , digits=(16, 2), store=True, readonly=True, compute='_compute_total')
     nomenclature_ids   = fields.One2many('is.devis.parametrable.article.nomenclature', 'article_id', 'Nomenclature', copy=True)
     operation_ids      = fields.One2many('is.devis.parametrable.article.operation'   , 'article_id', 'Opérations', copy=True)
+    duree_totale       = fields.Float("Durée totale (HH:MM)", store=True, readonly=True, compute='_compute_duree_totale')
+
+
+    @api.depends('operation_ids','operation_ids.duree_totale')
+    def _compute_duree_totale(self):
+        for obj in self:
+            duree=0
+            for line in obj.operation_ids:
+                duree+=line.duree_totale
+            obj.duree_totale = duree
 
 
     @api.depends('quantite','nomenclature_ids')
@@ -833,12 +851,14 @@ class is_devis_parametrable_article(models.Model):
             obj.total_mo      = total_mo
 
 
-    @api.onchange('product_id')
+    @api.onchange('product_id','bom_id')
     def onchange_product_id(self):
         for obj in self:
             description=False
             if obj.product_id.name_get():
                 description = obj.product_id.name_get()[0][1]
+            if obj.bom_id:
+                description = obj.bom_id.name_get()[0][1]
             obj.description=description
 
     def acceder_article_action(self):
@@ -853,9 +873,12 @@ class is_devis_parametrable_article(models.Model):
             return res
 
 
-    def get_nomenclature(self, niveau, quantite, product_id):
+    def get_nomenclature(self, niveau, quantite, product_id, bom_id=False):
         for obj in self:
-            boms = self.env['mrp.bom'].search([('product_tmpl_id','=',product_id.product_tmpl_id.id)],limit=1)
+            if bom_id:
+                boms = self.env['mrp.bom'].search([('id','=',bom_id.id)],limit=1)
+            else:
+                boms = self.env['mrp.bom'].search([('product_tmpl_id','=',product_id.product_tmpl_id.id)],limit=1)
             for bom in boms:
                 for line in bom.bom_line_ids:
                     coef = line.product_uom_id._compute_quantity(1,line.product_id.uom_id )
@@ -879,9 +902,12 @@ class is_devis_parametrable_article(models.Model):
                     obj.get_nomenclature(niveau+1, product_qty, line.product_id)
 
 
-    def get_operation(self, niveau, quantite, product_id):
+    def get_operation(self, niveau, quantite, product_id, bom_id=False):
         for obj in self:
-            boms = self.env['mrp.bom'].search([('product_tmpl_id','=',product_id.product_tmpl_id.id)],limit=1)
+            if bom_id:
+                boms = self.env['mrp.bom'].search([('id','=',bom_id.id)],limit=1)
+            else:
+                boms = self.env['mrp.bom'].search([('product_tmpl_id','=',product_id.product_tmpl_id.id)],limit=1)
             for bom in boms:
                 for line in bom.operation_ids:
                     operation= "%s %s"%('-  '*niveau, line.name)
@@ -901,14 +927,12 @@ class is_devis_parametrable_article(models.Model):
                     obj.get_operation(niveau+1, line.product_qty*quantite, line.product_id)
 
 
-
-
     def actualiser_nomenclatre_action(self):
         for obj in self:
             obj.nomenclature_ids.unlink()
-            obj.get_nomenclature(0, 1, obj.product_id)
+            obj.get_nomenclature(0, 1, obj.product_id, bom_id=obj.bom_id)
             obj.operation_ids.unlink()
-            obj.get_operation(0, 1, obj.product_id)
+            obj.get_operation(0, 1, obj.product_id, bom_id=obj.bom_id)
 
 
 class is_devis_parametrable_article_nomenclature(models.Model):
@@ -960,12 +984,15 @@ class is_devis_parametrable_article_operation(models.Model):
     duree         = fields.Float("Durée (HH:MM)")
     cout_horaire  = fields.Float("Coût horaire")
     montant       = fields.Float("Montant", store=True, readonly=True, compute='_compute_montant')
+    duree_totale  = fields.Float("Durée totale (HH:MM)", store=True, readonly=True, compute='_compute_montant')
 
 
     @api.depends('product_qty','duree','cout_horaire')
     def _compute_montant(self):
         for obj in self:
-            obj.montant = obj.product_qty*obj.duree*obj.cout_horaire
+            obj.montant      = obj.product_qty*obj.duree*obj.cout_horaire
+            obj.duree_totale = obj.product_qty*obj.duree
+
 
 
 
@@ -1170,6 +1197,7 @@ class is_devis_parametrable_variante(models.Model):
     type_devis        = fields.Selection(related="devis_id.type_devis")
     name              = fields.Char("Nom", required=True)
     description       = fields.Text("Description", readonly=True, compute='_compute_description')
+    description_libre = fields.Text("Description libre")
     partner_id        = fields.Many2one('res.partner', "Client"        , related="devis_id.partner_id"      , readonly=True)
     capacite          = fields.Integer("Capacité", related="devis_id.capacite", readonly=True)
     unite             = fields.Selection(related="devis_id.unite", readonly=True)
@@ -1177,7 +1205,7 @@ class is_devis_parametrable_variante(models.Model):
     is_societe_commerciale_id = fields.Many2one("is.societe.commerciale", "Société commerciale", related="devis_id.is_societe_commerciale_id", readonly=True)
     quantite          = fields.Integer("Qt prévue", default=1)
     currency_id       = fields.Many2one('res.currency', "Devise", readonly=True, compute='_compute_montants')
-
+    duree_unitaire    = fields.Float("Durée unitaire (HH:MM)", related="devis_id.duree_totale", readonly=True)
     tps_montage       = fields.Float("Tps montage (HH:MM)"      , related="devis_id.tps_montage"   , readonly=True)
     tps_assemblage    = fields.Float("Tps assemblage (HH:MM)"   , related="devis_id.tps_assemblage", readonly=True)
     tps_majoration    = fields.Float("Tps majoration (HH:MM)"   , related="devis_id.tps_majoration", readonly=True)

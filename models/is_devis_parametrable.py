@@ -265,7 +265,7 @@ class is_devis_parametrable_affaire(models.Model):
                         ct+=1
 
            #** Récapitulatif par quantité généré ******************************
-            if not obj.recapitulatif_ids:
+            if obj.type_devis=='structure':
                 pdf = request.env.ref('is_bsa14.action_report_devis_parametrable_affaire_quantite').sudo()._render_qweb_pdf([obj.id])[0]
                 path="/tmp/affaire_%s_%02d_recapitulatif_par_quantite.pdf"%(obj.id,ct)
                 paths.append(path)

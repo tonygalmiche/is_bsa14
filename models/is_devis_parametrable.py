@@ -39,29 +39,29 @@ class is_devis_parametrable_affaire(models.Model):
     transport                  = fields.Text("Transport")
     conditions_generales       = fields.Text("Conditions générales")
     vendeur_id                 = fields.Many2one('res.users', "Chargé d'affaire")
-
     variante_ids = fields.One2many('is.devis.parametrable.affaire.variante', 'affaire_id', 'Variantes', copy=True)
-
     tax_id      = fields.Many2one('account.tax', 'TVA à appliquer', readonly=True, compute='_compute_montants')
     currency_id = fields.Many2one('res.currency', "Devise"        , readonly=True, compute='_compute_montants')
     montant_ht  = fields.Monetary("Montant HT"                    , readonly=True, compute='_compute_montants', currency_field='devise_client_id')
-
     capacite          = fields.Integer("Capacité totale (HL)", compute='_compute_capacite', store=False, readonly=True)
     prix_par_hl       = fields.Integer("Prix par HL"         , compute='_compute_capacite', store=False, readonly=True)
-
-    montant_tva = fields.Monetary("TVA"        , readonly=True, compute='_compute_montants', currency_field='devise_client_id')
-    montant_ttc = fields.Monetary("Montant TTC", readonly=True, compute='_compute_montants', currency_field='devise_client_id')
-
+    montant_tva       = fields.Monetary("TVA"        , readonly=True, compute='_compute_montants', currency_field='devise_client_id')
+    montant_ttc       = fields.Monetary("Montant TTC", readonly=True, compute='_compute_montants', currency_field='devise_client_id')
     entete_ids        = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_entete_rel'       , 'affaire_id', 'attachment_id', 'Entête')
     recapitulatif_ids = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_recapitulatif_rel', 'affaire_id', 'attachment_id', 'Récapitulatif')
     pied_ids          = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_pied_rel'         , 'affaire_id', 'attachment_id', 'Pied')
     devis_ids         = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_devis_rel'        , 'affaire_id', 'attachment_id', 'Devis')
     lead_id           = fields.Many2one('crm.lead', "Lien CRM", readonly=True)
-
     devise_client_id  = fields.Many2one('res.currency', "Devise Client", readonly=True, compute='_compute_montants')
-
     descriptif_affaire       = fields.Html(string="Descriptif de l'affaire", default="")
     descriptif_affaire_suite = fields.Html(string="Descriptif de l'affaire (suite)", default="")
+    type_devis               = fields.Selection([
+        ('cuve'     , 'Cuve'),
+        ('bassin'   , 'Bassin'),
+        ('structure', 'Structure'),
+    ], "Type devis", readonly=True, compute='_compute_montants')
+
+
 
 
     def write(self, vals):
@@ -160,21 +160,24 @@ class is_devis_parametrable_affaire(models.Model):
             obj.currency_id = company.currency_id.id
             ht=tva=ttc=0
             tax_id = False
+            type_devis=False
             devise_client_id = False
             for line in obj.variante_ids:
                 tax_id = line.variante_id.devis_id.tax_id.id
                 devise_client_id = line.variante_id.devise_client_id.id
+                type_devis       = line.variante_id.type_devis
                 qt = line.quantite
                 #prix_vente=line.variante_id.prix_vente_remise
                 #ht+=prix_vente*qt
                 ht+=line.montant
                 tva+=line.variante_id.montant_tva*qt
                 ttc+=line.variante_id.prix_vente_ttc*qt
-            obj.montant_ht  = ht
-            obj.montant_tva = tva
-            obj.montant_ttc = ttc
-            obj.tax_id      = tax_id
+            obj.montant_ht       = ht
+            obj.montant_tva      = tva
+            obj.montant_ttc      = ttc
+            obj.tax_id           = tax_id
             obj.devise_client_id = devise_client_id
+            obj.type_devis       = type_devis
 
 
     def acceder_affaire_action(self):
@@ -187,6 +190,17 @@ class is_devis_parametrable_affaire(models.Model):
                 'type': 'ir.actions.act_window',
             }
             return res
+
+
+
+    def get_devis(self):
+        devis=[]
+        for obj in self:
+            for line in obj.variante_ids:
+                devis_id = line.variante_id.devis_id
+                if devis_id not in devis:
+                    devis.append(devis_id)
+        return devis
 
 
     def generer_pdf_action(self):
@@ -239,15 +253,26 @@ class is_devis_parametrable_affaire(models.Model):
                 ct+=1
 
             #** Variantes *****************************************************
-            for line in obj.variante_ids:
-                if line.variante_id:
-                    pdf = request.env.ref('is_bsa14.action_report_variante_devis_parametrable').sudo()._render_qweb_pdf([line.variante_id.id])[0]
-                    path="/tmp/affaire_%s_%02d_variante.pdf"%(obj.id,ct)
-                    paths.append(path)
-                    f = open(path,'wb')
-                    f.write(pdf)
-                    f.close()
-                    ct+=1
+            if obj.type_devis!='structure':
+                for line in obj.variante_ids:
+                    if line.variante_id:
+                        pdf = request.env.ref('is_bsa14.action_report_variante_devis_parametrable').sudo()._render_qweb_pdf([line.variante_id.id])[0]
+                        path="/tmp/affaire_%s_%02d_variante.pdf"%(obj.id,ct)
+                        paths.append(path)
+                        f = open(path,'wb')
+                        f.write(pdf)
+                        f.close()
+                        ct+=1
+
+           #** Récapitulatif par quantité généré ******************************
+            if not obj.recapitulatif_ids:
+                pdf = request.env.ref('is_bsa14.action_report_devis_parametrable_affaire_quantite').sudo()._render_qweb_pdf([obj.id])[0]
+                path="/tmp/affaire_%s_%02d_recapitulatif_par_quantite.pdf"%(obj.id,ct)
+                paths.append(path)
+                f = open(path,'wb')
+                f.write(pdf)
+                f.close()
+                ct+=1
 
             #** Récapitulatif ajouté ******************************************
             if obj.recapitulatif_ids:
@@ -269,6 +294,7 @@ class is_devis_parametrable_affaire(models.Model):
                 f.write(pdf)
                 f.close()
                 ct+=1
+
 
             #** Pied ********************************************************
             for attachment in obj.pied_ids:

@@ -36,10 +36,10 @@
                                                 <tr style="border-bottom: 1px solid;">
                                                     <td class="text-left">
                                                         <div t-field="variante.variante_id.description_libre"/>
-                                                        <t t-if="variante.variante_id.intitule_remise!=''">
+                                                        <t t-if="variante.variante_id.intitule_remise">
                                                             <div style="font-style: italic;">
                                                                 <span t-field="variante.variante_id.intitule_remise"/>
-                                                                <span> incluse sur le prix unitaire</span>
+                                                                <span>&#160;incluse sur le prix unitaire</span>
                                                             </div>
                                                         </t>
                                                     </td>

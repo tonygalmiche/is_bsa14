@@ -194,12 +194,11 @@ class is_devis_parametrable_affaire(models.Model):
 
 
     def get_devis(self):
-        devis=[]
+        devis = {}
         for obj in self:
             for line in obj.variante_ids:
                 devis_id = line.variante_id.devis_id
-                if devis_id not in devis:
-                    devis.append(devis_id)
+                devis.setdefault(devis_id, []).append(line)
         return devis
 
 

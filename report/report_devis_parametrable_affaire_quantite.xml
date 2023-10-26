@@ -34,7 +34,15 @@
                                         <t t-foreach="o.variante_ids" t-as="variante">
                                             <t t-if="devis==variante.variante_id.devis_id">
                                                 <tr style="border-bottom: 1px solid;">
-                                                    <td class="text-left"><span t-field="variante.variante_id.description_libre"/></td>
+                                                    <td class="text-left">
+                                                        <div t-field="variante.variante_id.description_libre"/>
+                                                        <t t-if="variante.variante_id.intitule_remise!=''">
+                                                            <div style="font-style: italic;">
+                                                                <span t-field="variante.variante_id.intitule_remise"/>
+                                                                <span> incluse sur le prix unitaire</span>
+                                                            </div>
+                                                        </t>
+                                                    </td>
                                                     <td class="text-center"><span t-field="variante.quantite"/></td>
                                                     <td class="text-right"><span t-field="variante.prix_vente_remise_devise"/> <span t-field="o.devise_client_id.symbol"/></td>
                                                     <td t-if="variante.quantite>0"  class="text-right"><span t-field="variante.montant"/> <span t-field="o.devise_client_id.symbol"/></td>

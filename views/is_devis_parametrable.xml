@@ -492,6 +492,7 @@
                     <field name="prix_vente"             optional="show"/>
                     <field name="montant_marge"          optional="show"/>
                     <field name="taux_marge_commerciale" optional="show"/>
+                    <field name="intitule_remise" optional="hide"/>
                 </tree>
             </field>
         </record>

@@ -1490,10 +1490,6 @@ class is_devis_parametrable_variante(models.Model):
 
             prix_par_hl=False
             if obj.devis_id.capacite>0:
-
-                print(obj.devis_id.capacite)
-
-
                 #prix_par_hl=obj.prix_vente_remise/obj.devis_id.capacite
                 if obj.prix_a_afficher=='prix_vente_net':
                     prix_par_hl = obj.prix_vente_remise / obj.devis_id.capacite

@@ -26,8 +26,8 @@
                                     <thead>
                                         <tr>
                                             <th class="text-left">Description</th>
-                                            <th class="text-center">Quantité prévue</th>
-                                            <th class="text-right">Prix unitaire</th>
+                                            <th class="text-center">Quantité<br />prévue</th>
+                                            <th class="text-right">Prix<br />unitaire</th>
                                             <th class="text-right">Montant HT</th>
                                         </tr>
                                     </thead>
@@ -35,11 +35,12 @@
                                         <t t-foreach="devis_all[devis]" t-as="variante">
                                             <tr style="border-bottom: 1px solid;">
                                                 <td class="text-left">
-                                                    <div t-field="variante.variante_id.description_libre"/>
+                                                    <b><div t-field="variante.variante_id.description_libre"/></b>
+                                                    <i><div t-field="variante.variante_id.description_complementaire"/></i>
                                                     <t t-if="variante.variante_id.intitule_remise">
                                                         <div style="font-style: italic;">
                                                             <span t-field="variante.variante_id.intitule_remise"/>
-                                                            <span>&#160;incluse sur le prix unitaire</span>
+                                                            <!-- <span>&#160;incluse sur le prix unitaire</span> -->
                                                         </div>
                                                     </t>
                                                 </td>

@@ -886,6 +886,7 @@ class is_devis_parametrable_article(models.Model):
                 description = obj.bom_id.name_get()[0][1]
             obj.description=description
 
+
     def acceder_article_action(self):
         for obj in self:
             res={
@@ -972,7 +973,7 @@ class is_devis_parametrable_article_nomenclature(models.Model):
     designation  = fields.Char('Désignation', store=True, readonly=False, compute='_compute_designation')
     product_qty  = fields.Float("Quantité", digits='Product Unit of Measure')
     uom_id       = fields.Many2one('uom.uom','Unité')
-    cout         = fields.Float("Coût")
+    cout         = fields.Float("Coût") #, store=True, readonly=False, compute='_compute_designation')
     montant      = fields.Float("Montant", store=True, readonly=True, compute='_compute_montant')
     type_article = fields.Selection([
             ('compose'  , 'Composé'),
@@ -990,8 +991,9 @@ class is_devis_parametrable_article_nomenclature(models.Model):
     def _compute_designation(self):
         for obj in self:
             obj.designation = "%s %s"%('-  '*obj.niveau, obj.product_id.name)
-
-
+            obj.cout = obj.product_id.standard_price
+            obj.product_qty = 1
+            obj.uom_id = obj.product_id.uom_id.id
 
 
 class is_devis_parametrable_article_operation(models.Model):
@@ -1223,6 +1225,7 @@ class is_devis_parametrable_variante(models.Model):
     name              = fields.Char("Nom", required=True)
     description       = fields.Text("Description", readonly=True, compute='_compute_description')
     description_libre = fields.Text("Description libre")
+    description_complementaire = fields.Text("Description complémentaire")
     partner_id        = fields.Many2one('res.partner', "Client"        , related="devis_id.partner_id"      , readonly=True)
     capacite          = fields.Integer("Capacité", related="devis_id.capacite", readonly=True)
     unite             = fields.Selection(related="devis_id.unite", readonly=True)
@@ -1453,6 +1456,12 @@ class is_devis_parametrable_variante(models.Model):
                 intitule_remise="Remise de %s%% soit %s €"%(obj.remise_pourcent, obj.montant_remise)
             if obj.remise>0:
                 intitule_remise="Remise de %s €"%(obj.montant_remise)
+
+            if montant_remise>0 and obj.quantite>1:
+                intitule_remise="%s incluse sur le prix unitaire ou %s € sur le montant"%(intitule_remise,round(montant_remise*obj.quantite))
+
+
+
             obj.intitule_remise = intitule_remise
             obj.prix_vente_remise = prix_vente_int - montant_remise
 

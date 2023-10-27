@@ -124,6 +124,7 @@
                     <field name="is_sale_order_line_id"/>
                     <field name="is_sale_order_id"/>
                     <field name="is_client_order_ref"/>
+                    <field name="is_nom_affaire" attrs="{'invisible': [('is_nom_affaire','=', False)]}"/>
                     <field name="is_date_prevue"/>
                 </field>
                 <xpath expr="//page[@name='miscellaneous']/group/group/field[@name='picking_type_id']" position="attributes">
@@ -143,8 +144,9 @@
                     <field name="is_date_prevue"        optional="show"/>
                     <field name="is_date_planifiee"     optional="show"/>
                     <field name="is_date_planifiee_fin" optional="show"/>
-                    <field name="is_sale_order_id"      optional="show"/>
+                    <field name="is_sale_order_id"      optional="show" widget="many2one_clickable"/>
                     <field name="is_client_order_ref"   optional="show"/>
+                    <field name="is_nom_affaire"        optional="show"/>
                 </field>
             </field>
         </record>
@@ -167,8 +169,9 @@
                     <!-- <field name="is_ecart_date" optional="show"/> -->
                     <field name="is_gabarit_id"  optional="show"/>
                     <field name="is_sale_order_line_id" readonly="1" optional="hide"/>
-                    <field name="is_sale_order_id"                   optional="show"/>
+                    <field name="is_sale_order_id"                   optional="show" widget="many2one_clickable"/>
                     <field name="is_client_order_ref"                optional="show"/>
+                    <field name="is_nom_affaire"                     optional="show"/>
                     <field name="state"/>
                     <field name="company_id" invisible="1"/>
                 </tree>
@@ -195,8 +198,9 @@
                     <!-- <field name="is_ecart_date"                                       optional="hide"/> -->
                     <field name="is_gabarit_id"                                       optional="hide"/>
                     <field name="is_sale_order_line_id" readonly="1"                  optional="hide"/>
-                    <field name="is_sale_order_id"                                    optional="show"/>
+                    <field name="is_sale_order_id"                                    optional="show" widget="many2one_clickable"/>
                     <field name="is_client_order_ref"                                 optional="show"/>
+                    <field name="is_nom_affaire"                                      optional="show"/>
                     <!-- <field name="is_ref_client"                                       optional="show"/> -->
                     <field name="state"/>
                 </tree>
@@ -238,6 +242,7 @@
             <field name="inherit_id" ref="mrp.view_mrp_production_filter"/>
             <field name="arch" type="xml">
                 <field name="name" position="after">
+                    <field name="is_nom_affaire"/>
                     <field name="is_sale_order_id"/>
                     <field name="is_client_order_ref"/>
                     <field name="is_gabarit_id"/>

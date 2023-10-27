@@ -45,17 +45,17 @@
                         <strong>Date d'édition:</strong><br/>
                         <span t-esc="time.strftime('%d/%m/%Y')"/>
                     </div>
-                    <!-- <div class="col-3" t-if="'sale_ref' in o._columns.keys()">
-                        <strong>Référence client:</strong><br/>
-                        <span t-esc="'sale_ref' in o._columns.keys() and o.sale_ref"/>
-                    </div> -->
                     <div class="col-3" t-if="o.is_sale_order_id">
                         <strong>Numéro de commande:</strong><br/>
                         <span t-field="o.is_sale_order_id"/>
                     </div>
-                   <div class="col-3" t-if="o.is_ref_client">
+                    <div class="col-3" t-if="o.is_ref_client">
                         <strong>Référence client:</strong><br/>
                         <span t-field="o.is_ref_client"/>
+                    </div>
+                    <div class="col-3" t-if="o.is_nom_affaire">
+                        <strong>Affaire:</strong><br/>
+                        <span t-field="o.is_nom_affaire"/>
                     </div>
                 </div>
 

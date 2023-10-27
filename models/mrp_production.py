@@ -13,11 +13,12 @@ class mrp_production(models.Model):
     _inherit = "mrp.production"
     _order = "id desc"
 
-    @api.depends('is_sale_order_line_id','is_sale_order_line_id.order_id.client_order_ref')
+    @api.depends('is_sale_order_line_id','is_sale_order_line_id.order_id.client_order_ref','is_sale_order_line_id.order_id.is_nom_affaire')
     def _compute_is_sale_order_id(self):
         for obj in self:
             obj.is_sale_order_id    = obj.is_sale_order_line_id.order_id.id
             obj.is_client_order_ref = obj.is_sale_order_line_id.order_id.client_order_ref or "??"
+            obj.is_nom_affaire      = obj.is_sale_order_line_id.order_id.is_nom_affaire
 
 
     @api.depends('is_sale_order_line_id','is_sale_order_line_id.is_date_prevue')
@@ -42,6 +43,7 @@ class mrp_production(models.Model):
     is_gabarit_id         = fields.Many2one("is.gabarit", "Gabarit")
     is_sale_order_line_id = fields.Many2one("sale.order.line", "Ligne de commande")
     is_sale_order_id      = fields.Many2one("sale.order", "Commande", compute='_compute_is_sale_order_id', store=True, readonly=True)
+    is_nom_affaire        = fields.Char("Nom de l'affaire"          , compute='_compute_is_sale_order_id', store=True, readonly=True)
     generer_etiquette     = fields.Boolean('Etiquettes générées', default=False, copy=False)
     etiquette_ids         = fields.One2many('is.tracabilite.livraison', 'production_id', 'Etiquettes', copy=False)
     is_gestion_lot        = fields.Boolean('Gestion par lots')

@@ -1055,7 +1055,7 @@ class is_devis_parametrable_option(models.Model):
     @api.depends('option_id','quantite','prix')
     def _compute_montant(self):
         for obj in self:
-            arrondi = obj.is_societe_commerciale_id.arrondi
+            arrondi = obj.devis_id.is_societe_commerciale_id.arrondi
             if arrondi<1:
                 arrondi=10
             montant=0

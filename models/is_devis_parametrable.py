@@ -992,7 +992,7 @@ class is_devis_parametrable_article_nomenclature(models.Model):
         for obj in self:
             obj.designation = "%s %s"%('-  '*obj.niveau, obj.product_id.name)
             obj.cout = obj.product_id.standard_price
-            obj.product_qty = 1
+            #obj.product_qty = 1
             obj.uom_id = obj.product_id.uom_id.id
 
 

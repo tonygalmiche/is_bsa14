@@ -1055,10 +1055,13 @@ class is_devis_parametrable_option(models.Model):
     @api.depends('option_id','quantite','prix')
     def _compute_montant(self):
         for obj in self:
+            arrondi = obj.is_societe_commerciale_id.arrondi
+            if arrondi<1:
+                arrondi=10
             montant=0
             if obj.prix and obj.quantite:
                 montant = obj.prix*obj.quantite
-            montant_int = 10*ceil(montant/10)
+            montant_int = arrondi*ceil(montant/arrondi)
             obj.montant     = montant
             obj.montant_int = montant_int
 
@@ -1439,8 +1442,11 @@ class is_devis_parametrable_variante(models.Model):
             obj.montant_total      = montant_total
             obj.montant_unitaire   = montant_unitaire
 
+            arrondi = obj.is_societe_commerciale_id.arrondi
+            if arrondi<1:
+                arrondi=10
 
-            prix_vente_int = 10*ceil(prix_vente/quantite/10)
+            prix_vente_int = arrondi*ceil(prix_vente/quantite/arrondi)
             obj.prix_vente_int = prix_vente_int
 
             montant_remise=0
@@ -1477,7 +1483,12 @@ class is_devis_parametrable_variante(models.Model):
 
             obj.prix_vente_revendeur    = prix_vente_revendeur
 
-            prix_vente_revendeur_int = 10*ceil(prix_vente_revendeur/10)
+
+            prix_vente_revendeur_int = arrondi*ceil(prix_vente_revendeur/arrondi)
+
+
+
+
             obj.prix_vente_revendeur_int = prix_vente_revendeur_int
 
             obj.montant_marge           = obj.prix_vente_remise - montant_unitaire
@@ -1517,7 +1528,7 @@ class is_devis_parametrable_variante(models.Model):
             obj.prix_vente_devise = prix_vente_devise
 
             obj.prix_par_hl_devise    = obj.prix_par_hl / taux
-            obj.prix_vente_int_devise = 10*ceil(obj.prix_vente_devise/10)
+            obj.prix_vente_int_devise = arrondi*ceil(obj.prix_vente_devise/arrondi)
             montant_remise=0
             if obj.remise>0:
                 montant_remise = obj.remise
@@ -1555,10 +1566,13 @@ class is_devis_parametrable_variante(models.Model):
 
 
     def get_montant_option(self,option):
+        arrondi = obj.is_societe_commerciale_id.arrondi
+        if arrondi<1:
+            arrondi=10
         montant=0
         for obj in self:
             montant = option.montant*(1+obj.marge_option/100)
-            montant = 10*ceil(montant/10)
+            montant = arrondi*ceil(montant/arrondi)
         return montant
 
 

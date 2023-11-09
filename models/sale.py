@@ -21,6 +21,7 @@ class is_societe_commerciale(models.Model):
     slogan  = fields.Char("Slogan")
     report_footer = fields.Text("Pied de page de rapport")
     cgv_ids       = fields.Many2many('ir.attachment', 'is_societe_commerciale_cgv_rel', 'societe_id', 'attachment_id', 'CGV')
+    arrondi       = fields.Integer("Arrondi devis paramètrable", default=10, help="Arrondi à appliquer dans les devis parametrables (Mettre 1 ou 10)")
 
 
 class is_sale_order_line_group(models.Model):

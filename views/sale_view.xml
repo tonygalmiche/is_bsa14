@@ -262,6 +262,7 @@
                             <field name="name"/>
                             <field name="logo"    widget="image" class="oe_avatar oe_left"/>
                             <field name="made_in" widget="image" class="oe_avatar oe_left"/>
+                            <field name="arrondi"/>
                         </group>
                         <group string="Entête et pied de page des documents">
                             <field name="slogan"/>
@@ -280,6 +281,7 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="name"/>
+                    <field name="arrondi"       optional="hide"/>
                     <field name="slogan"        optional="show"/>
                     <field name="report_footer" optional="show"/>
                     <field name="logo"    widget="image" options='{"size": [False,70]}' optional="show"/>

@@ -1566,11 +1566,11 @@ class is_devis_parametrable_variante(models.Model):
 
 
     def get_montant_option(self,option):
-        arrondi = obj.is_societe_commerciale_id.arrondi
-        if arrondi<1:
-            arrondi=10
         montant=0
         for obj in self:
+            arrondi = obj.is_societe_commerciale_id.arrondi
+            if arrondi<1:
+                arrondi=10
             montant = option.montant*(1+obj.marge_option/100)
             montant = arrondi*ceil(montant/arrondi)
         return montant

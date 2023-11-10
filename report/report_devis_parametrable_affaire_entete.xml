@@ -99,7 +99,7 @@
 
                         <div style="font-size:13pt;text-align:left;color:black;font-weight:bold;">
                             <t t-foreach="o.variante_ids" t-as="variante">
-                                <div style="padding-top:5mm;padding-left:33mm">
+                                <div style="padding-top:2mm;padding-left:33mm">
                                     - <span t-field="variante.variante_id.quantite"/> x 
                                     <span t-field="variante.variante_id.devis_id.designation"/>
                                 </div>

@@ -112,7 +112,7 @@
                                 <td class="text-center">
                                     <t t-if="line.is_date_prevue">
                                         <span t-if="res_company.is_site != 'bsa'" t-field="line.is_date_prevue"/>
-                                        <span t-if="res_company.is_site == 'bsa'" t-esc="line.is_date_prevue.strftime('S%U/%Y')"/>    
+                                        <span t-if="res_company.is_site == 'bsa'" t-esc="line.is_date_prevue.strftime('S%W/%Y')"/>    
                                     </t>
                                 </td>
                                 <td t-if="display_discount" class="text-right" groups="product.group_discount_per_so_line">

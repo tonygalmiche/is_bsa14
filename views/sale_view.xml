@@ -224,6 +224,13 @@
                 <field name="state" position="replace">
                     <field name="state" optional="hide"/>
                 </field>
+
+                <field name="invoice_status" position="before">
+                    <field name="invoice_count" optional="hide"/>
+                </field>
+
+
+
             </field>
         </record>
         <record model="ir.ui.view" id="is_view_sales_order_filter">

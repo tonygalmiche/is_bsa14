@@ -61,7 +61,7 @@ class account_move(models.Model):
     is_imputation_partenaire = fields.Char("Imputation partenaire")
     is_contact_id            = fields.Many2one('res.partner', string='Contact')
     is_mode_reglement_id     = fields.Many2one('is.mode.reglement', string='Mode de règlement')
-    is_sale_order_id         = fields.Many2one('sale.order', string="Facture d'acompte sur la commande")
+    is_sale_order_id         = fields.Many2one('sale.order', string="Facture de situation sur la commande")
     is_sale_order_compute_id = fields.Many2one('sale.order', string="Commande client", store=False, readonly=True, compute='_compute_is_sale_order_compute_id')
     is_account_invoice_id    = fields.Many2one('account.move', string="Acompte traité sur la facture")
     is_alerte_acompte        = fields.Char("Alerte acompte", store=False, compute='_alerte_acompte')

@@ -83,6 +83,24 @@ class sale_order(models.Model):
     is_date_commande_client    = fields.Date("Date cde client")
 
 
+    @api.depends('order_line.invoice_lines')
+    def _get_invoiced(self):
+        # The invoice_ids are obtained thanks to the invoice lines of the SO
+        # lines, and we also search for possible refunds created directly from
+        # existing invoices. This is necessary since such a refund is not
+        # directly linked to the SO.
+        for order in self:
+            invoices1 = order.order_line.invoice_lines.move_id.filtered(lambda r: r.move_type in ('out_invoice', 'out_refund'))
+            filtre=[
+                ('state', 'in' , ['draft','posted']),
+                ('is_sale_order_id', '=' , order.id)
+            ]
+            invoices2 = self.env['account.move'].search(filtre)
+            invoices = invoices1+invoices2
+            order.invoice_ids = invoices
+            order.invoice_count = len(invoices)
+
+
     def maj_prix_par_quantite_action(self):
         for obj in self:
             lines={}

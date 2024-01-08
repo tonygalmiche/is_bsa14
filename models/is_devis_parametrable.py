@@ -389,6 +389,8 @@ class is_devis_parametrable_affaire_variante(models.Model):
     devise_client_id         = fields.Many2one(related="variante_id.devise_client_id")
     prix_vente_remise_devise = fields.Integer(related="variante_id.prix_vente_remise_devise")
     montant                  = fields.Integer("Montant", compute='_compute_montant', store=False, readonly=True)
+    sous_total_marge         = fields.Monetary(related="variante_id.sous_total_marge")
+    sous_total_capacite      = fields.Integer(related="variante_id.sous_total_capacite")
 
 
     @api.depends('quantite',"prix_vente_remise_devise")
@@ -1295,6 +1297,9 @@ class is_devis_parametrable_variante(models.Model):
     prix_vente_revendeur     = fields.Monetary("Prix de vente revendeur"          , readonly=True, compute='_compute_montants', currency_field='currency_id')
     prix_vente_revendeur_int = fields.Monetary("Prix de vente revendeur (arrondi)", readonly=True, compute='_compute_montants', currency_field='currency_id')
     montant_marge            = fields.Monetary("Marge"                            , readonly=True, compute='_compute_montants', currency_field='currency_id')
+    sous_total_marge         = fields.Monetary("Sous-toal marge"                  , readonly=True, compute='_compute_montants', currency_field='currency_id')
+    sous_total_capacite      = fields.Integer("Sous-total capacité"               , readonly=True, compute='_compute_montants')
+
     taux_marge_brute         = fields.Float("Taux de marge brute (%)"             , readonly=True, compute='_compute_montants')
     taux_marge_commerciale   = fields.Float("Taux de marge commerciale (%)"       , readonly=True, compute='_compute_montants')
     montant_marge_revendeur  = fields.Monetary("Marge revendeur"                  , readonly=True, compute='_compute_montants', currency_field='currency_id')
@@ -1549,7 +1554,8 @@ class is_devis_parametrable_variante(models.Model):
             obj.prix_vente_ttc =  obj.prix_vente_remise_devise + obj.montant_tva
             #******************************************************************
 
-
+            obj.sous_total_marge    = obj.quantite * obj.montant_marge
+            obj.sous_total_capacite = obj.quantite * obj.capacite
 
 
 

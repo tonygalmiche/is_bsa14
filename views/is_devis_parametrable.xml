@@ -95,10 +95,12 @@
                                         name="variante_id"
                                         domain="[('partner_id','=',parent.partner_id)]"
                                     />
-                                    <field name="capacite" sum="Total"       optional="show"/>
-                                    <field name="unite"                      optional="show"/>
-                                    <field name="montant_marge"  sum="Total" optional="show"/>
-                                    <field name="quantite" sum="Total"       optional="show"/>
+                                    <field name="capacite" sum="Total"            optional="show"/>
+                                    <field name="unite"                           optional="show"/>
+                                    <field name="montant_marge"       sum="Total" optional="show"/>
+                                    <field name="quantite"            sum="Total" optional="show"/>
+                                    <field name="sous_total_capacite" sum="Total" optional="show"/>
+                                    <field name="sous_total_marge"    sum="Total" optional="show"/>
                                     <field name="prix_a_afficher"            optional="hide"/>
                                     <field name="prix_vente_remise_devise"   optional="show"/>
                                     <field name="montant" sum="Total"        optional="show"/>

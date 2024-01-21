@@ -694,8 +694,9 @@ class is_devis_parametrable(models.Model):
                         line.prix       = res[0]
                         line.date_achat = res[1]
                 section._compute_montant()
-
-
+            for matiere in obj.matiere_ids:
+                matiere.prix_achat         = matiere.matiere_id.prix_achat
+                matiere.date_actualisation = matiere.matiere_id.date_actualisation
 
 
     def get_prix_achat(self, product):
@@ -706,7 +707,9 @@ class is_devis_parametrable(models.Model):
             SQL="""
                 select 
                     pol.price_unit,
-                    po.date_approve
+                    po.date_approve,
+                    po.name,
+                    po.id
                 from purchase_order_line pol join purchase_order po on pol.order_id=po.id
                 where pol.product_id=%s and po.state='purchase'
                 order by po.date_approve desc, pol.id desc

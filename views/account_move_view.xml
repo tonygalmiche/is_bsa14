@@ -73,21 +73,20 @@
                         }" 
                     />
                     <field name="is_mode_reglement_id"/>
-                    <!-- <field name="is_acompte"/> -->
                 </field>
                 <field name="payment_reference" position="after">
                     <field name="is_contact_id" domain="[('parent_id','=',partner_id)]" />
                     <field name="is_imputation_partenaire"/>
                 </field>
-                <xpath expr="//page/field[@name='invoice_line_ids']/tree/field[@name='price_total']" position="after">
+                <!-- TODO : J'ai mis ces champs dans l'onglet 'Ecriture comptables' car cela bugait dans l'onglet 'Lignes de facture' -->
+                <xpath expr="//page[@id='aml_tab']/field[@name='line_ids']/tree/field[@name='price_total']" position="after">
                     <field name="is_stock_move_id" optional="hide"/>
                     <field name="is_picking_id"    optional="hide"/>
-                </xpath>
-                <xpath expr="//page/field[@name='invoice_line_ids']/form/sheet/group/field[@name='product_id']" position="after">
-                    <field name="is_stock_move_id" optional="hide"/>
-                    <field name="is_picking_id"    optional="hide"/>
-                </xpath>
 
+                    <field name="is_facturable_pourcent" optional="hide"/>
+                    <field name="is_a_facturer"          optional="hide" sum="Total"/>
+                    <field name="is_sale_line_id"        optional="hide"/>
+                </xpath>
             </field>
         </record>
 

@@ -25,6 +25,7 @@ InfoSaône - Module Odoo 14 pour BSA
         "attachment_indexation",
         "crm",
         "sale_crm",
+        "account",
     ],
     "data" : [
         "security/res.groups.xml",

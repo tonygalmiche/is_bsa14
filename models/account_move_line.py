@@ -22,15 +22,22 @@ class account_move_line(models.Model):
     @api.depends('product_id')
     def _compute_is_picking_id(self):
         for obj in self:
-            obj.is_picking_id = obj.is_stock_move_id.picking_id.id
-            # picking_id = False
-            # for line in obj.sale_line_ids:
-            #     for move in line.move_ids:
-            #         picking_id = move.picking_id.id
-            # obj.is_picking_id = picking_id
+            picking_id =  obj.is_stock_move_id.picking_id.id
+            obj.is_picking_id = picking_id
+ 
 
     is_solde         = fields.Float("Solde", store=True, readonly=True, compute='_compute_is_solde')
     is_stock_move_id = fields.Many2one('stock.move', string='Stock Move')
     is_sale_order_id = fields.Many2one('sale.order'   , string="Commande client", store=False, readonly=True, compute='_compute_is_sale_order_id')
     is_picking_id    = fields.Many2one('stock.picking', string="Picking"        , store=False, readonly=True, compute='_compute_is_picking_id')
+
+    is_sale_line_id        = fields.Many2one('sale.order.line', 'Ligne de commande', index=True, default=False)
+    is_facturable_pourcent = fields.Float("% facturable", digits=(14,2), store=True)
+    is_a_facturer          = fields.Float("A Facturer"  , digits=(14,2), help="Montant à facturer sur cette facture")
+
+
+    # def write(self, vals):
+    #     print(vals)
+    #     res = super(account_move_line, self).write(vals)
+    #     return res
 

@@ -156,6 +156,12 @@
                     <field name="is_remise1" on_change="onchange_remise(is_remise1,is_remise2)" optional="show"/>
                     <field name="is_remise2" on_change="onchange_remise(is_remise1,is_remise2)" optional="show"/>
                 </xpath>
+                <xpath expr="//page/field[@name='order_line']/tree/field[@name='price_subtotal']" position="after">
+                    <field name="is_facturable_pourcent" optional="hide"/>
+                    <field name="is_facturable"    optional="hide" sum="Total"/>
+                    <field name="is_deja_facture"  optional="hide" sum="Total"/>
+                    <field name="is_a_facturer"    optional="hide" sum="Total"/>
+                </xpath>
                 <field name="validity_date" position="after">
                     <field name="is_date_commande_client"/>
                 </field>
@@ -165,6 +171,13 @@
                     <field name="is_pourcentage_commission"/>
                     <field name="is_montant_hors_commission"/>
                 </field>
+
+                <field name="payment_term_id" position="after">
+                    <field name="is_total_facture"/>
+                    <field name="is_reste_a_facturer"/>
+
+                </field>
+
                 <group name="note_group" position="after">
                     <group string="Regroupement des lignes par article" attrs="{'invisible':[('is_group_line_ids','=',[])]}">
                         <field name="is_group_line_ids" nolabel="1">
@@ -187,6 +200,63 @@
                         <field name="is_group_line_print"/>
                     </group>
                 </group>
+
+
+
+
+
+
+                <xpath expr="//page[@name='order_lines']" position="after">
+               
+                    <page string="Facturation">
+    
+                 
+                        <group string="Factures">
+                            <field name="is_deja_facture"/>
+                            <field name="is_a_facturer"/>
+                            <button
+                                name="generer_facture_action"
+                                type="object"
+                                string="Générer nouvelle facture"
+                                attrs="{'invisible':[('is_a_facturer','=',0)]}" 
+                            />
+                        </group>
+                        <group>
+                            <field name="invoice_ids" nolabel="1">
+
+                                <tree decoration-danger="amount_untaxed_signed&lt;0">
+                                    <button title="Facture" name="acceder_facture_action" type="object" icon="fa-search-plus"/>
+                                    <field name="name"/>
+                                    <field name="invoice_date"/>
+                                    <field name="invoice_date_due"/>
+                                    <!-- <field name="is_a_facturer" sum="Total"/> -->
+                                    <field name="amount_untaxed_signed" sum="Total" string="Montant HT"/>
+                                    <field name="state" widget="badge" decoration-success="state == 'posted'" decoration-info="state == 'draft'" optional="show"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </page>
+                </xpath>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             </field>
         </record>
         <record model="ir.ui.view" id="is_view_quotation_tree">
@@ -215,24 +285,19 @@
                     <field name="is_notre_ref_devis" optional="show"/>
                     <field name="is_nom_affaire"     optional="show"/>
                 </field>
-                <!-- <field name="date_order" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </field>
-                <field name="date_order" position="attributes">
-                    <attribute name="string">Date AR</attribute>
-                </field> -->
                 <field name="state" position="replace">
                     <field name="state" optional="hide"/>
                 </field>
-
                 <field name="invoice_status" position="before">
-                    <field name="invoice_count" optional="hide"/>
+                    <field name="is_total_facture"    optional="show" sum="Total"/>
+                    <field name="is_reste_a_facturer" optional="show" sum="Total"/>
+                    <field name="invoice_count"       optional="hide" sum="Total"/>
                 </field>
-
-
-
             </field>
         </record>
+
+
+
         <record model="ir.ui.view" id="is_view_sales_order_filter">
             <field name="name">is.sale.order.list.select</field>
             <field name="model">sale.order</field>

@@ -56,7 +56,6 @@ class account_move(models.Model):
             obj.is_type_livraison = type_livraison
 
 
-
     is_acompte               = fields.Float("Acompte")
     is_imputation_partenaire = fields.Char("Imputation partenaire")
     is_contact_id            = fields.Many2one('res.partner', string='Contact')
@@ -73,23 +72,23 @@ class account_move(models.Model):
         ], "Type de livraison", compute='_compute_is_type_livraison', help="Mention obligatoire sur les factures depuis le 01/10/22")
 
 
+    def write(self, vals):
+        res = super(account_move, self).write(vals)
+        for obj in self:
+            obj.is_sale_order_id._compute_is_total_facture()
+            obj.is_sale_order_compute_id._compute_is_total_facture()
+        return res
 
-    # def name_get(self):
-    #     res=[]
-    #     for obj in self:
-    #         name=obj.number or ''
-    #         res.append((obj.id, name))
-    #     return res
 
-
-    # def name_search(self, cr, user, name='', args=None, operator='ilike', context=None, limit=100):
-    #     if not args:
-    #         args = []
-    #     if name:
-    #         filtre=['|',('name','ilike', name),('internal_number','ilike', name)]
-    #         ids = self.search(cr, user, filtre, limit=limit, context=context)
-    #     else:
-    #         ids = self.search(cr, user, args, limit=limit, context=context)
-    #     result = self.name_get(cr, user, ids, context=context)
-    #     return result
+    def acceder_facture_action(self):
+        for obj in self:
+            res= {
+                'name': 'Facture',
+                'view_mode': 'form',
+                'res_model': 'account.move',
+                'res_id': obj.id,
+                'type': 'ir.actions.act_window',
+                'domain': [('type','=','out_invoice')],
+            }
+            return res
 

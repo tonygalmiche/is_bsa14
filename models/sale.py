@@ -3,7 +3,7 @@ from copy import copy
 from importlib.resources import path
 from odoo import models,fields,api
 from odoo.http import request
-from odoo.exceptions import Warning
+from odoo.exceptions import Warning, ValidationError
 import datetime
 import base64
 import os
@@ -66,6 +66,28 @@ class sale_order(models.Model):
             obj.is_montant_hors_commission=obj.amount_untaxed-(obj.amount_untaxed*obj.is_pourcentage_commission/100 + obj.is_montant_commission)
 
 
+    @api.depends("state","order_line")
+    def _compute_is_total_facture(self):
+        for obj in self:
+            is_deja_facture = 0
+            for invoice in obj.invoice_ids:
+                is_deja_facture+=invoice.amount_untaxed_signed
+            obj.is_total_facture = is_deja_facture
+            obj.is_reste_a_facturer = obj.amount_untaxed - is_deja_facture
+
+
+    @api.depends('order_line', 'order_line.is_facturable_pourcent')
+    def _compute_facturable(self):
+        for obj in self:
+            is_a_facturer=0
+            is_deja_facture=0
+            for line in obj.order_line:
+                is_a_facturer+=line.is_a_facturer
+                is_deja_facture+=line.is_deja_facture
+            obj.is_a_facturer=is_a_facturer
+            obj.is_deja_facture=is_deja_facture
+
+
     # renommage de la description
     #date_order                 = fields.Datetime("Date AR")
     is_societe_commerciale_id  = fields.Many2one("is.societe.commerciale", "Société commerciale")
@@ -81,6 +103,14 @@ class sale_order(models.Model):
     is_group_line_ids          = fields.One2many('is.sale.order.line.group', 'order_id', 'Lignes par article', copy=False, readonly=True)
     is_group_line_print        = fields.Boolean("Imprimer le regroupement par article", default=False)
     is_date_commande_client    = fields.Date("Date cde client")
+
+    is_total_facture    = fields.Float("Total facturé"   , digits=(14,2), store=True, readonly=True, compute='_compute_is_total_facture')
+    is_reste_a_facturer = fields.Float("Reste à facturer", digits=(14,2), store=True, readonly=True, compute='_compute_is_total_facture')
+
+    is_a_facturer           = fields.Float("Lignes à facturer"    , digits=(14,2), store=False, readonly=True, compute='_compute_facturable')
+    is_deja_facture         = fields.Float("Lignes déjà facturées", digits=(14,2), store=False, readonly=True, compute='_compute_facturable')
+
+
 
 
     @api.depends('order_line.invoice_lines')
@@ -355,6 +385,112 @@ class sale_order(models.Model):
 
 
 
+
+
+
+    def generer_facture_action(self):
+        cr,uid,context,su = self.env.args
+        for obj in self:
+            if obj.is_a_facturer==0:
+                raise ValidationError("Il n'y a rien à facturer")
+
+            move_type = 'out_invoice'
+            sens = 1
+            if obj.is_a_facturer<0:
+                move_type = 'out_refund'
+                sens=-1
+
+
+            #** Création des lignes *******************************************
+            total_cumul_ht=0
+            invoice_line_ids=[]
+            sequence=0
+            is_a_facturer = 0
+            for line in obj.order_line:
+                if line.display_type in ["line_section", "line_note"]:
+                    vals={
+                        'sequence'    : line.sequence,
+                        'display_type': line.display_type ,
+                        'name'        : line.name,
+                    }
+                else:
+                    quantity=line.product_uom_qty*line.is_facturable_pourcent/100
+                    #account_id = self._get_product_account_id(line.product_id, obj.fiscal_position_id)
+                    taxes = line.product_id.taxes_id
+                    taxes = obj.fiscal_position_id.map_tax(taxes)
+                    tax_ids=[]
+                    for tax in taxes:
+                        tax_ids.append(tax.id)
+                    vals={
+                        'sequence'  : line.sequence,
+                        'product_id': line.product_id.id,
+                        #'account_id': account_id,
+                        'name'      : line.name,
+                        'quantity'  : sens*quantity,
+                        'is_facturable_pourcent': sens*line.is_facturable_pourcent,
+                        'price_unit'            : line.price_unit,
+                        'is_sale_line_id'       : line.id,
+                        'tax_ids'               : tax_ids,
+                        "is_a_facturer"         : line.is_a_facturer,
+                    }
+                    total_cumul_ht+=sens*quantity*line.price_unit
+                    is_a_facturer+=line.is_a_facturer
+                invoice_line_ids.append(vals)
+                sequence=line.sequence
+
+
+
+            #** Ajout de la section pour le repport des factures **************
+            sequence+=10
+            vals={
+                "sequence"       : sequence,
+                "name"           : "Factures précédentes à déduire",
+                "display_type"   : "line_section",
+            }
+            invoice_line_ids.append(vals)
+            #******************************************************************
+
+            #** Ajout des factures ********************************************
+            products = self.env['product.product'].search([("default_code","=",'FACTURE')])
+            if not len(products):
+                raise ValidationError("Article 'FACTURE' non trouvé")
+            product=products[0]
+            invoices = self.env['account.move'].search([('is_sale_order_id','=',obj.id),('state','=','posted')],order="id")
+            for invoice in invoices:
+                #account_id = self._get_product_account_id(product, obj.fiscal_position_id)
+                taxes = product.taxes_id
+                taxes = obj.fiscal_position_id.map_tax(taxes)
+                tax_ids=[]
+                for tax in taxes:
+                    tax_ids.append(tax.id)
+                sequence+=10
+                vals={
+                    'sequence'  : sequence,
+                    'product_id': product.id,
+                    #'account_id': account_id,
+                    'name'      : "Facture %s"%(invoice.name),
+                    'quantity'  : -1*sens,
+                    'price_unit': invoice.amount_untaxed_signed,
+                    'tax_ids'   : tax_ids,
+                }
+                invoice_line_ids.append(vals)
+
+            #** Création entête facture ***************************************
+            vals={
+                #'name'               : obj.is_numero_facture,
+                #'is_situation'       : obj.is_situation,
+                #'invoice_date'       : obj.is_date_facture or datetime.date.today(),
+                'partner_id'         : obj.partner_id.id,
+                'is_sale_order_id'   : obj.id,
+                'move_type'          : move_type,
+                'invoice_line_ids'   : invoice_line_ids,
+            }
+            move=self.env['account.move'].create(vals)
+            move._onchange_partner_id()
+            move._onchange_invoice_date()
+            move.action_post()
+
+
 class sale_order_line(models.Model):
     _name = "sale.order.line"
     _inherit = "sale.order.line"
@@ -369,6 +505,37 @@ class sale_order_line(models.Model):
     is_remise2                 = fields.Float("Remise 2 (%)", digits='Discount')
     is_production_id           = fields.Many2one("mrp.production", "Ordre de fabrication", copy=False)
     is_num_ligne               = fields.Integer("N°", help="Numéro de ligne automatique", compute="_compute_is_num_ligne", readonly=True, store=False)
+
+
+    is_facturable_pourcent = fields.Float("% facturable", digits=(14,2), copy=False)
+    is_facturable          = fields.Float("Facturable"  , digits=(14,2), store=False, readonly=True, compute='_compute_facturable')
+    is_deja_facture        = fields.Float("Déja facturé", digits=(14,2), store=False, readonly=True, compute='_compute_facturable')
+    is_a_facturer          = fields.Float("A Facturer"  , digits=(14,2), store=False, readonly=True, compute='_compute_facturable')
+
+
+    @api.depends('is_facturable_pourcent','price_unit','product_uom_qty')
+    def _compute_facturable(self):
+        cr,uid,context,su = self.env.args
+        for obj in self:
+            is_deja_facture=0
+            if not isinstance(obj.id, models.NewId):
+                SQL="""
+                    SELECT am.move_type,sum(aml.is_a_facturer)
+                    FROM account_move_line aml join account_move am on aml.move_id=am.id
+                    WHERE aml.is_sale_line_id=%s and am.state!='cancel'
+                    GROUP BY am.move_type
+                """
+                cr.execute(SQL,[obj.id])
+                for row in cr.fetchall():
+                    sens=1
+                    if row[0]=='out_refund':
+                        sens=-1
+                    is_deja_facture += sens*(row[1] or 0)
+            is_facturable = obj.price_subtotal*obj.is_facturable_pourcent/100
+            is_a_facturer = is_facturable - is_deja_facture
+            obj.is_facturable   = is_facturable
+            obj.is_deja_facture = is_deja_facture
+            obj.is_a_facturer   = is_a_facturer
 
 
     @api.depends("order_id","order_id.order_line")

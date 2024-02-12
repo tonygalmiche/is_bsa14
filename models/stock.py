@@ -52,6 +52,11 @@ class stock_move(models.Model):
 
     def _create_invoice_line_from_vals(self, cr, uid, move, invoice_line_vals, context=None):
         invoice_line_vals["is_stock_move_id"]=move.id
+
+
+        print("TEST _create_invoice_line_from_vals",invoice_line_vals)
+
+
         res = super(stock_move, self)._create_invoice_line_from_vals(cr, uid, move, invoice_line_vals, context)
         return res
 

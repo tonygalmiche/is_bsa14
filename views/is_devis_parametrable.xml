@@ -309,6 +309,11 @@
                                         </tree>
                                     </field>
                                 </group>
+                                <button
+                                    name="actualiser_prix_action"
+                                    type="object"
+                                    string="Actualiser les prix"
+                                />
                                 <group string="Articles" attrs="{'invisible':[('type_devis','not in',['structure'])]}">
                                     <field name="article_ids" nolabel="1">
                                         <tree editable="bottom">
@@ -369,6 +374,11 @@
                                         </tree>
                                     </field>
                                 </group>
+                                <button
+                                    name="actualiser_prix_action"
+                                    type="object"
+                                    string="Actualiser les prix"
+                                />
                                 <group string="Variantes">
                                     <field name="variante_ids" nolabel="1" readonly="1">
                                         <tree>

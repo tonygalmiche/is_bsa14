@@ -41,7 +41,9 @@
                                         <th class="text-center"><strong>CP Jour</strong></th>
                                         <th class="text-center"><strong>Maladie</strong></th>
                                         <th class="text-center"><strong>AT</strong></th>
-                                        <th class="text-center"><strong>Abs Injustifiée</strong></th>
+                                        <th class="text-center"><strong>Abs injustifiée non rémunérée</strong></th>
+                                        <th class="text-center"><strong>Abs justifiée non rémunérée</strong></th>
+                                        <th class="text-center"><strong>Abs enfant malalde</strong></th>
                                         <th class="text-center"><strong>Ecole</strong></th>
                                         <th style="display:none"></th>
                                     </tr>
@@ -62,6 +64,8 @@
                                         <td class="text-right"><span t-esc="(line.maladie or '')"/></td>
                                         <td class="text-right"><span t-esc="(line.at or '')"/></td>
                                         <td class="text-right"><span t-esc="(line.abs or '')"/></td>
+                                        <td class="text-right"><span t-esc="(line.abs_justifiee or '')"/></td>
+                                        <td class="text-right"><span t-esc="(line.abs_enfant_malade or '')"/></td>
                                         <td class="text-right"><span t-esc="(line.ecole or '')"/></td>
                                         <td style="display:none"></td>
                                     </tr>
@@ -87,7 +91,9 @@
                                                 <tr><td class="text-left">CP Jour          </td><td class="text-right"><span t-esc="(o.cp_jour or '')"/></td></tr>
                                                 <tr><td class="text-left">Maladie          </td><td class="text-right"><span t-esc="(o.maladie or '')"/></td></tr>
                                                 <tr><td class="text-left">AT               </td><td class="text-right"><span t-esc="(o.at or '')"/></td></tr>
-                                                <tr><td class="text-left">Abs Injustifiée  </td><td class="text-right"><span t-esc="(o.abs or '')"/></td></tr>
+                                                <tr><td class="text-left">Abs injustifiée non rémunérée</td><td class="text-right"><span t-esc="(o.abs or '')"/></td></tr>
+                                                <tr><td class="text-left">Abs justifiée non rémunérée  </td><td class="text-right"><span t-esc="(o.abs_justifiee or '')"/></td></tr>
+                                                <tr><td class="text-left">Abs enfant malade            </td><td class="text-right"><span t-esc="(o.abs_enfant_malade or '')"/></td></tr>
                                                 <tr><td class="text-left">Ecole            </td><td class="text-right"><span t-esc="(o.ecole or '')"/></td></tr>
                                                 <tr><td class="text-left">Déplacement      </td><td class="text-right"><span t-esc="(o.deplacement or '')"/></td></tr>
                                                 <tr><td class="text-left">Détachement      </td><td class="text-right"><span t-esc="(o.detachement or '')"/></td></tr>

@@ -39,6 +39,8 @@
                                              <field name="maladie"/>
                                              <field name="at"/>
                                              <field name="abs"/>
+                                             <field name="abs_justifiee"/>
+                                             <field name="abs_enfant_malade"/>
                                              <field name="ecole"/>
                                           </tree>
                                    </field>
@@ -54,6 +56,8 @@
                                         <field name="maladie"/>
                                         <field name="at"/>
                                         <field name="abs"/>
+                                        <field name="abs_justifiee"/>
+                                        <field name="abs_enfant_malade"/>
                                         <field name="ecole"/>
                                         <field name="deplacement"/>
                                         <field name="detachement"/>
@@ -96,12 +100,14 @@
                          <field name="maladie"/>
                          <field name="at"/>
                          <field name="abs"/>
+                         <field name="abs_justifiee"/>
+                         <field name="abs_enfant_malade"/>
                          <field name="ecole"/>
                          <field name="deplacement"/>
                          <field name="detachement"/>
                          <field name="ticket_restaurant"/>
-                          <field name="intitules"   optional="hide" widget="html" />
-                          <field name="commentaire" optional="hide"/>
+                         <field name="intitules"   optional="hide" widget="html" />
+                         <field name="commentaire" optional="hide"/>
                     </tree>
                </field>
           </record>

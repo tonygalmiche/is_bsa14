@@ -25,9 +25,6 @@ class is_paye(models.Model):
             lines = self.env['is.paye'].search([("id","!=",obj.id),("date_debut","<",obj.date_debut)], limit=1)
             if len(lines)>0:
                 previous=lines[0]
-            #print(previous)
-
-
             nb_jours = (obj.date_fin - obj.date_debut).days+2
             if nb_jours<28 or nb_jours>40:
                 raise ValidationError("Période incorecte")
@@ -37,7 +34,6 @@ class is_paye(models.Model):
                 ('department_id','!=','Inactif'),
                 ('department_id','!=','Détaché'),
                 ('is_interimaire','=',False),
-                #('id','in',[774,789,812,821,843]),
                 #('id','in',[798,942]),
             ]
             employees = self.env['hr.employee'].search(filtre)
@@ -50,7 +46,6 @@ class is_paye(models.Model):
                         for l in line.intitule_ids:
                             if l.intitule_id.name=="Compteur":
                                 compteur = l.heure
-                                #print("compteur=",compteur)
                 #**************************************************************
                 date = obj.date_debut
                 semaine = date.isocalendar().week
@@ -70,13 +65,13 @@ class is_paye(models.Model):
                     res = self.env['is.paye.employe.intitule'].create(vals)
                 total_heures_semaine=total_balance=0
                 total_balance_heure_sup=0
-                total_cp_heure=total_cp_jour=total_maladie=total_at=total_ecole=total_abs=0
+                total_cp_heure=total_cp_jour=total_maladie=total_at=total_ecole=total_abs=total_abs_justifiee=total_abs_enfant_malade=0
                 heures_samedi=nb_detachements=0
                 for i in range(0,nb_jours):                    
                     if date.weekday()==0:
                         semaine = date.isocalendar().week
                     info_id=info_complementaire=False
-                    cp_heure=cp_jour=maladie=at=ecole=abs=heures_semaine=balance=hs25=hs50=0
+                    cp_heure=cp_jour=maladie=at=ecole=abs=abs_justifiee=abs_enfant_malade=heures_semaine=balance=hs25=hs50=0
                     balance_heure_sup=0
                     if date.weekday()!=6:
                         #** Recherche Détachement *****************************
@@ -89,7 +84,7 @@ class is_paye(models.Model):
                         detachements = self.env['is.detachement'].search(filtre)
                         if len(detachements):
                             detachement=True
-                        print(employee.name, date, detachements, detachement)
+                        #print(employee.name, date, detachements, detachement)
                         #******************************************************
                         jour=date
                         jour_char = jour.strftime('%d/%m/%Y')
@@ -112,8 +107,14 @@ class is_paye(models.Model):
                                     maladie = -balance
                                 if heure.info_id.name=="Accident travail":
                                     at = -balance
-                                if heure.info_id.name=="Absence injustifiée" or heure.info_id.name=="Abs non rémunérée":
+
+                                if heure.info_id.name=="Abs injustifiée non rémunérée" or heure.info_id.name=="Abs non rémunérée":
                                     abs = -balance
+                                if heure.info_id.name=="Abs justifiée non rémunérée":
+                                    abs_justifiee = -balance
+                                if heure.info_id.name=="Abs enfant malade":
+                                    abs_enfant_malade = -balance
+
                                 if heure.info_id.name=="Ecole":
                                     ecole = -balance
                                 if heure.info_id.name in ["Congé payé","Férié"]:
@@ -151,7 +152,9 @@ class is_paye(models.Model):
                         total_cp_jour  += cp_jour
                         total_maladie  += maladie
                         total_at       += at
-                        total_abs      += abs
+                        total_abs               += abs
+                        total_abs_justifiee     += abs_justifiee
+                        total_abs_enfant_malade += abs_enfant_malade
                         total_ecole    += ecole
                     if date.weekday()==6 or i==(nb_jours-1):
                         info_complementaire=False
@@ -167,8 +170,10 @@ class is_paye(models.Model):
                         cp_jour        = total_cp_jour
                         maladie        = total_maladie
                         at             = total_at
-                        abs            = total_abs
-                        ecole          = total_ecole
+                        abs               = total_abs
+                        abs_justifiee     = total_abs_justifiee
+                        abs_enfant_malade = total_abs_enfant_malade
+                        ecole             = total_ecole
 
                         #Le samedi est toujours compté à 50%
                         total_balance_heure_sup=total_balance_heure_sup-heures_samedi
@@ -181,10 +186,6 @@ class is_paye(models.Model):
                             hs50=total_balance_heure_sup-4
                         if heures_samedi>0:
                             hs50+=heures_samedi
-
-
-
-
 
                     vals={
                         "employe_id"         : employe.id,
@@ -201,20 +202,17 @@ class is_paye(models.Model):
                         "maladie"            : maladie,
                         "at"                 : at,
                         "abs"                : abs,
+                        "abs_justifiee"      : abs_justifiee,
+                        "abs_enfant_malade"  : abs_enfant_malade,
                         "ecole"              : ecole,
                     }
-
-
-                    #print(jour,"\t",balance,"\t",total_balance,"\t", total_balance_heure_sup,"\t",hs25,"\t",hs50)
-
                     res = self.env['is.paye.employe.jour'].create(vals)
                     if date.weekday()==6:
                         total_heures_semaine=total_balance=total_balance_heure_sup=0
-                        total_cp_heure=total_cp_jour=total_maladie=total_at=total_ecole=total_abs=0
+                        total_cp_heure=total_cp_jour=total_maladie=total_at=total_ecole=total_abs=total_abs_justifiee=total_abs_enfant_malade=0
                         heures_samedi=0
                     date = date + datetime.timedelta(days=1)
                 employe.onchange_jour_ids()
-                #employe.maj_intitule_calcule_ids_action()
 
                 #** Déplacement ***************************************************
                 v = 0
@@ -263,7 +261,11 @@ class is_paye_employe(models.Model):
     cp_jour        = fields.Float("CP Jour", digits=(14,2))
     maladie        = fields.Float("Maladie", digits=(14,2))
     at             = fields.Float("AT", digits=(14,2))
-    abs            = fields.Float("Abs non rémunérée", digits=(14,2))
+
+    abs               = fields.Float("Abs injustifiée non rémunérée", digits=(14,2))
+    abs_justifiee     = fields.Float("Abs justifiée non rémunérée", digits=(14,2))
+    abs_enfant_malade = fields.Float("Abs enfant malade", digits=(14,2))
+
     ecole          = fields.Float("Ecole", digits=(14,2))
     deplacement       = fields.Float("Déplacement"      , digits=(14,2))
     detachement       = fields.Float("Détachement"      , digits=(14,2))
@@ -293,7 +295,7 @@ class is_paye_employe(models.Model):
     @api.onchange('jour_ids')
     def onchange_jour_ids(self):
         for obj in self:
-            heures_semaine=balance=hs25=hs50=cp_heure=cp_jour=maladie=at=abs=ecole=0
+            heures_semaine=balance=hs25=hs50=cp_heure=cp_jour=maladie=at=abs=abs_justifiee=abs_enfant_malade=ecole=0
             for line in obj.jour_ids:
                 if line.jour:
                     heures_semaine+=line.heures_semaine
@@ -303,6 +305,8 @@ class is_paye_employe(models.Model):
                     maladie+=line.maladie
                     at+=line.at
                     abs+=line.abs
+                    abs_justifiee+=line.abs_justifiee
+                    abs_enfant_malade+=line.abs_enfant_malade
                     ecole+=line.ecole
                 else:
                     hs25+=line.hs25
@@ -316,6 +320,8 @@ class is_paye_employe(models.Model):
             obj.maladie = maladie
             obj.at = at
             obj.abs = abs
+            obj.abs_justifiee = abs_justifiee
+            obj.abs_enfant_malade = abs_enfant_malade
             obj.ecole = ecole
  
 
@@ -329,70 +335,6 @@ class is_paye_employe(models.Model):
                 'type': 'ir.actions.act_window',
             }
             return res
-
-
-    # def maj_intitule_calcule_ids_action(self):
-    #     for obj in self:
-    #         print("maj_intitule_calcule_ids_action",self)
-
-    #         #** Déplacement ***************************************************
-    #         v = 0
-    #         for line in obj.jour_ids:
-    #             if line.info_id.name=="Déplacement":
-    #                 v+=1
-    #         o = self.env['is.paye.employe.intitule.calcule']
-    #         lines = o.search([("employe_id","=",obj.id),("intitule_calcule","=",'deplacement')])
-    #         print(lines)
-    #         if len(lines)==0:
-    #             val={
-    #                 "employe_id"      : obj.id,
-    #                 "intitule_calcule": 'deplacement',
-    #             }
-    #             line = o.create(val)
-    #             print(line,val)
-    #             line.heure=v
-    #         for line in lines:
-    #             line.heure=v
-    #         #******************************************************************
-
-    #         #** Détachement ***************************************************
-    #         v = 0
-    #         for line in obj.jour_ids:
-    #             if line.info_id.name=="Détachement":
-    #                 v+=1
-    #         o = self.env['is.paye.employe.intitule.calcule']
-    #         lines = o.search([("employe_id","=",obj.id),("intitule_calcule","=",'detachement')])
-    #         if len(lines)==0:
-    #             val={
-    #                 "employe_id"      : obj.id,
-    #                 "intitule_calcule": 'detachement',
-    #             }
-    #             line = o.create(val)
-    #             line.heure=v
-    #         for line in lines:
-    #             line.heure=v
-    #         #******************************************************************
-
-    #         #** Ticket restaurant *********************************************
-    #         v = 0
-    #         for line in obj.jour_ids:
-    #             if line.jour and line.heures_semaine>6:
-    #                 v+=1
-    #         o = self.env['is.paye.employe.intitule.calcule']
-    #         lines = o.search([("employe_id","=",obj.id),("intitule_calcule","=",'ticket_restaurant')])
-    #         if len(lines)==0:
-    #             if v>11:
-    #                 v=11
-    #             val={
-    #                 "employe_id"      : obj.id,
-    #                 "intitule_calcule": 'ticket_restaurant',
-    #             }
-    #             line = o.create(val)
-    #             line.heure=v
-    #         for line in lines:
-    #             line.heure=v
-    #         #******************************************************************
-
 
 
 class is_paye_employe_intitule(models.Model):
@@ -440,7 +382,11 @@ class is_paye_employe_jour(models.Model):
     cp_jour        = fields.Float("CP Jour", digits=(14,2))
     maladie        = fields.Float("Maladie", digits=(14,2))
     at             = fields.Float("AT", digits=(14,2))
-    abs            = fields.Float("Abs non rémunérée", digits=(14,2))
+
+    abs               = fields.Float("Abs injustifiée non rémunérée", digits=(14,2))
+    abs_justifiee     = fields.Float("Abs justifiée non rémunérée", digits=(14,2))
+    abs_enfant_malade = fields.Float("Abs enfant malade", digits=(14,2))
+
     ecole          = fields.Float("Ecole", digits=(14,2))
 
 

@@ -97,8 +97,17 @@
                     <page string="Importation nomenclature">
                         <field name="is_nomenclature_ids">
                             <tree string="Importation nomenclature" editable="bottom">
-                                <field name="product_id"/>
+                                <field name="product_id" widget="many2one_clickable"/>
                                 <field name="quantite_vendue"/>
+                                <field name="multiniveaux"/>
+                            </tree>
+                        </field>
+                        <field name="is_nomenclature_line_ids">
+                            <tree string="Lignes des nomenclatures à importer" limit="1000">
+                                <field name="niveau"/>
+                                <field name="product_id"/>
+                                <field name="product_qty"/>
+                                <field name="partner_id"/>
                             </tree>
                         </field>
                     </page>

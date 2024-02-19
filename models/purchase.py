@@ -115,7 +115,20 @@ class is_purchase_order_nomenclature(models.Model):
     order_id         = fields.Many2one("purchase.order", "Commande")
     product_id       = fields.Many2one("product.template", "Article vendu", help="Utilsé pour l'importation de la nomenclature")
     quantite_vendue  = fields.Integer("Qt article vendu")
+    multiniveaux     = fields.Boolean("Multi-niveaux", default=True)
 
+
+class is_purchase_order_nomenclature_line(models.Model):
+    _name        = "is.purchase.order.nomenclature.line"
+    _description = "Lignes des nomenclatures à importer"
+    _order='id'
+
+    order_id     = fields.Many2one("purchase.order", "Commande", required=True, ondelete='cascade')
+    product_id   = fields.Many2one('product.product', 'Composant')
+    niveau       = fields.Integer('Niveau')
+    product_qty  = fields.Float("Quantité", digits='Product Unit of Measure')
+    partner_id   = fields.Many2one('res.partner', 'Fournisseur')
+ 
 
 class purchase_order(models.Model):
     _inherit = "purchase.order"
@@ -155,7 +168,8 @@ class purchase_order(models.Model):
     is_arc                = fields.Boolean("ARC reçu"   , default=False)
     is_article_vendu_id   = fields.Many2one("product.template", "Article vendu", help="Utilsé pour l'importation de la nomenclature")
     is_quantite_vendue    = fields.Integer("Qt article vendu")
-    is_nomenclature_ids   = fields.One2many("is.purchase.order.nomenclature", "order_id", "Importation nomenclature")
+    is_nomenclature_ids      = fields.One2many("is.purchase.order.nomenclature", "order_id", "Importation nomenclature")
+    is_nomenclature_line_ids = fields.One2many("is.purchase.order.nomenclature.line", "order_id", "Lignes des nomenclatures à importer")
     is_alerte_rsp_achat   = fields.Text('Alerte responsable des achats', compute=_compute_is_alerte)
     is_alerte_dir_finance = fields.Text('Alerte direction financière'  , compute=_compute_is_alerte)
     is_montant_valide     = fields.Float("Montant validé")
@@ -201,38 +215,131 @@ class purchase_order(models.Model):
         return res
 
 
+
+
+
+
+
+
+
+
+    def get_nomenclature(self, niveau, quantite, product_tmpl, bom_id=False,multiniveaux=True):
+        for obj in self:
+            if product_tmpl and quantite:
+                boms = self.env['mrp.bom'].search([('product_tmpl_id','=',product_tmpl.id)],limit=1)
+                for bom in boms:
+                    for line in bom.bom_line_ids:
+                        coef = line.product_uom_id._compute_quantity(1,line.product_id.uom_id )
+                        boms2 = self.env['mrp.bom'].search([('product_tmpl_id','=',line.product_id.product_tmpl_id.id)],limit=1)
+                        #type_article="composant"
+                        #if boms2:
+                        #    type_article="compose"
+                        product_qty = line.product_qty*quantite
+                        vals={
+                            "order_id"    : obj.id,
+                            "product_id"  : line.product_id.id,
+                            "niveau"      : niveau,
+                            "product_qty" : product_qty,
+                            #"type_article": type_article
+                        }
+                        res = self.env['is.purchase.order.nomenclature.line'].create(vals)
+                        if multiniveaux:
+                            obj.get_nomenclature(niveau+1, product_qty, line.product_id.product_tmpl_id,multiniveaux=multiniveaux)
+
+
+
+
+                # boms = self.env["mrp.bom"].search([("product_tmpl_id","=",product_tmpl.id)], limit=1)
+                # for bom in boms:
+                #     for line in bom.bom_line_ids:
+                #         for seller in line.product_id.seller_ids:
+                #             if seller.name.id == obj.partner_id.id:
+                #                 qty        = line.product_qty*product_qty
+                #                 product_id = line.product_id
+                #                 if product_id not in lines:
+                #                     lines[product_id]=0
+                #                 lines[product_id]+=qty
+
+                #                 vals={
+                #                     "order_id"       : obj.id,
+                #                     "nomenclature_id": obj.id,
+                #                     "sequence"       : sequence,
+                #                     "product_id"     : product_id.id,
+                #                     "niveau"         : product_id.id,
+                #                     "product_qty"    : qty,
+                #                 }
+                #                 res = self.env["purchase.order.line"].create(vals)
+
+
     def import_nomenclature_action(self):
         for obj in self:
             obj.order_line.unlink()
-            lines={}
+            obj.is_nomenclature_line_ids.unlink()
             for l in obj.is_nomenclature_ids:
-                if l.product_id and l.quantite_vendue:
-                    boms = self.env["mrp.bom"].search([("product_tmpl_id","=",l.product_id.id)], limit=1)
-                    for bom in boms:
-                        for line in bom.bom_line_ids:
-                            for seller in line.product_id.seller_ids:
-                                if seller.name.id == obj.partner_id.id:
-                                    qty        = line.product_qty*l.quantite_vendue
-                                    product_id = line.product_id
-                                    if product_id not in lines:
-                                        lines[product_id]=0
-                                    lines[product_id]+=qty
+                obj.get_nomenclature(1, l.quantite_vendue, l.product_id,multiniveaux=l.multiniveaux)
+            lines={}
+            for line in obj.is_nomenclature_line_ids:
+                for seller in line.product_id.seller_ids:
+
+                    print(line.product_id,line.product_id.seller_ids)
+
+
+
+                    line.partner_id = seller.name.id
+                    if seller.name.id == obj.partner_id.id:
+
+                        print(seller.name.name, obj.partner_id.name)
+
+
+                        qty        = line.product_qty
+                        product_id = line.product_id
+                        if product_id not in lines:
+                            lines[product_id]=0
+                        lines[product_id]+=qty
+                    break
             sequence=0
             for product_id in lines:
                 sequence+=10
-                uom_id = product_id.uom_po_id.id
                 qty = lines[product_id]
-                #res = self.env["purchase.order.line"].onchange_product_id(obj.pricelist_id.id,product_id.id,qty,uom_id,obj.partner_id.id,fiscal_position_id=obj.fiscal_position.id)
-                #vals=res["value"]
-                #taxes_id = vals["taxes_id"]
                 vals={
                     "order_id"   : obj.id,
                     "is_sequence": sequence,
                     "product_id" : product_id.id,
                     "product_qty": qty,
-                    #"taxes_id"   : [(6,0,taxes_id)],
                 }
                 res = self.env["purchase.order.line"].create(vals)
+
+
+
+
+
+    # def import_nomenclature_action(self):
+    #     for obj in self:
+    #         obj.order_line.unlink()
+    #         lines={}
+    #         for l in obj.is_nomenclature_ids:
+    #             if l.product_id and l.quantite_vendue:
+    #                 boms = self.env["mrp.bom"].search([("product_tmpl_id","=",l.product_id.id)], limit=1)
+    #                 for bom in boms:
+    #                     for line in bom.bom_line_ids:
+    #                         for seller in line.product_id.seller_ids:
+    #                             if seller.name.id == obj.partner_id.id:
+    #                                 qty        = line.product_qty*l.quantite_vendue
+    #                                 product_id = line.product_id
+    #                                 if product_id not in lines:
+    #                                     lines[product_id]=0
+    #                                 lines[product_id]+=qty
+    #         sequence=0
+    #         for product_id in lines:
+    #             sequence+=10
+    #             qty = lines[product_id]
+    #             vals={
+    #                 "order_id"   : obj.id,
+    #                 "is_sequence": sequence,
+    #                 "product_id" : product_id.id,
+    #                 "product_qty": qty,
+    #             }
+    #             res = self.env["purchase.order.line"].create(vals)
 
 
     def mouvement_stock_action(self):

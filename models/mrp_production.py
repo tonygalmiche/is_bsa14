@@ -55,12 +55,15 @@ class mrp_production(models.Model):
             ('date_fixee'  , 'Date fixée'),
         ], "Planification", required=True, default="au_plus_tard", 
         help="Au plus tôt : Démarrer dés maintenant\nAu plus tard : Terminer pour date client\nDate fixée : Commence à la date prévue fixée manuellement")
-
     is_operation_ids  = fields.One2many('is.ordre.travail.line', 'production_id', 'Opérations')
     is_semaine_prevue = fields.Char(string="Semaine prévue") #compute='_compute_is_semaine_prevue', store=True, readonly=True)
     is_mois_prevu     = fields.Char(string="Mois prévu")     #compute='_compute_is_semaine_prevue', store=True, readonly=True)
-
-
+    is_pret = fields.Selection([
+            ('oui', 'Oui'),
+            ('non', 'Non'),
+        ], "Prêt", help="Prêt à produire")
+    
+    
     def name_get(self):
         result = []
         for obj in self:

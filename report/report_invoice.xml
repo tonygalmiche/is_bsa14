@@ -25,6 +25,10 @@
                                 <strong>Date de facture:</strong>
                                 <p t-field="o.invoice_date"/>
                             </td>
+                            <td t-if="o.is_situation"> 
+                                <strong>Situation:</strong>
+                                <p t-field="o.is_situation"/>
+                            </td>
                             <td t-if="o.partner_id.property_payment_term_id.name"> 
                                 <strong>Conditions de règlement:</strong>
                                 <p t-field="o.invoice_payment_term_id.name"/>

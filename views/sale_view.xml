@@ -35,10 +35,16 @@
                     <field name="is_remise2" readonly="True" optional="hide"/>
                     <field name="discount"   readonly="True" optional="hide"/>
 
-
-
-
                     <field name="price_subtotal" sum="Total"  optional="show" readonly="True"/>
+
+                    <field name="is_facturable_pourcent"    sum="Total"  optional="hide"/>
+                    <field name="is_facture_avant_pourcent" sum="Total"  optional="hide"/>
+                    <field name="is_deja_facture_pourcent"  sum="Total"  optional="hide"/>
+                    <field name="is_facturable"             sum="Total"  optional="hide"/>
+                    <field name="is_deja_facture"           sum="Total"  optional="show"/>
+                    <field name="is_a_facturer"             sum="Total"  optional="hide"/>
+
+                
                     <field name="state"                       optional="show" readonly="True"/>
                     <field name="company_id" invisible="True"/>
                 </tree>
@@ -59,9 +65,8 @@
             <field name="model">sale.order.line</field>
             <field name="arch" type="xml">
                 <graph string="graph">
-                    <field name="name"    type="row"/>
-                    <field name="is_date_prevue"  type="col" interval="week"/>
-                    <field name="product_uom_qty"  type="measure"/>
+                    <field name="is_date_prevue"  type="row" interval="week"/>
+                    <field name="price_subtotal"  type="measure"/>
                 </graph>
             </field>
         </record>
@@ -70,9 +75,10 @@
             <field name="model">sale.order.line</field>
             <field name="arch" type="xml">
                 <pivot string="pivot">
-                    <field name="name"    type="row"/>
-                    <field name="is_date_prevue"  type="col" interval="week"/>
+                    <field name="is_date_prevue"    type="row"/>
                     <field name="product_uom_qty" type="measure"/>
+                    <field name="price_subtotal" type="measure"/>
+                    <field name="is_deja_facture" type="measure"/>
                 </pivot>
             </field>
         </record>
@@ -83,7 +89,16 @@
             <field name="view_mode">tree,form,graph,pivot</field>
         </record>
 
+
+
         <!-- sale.order -->
+        <record id="actualiser_facturable_action_server" model="ir.actions.server">
+            <field name="name">Actualiser facturable</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="binding_model_id" ref="sale.model_sale_order"/>
+            <field name="state">code</field>
+            <field name="code">action = records.actualiser_facturable_action()</field>
+        </record>
         <record id="is_view_order_form" model="ir.ui.view">
             <field name="name">is.sale.order.form</field>
             <field name="model">sale.order</field>
@@ -157,13 +172,16 @@
                     <field name="is_remise2" on_change="onchange_remise(is_remise1,is_remise2)" optional="show"/>
                 </xpath>
                 <xpath expr="//page/field[@name='order_line']/tree/field[@name='price_subtotal']" position="after">
-                    <field name="is_facturable_pourcent" optional="hide"/>
-                    <field name="is_facturable"    optional="hide" sum="Total"/>
-                    <field name="is_deja_facture"  optional="hide" sum="Total"/>
-                    <field name="is_a_facturer"    optional="hide" sum="Total"/>
+                    <field name="is_facturable_pourcent"    optional="hide"/>
+                    <field name="is_facture_avant_pourcent" optional="hide"/>
+                    <field name="is_deja_facture_pourcent"  optional="hide"/>
+                    <field name="is_facturable"             optional="hide" sum="Total"/>
+                    <field name="is_deja_facture"           optional="hide" sum="Total"/>
+                    <field name="is_a_facturer"             optional="hide" sum="Total"/>
                 </xpath>
                 <field name="validity_date" position="after">
                     <field name="is_date_commande_client"/>
+                    <field name="is_date_prevue"/>
                 </field>
                 <field name="currency_id" position="before">
                     <field name="is_apporteur_affaire_id"/>
@@ -173,9 +191,9 @@
                 </field>
 
                 <field name="payment_term_id" position="after">
+                    <field name="is_type_facturation"/>
                     <field name="is_total_facture"/>
                     <field name="is_reste_a_facturer"/>
-
                 </field>
 
                 <group name="note_group" position="after">
@@ -214,6 +232,7 @@
                         <group string="Factures">
                             <field name="is_deja_facture"/>
                             <field name="is_a_facturer"/>
+                            <field name="is_situation"/>
                             <button
                                 name="generer_facture_action"
                                 type="object"
@@ -264,8 +283,10 @@
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="sale.view_quotation_tree"/>
             <field name="arch" type="xml">
+                <field name="expected_date" position="replace"/>
                 <field name="name" position="after">
                     <field name="is_date_commande_client"     optional="hide"/>
+                    <field name="is_date_prevue"              optional="hide"/>
                     <field name="date_order" string="Date AR" optional="hide"/>
                     <field name="client_order_ref"   optional="show"/>
                     <field name="is_notre_ref_devis" optional="show"/>
@@ -278,9 +299,14 @@
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="sale.view_order_tree"/>
             <field name="arch" type="xml">
+
+                <field name="expected_date" position="replace"/>
+
+
                 <field name="name" position="after">
                     <field name="is_date_commande_client"     optional="hide"/>
                     <field name="date_order" string="Date AR" optional="hide"/>
+                    <field name="is_date_prevue"              optional="show"/>
                     <field name="client_order_ref"   optional="show"/>
                     <field name="is_notre_ref_devis" optional="show"/>
                     <field name="is_nom_affaire"     optional="show"/>
@@ -289,6 +315,7 @@
                     <field name="state" optional="hide"/>
                 </field>
                 <field name="invoice_status" position="before">
+                    <field name="is_type_facturation" optional="hide"/>
                     <field name="is_total_facture"    optional="show" sum="Total"/>
                     <field name="is_reste_a_facturer" optional="show" sum="Total"/>
                     <field name="invoice_count"       optional="hide" sum="Total"/>
@@ -306,6 +333,7 @@
                 <xpath expr="//field[@name='name']" position="after">
                     <field name="client_order_ref" string="Commande client" filter_domain="[('client_order_ref','ilike',self)]"/>
                     <field name="is_nom_affaire"/>
+                    <field name="is_type_facturation"/>
                 </xpath>
             </field>
         </record>

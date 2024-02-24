@@ -60,7 +60,7 @@ class account_move(models.Model):
     is_imputation_partenaire = fields.Char("Imputation partenaire")
     is_contact_id            = fields.Many2one('res.partner', string='Contact')
     is_mode_reglement_id     = fields.Many2one('is.mode.reglement', string='Mode de règlement')
-    is_sale_order_id         = fields.Many2one('sale.order', string="Facture de situation sur la commande")
+    is_sale_order_id         = fields.Many2one('sale.order', string="Facture de situation sur la commande", copy=False)
     is_sale_order_compute_id = fields.Many2one('sale.order', string="Commande client", store=False, readonly=True, compute='_compute_is_sale_order_compute_id')
     is_account_invoice_id    = fields.Many2one('account.move', string="Acompte traité sur la facture")
     is_alerte_acompte        = fields.Char("Alerte acompte", store=False, compute='_alerte_acompte')
@@ -70,6 +70,8 @@ class account_move(models.Model):
             ('prestation_services'                , 'Prestation de services'),
             ('livraison_biens_prestation_services', 'Livraison de biens et prestation de services'),
         ], "Type de livraison", compute='_compute_is_type_livraison', help="Mention obligatoire sur les factures depuis le 01/10/22")
+    is_situation = fields.Char("Situation")
+    is_type_facturation = fields.Selection(related="is_sale_order_id.is_type_facturation")
 
 
     def write(self, vals):
@@ -91,4 +93,18 @@ class account_move(models.Model):
                 'domain': [('type','=','out_invoice')],
             }
             return res
+
+
+
+
+    @api.depends('posted_before', 'state', 'journal_id', 'date')
+    def _compute_name(self):
+        res = super(account_move, self)._compute_name()
+        print("## actualiser_facturable_action",res,self)
+        for obj in self:
+            for line in obj.invoice_line_ids:
+                if line.is_sale_line_id:
+                    line.is_sale_line_id.actualiser_facturable_action()
+
+
 

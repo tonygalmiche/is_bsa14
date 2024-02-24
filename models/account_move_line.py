@@ -31,9 +31,9 @@ class account_move_line(models.Model):
     is_sale_order_id = fields.Many2one('sale.order'   , string="Commande client", store=False, readonly=True, compute='_compute_is_sale_order_id')
     is_picking_id    = fields.Many2one('stock.picking', string="Picking"        , store=False, readonly=True, compute='_compute_is_picking_id')
 
-    is_sale_line_id        = fields.Many2one('sale.order.line', 'Ligne de commande', index=True, default=False)
-    is_facturable_pourcent = fields.Float("% facturable", digits=(14,2), store=True)
-    is_a_facturer          = fields.Float("A Facturer"  , digits=(14,2), help="Montant à facturer sur cette facture")
+    is_sale_line_id        = fields.Many2one('sale.order.line', 'Ligne de commande', index=True, default=False, copy=False)
+    is_facturable_pourcent = fields.Float("% facturable", digits=(14,2), copy=False, store=True)
+    is_a_facturer          = fields.Float("A Facturer"  , digits=(14,2), copy=False, help="Montant à facturer sur cette facture")
 
 
     # def write(self, vals):

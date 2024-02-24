@@ -88,6 +88,19 @@ class sale_order(models.Model):
             obj.is_deja_facture=is_deja_facture
 
 
+    @api.depends('order_line', 'order_line.is_date_prevue')
+    def _compute_is_date_prevue(self):
+        for obj in self:
+            date_prevue = False
+            for line in obj.order_line:
+                if line.is_date_prevue:
+                    if not date_prevue:
+                        date_prevue=line.is_date_prevue
+                    if line.is_date_prevue<date_prevue:
+                        date_prevue=line.is_date_prevue
+            obj.is_date_prevue = date_prevue
+
+
     # renommage de la description
     #date_order                 = fields.Datetime("Date AR")
     is_societe_commerciale_id  = fields.Many2one("is.societe.commerciale", "Société commerciale")
@@ -103,14 +116,16 @@ class sale_order(models.Model):
     is_group_line_ids          = fields.One2many('is.sale.order.line.group', 'order_id', 'Lignes par article', copy=False, readonly=True)
     is_group_line_print        = fields.Boolean("Imprimer le regroupement par article", default=False)
     is_date_commande_client    = fields.Date("Date cde client")
-
-    is_total_facture    = fields.Float("Total facturé"   , digits=(14,2), store=True, readonly=True, compute='_compute_is_total_facture')
-    is_reste_a_facturer = fields.Float("Reste à facturer", digits=(14,2), store=True, readonly=True, compute='_compute_is_total_facture')
-
-    is_a_facturer           = fields.Float("Lignes à facturer"    , digits=(14,2), store=False, readonly=True, compute='_compute_facturable')
-    is_deja_facture         = fields.Float("Lignes déjà facturées", digits=(14,2), store=False, readonly=True, compute='_compute_facturable')
-
-
+    is_total_facture           = fields.Float("Total facturé"   , digits=(14,2), store=True, readonly=True, compute='_compute_is_total_facture')
+    is_reste_a_facturer        = fields.Float("Reste à facturer", digits=(14,2), store=True, readonly=True, compute='_compute_is_total_facture')
+    is_a_facturer              = fields.Float("Lignes à facturer"    , digits=(14,2), store=False, readonly=True, compute='_compute_facturable')
+    is_deja_facture            = fields.Float("Lignes déjà facturées", digits=(14,2), store=False, readonly=True, compute='_compute_facturable')
+    is_date_prevue             = fields.Date("Date prévue", store=True, readonly=True, compute='_compute_is_date_prevue', help="Date prévue initialement des lignes de la commande la plus proche")
+    is_situation               = fields.Char("Situation")
+    is_type_facturation        = fields.Selection([
+            ('standard'      , 'Standard'),
+            ('avec_situation', 'Avec situation'),
+        ], "Type de facturation", default="standard")
 
 
     @api.depends('order_line.invoice_lines')
@@ -185,6 +200,7 @@ class sale_order(models.Model):
         for invoice in invoices:
             for line in invoice.line_ids:
                 for sale_line in line.sale_line_ids:
+                    line.is_sale_line_id = sale_line.id
                     for move in sale_line.move_ids:
                         if not move.is_account_move_line_id and move.state=="done":
                             move.is_account_move_line_id = line.id
@@ -383,9 +399,9 @@ class sale_order(models.Model):
         return {"err":"","data":""}
 
 
-
-
-
+    def actualiser_facturable_action(self):
+        for obj in self:
+            obj.order_line.actualiser_facturable_action()
 
 
     def generer_facture_action(self):
@@ -414,8 +430,7 @@ class sale_order(models.Model):
                         'name'        : line.name,
                     }
                 else:
-                    quantity=line.product_uom_qty*line.is_facturable_pourcent/100
-                    #account_id = self._get_product_account_id(line.product_id, obj.fiscal_position_id)
+                    quantity=line.product_uom_qty*(line.is_facturable_pourcent-line.is_facture_avant_pourcent-line.is_deja_facture_pourcent)/100
                     taxes = line.product_id.taxes_id
                     taxes = obj.fiscal_position_id.map_tax(taxes)
                     tax_ids=[]
@@ -424,7 +439,6 @@ class sale_order(models.Model):
                     vals={
                         'sequence'  : line.sequence,
                         'product_id': line.product_id.id,
-                        #'account_id': account_id,
                         'name'      : line.name,
                         'quantity'  : sens*quantity,
                         'is_facturable_pourcent': sens*line.is_facturable_pourcent,
@@ -437,49 +451,10 @@ class sale_order(models.Model):
                     is_a_facturer+=line.is_a_facturer
                 invoice_line_ids.append(vals)
                 sequence=line.sequence
-
-
-
-            #** Ajout de la section pour le repport des factures **************
-            sequence+=10
-            vals={
-                "sequence"       : sequence,
-                "name"           : "Factures précédentes à déduire",
-                "display_type"   : "line_section",
-            }
-            invoice_line_ids.append(vals)
-            #******************************************************************
-
-            #** Ajout des factures ********************************************
-            products = self.env['product.product'].search([("default_code","=",'FACTURE')])
-            if not len(products):
-                raise ValidationError("Article 'FACTURE' non trouvé")
-            product=products[0]
-            invoices = self.env['account.move'].search([('is_sale_order_id','=',obj.id),('state','=','posted')],order="id")
-            for invoice in invoices:
-                #account_id = self._get_product_account_id(product, obj.fiscal_position_id)
-                taxes = product.taxes_id
-                taxes = obj.fiscal_position_id.map_tax(taxes)
-                tax_ids=[]
-                for tax in taxes:
-                    tax_ids.append(tax.id)
-                sequence+=10
-                vals={
-                    'sequence'  : sequence,
-                    'product_id': product.id,
-                    #'account_id': account_id,
-                    'name'      : "Facture %s"%(invoice.name),
-                    'quantity'  : -1*sens,
-                    'price_unit': invoice.amount_untaxed_signed,
-                    'tax_ids'   : tax_ids,
-                }
-                invoice_line_ids.append(vals)
-
+                
             #** Création entête facture ***************************************
             vals={
-                #'name'               : obj.is_numero_facture,
-                #'is_situation'       : obj.is_situation,
-                #'invoice_date'       : obj.is_date_facture or datetime.date.today(),
+                'is_situation'       : obj.is_situation,
                 'partner_id'         : obj.partner_id.id,
                 'is_sale_order_id'   : obj.id,
                 'move_type'          : move_type,
@@ -488,7 +463,7 @@ class sale_order(models.Model):
             move=self.env['account.move'].create(vals)
             move._onchange_partner_id()
             move._onchange_invoice_date()
-            move.action_post()
+            #move.action_post()
 
 
 class sale_order_line(models.Model):
@@ -506,32 +481,58 @@ class sale_order_line(models.Model):
     is_production_id           = fields.Many2one("mrp.production", "Ordre de fabrication", copy=False)
     is_num_ligne               = fields.Integer("N°", help="Numéro de ligne automatique", compute="_compute_is_num_ligne", readonly=True, store=False)
 
+    is_facturable_pourcent     = fields.Float("% facturable"                                                                     , digits=(14,2), copy=False, help="% facturable à ce jour permettant de générer une nouvelle facture" )
+    is_facture_avant_pourcent  = fields.Float("% facturé avant"                                                                  , digits=(14,2), copy=False, help="% factturé hors situation (ex : Accompte) pour reprendre l'historique")
+    is_deja_facture_pourcent   = fields.Float("% déjà facturé", store=True, readonly=True, compute='actualiser_facturable_action', digits=(14,2), copy=False, help="%s déja facturé calculé à partir des factures")
+    is_facturable              = fields.Float("Facturable"    , store=True, readonly=True, compute='actualiser_facturable_action', digits=(14,2), copy=False)
+    is_deja_facture            = fields.Float("Déja facturé"  , store=True, readonly=True, compute='actualiser_facturable_action', digits=(14,2), copy=False)
+    is_a_facturer              = fields.Float("A Facturer"    , store=True, readonly=True, compute='actualiser_facturable_action', digits=(14,2), copy=False)
 
-    is_facturable_pourcent = fields.Float("% facturable", digits=(14,2), copy=False)
-    is_facturable          = fields.Float("Facturable"  , digits=(14,2), store=False, readonly=True, compute='_compute_facturable')
-    is_deja_facture        = fields.Float("Déja facturé", digits=(14,2), store=False, readonly=True, compute='_compute_facturable')
-    is_a_facturer          = fields.Float("A Facturer"  , digits=(14,2), store=False, readonly=True, compute='_compute_facturable')
 
 
-    @api.depends('is_facturable_pourcent','price_unit','product_uom_qty')
-    def _compute_facturable(self):
+    @api.depends('is_facture_avant_pourcent','is_facturable_pourcent','price_unit','product_uom_qty')
+    def actualiser_facturable_action(self):
         cr,uid,context,su = self.env.args
         for obj in self:
-            is_deja_facture=0
+            deja_facture_pourcent = 0 # 100*obj.qty_invoiced
             if not isinstance(obj.id, models.NewId):
+                #** Liens directe entre ligne de commande et ligne de facture *********************
                 SQL="""
-                    SELECT am.move_type,sum(aml.is_a_facturer)
-                    FROM account_move_line aml join account_move am on aml.move_id=am.id
+                    SELECT am.move_type,aml.quantity,am.name
+                    FROM account_move_line aml join account_move    am on aml.move_id=am.id
                     WHERE aml.is_sale_line_id=%s and am.state!='cancel'
-                    GROUP BY am.move_type
                 """
                 cr.execute(SQL,[obj.id])
                 for row in cr.fetchall():
                     sens=1
                     if row[0]=='out_refund':
                         sens=-1
-                    is_deja_facture += sens*(row[1] or 0)
-            is_facturable = obj.price_subtotal*obj.is_facturable_pourcent/100
+                    deja_facture_pourcent += 100*sens*(row[1] or 0)
+                #**********************************************************************************
+
+                # #** Liens entre ligne de commande, ligne de facture et mouvement de stock *********
+                # SQL="""
+                #     SELECT am.move_type,sum(aml.quantity)
+                #     FROM account_move_line aml join account_move am on aml.move_id=am.id
+                #                                join stock_move   sm on aml.is_stock_move_id=sm.id
+                #     WHERE sm.sale_line_id=%s and am.state!='cancel'
+                #     GROUP BY am.move_type
+                # """
+                # cr.execute(SQL,[obj.id])
+                # for row in cr.fetchall():
+                #     sens=1
+                #     if row[0]=='out_refund':
+                #         sens=-1
+                #     deja_facture_pourcent += 100*sens*(row[1] or 0)
+                # #**********************************************************************************
+
+            pourcentage_facture = (deja_facture_pourcent+obj.is_facture_avant_pourcent)/100
+            if pourcentage_facture>0:
+                obj.qty_invoiced = pourcentage_facture
+
+            is_deja_facture=(deja_facture_pourcent+obj.is_facture_avant_pourcent)*obj.price_subtotal/100
+            obj.is_deja_facture_pourcent = deja_facture_pourcent
+            is_facturable = obj.price_subtotal*obj.is_facturable_pourcent/100 
             is_a_facturer = is_facturable - is_deja_facture
             obj.is_facturable   = is_facturable
             obj.is_deja_facture = is_deja_facture
@@ -590,10 +591,7 @@ class sale_order_line(models.Model):
                 "product_id"           : obj.product_id.id,
                 "product_uom_id"       : obj.product_id.uom_id.id,
                 "product_qty"          : qty,
-                #"bom_id"               : bom_id,
-                #"routing_id"           : routing_id,
                 "origin"               : obj.order_id.name,
-                #"is_date_planifiee"    : datetime.date.today().strftime("%Y-%m-%d"),
                 "is_sale_order_line_id": obj.id
             }
             production=mrp_production_obj.create(vals)
@@ -613,61 +611,6 @@ class sale_order_line(models.Model):
                     "domain": "[]",
                 }
 
-
-
-            # mrp_production_obj = self.env["mrp.production"]
-            # bom_obj = self.env["mrp.bom"]
-            # bom_id = bom_obj._bom_find(product_id=obj.product_id.id, properties=[])
-            # routing_id = False
-            # if bom_id:
-            #     bom_point = bom_obj.browse(bom_id)
-            #     routing_id = bom_point.routing_id.id or False
-            # mrp_id = mrp_production_obj.create({
-            #     "product_id"           : obj.product_id.id,
-            #     "product_uom"          : obj.product_id.uom_id.id,
-            #     "product_qty"          : obj.is_reste,
-            #     "bom_id"               : bom_id,
-            #     "routing_id"           : routing_id,
-            #     "origin"               : obj.order_id.name,
-            #     "is_date_planifiee"    : datetime.date.today().strftime("%Y-%m-%d"),
-            #     "is_sale_order_line_id": obj.id
-            # })
-            # try:
-            #     workflow.trg_validate(self._uid, "mrp.production", mrp_id.id, "button_confirm", self._cr)
-            # except Exception as inst:
-            #     msg="Impossible de convertir la "+obj.name+"\n("+str(inst)+")"
-            #     raise Warning(msg)
-            # if mrp_id:
-            #     return {
-            #         "name": "Ordre de fabrication",
-            #         "view_mode": "form",
-            #         "view_type": "form",
-            #         "res_model": "mrp.production",
-            #         "type": "ir.actions.act_window",
-            #         "res_id": mrp_id.id,
-            #         "domain": "[]",
-            #     }
-
-
-    # def name_get(self, cr, uid, ids, context=None):
-    #     res = []
-    #     for obj in self.browse(cr, uid, ids, context=context):
-    #         name=obj.order_id.name+" "+obj.name
-    #         if obj.is_date_prevue:
-    #             name=name+" "+str(obj.is_date_prevue)
-    #         res.append((obj.id,name))
-    #     return res
-
-
-    # def name_search(self, cr, user, name="", args=None, operator="ilike", context=None, limit=100):
-    #     if not args:
-    #         args = []
-    #     if name:
-    #         ids = self.search(cr, user, ["|",("name","ilike", name),("order_id.name","ilike", name)], limit=limit, context=context)
-    #     else:
-    #         ids = self.search(cr, user, args, limit=limit, context=context)
-    #     result = self.name_get(cr, user, ids, context=context)
-    #     return result
 
 
 

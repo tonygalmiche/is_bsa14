@@ -77,6 +77,8 @@
                 <field name="payment_reference" position="after">
                     <field name="is_contact_id" domain="[('parent_id','=',partner_id)]" />
                     <field name="is_imputation_partenaire"/>
+                    <field name="is_type_facturation"/>
+                    <field name="is_situation"/>
                 </field>
                 <!-- TODO : J'ai mis ces champs dans l'onglet 'Ecriture comptables' car cela bugait dans l'onglet 'Lignes de facture' -->
                 <xpath expr="//page[@id='aml_tab']/field[@name='line_ids']/tree/field[@name='price_total']" position="after">
@@ -96,10 +98,12 @@
             <field name="inherit_id" ref="account.view_invoice_tree"/>
             <field name="arch" type="xml">
                 <field name="invoice_date_due" position="before">
-                    <field name="invoice_payment_term_id" optional="show"/>
-                    <field name="invoice_date_due"        optional="show"/>
-                    <field name="is_sale_order_compute_id"        optional="hide"/>
-                    <field name="is_sale_order_id"        optional="hide"/>
+                    <field name="invoice_payment_term_id"  optional="show"/>
+                    <field name="invoice_date_due"         optional="show"/>
+                    <field name="is_sale_order_compute_id" optional="hide"/>
+                    <field name="is_sale_order_id"         optional="hide"/>
+                    <field name="is_type_facturation"      optional="hide"/>
+                    <field name="is_situation"             optional="hide"/>
                 </field>
             </field>
         </record>
@@ -110,6 +114,7 @@
             <field name="arch" type="xml">
                 <field name="invoice_user_id" position="before">
                     <field name="is_sale_order_id"/>
+                    <field name="is_type_facturation"/>
                 </field>
             </field>
         </record>

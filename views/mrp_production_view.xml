@@ -81,19 +81,49 @@
                                 style="margin-right:10px"
                             />
                         </div>
-                        <field name="is_operation_ids">
+                        <field name="is_operation_ids" context="{'tree_view_ref':'is_bsa14.is_ordre_travail_line_tree_view'}"/>
+                        <!-- <field name="is_operation_ids">
                             <tree>
+                                <button title="Voir l'opération" name="acceder_operation_action" type="object" icon="fa-search-plus"/>
                                 <field name="name"/>
                                 <field name="workcenter_id"/>
                                 <field name="recouvrement"/>
                                 <field name="tps_apres"      widget="float_time" sum="Total"/>
-                                <field name="duree_unitaire" widget="float_time" sum="Total"/>
-                                <field name="duree_totale"   widget="float_time" sum="Total"/>
-                                <field name="duree_reelle"   widget="float_time" sum="Total"/>
+                                <field name="duree_unitaire" widget="float_time" sum="Total" optional="hide"/>
+                                <field name="duree_totale"   widget="float_time" sum="Total" optional="show"/>
+                                <field name="temps_passe"    widget="float_time" sum="Total" optional="show"/>
+                                <field name="reste"          widget="float_time" sum="Total" optional="show"/>
+                                <field name="duree_reelle"   widget="float_time" sum="Total" optional="hide"/>
                                 <field name="heure_debut" readonly="1" optional="show"/>
                                 <field name="heure_fin"   readonly="1" optional="show"/>
+                                <field name="afficher_start_stop" invisible="1"/>
+                                <button 
+                                    name="start_action" 
+                                    type="object" string="Start" class="btn-success"
+                                    attrs="{'invisible': [('afficher_start_stop', '=', False)]}"
+                                />
+                                <button 
+                                    name="stop_action"  
+                                    type="object" string="Stop"  class="btn-danger"
+                                    attrs="{'invisible': [('afficher_start_stop', '=', False)]}"
+                                />
+                                <button 
+                                    name="end_action"  
+                                    type="object" string="End"  class="btn"
+                                    attrs="{'invisible': [('afficher_start_stop', '=', False)]}"
+                                />
+                                <field 
+                                    name="state" 
+                                    widget="badge" 
+                                    decoration-danger="state == 'attente'" 
+                                    decoration-warning="state == 'pret'" 
+                                    decoration-info="state == 'encours'" 
+                                    decoration-success="state == 'termine'" 
+                                    decoration-muted="state == 'annule'" 
+                                    optional="show"
+                                />
                             </tree>
-                        </field>
+                        </field> -->
                     </page>
                     <page string="Etiquettes">
                         <field name="etiquette_ids">

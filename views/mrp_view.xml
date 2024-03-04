@@ -176,7 +176,7 @@
                     <attribute name="invisible">1</attribute>
                 </div>
                 <page name="general_info" position="after">
-                    <page string="Ordres de travail">
+                    <!-- <page string="Ordres de travail">
                         <button name="tri_date_prevue_action" string="Tri date prévue" type="object"/>
                          <field name="is_ordre_travail_line_ids" >
                             <tree editable="bottom" create="false" limit="2000" decoration-danger="date_prevue&lt;heure_fin">
@@ -189,7 +189,7 @@
                                 <field name="name"           readonly="1" optional="show"/>
                                 <field name="duree_unitaire" readonly="1" optional="show" widget="float_time" sum="Total"/>
                                 <field name="duree_totale"   readonly="1" optional="show" widget="float_time" sum="Total"/>
-                                <field name="realisee"                    optional="show" widget="float_time" sum="Total"/>
+                                <field name="temps_passe"                 optional="show" widget="float_time" sum="Total"/>
                                 <field name="reste"                       optional="show" widget="float_time" sum="Total"/>
                                 <field name="heure_debut"    readonly="1" optional="hide"/>
                                 <field name="heure_fin"      readonly="1" optional="hide"/>
@@ -204,7 +204,7 @@
                                 />
                             </tree>
                         </field>
-                    </page>
+                    </page> -->
                     <page string="Fermetures">
                         <button name="clear_fermeture_action"    string="Clear"    title="Supprimer toutes les fermetures" type="object"  confirm="Voulez-vous vraiment supprimer toutes les fermetures" style="color:red" />
                         <button name="fermeture_e1_action"       string="E1"       title="Fermeture Equipe 1" type="object" />

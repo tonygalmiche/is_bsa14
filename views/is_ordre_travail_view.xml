@@ -41,22 +41,7 @@
                                    <field name="date_creation"/> 
                               </group>
                          </group>
-                         <field name="line_ids" >
-                              <tree editable="bottom">
-                                   <field name="sequence" widget="handle"/>
-                                   <field name="name"/>
-                                   <field name="workcenter_id"/>
-                                   <field name="recouvrement"/>
-                                   <field name="tps_apres"      widget="float_time" sum="Total"/>
-                                   <field name="duree_unitaire" widget="float_time" sum="Total"/>
-                                   <field name="duree_totale"   widget="float_time" sum="Total"/>
-                                   <field name="duree_reelle"   widget="float_time" sum="Total"/>
-                                   <!-- <field name="realisee"       widget="float_time" sum="Total"/>
-                                   <field name="reste"          widget="float_time" sum="Total"/> -->
-                                   <field name="heure_debut" readonly="1" optional="show"/>
-                                   <field name="heure_fin"   readonly="1" optional="show"/>
-                              </tree>
-                         </field>
+                         <field name="line_ids" context="{'tree_view_ref':'is_bsa14.is_ordre_travail_line_tree_view'}"/>
                     </form>
                </field>
           </record>
@@ -118,32 +103,65 @@
                               }
                          </style>
                          <header>
+                              <field name="afficher_start_stop" invisible="1"/>
+                              <button 
+                                   name="start_action" 
+                                   type="object" string="Start" class="btn-success"
+                                   attrs="{'invisible': [('afficher_start_stop', '=', False)]}"
+                              />
+                              <button 
+                                   name="stop_action"  
+                                   type="object" string="Stop"  class="btn-danger"
+                                   attrs="{'invisible': [('afficher_start_stop', '=', False)]}"
+                              />
+                              <button 
+                                   name="end_action"  
+                                   type="object" string="End"  class="btn"
+                                   attrs="{'invisible': [('afficher_start_stop', '=', False)]}"
+                              />
                               <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                          </header>
                          <sheet>
                               <group>
                                    <group>
-                                        <field name="ordre_id" readonly="1"/> 
                                         <field name="production_id" readonly="1"/> 
                                         <field name="product_id" readonly="1"/> 
                                         <field name="date_prevue" readonly="1"/> 
-                                        <field name="sequence" readonly="1"/> 
+                                        <field name="sequence"/> 
                                         <field name="ordre_planning"/> 
-                                        <field name="workcenter_id" readonly="1"/> 
+                                        <field name="name"/> 
+                                        <field name="workcenter_id"/> 
                                    </group>
                                    <group>
                                         <field name="recouvrement"/> 
                                         <field name="tps_apres"                 widget="float_time" sum="Total"/>
                                         <field name="duree_unitaire"            widget="float_time"/> 
-                                        <field name="duree_totale" readonly="1" widget="float_time"/> 
                                         <field name="duree_reelle" readonly="1" widget="float_time"/> 
-                                        <field name="realisee"                  widget="float_time"/> 
-                                        <field name="reste" readonly="1"        widget="float_time"/> 
                                         <field name="heure_debut"/> 
                                         <field name="heure_fin"/> 
                                    </group>
                               </group>
+                              <group>
+                                   <field name="commentaire"/> 
+                              </group>
+                              <field name="temps_passe_ids">
+                                   <tree editable="bottom">
+                                        <field name="employe_id"/>
+                                        <field name="heure_debut"/>
+                                        <field name="heure_fin"/>
+                                        <field name="temps_passe" sum="Total" widget="float_time"/>
+                                   </tree>
+                              </field>
+                              <group>
+                                   <field name="duree_totale" widget="float_time"/> 
+                                   <field name="temps_passe"  widget="float_time"/> 
+                                   <field name="reste"        widget="float_time"/>      
+                              </group>
                          </sheet>
+                         <div class="oe_chatter">
+                              <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                              <field name="message_ids" widget="mail_thread"/>
+                          </div>
                     </form>
                </field>
           </record>
@@ -151,37 +169,57 @@
                <field name="name">is_ordre_travail_line_tree_view</field>
                <field name="model">is.ordre.travail.line</field>
                <field name="type">tree</field>
-                <field name="arch" type="xml">
+               <field name="arch" type="xml">
                      <tree>
-                         <field name="ordre_id"       optional="show"/> 
-                         <field name="production_id"  optional="show"/> 
-                         <field name="product_id"     optional="show"/> 
-                         <field name="date_prevue"    optional="show"/> 
-                         <field name="sequence"       optional="show"/> 
+                         <button title="Voir l'opération" name="acceder_operation_action" type="object" icon="fa-search-plus"/>
+                         <field name="sequence"       optional="hide" widget="handle" />
+                         <field name="ordre_id"       optional="hide" widget="many2one_clickable"/> 
+                         <field name="production_id"  optional="hide" widget="many2one_clickable"/> 
+                         <field name="product_id"     optional="hide" widget="many2one_clickable"/> 
+                         <field name="date_prevue"    optional="hide"/> 
                          <field name="ordre_planning" optional="hide"/> 
-                         <field name="workcenter_id"  optional="show"/> 
-                         <field name="recouvrement"   optional="show"/> 
-                         <field name="tps_apres"      optional="show" sum="Total" widget="float_time"/>
-                         <field name="duree_unitaire" optional="hide"             widget="float_time"/> 
-                         <field name="duree_totale"   optional="hide" sum="Total" widget="float_time"/> 
-                         <field name="realisee"       optional="hide" sum="Total" widget="float_time"/> 
-                         <field name="reste"          optional="show" sum="Total" widget="float_time"/> 
-                         <field name="duree_reelle"   optional="show" sum="Total" widget="float_time"/> 
-                         <field name="heure_debut"    optional="show"/> 
-                         <field name="heure_fin"      optional="show"/> 
+                         <field name="name"/>
+                         <field name="workcenter_id"                                  optional="show" widget="many2one_clickable"/>
+                         <field name="recouvrement"                                   optional="show"/>
+                         <field name="tps_apres"      widget="float_time" sum="Total" optional="show"/>
+                         <field name="duree_unitaire" widget="float_time" sum="Total" optional="hide"/>
+                         <field name="duree_totale"   widget="float_time" sum="Total" optional="show"/>
+                         <field name="temps_passe"    widget="float_time" sum="Total" optional="show"/>
+                         <field name="reste"          widget="float_time" sum="Total" optional="show"/>
+                         <field name="duree_reelle"   widget="float_time" sum="Total" optional="hide"/>
+                         <field name="heure_debut" readonly="1" optional="show"/>
+                         <field name="heure_fin"   readonly="1" optional="show"/>
+                         <field name="afficher_start_stop" invisible="1"/>
+                         <button 
+                         name="start_action" 
+                         type="object" string="Start" class="btn-success"
+                         attrs="{'invisible': [('afficher_start_stop', '=', False)]}"
+                         />
+                         <button 
+                         name="stop_action"  
+                         type="object" string="Stop"  class="btn-danger"
+                         attrs="{'invisible': [('afficher_start_stop', '=', False)]}"
+                         />
+                         <button 
+                         name="end_action"  
+                         type="object" string="End"  class="btn"
+                         attrs="{'invisible': [('afficher_start_stop', '=', False)]}"
+                         />
                          <field 
-                              name="state" 
-                              widget="badge" 
-                              decoration-danger="state == 'attente'" 
-                              decoration-warning="state == 'pret'" 
-                              decoration-info="state == 'encours'" 
-                              decoration-success="state == 'termine'" 
-                              decoration-muted="state == 'annule'" 
-                              optional="show"
+                         name="state" 
+                         widget="badge" 
+                         decoration-danger="state == 'attente'" 
+                         decoration-warning="state == 'pret'" 
+                         decoration-info="state == 'encours'" 
+                         decoration-success="state == 'termine'" 
+                         decoration-muted="state == 'annule'" 
+                         optional="show"
                          />
                     </tree>
                </field>
           </record>
+
+
 
 
           <record model="ir.ui.view" id="is_ordre_travail_line_calendar_view" >

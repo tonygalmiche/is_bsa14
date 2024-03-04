@@ -53,6 +53,10 @@ class is_ordre_travail(models.Model):
         # Recherche des ouvertues du poste de charge 
         # Comme chaque ligne fait 30mn, il suffit de mettre une limite en fonction de la durée de la tache
         limit = ceil(duree*2) # La dispo des ressources est par plage de 30mn
+
+        if limit<0:
+            limit=1
+
         res=False
         if heure_debut:
             res = heure_debut + timedelta(hours=duree) # Théorique si pas de fermeture
@@ -182,8 +186,6 @@ class is_ordre_travail(models.Model):
         #********************************************************************************
 
 
-
-
     def vue_gantt_action(self):
         for obj in self: 
             action= {
@@ -196,11 +198,12 @@ class is_ordre_travail(models.Model):
                 "type": "ir.actions.act_window",
                 "context": {"vue_gantt":"production"}
             }
-            #print(action)
             return action
+
 
 class is_ordre_travail_line(models.Model):
     _name='is.ordre.travail.line'
+    _inherit = ['mail.thread']
     _description='Ligne Ordre de travail'
     _order='ordre_planning,sequence,heure_debut'
 
@@ -216,11 +219,9 @@ class is_ordre_travail_line(models.Model):
     workcenter_id  = fields.Many2one('mrp.workcenter', 'Poste de Travail'   , required=True)
     recouvrement   = fields.Integer("Recouvrement (%)", required=True, default=0, help="0%: Cette ligne commence à la fin de la ligne précédente\n50%: Cette ligne commence quand la ligne précédente est terminée à 50%\n100%: Cette ligne commence en même temps que la ligne précédente" )
     tps_apres      = fields.Float("Tps passage après (HH:MN)", default=0, help="Temps d'attente après cette opération avant de commencer la suivante (en heures ouvrées)")
-    duree_unitaire = fields.Float("Durée unitaire (H)"                      , required=True)
-    duree_totale   = fields.Float("Durée totale (H)", compute='_compute_reste', store=True)
-    duree_reelle   = fields.Float("Durée réelle (H)", compute='_compute_duree_reelle', store=True, help="Durée entre Heure début et Heure fin")
-    realisee       = fields.Float("Durée réalisee (H)")
-    reste          = fields.Float("Reste (H)", compute='_compute_reste', store=True)
+    duree_unitaire = fields.Float("Durée unitaire (HH:MM)"                      , required=True)
+    duree_totale   = fields.Float("Durée prévue (HH:MM)", compute='_compute_reste', store=True)
+    duree_reelle   = fields.Float("Durée hors tout (HH:MM)"        , compute='_compute_duree_reelle', store=True, help="Durée entre Heure début et Heure fin")
     heure_debut    = fields.Datetime("Heure début", index=True              , required=False)
     heure_fin      = fields.Datetime("Heure fin"                            , required=False)
     state          = fields.Selection([
@@ -230,14 +231,58 @@ class is_ordre_travail_line(models.Model):
             ('termine', 'Terminé'),
             ('annule' , 'Annulé'),
         ], "État", default='attente')
+    temps_passe_ids = fields.One2many('is.ordre.travail.line.temps.passe', 'line_id', 'Lignes')
+    temps_passe = fields.Float("Temps passé (HH:MM)", compute="_compute_temps_passe", readonly=True, store=True)
+    reste       = fields.Float("Reste (HH:MM)"      , compute='_compute_temps_passe', readonly=True, store=True)
+    commentaire = fields.Text("Commentaire")
+    afficher_start_stop = fields.Boolean("Afficher les boutons start/stop", compute="_compute_afficher_start_stop", readonly=True, store=False)
 
 
-    @api.depends('duree_unitaire','realisee','ordre_id.quantite')
+    def _get_last_state(self):
+        last_state=""
+        for obj in self:
+            for line in obj.ordre_id.line_ids:
+                if line.id==obj.id:
+                    return last_state
+                if line.state!='annule':
+                    last_state=line.state
+        return last_state
+
+
+    @api.depends('state')
+    def _compute_afficher_start_stop(self):
+        for obj in self:
+            last_state = obj._get_last_state()
+            affiche=False
+            if obj.state not in ('termine','annule'):
+                if last_state=="":
+                    affiche=True
+                else:
+                    if last_state=="termine":
+                        affiche=True
+                    else:
+                        if last_state in ('encours','pret') and obj.recouvrement>0:
+                            affiche=True
+            obj.afficher_start_stop = affiche
+
+
+    @api.depends('temps_passe_ids','temps_passe_ids.temps_passe','duree_totale')
+    def _compute_temps_passe(self):
+        for obj in self:
+            temps_passe = 0
+            reste = 0
+            for line in obj.temps_passe_ids:
+                temps_passe+=line.temps_passe
+            reste = obj.duree_totale-temps_passe
+            obj.temps_passe=temps_passe
+            obj.reste=reste
+
+
+    @api.depends('duree_unitaire','ordre_id.quantite')
     def _compute_reste(self):
         for obj in self:
             duree_totale = obj.ordre_id.quantite*obj.duree_unitaire
             obj.duree_totale=duree_totale
-            obj.reste=duree_totale-obj.realisee
 
 
     @api.depends('heure_debut','heure_fin')
@@ -250,16 +295,92 @@ class is_ordre_travail_line(models.Model):
 
 
 
-    # def add_taches_sur_dispo(self):
-    #     for tache in self:
-            # filtre=[
-            #     ('workcenter_id', '=' , workcenter_id),
-            #     ('disponibilite', '>' , 0),
-            #     ('employe_id'   , '=' , False),
-            #     ('heure_debut'  , '>=', heure_debut),
-            # ]
-            # dispos=self.env['is.dispo.ressource'].search(filtre, limit=limit, order="heure_debut")
+    def get_employe_id(self):
+        for obj in self:
+            employes = self.env['hr.employee'].search([("user_id","=", self._uid)])
+            for employe in employes:
+                employe_id = employe.id
+            return employe_id
+
+
+    def start_action(self, employe_id=False):
+        now = datetime.now()
+        for obj in self:
+            if not employe_id:
+                employe_id = self.get_employe_id()
+            if employe_id:
+                self.stop_action(employe_id=employe_id, now=now)
+                #** start d'une nouvelle ligne ********************************
+                vals={
+                    "line_id"    : obj.id,
+                    "employe_id" : employe_id,
+                    "heure_debut": now,
+                }
+                self.env['is.ordre.travail.line.temps.passe'].create(vals)
+                obj.state="encours"
+                #**************************************************************
+
+
+    def stop_action(self, employe_id=False, now=False):
+        if not now:
+            now = datetime.now()
+        for obj in self:
+           if not employe_id:
+                employe_id = self.get_employe_id()
+        if employe_id:
+            filtre=[
+                ("employe_id","=", employe_id),
+                ("heure_fin" ,"=", False),
+            ]
+            lines = self.env['is.ordre.travail.line.temps.passe'].search(filtre)
+            for line in lines:
+                line.heure_fin = now
+                test=True
+                for l in line.line_id.temps_passe_ids:
+                    if not l.heure_fin:
+                        test=False
+                        break
+                if test:
+                    if line.line_id.state not in ('termine','annule'):
+                        line.line_id.state="pret"
+
+
+    def end_action(self, employe_id=False):
+        for obj in self:
+            obj.state="termine"
+
+
+    def acceder_operation_action(self):
+        for obj in self:
+            res={
+                'name': 'Opération',
+                'view_mode': 'form',
+                'res_model': 'is.ordre.travail.line',
+                'res_id': obj.id,
+                'type': 'ir.actions.act_window',
+            }
+            return res
 
 
 
 
+class is_ordre_travail_line_temps_passe(models.Model):
+    _name='is.ordre.travail.line.temps.passe'
+    _description='Temps passé Ligne Ordre de travail'
+
+    line_id     = fields.Many2one('is.ordre.travail.line', 'Ligne ordre de travail', required=True, ondelete='cascade')
+    employe_id  = fields.Many2one("hr.employee", "Opérateur", required=True)
+    heure_debut = fields.Datetime("Heure de début"          , required=True)
+    heure_fin   = fields.Datetime("Heure de fin")
+    temps_passe = fields.Float("Temps passé (HH:MM)", compute="_compute_temps_passe", readonly=True, store=True)
+
+
+    @api.depends("heure_debut","heure_fin")
+    def _compute_temps_passe(self):
+        for obj in self:
+            temps_passe = 0
+            if obj.heure_debut and obj.heure_fin:
+                #heure_debut = datetime.strptime(obj.heure_debut, "%Y-%m-%d %H:%M:%S")
+                #heure_fin   = datetime.strptime(obj.heure_fin, "%Y-%m-%d %H:%M:%S")
+                temps_passe = (obj.heure_fin - obj.heure_debut).total_seconds()/3600
+            obj.temps_passe = temps_passe

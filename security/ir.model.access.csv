@@ -216,3 +216,5 @@ access_is_dispo_ressource_plage_manager,access_is_dispo_ressource_plage_manager,
 
 
 access_is_purchase_order_nomenclature_line,access_is_purchase_order_nomenclature_line,model_is_purchase_order_nomenclature_line,base.group_user,1,1,1,1
+
+access_is_ordre_travail_line_temps_passe,access_is_ordre_travail_line_temps_passe,model_is_ordre_travail_line_temps_passe,base.group_user,1,1,1,1

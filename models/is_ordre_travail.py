@@ -201,6 +201,77 @@ class is_ordre_travail(models.Model):
             return action
 
 
+
+    def get_operations(self,workcenter_id=False,employe_id=False):
+        "Fonction utilisée par l'application externe inox-atelier pour récuprer les opérations des ordres de travaux à réaliser"
+        cr = self._cr
+        SQL="""
+            SELECT 
+                iot.name num_ot,
+                mp.name num_of,
+                mp.is_nom_affaire,
+                mw.name workcenter_name,
+
+                line.id line_id,
+                line.name line_name,
+                line.heure_debut,
+                line.heure_fin,
+                pt.name product_name
+            FROM is_ordre_travail iot join is_ordre_travail_line line on line.ordre_id=iot.id
+                                      join mrp_production mp          on iot.production_id=mp.id
+                                      join mrp_workcenter mw          on line.workcenter_id=mw.id
+                                      join product_product pp         on mp.product_id=pp.id
+                                      join product_template pt        on pp.product_tmpl_id=pt.id
+
+            WHERE 
+                mp.is_pret='oui' and
+                mp.state not in ('draft','done','cancel') and
+                iot.state='encours' and
+                line.state not in ('termine','annule') and
+                line.workcenter_id=%s
+            ORDER BY line.heure_debut
+        """
+
+
+
+        cr.execute(SQL,[workcenter_id])
+        res = cr.dictfetchall()
+        ids=[]
+        lines=[]
+        for line in res:
+
+            #** Recherche si les boutons de l'opération sont actifs ***********
+            test=False
+            operation=self.env['is.ordre.travail.line'].browse(line["line_id"])
+            if operation:
+                #print(operation.ordre_id.production_id.name,operation.afficher_start_stop,operation.name, line["operation"])
+                test = operation.afficher_start_stop
+            #******************************************************************
+
+            if test:
+                ids.append(line["line_id"])
+                #** Problème d'encodage en XML-RPC ??
+                line["operation"]      = operation.name.encode('utf_8').decode('latin_1')
+                line["product_name"]   = line["product_name"].encode('utf_8').decode('latin_1')
+                print(line["operation"])
+                lines.append(line)
+
+        return {
+            'test':'ok éè€',
+            'ids':ids,
+            'lines':lines,
+        }
+
+
+
+
+
+
+
+
+
+
+
 class is_ordre_travail_line(models.Model):
     _name='is.ordre.travail.line'
     _inherit = ['mail.thread']
@@ -319,20 +390,41 @@ class is_ordre_travail_line(models.Model):
                 self.env['is.ordre.travail.line.temps.passe'].create(vals)
                 obj.state="encours"
                 #**************************************************************
+        return True
 
 
     def stop_action(self, employe_id=False, now=False):
+
+
+
         if not now:
             now = datetime.now()
         for obj in self:
            if not employe_id:
                 employe_id = self.get_employe_id()
+
+
+        print("TEST 1",self,employe_id)
+
+
+
         if employe_id:
             filtre=[
-                ("employe_id","=", employe_id),
+                ("employe_id","=", int(employe_id)),
                 ("heure_fin" ,"=", False),
             ]
+
+            print("TEST 2",filtre)
+
+
+
             lines = self.env['is.ordre.travail.line.temps.passe'].search(filtre)
+
+
+            print("TEST 3",lines)
+
+
+
             for line in lines:
                 line.heure_fin = now
                 test=True
@@ -343,11 +435,13 @@ class is_ordre_travail_line(models.Model):
                 if test:
                     if line.line_id.state not in ('termine','annule'):
                         line.line_id.state="pret"
+        return True
 
 
     def end_action(self, employe_id=False):
         for obj in self:
             obj.state="termine"
+        return True
 
 
     def acceder_operation_action(self):

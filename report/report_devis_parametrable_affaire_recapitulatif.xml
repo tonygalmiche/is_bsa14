@@ -108,9 +108,9 @@
                             <h3>Chargé d'affaire</h3>
                             <div t-field="o.vendeur_id"/>
                         </t>
-                        <t t-if="o.date_modification">
+                        <!-- <t t-if="o.date_modification">
                             <div>Fait à Saint-Amour le <span t-field="o.date_modification"/></div>
-                        </t>
+                        </t> -->
                         <img t-if="o.vendeur_id.is_image_signature" t-att-src="image_data_uri(o.vendeur_id.is_image_signature)" style="max-height: 25mm;"/>
                         <div style="text-align:center;margin-top:5mm">
                             <img 

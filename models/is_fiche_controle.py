@@ -44,7 +44,12 @@ class is_fiche_controle_ligne(models.Model):
 
     fiche_id = fields.Many2one('is.fiche.controle', 'Fiche', required=True, ondelete='cascade')
     point          = fields.Char("Point à contrôler")
-    conforme       = fields.Selection([('oui', u'Oui'),('non', u'Non')], "Conforme", required=True)
+    conforme       = fields.Selection([
+            ('oui'   , '1-vert'),
+            ('jaune' , '2-jaune'),
+            ('orange', '3-orange'),
+            ('non'   , '4-rouge'),
+        ], "Conforme", required=True)
     action_corrective = fields.Text("Si non, action corrective")
 
 

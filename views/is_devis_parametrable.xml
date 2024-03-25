@@ -548,7 +548,7 @@
                                 <field name="name"/>
                                 <field name="description_libre"          attrs="{'required':[('type_devis','=','structure')]}"/>
                                 <field name="description_complementaire" attrs="{'invisible':[('type_devis','!=','structure')]}"/>
-                                <field name="quantite"                   attrs="{'invisible':[('type_devis','=','bassin')]}"/>
+                                <field name="quantite"/>
                                 <field name="cout_horaire_montage"       attrs="{'invisible':[('type_devis','=','structure')]}"/>
                                 <field name="cout_horaire_be"            attrs="{'invisible':[('type_devis','=','structure')]}"/>
                                 <field name="cout_transport"/>

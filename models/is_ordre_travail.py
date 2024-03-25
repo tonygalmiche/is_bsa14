@@ -305,8 +305,9 @@ class is_ordre_travail_line(models.Model):
     temps_passe_ids = fields.One2many('is.ordre.travail.line.temps.passe', 'line_id', 'Lignes')
     temps_passe = fields.Float("Temps passé (HH:MM)", compute="_compute_temps_passe", readonly=True, store=True)
     reste       = fields.Float("Reste (HH:MM)"      , compute='_compute_temps_passe', readonly=True, store=True)
-    commentaire = fields.Text("Commentaire")
     afficher_start_stop = fields.Boolean("Afficher les boutons start/stop", compute="_compute_afficher_start_stop", readonly=True, store=False)
+    commentaire     = fields.Text("Commentaire")
+    commentaire_ids = fields.One2many('is.ordre.travail.line.commentaire', 'line_id', 'Commentaires')
 
 
     def _get_last_state(self):
@@ -478,3 +479,24 @@ class is_ordre_travail_line_temps_passe(models.Model):
                 #heure_fin   = datetime.strptime(obj.heure_fin, "%Y-%m-%d %H:%M:%S")
                 temps_passe = (obj.heure_fin - obj.heure_debut).total_seconds()/3600
             obj.temps_passe = temps_passe
+
+
+class is_ordre_travail_line_commentaire(models.Model):
+    _name='is.ordre.travail.line.commentaire'
+    _description='Commentaires Ligne Ordre de travail'
+
+    line_id     = fields.Many2one('is.ordre.travail.line', 'Ligne ordre de travail', required=True, ondelete='cascade')
+    employe_id  = fields.Many2one("hr.employee", "Opérateur", required=True, default=lambda self: self.get_employe())
+    date        = fields.Datetime("Date"                    , required=True, default=fields.Datetime.now)
+    commentaire = fields.Text("Commentaire")
+
+    def get_employe(self):
+        employe_id=False
+        filtre=[
+            ('user_id', '=', self.env.user.id),
+        ]
+        employes=self.env['hr.employee'].search(filtre, limit=1)
+        for employe in employes:
+            employe_id=employe.id
+        return employe_id
+

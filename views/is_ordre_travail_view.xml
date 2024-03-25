@@ -139,11 +139,12 @@
                                         <field name="duree_reelle" readonly="1" widget="float_time"/> 
                                         <field name="heure_debut"/> 
                                         <field name="heure_fin"/> 
+                                        <field name="duree_totale" widget="float_time"/> 
+                                        <field name="temps_passe"  widget="float_time"/> 
+                                        <field name="reste"        widget="float_time"/>      
                                    </group>
                               </group>
-                              <group>
-                                   <field name="commentaire"/> 
-                              </group>
+                              <group string="Suivi du temps"/>
                               <field name="temps_passe_ids">
                                    <tree editable="bottom">
                                         <field name="employe_id"/>
@@ -152,11 +153,14 @@
                                         <field name="temps_passe" sum="Total" widget="float_time"/>
                                    </tree>
                               </field>
-                              <group>
-                                   <field name="duree_totale" widget="float_time"/> 
-                                   <field name="temps_passe"  widget="float_time"/> 
-                                   <field name="reste"        widget="float_time"/>      
-                              </group>
+                              <group string="Commentaires"/>
+                              <field name="commentaire_ids">
+                                   <tree editable="bottom">
+                                        <field name="date"/>
+                                        <field name="employe_id"/>
+                                        <field name="commentaire"/>
+                                   </tree>
+                              </field>
                          </sheet>
                          <div class="oe_chatter">
                               <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>

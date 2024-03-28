@@ -426,9 +426,12 @@ class is_ordre_travail_line(models.Model):
 
 
     def end_action(self, employe_id=False):
+        now = datetime.now()
         for obj in self:
             obj.state="termine"
-            obj.stop_action(employe_id=employe_id)
+            for line in obj.temps_passe_ids:
+                if not line.heure_fin:
+                    line.heure_fin=now
         return True
 
 

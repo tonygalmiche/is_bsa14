@@ -201,7 +201,6 @@ class is_ordre_travail(models.Model):
             return action
 
 
-
     def get_operations(self,workcenter_id=False,employe_id=False):
         "Fonction utilisée par l'application externe inox-atelier pour récuprer les opérations des ordres de travaux à réaliser"
         cr = self._cr
@@ -211,18 +210,25 @@ class is_ordre_travail(models.Model):
                 mp.name num_of,
                 mp.is_nom_affaire,
                 mw.name workcenter_name,
-
                 line.id line_id,
                 line.name line_name,
                 line.heure_debut,
                 line.heure_fin,
-                pt.name product_name
+                pt.name product_name,
+                line.workcenter_id,
+                (select count(*) from is_ordre_travail_line_temps_passe where line_id=line.id) count_tps,
+                (
+                    select pav.name
+                    from product_variant_combination pvc join product_attribute_value_product_template_attribute_line_rel rel on pvc.product_template_attribute_value_id=rel.product_attribute_value_id
+                                                        join product_attribute_value pav on rel.product_attribute_value_id=pav.id and attribute_id=1
+                    where pvc.product_product_id=pp.id
+                    limit 1
+                ) numero_attribut
             FROM is_ordre_travail iot join is_ordre_travail_line line on line.ordre_id=iot.id
                                       join mrp_production mp          on iot.production_id=mp.id
                                       join mrp_workcenter mw          on line.workcenter_id=mw.id
                                       join product_product pp         on mp.product_id=pp.id
                                       join product_template pt        on pp.product_tmpl_id=pt.id
-
             WHERE 
                 mp.is_pret='oui' and
                 mp.state not in ('draft','done','cancel') and
@@ -231,9 +237,6 @@ class is_ordre_travail(models.Model):
                 line.workcenter_id=%s
             ORDER BY line.heure_debut
         """
-
-
-
         cr.execute(SQL,[workcenter_id])
         res = cr.dictfetchall()
         ids=[]
@@ -253,9 +256,7 @@ class is_ordre_travail(models.Model):
                 #** Problème d'encodage en XML-RPC ??
                 line["operation"]      = operation.name.encode('utf_8').decode('latin_1')
                 line["product_name"]   = line["product_name"].encode('utf_8').decode('latin_1')
-                print(line["operation"])
                 lines.append(line)
-
         return {
             'test':'ok éè€',
             'ids':ids,

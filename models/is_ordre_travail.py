@@ -219,7 +219,7 @@ class is_ordre_travail(models.Model):
                 line.heure_fin,
                 pt.name product_name,
                 line.workcenter_id,
-                (select count(*) from is_ordre_travail_line_temps_passe where line_id=line.id) count_tps,
+                (select count(*) from is_ordre_travail_line_temps_passe where line_id=line.id) count_tps
                 --(
                 --    select pav.name
                 --    from product_variant_combination pvc join product_attribute_value_product_template_attribute_line_rel rel on pvc.product_template_attribute_value_id=rel.product_attribute_value_id

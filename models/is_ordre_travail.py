@@ -401,37 +401,17 @@ class is_ordre_travail_line(models.Model):
 
 
     def stop_action(self, employe_id=False, now=False):
-
-
-
         if not now:
             now = datetime.now()
         for obj in self:
            if not employe_id:
                 employe_id = self.get_employe_id()
-
-
-        print("TEST 1",self,employe_id)
-
-
-
         if employe_id:
             filtre=[
                 ("employe_id","=", int(employe_id)),
                 ("heure_fin" ,"=", False),
             ]
-
-            print("TEST 2",filtre)
-
-
-
             lines = self.env['is.ordre.travail.line.temps.passe'].search(filtre)
-
-
-            print("TEST 3",lines)
-
-
-
             for line in lines:
                 line.heure_fin = now
                 test=True
@@ -448,6 +428,7 @@ class is_ordre_travail_line(models.Model):
     def end_action(self, employe_id=False):
         for obj in self:
             obj.state="termine"
+            obj.stop_action(employe_id=employe_id)
         return True
 
 

@@ -219,6 +219,7 @@ class is_ordre_travail(models.Model):
                 line.heure_fin,
                 pt.name product_name,
                 line.workcenter_id,
+                pp.id product_id,
                 (select count(*) from is_ordre_travail_line_temps_passe where line_id=line.id) count_tps
                 --(
                 --    select pav.name

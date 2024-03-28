@@ -218,15 +218,15 @@ class is_ordre_travail(models.Model):
                 line.heure_debut,
                 line.heure_fin,
                 pt.name product_name,
-                line.workcenter_id,
-                (select count(*) from is_ordre_travail_line_temps_passe where line_id=line.id) count_tps,
-                (
-                    select pav.name
-                    from product_variant_combination pvc join product_attribute_value_product_template_attribute_line_rel rel on pvc.product_template_attribute_value_id=rel.product_attribute_value_id
-                                                        join product_attribute_value pav on rel.product_attribute_value_id=pav.id and attribute_id=1
-                    where pvc.product_product_id=pp.id
-                    limit 1
-                ) numero_attribut
+                line.workcenter_id
+                --(select count(*) from is_ordre_travail_line_temps_passe where line_id=line.id) count_tps,
+                --(
+                --    select pav.name
+                --    from product_variant_combination pvc join product_attribute_value_product_template_attribute_line_rel rel on pvc.product_template_attribute_value_id=rel.product_attribute_value_id
+                --                                        join product_attribute_value pav on rel.product_attribute_value_id=pav.id and attribute_id=1
+                --    where pvc.product_product_id=pp.id
+                --    limit 1
+                --) numero_attribut
             FROM is_ordre_travail iot join is_ordre_travail_line line on line.ordre_id=iot.id
                                       join mrp_production mp          on iot.production_id=mp.id
                                       join mrp_workcenter mw          on line.workcenter_id=mw.id

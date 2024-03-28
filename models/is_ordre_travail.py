@@ -203,6 +203,9 @@ class is_ordre_travail(models.Model):
 
     def get_operations(self,workcenter_id=False,employe_id=False):
         "Fonction utilisée par l'application externe inox-atelier pour récuprer les opérations des ordres de travaux à réaliser"
+
+        print('get_operations',self,workcenter_id,employe_id)
+
         cr = self._cr
         SQL="""
             SELECT 
@@ -257,6 +260,7 @@ class is_ordre_travail(models.Model):
                 line["operation"]      = operation.name.encode('utf_8').decode('latin_1')
                 line["product_name"]   = line["product_name"].encode('utf_8').decode('latin_1')
                 lines.append(line)
+                print(line)
         return {
             'test':'ok éè€',
             'ids':ids,

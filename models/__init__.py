@@ -46,6 +46,4 @@ from . import is_calcul_pmp
 from . import crm_lead
 from . import is_ordre_travail
 from . import is_suivi_commercial
-
-
-
+from . import is_suivi_temps_production

@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- is.suivi.temps.production -->
+        <record id="is_suivi_temps_production_form_view" model="ir.ui.view">
+            <field name="name">is_suivi_temps_production_form_view</field>
+            <field name="model">is.suivi.temps.production</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="is_nom_affaire"/>
+                                <field name="production_id"/>
+                                <field name="product_id"/>
+                                <field name="is_client_order_ref"/>
+                                <field name="is_sale_order_line_id"/>
+                                <field name="is_sale_order_id"/>
+                                <field name="bom_id"/>
+                                <field name="date_prevue"/>
+                                <field name="ordre_id"/>
+                                <field name="line_id"/>
+                                <field name="name"/>
+                                <field name="workcenter_id"/>
+                                <field name="employe_id"/>
+                                <field name="heure_debut"/>
+                                <field name="heure_fin"/>
+                                <field name="temps_passe" widget="float_time"/>
+                                <field name="state"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_suivi_temps_production_tree_view" model="ir.ui.view">
+            <field name="name">is_suivi_temps_production_tree_view</field>
+            <field name="model">is.suivi.temps.production</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="is_nom_affaire" optional="show"/>
+                    <field name="production_id"  optional="show" widget="many2one_clickable"/>
+                    <field name="product_id"     optional="show" widget="many2one_clickable"/>
+                    <field name="is_client_order_ref"   optional="hide"/>
+                    <field name="is_sale_order_line_id" optional="hide" widget="many2one_clickable"/>
+                    <field name="is_sale_order_id"      optional="hide" widget="many2one_clickable"/>
+                    <field name="bom_id"                optional="hide" widget="many2one_clickable"/>
+                    <field name="date_prevue"   optional="show"/>
+                    <field name="ordre_id"      optional="show" widget="many2one_clickable"/>
+                    <field name="line_id"       optional="show" widget="many2one_clickable"/>
+                    <field name="name"          optional="hide"/>
+                    <field name="workcenter_id" optional="show" widget="many2one_clickable"/>
+                    <field name="employe_id"    optional="show" widget="many2one_clickable"/>
+                    <field name="heure_debut"   optional="show"/>
+                    <field name="heure_fin"     optional="show"/>
+                    <field name="temps_passe"   optional="show" widget="float_time" sum="Total"/>
+                    <field name="state"         optional="show"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_suivi_temps_production_search_view" model="ir.ui.view">
+            <field name="name">is_suivi_temps_production_search_view</field>
+            <field name="model">is.suivi.temps.production</field>
+            <field name="arch" type="xml">
+                <search string="Recherche">
+                    <field name="is_nom_affaire"/>
+                    <field name="production_id"/>
+                    <field name="product_id"/>
+                    <field name="is_client_order_ref"/>
+                    <field name="is_sale_order_id"/>
+                    <field name="ordre_id"/>
+                    <field name="line_id"/>
+                    <field name="workcenter_id"/>
+                    <field name="employe_id"/>
+                </search>
+            </field>
+        </record>
+        <record id="is_suivi_temps_production_graph_view" model="ir.ui.view">
+            <field name="name">is_suivi_temps_production_graph_view</field>
+            <field name="model">is.suivi.temps.production</field>
+            <field name="arch" type="xml">
+                <graph string="pivot">
+                    <field name="heure_debut" interval="week"/>
+                    <field name="employe_id"/>
+                    <field name="temps_passe" type="measure"/>
+                </graph>
+            </field>
+        </record>
+        <record id="is_suivi_temps_production_pivot_view" model="ir.ui.view">
+            <field name="name">is_suivi_temps_production_pivot_view</field>
+            <field name="model">is.suivi.temps.production</field>
+            <field name="arch" type="xml">
+                <pivot string="pivot">
+                    <field name="employe_id"  type="row"/>
+                    <field name="heure_debut" type="col" interval="week"/>
+                    <field name="temps_passe" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+        <record id="is_suivi_temps_production_action" model="ir.actions.act_window">
+            <field name="name">Suivi du temps par employé et par semaine</field>
+            <field name="res_model">is.suivi.temps.production</field>
+            <field name="view_mode">graph,pivot,tree,form</field>
+        </record>
+
+
+        <!-- is.suivi.temps.production.ot -->
+        <record id="is_suivi_temps_production_ot_form_view" model="ir.ui.view">
+            <field name="name">is_suivi_temps_production_ot_form_view</field>
+            <field name="model">is.suivi.temps.production.ot</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="is_nom_affaire"/>
+                                <field name="production_id"/>
+                                <field name="product_id"/>
+                                <field name="is_client_order_ref"/>
+                                <field name="is_sale_order_line_id"/>
+                                <field name="is_sale_order_id"/>
+                                <field name="bom_id"/>
+                                <field name="date_prevue"/>
+                                <field name="ordre_id"/>
+                                <field name="line_id"/>
+                                <field name="name"/>
+                                <field name="workcenter_id"/>
+                                <field name="duree_totale" widget="float_time"/>
+                                <field name="temps_passe"  widget="float_time"/>
+                                <field name="state"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_suivi_temps_production_ot_tree_view" model="ir.ui.view">
+            <field name="name">is_suivi_temps_production_ot_tree_view</field>
+            <field name="model">is.suivi.temps.production.ot</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="is_nom_affaire" optional="show"/>
+                    <field name="production_id"  optional="show" widget="many2one_clickable"/>
+                    <field name="product_id"     optional="show" widget="many2one_clickable"/>
+                    <field name="is_client_order_ref"   optional="hide"/>
+                    <field name="is_sale_order_line_id" optional="hide" widget="many2one_clickable"/>
+                    <field name="is_sale_order_id"      optional="hide" widget="many2one_clickable"/>
+                    <field name="bom_id"                optional="hide" widget="many2one_clickable"/>
+                    <field name="date_prevue"   optional="show"/>
+                    <field name="ordre_id"      optional="show" widget="many2one_clickable"/>
+                    <field name="line_id"       optional="show" widget="many2one_clickable"/>
+                    <field name="name"          optional="hide"/>
+                    <field name="workcenter_id" optional="show" widget="many2one_clickable"/>
+                    <field name="duree_totale"  optional="show" widget="float_time" sum="Total"/>
+                    <field name="temps_passe"   optional="show" widget="float_time" sum="Total"/>
+                    <field name="state"         optional="show"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_suivi_temps_production_ot_search_view" model="ir.ui.view">
+            <field name="name">is_suivi_temps_production_ot_search_view</field>
+            <field name="model">is.suivi.temps.production.ot</field>
+            <field name="arch" type="xml">
+                <search string="Recherche">
+                    <field name="is_nom_affaire"/>
+                    <field name="production_id"/>
+                    <field name="product_id"/>
+                    <field name="is_client_order_ref"/>
+                    <field name="is_sale_order_id"/>
+                    <field name="ordre_id"/>
+                    <field name="line_id"/>
+                    <field name="workcenter_id"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- Suivi du temps passé par affaire -->
+        <record id="is_suivi_temps_passe_affaire_graph_view" model="ir.ui.view">
+            <field name="name">is_suivi_temps_passe_affaire_graph_view</field>
+            <field name="model">is.suivi.temps.production.ot</field>
+            <field name="arch" type="xml">
+                <graph string="pivot">
+                    <field name="is_nom_affaire"/>
+                    <field name="temps_passe" type="measure"/>
+                </graph>
+            </field>
+        </record>
+        <record id="is_suivi_temps_passe_affaire_pivot_view" model="ir.ui.view">
+            <field name="name">is_suivi_temps_passe_affaire_pivot_view</field>
+            <field name="model">is.suivi.temps.production.ot</field>
+            <field name="arch" type="xml">
+                <pivot string="pivot">
+                    <field name="is_nom_affaire" type="row"/>
+                    <field name="duree_totale"   type="measure"/>
+                    <field name="temps_passe"    type="measure"/>
+                </pivot>
+            </field>
+        </record>
+        <record id="is_suivi_temps_passe_affaire_action" model="ir.actions.act_window">
+            <field name="name">Suivi du temps passé par affaire</field>
+            <field name="res_model">is.suivi.temps.production.ot</field>
+            <field name="view_mode">graph,pivot,tree,form</field>
+            <field name="domain">[('temps_passe','&gt;',0)]</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'graph', 'view_id': ref('is_suivi_temps_passe_affaire_graph_view')}),
+                (0, 0, {'view_mode': 'pivot', 'view_id': ref('is_suivi_temps_passe_affaire_pivot_view')}),
+            ]"/>
+        </record>
+
+
+
+
+        <!-- Suivi du temps prévu par affaire -->
+        <record id="is_suivi_temps_prevu_affaire_graph_view" model="ir.ui.view">
+            <field name="name">is_suivi_temps_prevu_affaire_graph_view</field>
+            <field name="model">is.suivi.temps.production.ot</field>
+            <field name="arch" type="xml">
+                <graph string="pivot">
+                    <field name="is_nom_affaire"/>
+                    <field name="duree_totale" type="measure"/>
+                </graph>
+            </field>
+        </record>
+        <record id="is_suivi_temps_prevu_affaire_pivot_view" model="ir.ui.view">
+            <field name="name">is_suivi_temps_prevu_affaire_pivot_view</field>
+            <field name="model">is.suivi.temps.production.ot</field>
+            <field name="arch" type="xml">
+                <pivot string="pivot">
+                    <field name="is_nom_affaire" type="row"/>
+                    <field name="duree_totale"   type="measure"/>
+                    <field name="temps_passe"    type="measure"/>
+                </pivot>
+            </field>
+        </record>
+        <record id="is_suivi_temps_prevu_affaire_action" model="ir.actions.act_window">
+            <field name="name">Suivi du temps prévu par affaire</field>
+            <field name="res_model">is.suivi.temps.production.ot</field>
+            <field name="view_mode">graph,pivot,tree,form</field>
+            <field name="domain">[('duree_totale','&gt;',0)]</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'graph', 'view_id': ref('is_suivi_temps_prevu_affaire_graph_view')}),
+                (0, 0, {'view_mode': 'pivot', 'view_id': ref('is_suivi_temps_prevu_affaire_pivot_view')}),
+            ]"/>
+        </record>
+
+ 
+
+
+
+    </data>
+</odoo>

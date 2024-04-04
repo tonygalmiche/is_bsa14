@@ -725,9 +725,39 @@
         />
 
         
+       <!-- Production / Suivi du temps -->
+       <menuitem 
+            id="is_suivi_temps_production_main_menu" 
+            sequence="18" 
+            name="Suivi du temps" 
+            parent="mrp.menu_mrp_root" 
+        />
+        <menuitem 
+            id="is_suivi_temps_production_menu" 
+            sequence="10" 
+            name="Suivi du temps par employé et par semaine" 
+            parent="is_suivi_temps_production_main_menu" 
+            action="is_suivi_temps_production_action"
+        />
+        <menuitem 
+            id="is_suivi_temps_passe_affaire_menu" 
+            sequence="20" 
+            name="Suivi du temps passé par affaire" 
+            parent="is_suivi_temps_production_main_menu" 
+            action="is_suivi_temps_passe_affaire_action"
+        />
+        <menuitem 
+            id="is_suivi_temps_prevu_affaire_menu" 
+            sequence="30" 
+            name="Suivi du temps prévu par affaire" 
+            parent="is_suivi_temps_production_main_menu" 
+            action="is_suivi_temps_prevu_affaire_action"
+        />
 
 
 
+
+        
 
         <!-- Projets -->
         <menuitem   

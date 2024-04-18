@@ -26,6 +26,7 @@ class is_ordre_travail(models.Model):
     createur_id          = fields.Many2one('res.users', 'Créateur', required=True, default=lambda self: self.env.user.id)
     date_creation        = fields.Date("Date de création"         , required=True, default=lambda *a: fields.Date.today())
     production_id        = fields.Many2one('mrp.production', 'Ordre de production', required=True)
+    is_nom_affaire       = fields.Char(related="production_id.is_nom_affaire")
     procurement_group_id = fields.Many2one('procurement.group', "Groupe d'approvisionnement")
     quantite             = fields.Float('Qt prévue', digits=(14,2), readonly=True)
     #date_prevue          = fields.Datetime('Date prévue' , related='production_id.date_planned_start')
@@ -291,6 +292,7 @@ class is_ordre_travail_line(models.Model):
     product_id     = fields.Many2one('product.product', 'Article'           , related='ordre_id.product_id')
     date_prevue    = fields.Datetime('Date prévue'                          , related='ordre_id.date_prevue')
     name           = fields.Char("Opération"                                , required=True)
+    libre          = fields.Boolean("Libre", default=False, help="Permet de démarrer le suivi du temps sur cette opération à tout moment")
     sequence       = fields.Integer("Séquence"                              , required=True)
     ordre_planning = fields.Integer("Ordre", help="Ordre dans le planning")
     workcenter_id  = fields.Many2one('mrp.workcenter', 'Poste de Travail'   , required=True)
@@ -316,6 +318,8 @@ class is_ordre_travail_line(models.Model):
     commentaire_ids = fields.One2many('is.ordre.travail.line.commentaire', 'line_id', 'Commentaires')
 
 
+
+
     def _get_last_state(self):
         last_state=""
         for obj in self:
@@ -333,14 +337,17 @@ class is_ordre_travail_line(models.Model):
             last_state = obj._get_last_state()
             affiche=False
             if obj.state not in ('termine','annule'):
-                if last_state=="":
+                if obj.libre:
                     affiche=True
                 else:
-                    if last_state=="termine":
+                    if last_state=="":
                         affiche=True
                     else:
-                        if last_state in ('encours','pret') and obj.recouvrement>0:
+                        if last_state=="termine":
                             affiche=True
+                        else:
+                            if last_state in ('encours','pret') and obj.recouvrement>0:
+                                affiche=True
             obj.afficher_start_stop = affiche
 
 

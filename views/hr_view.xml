@@ -278,9 +278,9 @@
                         }
                     </style>
                     <header>
-                        <button name="voir_productions_action"         string="Voir les productions"               type="object"/>
                         <button name="voir_productions_jour_action"    string="Voir les productions du jour"       type="object" />
                         <button name="voir_productions_semaine_action" string="Voir les productions de la semaine" type="object" />
+                        <button name="voir_productions_mois_action"    string="Voir les productions du mois"       type="object" />
 
                     </header>
                     <sheet>
@@ -326,10 +326,12 @@
                     <field name="disponibilite" sum="Total"/> 
                     <field name="charge" sum="Total"/> 
                     <field name="restant" sum="Total"/> 
-                    <button name="voir_productions_action"         type="object" icon="fa-list" title="Voir les productions de cette heure"/>
                     <button name="voir_productions_jour_action"    type="object" icon="fa-list" title="Voir les productions du jour"/>
                     <button name="voir_productions_semaine_action" type="object" icon="fa-list" title="Voir les productions de la semaine"/>
+                    <button name="voir_productions_mois_action"    type="object" icon="fa-list" title="Voir les productions du mois"/>
+
                     <field name="taches_ids" widget="many2many_tags" optional="hide"/>
+
                     <field name="description_taches" optional="show"/> 
                 </tree>
             </field>

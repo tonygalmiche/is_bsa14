@@ -64,17 +64,17 @@ class mrp_production(models.Model):
         ], "Prêt", help="Prêt à produire")
     
     
-    def name_get(self):
-        result = []
-        for obj in self:
-            t=[]
-            if obj.name:
-                t.append(obj.name)
-            if obj.is_client_order_ref:
-                t.append(obj.is_client_order_ref)
-            name=" / ".join(t)
-            result.append((obj.id, name))
-        return result
+    # def name_get(self):
+    #     result = []
+    #     for obj in self:
+    #         t=[]
+    #         if obj.name:
+    #             t.append(obj.name)
+    #         if obj.is_client_order_ref:
+    #             t.append(obj.is_client_order_ref)
+    #         name=" / ".join(t)
+    #         result.append((obj.id, name))
+    #     return result
 
 
 
@@ -155,6 +155,7 @@ class mrp_production(models.Model):
                                 'sequence'      : line.sequence,
                                 'name'          : line.name,
                                 'workcenter_id' : line.workcenter_id.id,
+                                'libre'         : line.is_libre,
                                 'recouvrement'  : line.is_recouvrement,
                                 'tps_apres'     : line.is_tps_apres,
                                 'duree_unitaire': line.is_duree_heure,

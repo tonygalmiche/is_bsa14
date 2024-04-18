@@ -3,6 +3,7 @@
 from odoo import models,fields,api
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
+import calendar
 from pytz import timezone
 import pandas as pd
 import numpy as np
@@ -445,12 +446,12 @@ class is_dispo_ressource(models.Model):
         }
 
 
-    def voir_productions_action(self):
-        ids=[]
-        for obj in self:
-            for tache in obj.taches_ids:
-                ids.append(tache.production_id.id)
-        return self.voir_productions_act_window(ids,"Heure")
+    # def voir_productions_action(self):
+    #     ids=[]
+    #     for obj in self:
+    #         for tache in obj.taches_ids:
+    #             ids.append(tache.production_id.id)
+    #     return self.voir_productions_act_window(ids,"Heure")
 
 
     def voir_productions_jour_action(self):
@@ -494,11 +495,25 @@ class is_dispo_ressource(models.Model):
         return self.voir_productions_act_window(ids,"Semaine")
 
 
-
-
-
-
-
+    def voir_productions_mois_action(self):
+        for obj in self:
+            heure_debut = obj.heure_debut.replace(hour=0).replace(minute=0).replace(second=0).replace(microsecond=0).replace(day=1)
+            cemois=calendar.monthrange(heure_debut.year,heure_debut.month)
+            dernier_du_mois=cemois[1]
+            heure_fin   = heure_debut + timedelta(days=dernier_du_mois)
+            filtre=[
+                ('workcenter_id', '=' , obj.workcenter_id.id),
+                ('disponibilite', '>' , 0),
+                ('employe_id'   , '=' , False),
+                ('heure_debut'  , '>=', heure_debut),
+                ('heure_fin'    , '<=', heure_fin),
+            ]
+            dispos=self.env['is.dispo.ressource'].search(filtre)
+            ids=[]
+            for dispo in dispos:
+                for tache in dispo.taches_ids:
+                    ids.append(tache.production_id.id)
+        return self.voir_productions_act_window(ids,"Semaine")
 
 
 class is_dispo_ressource_plage(models.Model):

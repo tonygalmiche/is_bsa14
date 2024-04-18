@@ -27,6 +27,7 @@
                                 <field name="duree" widget="float_time" sum="Total"/>
                                 <field name="recouvrement"/>
                                 <field name="tps_apres" widget="float_time" sum="Total"/>
+                                <field name="libre" widget="boolean_toggle"/>
                             </tree>
                         </field>
                     </sheet>

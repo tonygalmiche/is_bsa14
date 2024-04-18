@@ -27,13 +27,13 @@ class is_sale_order_line(models.Model):
     is_date_demandee       = fields.Date("Date demandée")
     state                  = fields.Char("Etat de la commande")
 
-    is_facturable_pourcent     = fields.Float("% facturable"                                                                        , digits=(14,2), copy=False, help="% facturable à ce jour permettant de générer une nouvelle facture" )
-    is_facture_avant_pourcent  = fields.Float("% facturé avant"                                                                     , digits=(14,2), copy=False, help="% factturé hors situation (ex : Accompte) pour reprendre l'historique")
-    is_deja_facture_pourcent   = fields.Float("% déjà facturé"  , digits=(14,2), copy=False, help="%s déja facturé calculé à partir des factures")
-    is_facturable              = fields.Float("Facturable"      , digits=(14,2), copy=False)
-    is_deja_facture            = fields.Float("Déja facturé"    , digits=(14,2), copy=False)
-    is_a_facturer              = fields.Float("A Facturer"      , digits=(14,2), copy=False)
-    is_reste_a_facturer        = fields.Float("Reste à facturer", digits=(14,2), copy=False)
+    is_facturable_pourcent     = fields.Float("% facturable"    , digits=(14,2), help="% facturable à ce jour permettant de générer une nouvelle facture" )
+    is_facture_avant_pourcent  = fields.Float("% facturé avant" , digits=(14,2), help="% factturé hors situation (ex : Accompte) pour reprendre l'historique")
+    is_deja_facture_pourcent   = fields.Float("% déjà facturé"  , digits=(14,2))
+    is_facturable              = fields.Float("Facturable"      , digits=(14,2))
+    is_deja_facture            = fields.Float("Déja facturé"    , digits=(14,2))
+    is_a_facturer              = fields.Float("A Facturer"      , digits=(14,2))
+    is_reste_a_facturer        = fields.Float("Reste à facturer", digits=(14,2))
 
 
     def init(self):
@@ -52,6 +52,15 @@ class is_sale_order_line(models.Model):
                     sol.product_uom_qty,
                     sol.price_unit,
                     sol.discount,
+                   
+                    sol.is_facturable_pourcent,
+                    sol.is_facture_avant_pourcent,
+                    sol.is_deja_facture_pourcent,
+                    sol.is_facturable,
+                    sol.is_deja_facture,
+                    sol.is_a_facturer,
+                    sol.is_reste_a_facturer,
+
                     sol.product_uom_qty*sol.price_unit*(100-discount)/100 montant_ht,
                     sol.is_date_prevue,
                     sol.is_date_demandee,

@@ -29,6 +29,15 @@
                                 <field name="montant_reste_a_livrer"/>
                                 <field name="state"/>
                             </group>
+                            <group>
+                                <field name="is_facturable_pourcent"/>
+                                <field name="is_facture_avant_pourcent"/>
+                                <field name="is_deja_facture_pourcent"/>
+                                <field name="is_facturable"/>
+                                <field name="is_deja_facture"/>
+                                <field name="is_a_facturer"/>
+                                <field name="is_reste_a_facturer"/>
+                            </group>
                         </group>
                     </sheet>
                 </form>
@@ -57,6 +66,15 @@
                     <field name="discount"         optional="show"/>
                     <field name="montant_ht"       optional="show"       sum="Total"/>
                     <field name="montant_reste_a_livrer" optional="show" sum="Total"/>
+
+                    <field name="is_facturable_pourcent" optional="hide"/>
+                    <field name="is_facture_avant_pourcent" optional="hide"/>
+                    <field name="is_deja_facture_pourcent" optional="hide"/>
+                    <field name="is_facturable" optional="hide"/>
+                    <field name="is_deja_facture" optional="hide"  sum="Total"/>
+                    <field name="is_a_facturer" optional="hide"  sum="Total"/>
+                    <field name="is_reste_a_facturer" optional="show" sum="Total"/>
+
                     <field name="state"            optional="show"/>
                 </tree>
             </field>

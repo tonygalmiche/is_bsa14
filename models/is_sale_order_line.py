@@ -27,6 +27,15 @@ class is_sale_order_line(models.Model):
     is_date_demandee       = fields.Date("Date demandée")
     state                  = fields.Char("Etat de la commande")
 
+    is_facturable_pourcent     = fields.Float("% facturable"                                                                        , digits=(14,2), copy=False, help="% facturable à ce jour permettant de générer une nouvelle facture" )
+    is_facture_avant_pourcent  = fields.Float("% facturé avant"                                                                     , digits=(14,2), copy=False, help="% factturé hors situation (ex : Accompte) pour reprendre l'historique")
+    is_deja_facture_pourcent   = fields.Float("% déjà facturé"  , digits=(14,2), copy=False, help="%s déja facturé calculé à partir des factures")
+    is_facturable              = fields.Float("Facturable"      , digits=(14,2), copy=False)
+    is_deja_facture            = fields.Float("Déja facturé"    , digits=(14,2), copy=False)
+    is_a_facturer              = fields.Float("A Facturer"      , digits=(14,2), copy=False)
+    is_reste_a_facturer        = fields.Float("Reste à facturer", digits=(14,2), copy=False)
+
+
     def init(self):
         cr=self._cr
         tools.drop_view_if_exists(cr, 'is_sale_order_line')

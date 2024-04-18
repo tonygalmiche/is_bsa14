@@ -8,6 +8,12 @@ class is_mode_reglement(models.Model):
     name = fields.Char(string='Mode de règlement')
 
 
+class is_situation(models.Model):
+    _name = "is.situation"
+    _description = "Situation de la facture"
+    name = fields.Char(string='Situation', required=True)
+
+
 class account_move(models.Model):
     _inherit = "account.move"
     _order = "create_date desc"
@@ -70,7 +76,8 @@ class account_move(models.Model):
             ('prestation_services'                , 'Prestation de services'),
             ('livraison_biens_prestation_services', 'Livraison de biens et prestation de services'),
         ], "Type de livraison", compute='_compute_is_type_livraison', help="Mention obligatoire sur les factures depuis le 01/10/22")
-    is_situation = fields.Char("Situation")
+    is_situation    = fields.Char("Situation (ancien champ)", readonly=True)
+    is_situation_id = fields.Many2one('is.situation', string='Situation')
     is_type_facturation = fields.Selection(related="is_sale_order_id.is_type_facturation")
 
 

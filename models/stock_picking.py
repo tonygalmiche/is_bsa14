@@ -211,7 +211,7 @@ class stock_picking(models.Model):
                         #** Recherche du reste à facturer si facture de situation *******
                         quantity = move.product_uom_qty
                         if move.sale_line_id.is_facturable_pourcent>0:
-                            quantity = round(1 - move.sale_line_id.is_deja_facture_pourcent/100,4) # Déduire le déjà facturé
+                            quantity = round(1 - move.sale_line_id.is_deja_facture_pourcent/100 - move.sale_line_id.is_facture_avant_pourcent/100,4) # Déduire le déjà facturé
                             move.sale_line_id.is_facturable_pourcent = 100                         # Solde du reste à facturer
                         #****************************************************************
 

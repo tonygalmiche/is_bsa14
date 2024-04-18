@@ -1,6 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
+
+        <!-- is.situation --> 
+        <record model="ir.ui.view" id="is_situation_form_view">
+            <field name="name">is_situation_form_view</field>
+            <field name="model">is.situation</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>  
+                    <sheet>
+                        <group>
+                            <field name="name"  /> 
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_situation_tree_view">
+            <field name="name">is_situation_tree_view</field>
+            <field name="model">is.situation</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/> 
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_situation_search_view" >
+            <field name="name">is_situation_search_view</field>
+            <field name="model">is.situation</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/> 
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_situation_action">
+            <field name="name">Situation de la facturation</field>
+            <field name="res_model">is.situation</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
         <!-- is.mode.reglement --> 
         <record model="ir.ui.view" id="is_mode_reglement_form_view">
             <field name="name">is_mode_reglement_form_view</field>
@@ -78,7 +120,8 @@
                     <field name="is_contact_id" domain="[('parent_id','=',partner_id)]" />
                     <field name="is_imputation_partenaire"/>
                     <field name="is_type_facturation"/>
-                    <field name="is_situation"/>
+                    <field name="is_situation" attrs="{'invisible': [('is_situation', '=', False)],}" />
+                    <field name="is_situation_id"/>
                 </field>
                 <!-- TODO : J'ai mis ces champs dans l'onglet 'Ecriture comptables' car cela bugait dans l'onglet 'Lignes de facture' -->
                 <xpath expr="//page[@id='aml_tab']/field[@name='line_ids']/tree/field[@name='price_total']" position="after">
@@ -103,7 +146,7 @@
                     <field name="is_sale_order_compute_id" optional="hide"/>
                     <field name="is_sale_order_id"         optional="hide"/>
                     <field name="is_type_facturation"      optional="hide"/>
-                    <field name="is_situation"             optional="hide"/>
+                    <field name="is_situation_id"          optional="hide"/>
                 </field>
             </field>
         </record>

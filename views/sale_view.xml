@@ -16,12 +16,8 @@
                     <field name="is_date_prevue"               optional="show"/>
                     <field name="is_derniere_date_prevue"      optional="show"/>
                     <field name="product_uom_qty" string="Qt commandée" readonly="True" optional="show"/>
-
                     <field name="qty_to_deliver" readonly="True" optional="show"/>
-
-
-
-
+                    <field name="qty_invoiced"                   optional="hide"/>
                     <field name="is_fabrication_prevue" optional="show"/>
                     <field name="is_reste"              optional="show"/>
                     <!-- <button
@@ -43,8 +39,7 @@
                     <field name="is_facturable"             sum="Total"  optional="hide"/>
                     <field name="is_deja_facture"           sum="Total"  optional="show"/>
                     <field name="is_a_facturer"             sum="Total"  optional="hide"/>
-
-                
+                    <field name="is_reste_a_facturer"       sum="Total"  optional="hide"/>
                     <field name="state"                       optional="show" readonly="True"/>
                     <field name="company_id" invisible="True"/>
                 </tree>
@@ -178,6 +173,7 @@
                     <field name="is_facturable"             optional="hide" sum="Total"/>
                     <field name="is_deja_facture"           optional="hide" sum="Total"/>
                     <field name="is_a_facturer"             optional="hide" sum="Total"/>
+                    <field name="is_reste_a_facturer"       optional="hide" sum="Total"/>
                 </xpath>
                 <field name="validity_date" position="after">
                     <field name="is_date_commande_client"/>

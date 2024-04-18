@@ -221,3 +221,5 @@ access_is_ordre_travail_line_commentaire,access_is_ordre_travail_line_commentair
 
 access_is_suivi_temps_production,access_is_suivi_temps_production,model_is_suivi_temps_production,base.group_user,1,0,0,0
 access_is_suivi_temps_production_ot,access_is_suivi_temps_production_ot,model_is_suivi_temps_production_ot,base.group_user,1,0,0,0
+
+access_is_situation,access_is_situation,model_is_situation,base.group_user,1,1,1,1

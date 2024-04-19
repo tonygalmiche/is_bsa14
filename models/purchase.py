@@ -164,16 +164,17 @@ class purchase_order(models.Model):
             obj.is_alerte_dir_finance=alerte
 
 
-    is_a_commander        = fields.Boolean("A commander", default=False)
-    is_arc                = fields.Boolean("ARC reçu"   , default=False)
-    is_article_vendu_id   = fields.Many2one("product.template", "Article vendu", help="Utilsé pour l'importation de la nomenclature")
-    is_quantite_vendue    = fields.Integer("Qt article vendu")
+    is_a_commander           = fields.Boolean("A commander", default=False)
+    is_arc                   = fields.Boolean("ARC reçu"   , default=False)
+    is_article_vendu_id      = fields.Many2one("product.template", "Article vendu", help="Utilsé pour l'importation de la nomenclature")
+    is_quantite_vendue       = fields.Integer("Qt article vendu")
     is_nomenclature_ids      = fields.One2many("is.purchase.order.nomenclature", "order_id", "Importation nomenclature")
     is_nomenclature_line_ids = fields.One2many("is.purchase.order.nomenclature.line", "order_id", "Lignes des nomenclatures à importer")
-    is_alerte_rsp_achat   = fields.Text('Alerte responsable des achats', compute=_compute_is_alerte)
-    is_alerte_dir_finance = fields.Text('Alerte direction financière'  , compute=_compute_is_alerte)
-    is_montant_valide     = fields.Float("Montant validé")
-    is_valideur_id        = fields.Many2one('res.users', 'Valideur')
+    is_alerte_rsp_achat      = fields.Text('Alerte responsable des achats', compute=_compute_is_alerte)
+    is_alerte_dir_finance    = fields.Text('Alerte direction financière'  , compute=_compute_is_alerte)
+    is_montant_valide        = fields.Float("Montant validé")
+    is_valideur_id           = fields.Many2one('res.users', 'Valideur')
+    is_adresse_livraison_id  = fields.Many2one("res.partner", "Adresse de livraison")
 
 
     def validation_action(self):

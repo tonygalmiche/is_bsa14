@@ -182,6 +182,25 @@
             </field>
         </record>
 
+        <record id="is_view_production_calendar" model="ir.ui.view">
+            <field name="name">is_view_production_calendar</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.view_production_calendar" />
+            <field name="arch" type="xml">
+                <field name="product_qty" position="after">
+                    <field name="is_nom_affaire"/>
+                    <field name="is_ordre_travail_id"/>
+                    <field name="is_planification"/>
+                    <field name="is_date_prevue"/>
+                    <field name="is_date_planifiee"/>
+                    <field name="is_date_planifiee_fin"/>
+                    <field name="is_pret"/>
+                    <field name="is_sale_order_id"/>
+                    <field name="is_client_order_ref"/>
+                </field>
+            </field>
+        </record>
+
         <record id="bsa_mrp_production_tree_view2" model="ir.ui.view">
             <field name="name">bsa_mrp_production_tree_view2</field>
             <field name="model">mrp.production</field>
@@ -254,7 +273,7 @@
                         <t t-name="kanban-box">
                             <div class="oe_kanban_content" style="background-color:white;margin:0.5em;padding:0.5em">
                                 <!-- <h4><a type="open"><field name="name"/></a> <field name="is_sale_order_id"/></h4> -->
-                                <h4><a type="open"><field name="name"/></a> <field name="is_client_order_ref"/></h4>
+                                <h4><a type="open"><field name="name"/></a> <field name="is_nom_affaire"/></h4>
                                 <ul>
                                     <li><field name="product_id"/></li>
                                     <li>Qt : <field name="product_qty"/></li>
@@ -368,6 +387,7 @@
             <field name="arch" type="xml">
                 <calendar color="user_id" date_start="date_planned_start"  mode="month">
                     <field name="name"/>
+                    <field name="is_nom_affaire"/>
                     <field name="user_id" filters="1"/>
                     <field name="product_id"/>
                     <field name="is_ordre_travail_id"/>
@@ -412,7 +432,7 @@
                     <templates>
                         <t t-name="kanban-box">
                             <div class="oe_kanban_content" style="background-color:white;margin:0.5em;padding:0.5em">
-                                <h4><a type="open"><field name="name"/></a> <field name="is_client_order_ref"/></h4>
+                                <h4><a type="open"><field name="name"/></a> <field name="is_nom_affaire"/></h4>
                                 <!-- <ul>
                                     <li><field name="is_sale_order_id"/></li>
                                     <li>Date prévue: <field name="date_planned_start"/></li>
@@ -446,9 +466,10 @@
                     <templates>
                         <t t-name="kanban-box">
                             <div class="oe_kanban_content" style="background-color:white;margin:0.5em;padding:0.5em">
-                                <h4><a type="open"><field name="name"/></a> <field name="is_client_order_ref"/></h4>
+                                <h4><a type="open"><field name="name"/></a> <field name="is_nom_affaire"/></h4>
                                 <ul>
                                     <!-- <li><field name="is_sale_order_id"/></li> -->
+                                    <li>Article:     <field name="product_id"/></li>
                                     <li>Date prévue: <field name="date_planned_start"/></li>
                                 </ul>
                             </div>

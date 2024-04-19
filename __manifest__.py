@@ -19,6 +19,7 @@ InfoSaône - Module Odoo 14 pour BSA
         "stock",
         "mrp",
         "purchase",
+        "purchase_stock",
         "hr",
         "project",
         "hr_timesheet",

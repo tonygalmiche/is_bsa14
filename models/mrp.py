@@ -109,10 +109,11 @@ class mrp_routing_workcenter(models.Model):
 class mrp_workcenter(models.Model):
     _inherit  = "mrp.workcenter"
 
-    is_temps_ouverture_ids    = fields.One2many("is.mrp.workcenter.temps.ouverture", "workcenter_id", "Temps d'ouverture")
-    is_ordre_travail_line_ids = fields.One2many('is.ordre.travail.line', 'workcenter_id', 'Ordres de travail')
-    is_fermeture_ids          = fields.One2many('is.mrp.workcenter.fermeture', 'workcenter_id', 'Fermetures')
-    is_planning               = fields.Char("Planning")
+    is_temps_ouverture_ids     = fields.One2many("is.mrp.workcenter.temps.ouverture", "workcenter_id", "Temps d'ouverture")
+    is_ordre_travail_line_ids  = fields.One2many('is.ordre.travail.line', 'workcenter_id', 'Ordres de travail')
+    is_fermeture_ids           = fields.One2many('is.mrp.workcenter.fermeture', 'workcenter_id', 'Fermetures')
+    is_planning                = fields.Char("Planning")
+    is_activer_bouton_terminer = fields.Boolean("Activer bouton terminer", default=True, help="Activer le bouton pour terminer les opérations dans le suivi du temps de la tablette")
 
 
     # def calculer_charge_action(self):

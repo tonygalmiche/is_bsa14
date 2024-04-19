@@ -1,5 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
+
+<template id="report_purchaseorder_document" inherit_id="purchase_stock.report_purchaseorder_document">
+    <div t-if="o.picking_type_id and o.picking_type_id.warehouse_id" position="replace">
+         <t t-if="o.is_adresse_livraison_id">
+            <div>
+                <span t-field="o.is_adresse_livraison_id.name"/>
+                <div t-field="o.is_adresse_livraison_id" t-options='{"widget": "contact", "fields": ["address", "phone"], "no_marker": True, "phone_icons": True}'/>    
+            </div>
+         </t>
+         <t t-else="">
+            <div t-if="o.picking_type_id and o.picking_type_id.warehouse_id">
+                <span t-field="o.picking_type_id.warehouse_id.name"/>
+                <div t-field="o.picking_type_id.warehouse_id.partner_id" t-options='{"widget": "contact", "fields": ["address", "phone"], "no_marker": True, "phone_icons": True}'/>
+            </div>
+        </t> 
+    </div>
+</template>
+
+
 <template id="is_report_purchaseorder_document" name="is_report_purchaseorder_document" inherit_id="purchase.report_purchaseorder_document">
     <xpath expr="//div[hasclass('page')]" position="replace">
         <style>

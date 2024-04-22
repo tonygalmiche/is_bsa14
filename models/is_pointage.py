@@ -23,6 +23,37 @@ class is_pointage(models.Model):
         return res
 
 
+    # def init(self):
+    #     cr=self._cr
+
+    #     cr.execute("""      
+    #         CREATE OR REPLACE PROCEDURE procedure_is_pointage_on_insert(id integer)
+    #         AS $$
+    #         import subprocess
+    #         import syslog
+    #         result = subprocess.run(['/usr/bin/python3', '/opt/script_is_pointage_on_insert.py', str(id)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)                   
+    #         syslog.syslog(syslog.LOG_INFO, "result=%s : id=%s"%(str(result),id))
+    #         $$ 
+    #         LANGUAGE plpython3u;
+          
+    #         CREATE OR REPLACE FUNCTION function_is_pointage_on_insert() RETURNS trigger AS
+    #         $$
+    #         BEGIN
+    #             CALL procedure_is_pointage_on_insert(NEW.id);
+    #             RETURN NEW;
+    #         END
+    #         $$
+    #         LANGUAGE 'plpgsql' VOLATILE;
+
+    #         DROP TRIGGER IF EXISTS trigger_is_pointage_on_insert ON is_pointage;
+
+    #         create trigger trigger_is_pointage_on_insert
+    #         after insert on is_pointage
+    #         for each row
+    #         execute procedure function_is_pointage_on_insert();
+    #     """)
+           
+
 class is_pointage_commentaire(models.Model):
     _name='is.pointage.commentaire'
     _description='is.pointage.commentaire'

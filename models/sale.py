@@ -493,7 +493,7 @@ class sale_order_line(models.Model):
     @api.depends('product_uom_qty','qty_invoiced','price_unit','price_subtotal')
     def _compute_is_reste_a_facturer(self):
         for obj in self:
-            resste=0
+            reste=0
             if obj.product_uom_qty>0:
                 price_avec_reduc = obj.price_subtotal/obj.product_uom_qty
                 reste = price_avec_reduc*(obj.product_uom_qty - obj.qty_invoiced)

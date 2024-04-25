@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_devis_parametrable_affaire_recapitulatif_bassin">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <style>
+                        h3{
+                            font-size:14pt;
+                            font-weight:bold;
+                            padding:0;
+                            margin:0;
+                            margin-bottom:1mm;
+                            margin-top:3mm;
+                        }
+                    </style>
+
+                    <div class="page">
+                        <h3><span t-field="o.name"/></h3>
+                        <table class="table table-sm o_main_table">
+                            <thead>
+                                <tr>
+                                    <th style="border-left:0;border-right:0;" class="text-center">Pos</th>
+                                    <th style="border-left:0;border-right:0;" class="text-center">Description</th>
+                                    <th style="border-left:0;border-right:0;" class="text-center">Quantité</th>
+                                    <th style="border-left:0;border-right:0;" class="text-right text-nowrap">Prix unitaire</th>
+                                    <th style="border-left:0;border-right:0;" class="text-right text-nowrap">Montant HT</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="pos" t-value="1"/>
+                                <t t-foreach="o.variante_ids" t-as="variante">
+                                    <tr style="border-bottom: 1px solid;">
+                                        <td style="border-left:0;border-right:0;" class="text-center"><span t-esc="pos"/></td>
+                                        <td style="border-left:0;border-right:0;" class="text-left">
+                                            <t t-foreach="variante.variante_id.devis_id.section_ids" t-as="section">
+                                                <t t-foreach="section.product_ids" t-as="l">
+                                                    <b><div t-field="l.description"/></b>
+                                                    <div t-if="l.description_detaillee" t-field="l.description_detaillee"/>
+                                                </t>
+                                            </t>
+                                        </td>
+                                        <td style="border-left:0;border-right:0;" class="text-center"><span t-field="variante.quantite"/></td>
+                                        <td style="border-left:0;border-right:0;" class="text-right"><span t-field="variante.prix_vente_remise_devise"/> <span t-field="o.devise_client_id.symbol"/></td>
+                                        <td style="border-left:0;border-right:0;" class="text-right"><span t-field="variante.montant"/>                  <span t-field="o.devise_client_id.symbol"/></td>
+                                    </tr>
+                                    <t t-set="pos" t-value="pos+1"/>
+                                </t>
+                            </tbody>
+                        </table>
+                        <div class="row">
+                            <div class="col-6 ml-auto">
+                                <table class="table table-sm o_main_table" style="page-break-inside: avoid;">
+                                    <tr>
+                                        <td><strong>Total HT</strong></td>
+                                        <td class="text-right"><span t-field="o.montant_ht"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>TVA</strong></td>
+                                        <td class="text-right"><span t-field="o.montant_tva"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Total TTC</strong></td>
+                                        <td class="text-right"><span t-field="o.montant_ttc"/></td>
+                                    </tr>
+                                </table>
+                                </div>
+                        </div>
+                     
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

@@ -1344,7 +1344,7 @@ class is_devis_parametrable_variante(models.Model):
     def name_get(self):
         result = []
         for obj in self:
-            name="%s (%s)"%(obj.name, obj.quantite)
+            name="%s (%s)(%s)"%(obj.name, obj.quantite,obj.devis_id.name)
             result.append((obj.id, name))
         return result
 

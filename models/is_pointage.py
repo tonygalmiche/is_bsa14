@@ -23,35 +23,37 @@ class is_pointage(models.Model):
         return res
 
 
-    # def init(self):
-    #     cr=self._cr
+    def init(self):
+        cr=self._cr
 
-    #     cr.execute("""      
-    #         CREATE OR REPLACE PROCEDURE procedure_is_pointage_on_insert(id integer)
-    #         AS $$
-    #         import subprocess
-    #         import syslog
-    #         result = subprocess.run(['/usr/bin/python3', '/opt/script_is_pointage_on_insert.py', str(id)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)                   
-    #         syslog.syslog(syslog.LOG_INFO, "result=%s : id=%s"%(str(result),id))
-    #         $$ 
-    #         LANGUAGE plpython3u;
+        cr.execute("""      
+            CREATE OR REPLACE PROCEDURE procedure_is_pointage_on_insert(employee integer, entree_sortie char)
+            AS $$
+            import subprocess
+            import syslog
+            result = subprocess.run(['/usr/bin/python3', '/opt/script_is_pointage_on_insert.py', str(employee), str(entree_sortie)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)                   
+            syslog.syslog(syslog.LOG_INFO, "result=%s : employee=%s : entree_sortie=%s"%(str(result),employee,entree_sortie))
+            $$ 
+            LANGUAGE plpython3u;
           
-    #         CREATE OR REPLACE FUNCTION function_is_pointage_on_insert() RETURNS trigger AS
-    #         $$
-    #         BEGIN
-    #             CALL procedure_is_pointage_on_insert(NEW.id);
-    #             RETURN NEW;
-    #         END
-    #         $$
-    #         LANGUAGE 'plpgsql' VOLATILE;
+            CREATE OR REPLACE FUNCTION function_is_pointage_on_insert() RETURNS trigger AS
+            $$
+            BEGIN
+                if NEW.entree_sortie='S' then
+                    CALL procedure_is_pointage_on_insert(NEW.employee,NEW.entree_sortie);
+                end if;
+                RETURN NEW;
+            END
+            $$
+            LANGUAGE 'plpgsql' VOLATILE;
 
-    #         DROP TRIGGER IF EXISTS trigger_is_pointage_on_insert ON is_pointage;
+            DROP TRIGGER IF EXISTS trigger_is_pointage_on_insert ON is_pointage;
 
-    #         create trigger trigger_is_pointage_on_insert
-    #         after insert on is_pointage
-    #         for each row
-    #         execute procedure function_is_pointage_on_insert();
-    #     """)
+            create trigger trigger_is_pointage_on_insert
+            after insert on is_pointage
+            for each row
+            execute procedure function_is_pointage_on_insert();
+        """)
            
 
 class is_pointage_commentaire(models.Model):

@@ -8,7 +8,6 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-
 class mrp_production(models.Model):
     _inherit = "mrp.production"
     _order = "id desc"
@@ -25,13 +24,6 @@ class mrp_production(models.Model):
     def _compute_is_date_prevue(self):
         for obj in self:
             obj.is_date_prevue = obj.is_sale_order_line_id.is_date_prevue # or obj.date_planned_start
-
-
-    # @api.depends('date_planned_start')
-    # def _compute_is_semaine_prevue(self):
-    #     for obj in self:
-    #         obj.is_semaine_prevue = obj.date_planned_start.strftime("%Y-S%V")
-    #         obj.is_mois_prevu = obj.date_planned_start.strftime("%Y-%m")
 
 
     date_planned          = fields.Datetime("Date plannifiée", required=False, index=True, readonly=False, states={}, copy=False)
@@ -64,22 +56,6 @@ class mrp_production(models.Model):
         ], "Prêt", help="Prêt à produire")
     
     
-    # def name_get(self):
-    #     result = []
-    #     for obj in self:
-    #         t=[]
-    #         if obj.name:
-    #             t.append(obj.name)
-    #         if obj.is_client_order_ref:
-    #             t.append(obj.is_client_order_ref)
-    #         name=" / ".join(t)
-    #         result.append((obj.id, name))
-    #     return result
-
-
-
-
-
     def write(self, vals):
         if "date_planned_start" in vals:
             if type(vals["date_planned_start"]) is str:
@@ -140,8 +116,6 @@ class mrp_production(models.Model):
                 ordres = self.env["is.ordre.travail"].search(filtre)
                 if len(ordres)>0:
                     ordre=ordres[0]
-                    #obj.is_ordre_travail_id=ordres[0].id
-                    #ordres[0].quantite = qty
                 else:
                     filtre=[
                         ("production_id","=",obj.id),
@@ -176,9 +150,6 @@ class mrp_production(models.Model):
                     ordre.calculer_charge_ordre_travail()
 
 
-
-
-
     def _pre_button_mark_done(self):
         productions_to_immediate = self._check_immediate()
         if productions_to_immediate:
@@ -201,10 +172,6 @@ class mrp_production(models.Model):
         return True
 
 
-
-
-
-
     def declarer_une_fabrication_action(self):
         res=False
         for obj in self:
@@ -219,12 +186,6 @@ class mrp_production(models.Model):
             else:
                 res=obj.with_context(skip_backorder=True, mo_ids_to_backorder=obj.id).button_mark_done()
             return res
-            # if res!=True and 'name' in res:
-            #     obj.qty_producing=0
-            #     err="La nomenclature de l'article ne correspond plus a la nomenclature de l'OF"
-            #     return err
-            #     #res["err"]=err
-            #     #return {"err": err}
         return True
 
 
@@ -283,23 +244,6 @@ class mrp_production(models.Model):
                 res+=line.generer_etiquette_livraison()
         self.env['is.tracabilite.reception'].imprimer_etiquette(res)
 
-
-
-    # def planifier_operation_action(self):
-    #     for obj in self:
-    #         if obj.state in ["confirmed","ready","in_production"]:
-    #             ops = self.env["mrp.production.workcenter.line"].search([("production_id","=",obj.id),("state","in",["draft","pause","startworking"])],order="production_id,sequence")
-    #             if ops:
-    #                 ops[0].is_date_debut = obj.is_date_planifiee
-    #                 ops[0].planifier_operation_action()
-
-
-    # def copy(self):
-    #     if default is None:
-    #         default = {}
-    #     default.update(generer_etiquette=False)
-    #     return super(mrp_production, self).copy(cr, uid, id, default, context)
-    
     
     def get_consume_lines(self, production_id, product_qty):
         prod_obj = self.pool.get("mrp.production")
@@ -393,9 +337,6 @@ class mrp_production(models.Model):
         _logger.info("calculer_charge_action : ** FIN en %.1fs"%duree)
 
 
-
-
-
     def vue_gantt_ordre_production_action(self):
         for obj in self:
             return {
@@ -437,6 +378,21 @@ class mrp_production(models.Model):
             obj.is_ordre_travail_id.calculer_charge_ordre_travail()
 
 
-
-
-
+    def scan_declaration_of1_action(self,TL=False):
+        res={}
+        err=""
+        if TL:
+            etiquettes = self.env["is.tracabilite.livraison"].search([("name","=",TL)])
+            for etiquette in etiquettes:
+                for move in etiquette.production_id.move_raw_ids:
+                    msg="scan_declaration_of1_action : stock=%s sur article %s"%(move.product_id.qty_available,move.product_id.name)
+                    _logger.info(msg)
+                    if move.product_id.qty_available<=0:
+                        err="stock=%s sur article %s"%(move.product_id.qty_available,move.product_id.name)
+                        break
+        res={
+            'TL'  : TL,
+            'test': 'toto et tutu',
+            'err' : err,
+        }
+        return res

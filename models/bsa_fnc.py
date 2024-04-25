@@ -77,9 +77,6 @@ class bsa_fnc(models.Model):
                 compose_form_id = False 
             ctx = dict()
 
-
-            print(template_id, compose_form_id)
-
             attachment_ids=[]
             for attachment in obj.attachment_ids:
                 attachment_ids.append(attachment.id)

@@ -84,7 +84,6 @@ class is_paye(models.Model):
                         detachements = self.env['is.detachement'].search(filtre)
                         if len(detachements):
                             detachement=True
-                        #print(employee.name, date, detachements, detachement)
                         #******************************************************
                         jour=date
                         jour_char = jour.strftime('%d/%m/%Y')

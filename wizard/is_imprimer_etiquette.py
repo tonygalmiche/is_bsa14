@@ -109,6 +109,5 @@ class is_imprimer_etiquette(models.TransientModel):
             for x in range(0, int(etiquette.quantity)):
                 #etiquette.imprimer_etiquette_direct()
                 res+=etiquette.generer_etiquette()
-        #print(res)
         self.env['is.tracabilite.reception'].imprimer_etiquette(res)
         return True

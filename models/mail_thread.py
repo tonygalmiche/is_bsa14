@@ -60,7 +60,6 @@ class MailThread(models.AbstractModel):
                 #TODO : J'ai surchargé cette méthode uniquement pour pouvoir définir un format par défaut pour les mails veant d'Excel sans encodage
                 if not encoding:
                     encoding='windows-1252'
-                print 'encoding 2bis =',encoding,type(encoding)
 
 
                 # 1) Explicit Attachments -> attachments

@@ -108,7 +108,6 @@ class mrp_production(models.Model):
                         months=months+12
                         years=years-1
                     dt=obj.date_planned_start + relativedelta(years=years, months=months)
-                    print(obj.date_planned_start, dt, years, months)
                     vals["date_planned_start"] = dt
         if "date_planned_start" in vals and not "is_date_planifiee" in vals:
             vals["is_planification"]="date_fixee"
@@ -360,7 +359,6 @@ class mrp_production(models.Model):
             (production.move_raw_ids | production.move_finished_ids)._action_confirm()
             production.workorder_ids._action_confirm()
 
-            #print("## desactivation _trigger_scheduler => Ne pas générer de commande d'achat lors de la validation => Fait le 15/06/22")
             # run scheduler for moves forecasted to not have enough in stock
             #production.move_raw_ids._trigger_scheduler()
         return True

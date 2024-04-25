@@ -334,12 +334,10 @@ class is_dispo_ressource(models.Model):
                 pd.set_option('display.max_rows', 7,) # Il est inutile de metttre plus de 10, car cela n'est pas pris en compte
                 df_dispos = pd.DataFrame(dispos)
                 #_logger.info("Convertion de la liste 'dispos' en DataFrame en %sms"%duree(debut))
-                #print(df_dispos)
                 #**************************************************************
 
                 #** Extraire les lignes avec une disponibilité à 0 ************
                 df_open = df_dispos[df_dispos["disponibilite"]>0]
-                #print(df_open)
                 #**************************************************************
 
                 # Ajout d'info sur les lignes i+1 et i-1
@@ -348,20 +346,16 @@ class is_dispo_ressource(models.Model):
                 df_aug = df_open.copy()
                 df_aug["heure_debut_next"] = df_open["heure_debut"].shift(-1) # Heure de début de la ligne suivante
                 df_aug["heure_fin_prev"]   = df_open["heure_fin"].shift(1)    # Heure de fin de la ligne précédente
-                #print(df_aug)
 
                 #Pour chaque ligne, vérifier si on est dans le cas d'un début de fermeture ou la fin d'une fermeture (il y a le cas où on est au milieu d'une fermeture qui est le cas dont on veut justement se débarasser)
                 df_aug["end_open"] = (df_aug["heure_debut_next"] != df_aug["heure_fin"])
                 df_aug["start_open"] = (df_aug["heure_fin_prev"] != df_aug["heure_debut"])
-                #print(df_aug)
 
                 ### Extraire toutes les dates de début
                 df_start = df_aug[df_aug["start_open"] == True]["heure_debut"]
-                #print(df_start)
 
                 ### Extraire toutes les dates de fin
                 df_end = df_aug[df_aug["end_open"] == True]["heure_fin"]
-                #print(df_end)
 
                 #Combiner le tout (et le tout dans le même format d'origine)
                 N = len(df_start)

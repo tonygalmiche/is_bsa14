@@ -96,10 +96,6 @@ class is_calcul_pmp(models.Model):
                         price_unit=0
                     if obj.inventory_id.id==inventory_id:
                         price_unit  = product.is_pmp_odoo8 or 0.0
-
-                        print("test", price_unit)
-
-
                     vals = {
                         'calcul_id'       : obj.id,
                         'product_id'      : product.id,

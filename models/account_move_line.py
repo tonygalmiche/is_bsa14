@@ -35,9 +35,3 @@ class account_move_line(models.Model):
     is_facturable_pourcent = fields.Float("% facturable", digits=(14,2), copy=False, store=True)
     is_a_facturer          = fields.Float("A Facturer"  , digits=(14,2), copy=False, help="Montant à facturer sur cette facture")
 
-
-    # def write(self, vals):
-    #     print(vals)
-    #     res = super(account_move_line, self).write(vals)
-    #     return res
-

@@ -107,7 +107,6 @@ class account_move(models.Model):
     @api.depends('posted_before', 'state', 'journal_id', 'date')
     def _compute_name(self):
         res = super(account_move, self)._compute_name()
-        print("## actualiser_facturable_action",res,self)
         for obj in self:
             for line in obj.invoice_line_ids:
                 if line.is_sale_line_id:

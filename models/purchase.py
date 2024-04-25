@@ -281,17 +281,8 @@ class purchase_order(models.Model):
             lines={}
             for line in obj.is_nomenclature_line_ids:
                 for seller in line.product_id.seller_ids:
-
-                    print(line.product_id,line.product_id.seller_ids)
-
-
-
                     line.partner_id = seller.name.id
                     if seller.name.id == obj.partner_id.id:
-
-                        print(seller.name.name, obj.partner_id.name)
-
-
                         qty        = line.product_qty
                         product_id = line.product_id
                         if product_id not in lines:

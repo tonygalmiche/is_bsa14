@@ -46,8 +46,6 @@ class assistent_report1(models.TransientModel):
 
     def assistent_report1(self):
         for obj in self:
-            print(obj)
-
             cr = self._cr
             #report_data = self.browse(cr, uid, ids[0])
             report_link = "https://odoo14-acier-scan.bsa-inox.fr/rh/rapport1.php"
@@ -63,7 +61,6 @@ class assistent_report1(models.TransientModel):
                 + '&saut_page='     + str(obj.saut_page) \
                 + '&date_debut='    + str(obj.date_debut) \
                 + '&date_fin='      + str(obj.date_fin)
-            print(url)
             return {
                 'name'     : 'Go to website',
                 'res_model': 'ir.actions.act_url',

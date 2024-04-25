@@ -55,7 +55,6 @@ class sale_order(models.Model):
             try:
                 self.env["project.task"].sudo().create(vals)
             except KeyError:
-                print("## project.task KeyError ##")
                 continue
         return res
 

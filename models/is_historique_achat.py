@@ -37,7 +37,6 @@ class is_historique_achat_actualiser(models.Model):
 
 
     def actualiser_action_ir_cron(self):
-        print()
         res=self.env['is.historique.achat.actualiser'].search([])
         nb = len(res)
         ct=1

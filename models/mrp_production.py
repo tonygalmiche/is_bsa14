@@ -380,7 +380,7 @@ class mrp_production(models.Model):
 
     def scan_declaration_of1_action(self,TL=False):
         res={}
-        err=""
+        err=[]
         if TL:
             etiquettes = self.env["is.tracabilite.livraison"].search([("name","=",TL)])
             for etiquette in etiquettes:
@@ -388,11 +388,11 @@ class mrp_production(models.Model):
                     msg="scan_declaration_of1_action : stock=%s sur article %s"%(move.product_id.qty_available,move.product_id.name)
                     _logger.info(msg)
                     if move.product_id.qty_available<=0:
-                        err="stock=%s sur article %s"%(move.product_id.qty_available,move.product_id.name)
-                        break
+                        err.append("stock=%s sur article %s"%(move.product_id.qty_available,move.product_id.name))
+                        #break
         res={
             'TL'  : TL,
             'test': 'toto et tutu',
-            'err' : err,
+            'err' : '\n'.join(err),
         }
         return res

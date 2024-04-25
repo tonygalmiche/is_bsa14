@@ -44,7 +44,12 @@
                             name="generer_pdf_action" 
                             string="Générer le PDF complet" type="object" 
                         />
-                    </header>
+                        <button 
+                            name="dupliquer_affaire_variante_action" 
+                            string="Dupliquer l'affaire et ses variantes" type="object" 
+                            confirm="Voulez-vous vraiment dupliquer cette affaire avec ses variantes et devis associés ?"
+                        />
+                </header>
                     <sheet>
                         <style>
                             .o_form_label{

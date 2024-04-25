@@ -22,14 +22,14 @@ class is_devis_parametrable_affaire(models.Model):
 
     name                 = fields.Char("Nom de l'affaire", required=True)
     code_affare          = fields.Char("Code de l'affaire", compute='_compute_code_affare', store=True, readonly=True, index=True)
-    code_affare_force    = fields.Char("Code de l'affaire forcé")
-    version              = fields.Char("Version")
-    attention_de         = fields.Char("A l'attention de")
+    code_affare_force    = fields.Char("Code de l'affaire forcé", tracking=True)
+    version              = fields.Char("Version", tracking=True)
+    attention_de         = fields.Char("A l'attention de", tracking=True)
     image_affaire        = fields.Binary("Image affaire")
-    is_societe_commerciale_id = fields.Many2one("is.societe.commerciale", "Société commerciale", readonly=False)
-    partner_id           = fields.Many2one('res.partner', 'Revendeur / Client', required=True)
-    date_affaire         = fields.Date("Date affaire")
-    date_modification    = fields.Date("Date", help="Date de dernière modification utilisée dans les PDF", readonly=True)
+    is_societe_commerciale_id = fields.Many2one("is.societe.commerciale", "Société commerciale", readonly=False, tracking=True)
+    partner_id           = fields.Many2one('res.partner', 'Revendeur / Client', required=True, tracking=True)
+    date_affaire         = fields.Date("Date affaire", tracking=True)
+    date_modification    = fields.Date("Date", help="Date de dernière modification utilisée dans les PDF", readonly=True, tracking=True)
     conditions_particulieres   = fields.Text("Conditions particulières")
     information_technique      = fields.Text("Informations techniques")
     information_complementaire = fields.Text("Informations complémentaires")
@@ -59,14 +59,16 @@ class is_devis_parametrable_affaire(models.Model):
         ('cuve'     , 'Cuve'),
         ('bassin'   , 'Bassin'),
         ('structure', 'Structure'),
-    ], "Type devis", readonly=True, compute='_compute_montants')
-
-
+    ], "Type devis", readonly=True, compute='_compute_montants', tracking=True)
 
 
     def write(self, vals):
         vals["date_modification"] = fields.Date.today()
         res = super(is_devis_parametrable_affaire, self).write(vals)
+        if 'partner_id' in vals:
+            for obj in self:
+                for line in obj.variante_ids:
+                    line.variante_id.devis_id.partner_id = vals['partner_id']
         return res
 
 
@@ -372,6 +374,19 @@ class is_devis_parametrable_affaire(models.Model):
             obj.devis_ids = [(6, 0, [attachment_id])]
 
 
+    def dupliquer_affaire_variante_action(self):
+        for obj in self:
+            default={
+                'version': "%s (copie)"%obj.version
+            }
+            copy_affaire = obj.copy(default=default)
+            for line in copy_affaire.variante_ids:
+                copy = line.variante_id.devis_id.copy()
+                for variante in copy.variante_ids:
+                    line.variante_id = variante.id
+            return copy_affaire.acceder_affaire_action()
+
+
 class is_devis_parametrable_affaire_variante(models.Model):
     _name='is.devis.parametrable.affaire.variante'
     _description = "Variantes des affaires"
@@ -487,19 +502,19 @@ class is_devis_parametrable(models.Model):
               
 
     name                       = fields.Char("N°", readonly=True)
-    version                    = fields.Char("Version")
+    version                    = fields.Char("Version", tracking=True)
     type_devis                 = fields.Selection([
             ('cuve'     , 'Cuve'),
             ('bassin'   , 'Bassin'),
             ('structure', 'Structure'),
-        ], "Type devis", default="cuve", required=True)
-    nom_affaire                = fields.Char("Nom affaire")
+        ], "Type devis", default="cuve", required=True, tracking=True)
+    nom_affaire                = fields.Char("Nom affaire", tracking=True)
     image                      = fields.Binary("Image", related="type_cuve_id.image")
-    code_devis                 = fields.Char("Code devis")
-    designation                = fields.Char("Désignation")
-    designation_complementaire = fields.Char("Désignation complémentaire")
-    descriptif                 = fields.Text("Descriptif bassin", help="Utilisé pour les bassins uniquement")
-    is_societe_commerciale_id  = fields.Many2one("is.societe.commerciale", "Société commerciale")
+    code_devis                 = fields.Char("Code devis", tracking=True)
+    designation                = fields.Char("Désignation", tracking=True)
+    designation_complementaire = fields.Char("Désignation complémentaire", tracking=True)
+    descriptif                 = fields.Text("Descriptif bassin", help="Utilisé pour les bassins uniquement", tracking=True)
+    is_societe_commerciale_id  = fields.Many2one("is.societe.commerciale", "Société commerciale", tracking=True)
     capacite                   = fields.Integer("Capacité")
     unite                      = fields.Selection([
             ('Litre', 'Litre'),
@@ -510,10 +525,10 @@ class is_devis_parametrable(models.Model):
     capacite_txt       = fields.Char("Capacité ", compute='_compute_capacite_txt')
     type_cuve_id       = fields.Many2one('is.type.cuve', 'Type de fabrication', required=True)
     calcul_ids         = fields.One2many('is.type.cuve.calcul', 'devis_parametrable_id', 'Calculs', copy=True)
-    createur_id        = fields.Many2one('res.users', 'Créateur', required=True, default=lambda self: self.env.user.id)
-    date_creation      = fields.Date("Date de création"         , required=True, default=lambda *a: fields.Date.today())
-    date_actualisation = fields.Datetime("Date d'actualisation"                , default=fields.Datetime.now)
-    partner_id         = fields.Many2one('res.partner', 'Revendeur / Client', required=True)
+    createur_id        = fields.Many2one('res.users', 'Créateur', required=True, default=lambda self: self.env.user.id , copy=False, tracking=True)
+    date_creation      = fields.Date("Date de création"         , required=True, default=lambda *a: fields.Date.today(), copy=False, tracking=True)
+    date_actualisation = fields.Datetime("Date d'actualisation"                , default=fields.Datetime.now, tracking=True)
+    partner_id         = fields.Many2one('res.partner', 'Revendeur / Client', required=True, tracking=True)
 
     devise_client_id   = fields.Many2one('res.currency', "Devise Client", default=lambda self: self.env.user.company_id.currency_id.id)
     taux_devise        = fields.Float("Taux devise", default=1, digits=(12, 6), help="Nombre d'Euro pour une devise")

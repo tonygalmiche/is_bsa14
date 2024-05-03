@@ -33,7 +33,7 @@ class mrp_production(models.Model):
     is_date_planifiee_fin = fields.Datetime("Date planifiée fin", readonly=True)
     is_ecart_date         = fields.Integer("Ecart date", readonly=True)
     is_gabarit_id         = fields.Many2one("is.gabarit", "Gabarit")
-    is_sale_order_line_id = fields.Many2one("sale.order.line", "Ligne de commande")
+    is_sale_order_line_id = fields.Many2one("sale.order.line", "Ligne de commande",index=True)
     is_sale_order_id      = fields.Many2one("sale.order", "Commande", compute='_compute_is_sale_order_id', store=True, readonly=True)
     is_nom_affaire        = fields.Char("Nom de l'affaire"          , compute='_compute_is_sale_order_id', store=True, readonly=True)
     generer_etiquette     = fields.Boolean('Etiquettes générées', default=False, copy=False)

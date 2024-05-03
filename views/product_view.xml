@@ -237,8 +237,9 @@
                     <field name="is_masse_tole" />
                 </field>
                 <field name="uom_po_id" position="after">
-                    <field name="is_simulation_livrable" />
-                    <field name="is_article_pour_devis" />
+                    <field name="is_simulation_livrable"/>
+                    <field name="is_article_pour_devis"/>
+                    <field name="is_creation_of"/>
                 </field>
                 <xpath expr="//page/group[@name='inventory']" position="after">
                      <group name="is_tracabilte" string='Traçabilité'>
@@ -339,6 +340,7 @@
                     <field name="is_volume_cuve_id"         optional="hide"   widget="many2many_tags"/>
                     <field name="is_cuve_niveau_complexite" optional="hide"/>
                     <field name="is_finition_cuve_ids"      optional="hide"/>
+                    <field name="is_creation_of"            optional="hide"/>
                     <field name="create_date"               optional="hide"/>
                     <field name="write_date"                optional="hide"/>
                 </tree>

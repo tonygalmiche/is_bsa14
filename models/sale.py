@@ -45,6 +45,14 @@ class is_sale_order_line_group(models.Model):
 class sale_order(models.Model):
     _inherit = "sale.order"
 
+
+    def creation_of(self):
+        for obj in self:
+            for line in obj.order_line:
+                if line.product_id.is_creation_of:
+                    line.creation_of_multi_niveaux(line,0, 1, line.product_id)
+
+
     def action_confirm(self):
         res = super(sale_order, self).action_confirm()
         for obj in self:
@@ -56,6 +64,7 @@ class sale_order(models.Model):
                 self.env["project.task"].sudo().create(vals)
             except KeyError:
                 continue
+        self.creation_of()
         return res
 
 
@@ -487,6 +496,7 @@ class sale_order_line(models.Model):
     is_deja_facture            = fields.Float("Déja facturé"    , store=True, readonly=True, compute='actualiser_facturable_action' , digits=(14,2), copy=False)
     is_a_facturer              = fields.Float("A Facturer"      , store=True, readonly=True, compute='actualiser_facturable_action' , digits=(14,2), copy=False)
     is_reste_a_facturer        = fields.Float("Reste à facturer", store=True, readonly=True, compute='_compute_is_reste_a_facturer', digits=(14,2), copy=False)
+    is_voir_production_vsb     = fields.Boolean("Voir les productions vsb", compute='_compute_is_voir_production_vsb')
 
 
     @api.depends('product_uom_qty','qty_invoiced','price_unit','price_subtotal')
@@ -593,39 +603,88 @@ class sale_order_line(models.Model):
         self.discount=remise
 
 
-    def action_creer_of(self):
+
+    def creer_of(self,product_id,quantite):
         for obj in self:
+            production=False
+            #** Recherche si un OF existe déja pour cette ligne de commande****
             mrp_production_obj = self.env["mrp.production"]
-            qty = obj.is_reste
-            vals={
-                "product_id"           : obj.product_id.id,
-                "product_uom_id"       : obj.product_id.uom_id.id,
-                "product_qty"          : qty,
-                "origin"               : obj.order_id.name,
-                "is_sale_order_line_id": obj.id
-            }
-            production=mrp_production_obj.create(vals)
-            if production:
-                production.onchange_product_id()
-                production.product_qty = qty
-                production._onchange_bom_id()
-                production._onchange_move_raw()
-                production.action_confirm()
+            filtre=[
+                ('is_sale_order_line_id', '=', obj.id),
+                ('product_id'           ,'=',product_id.id)
+            ]
+            productions = mrp_production_obj.search(filtre)
+            if len(productions)>0:
+                production=productions[0]
+            #******************************************************************
+            if not production:
+                vals={
+                    "product_id"           : product_id.id,
+                    "product_uom_id"       : product_id.uom_id.id,
+                    "product_qty"          : quantite,
+                    "origin"               : obj.order_id.name,
+                    "is_sale_order_line_id": obj.id,
+                    "date_planned_start"   : obj.is_date_prevue,
+                }
+                production=mrp_production_obj.create(vals)
+                if production:
+                    production.onchange_product_id()
+                    production.product_qty = quantite
+                    production._onchange_bom_id()
+                    production._onchange_move_raw()
+                    production.action_confirm()
+                    msg="Création OF %s pour la commande %s et l'article %s"%(production.name,obj.order_id.name,product_id.name)
+                    _logger.info(msg)
+
+
+
+    def creation_of_multi_niveaux(self, sale_order_line, niveau, quantite, product_id, bom_id=False):
+        for obj in self:
+            if bom_id:
+                boms = self.env['mrp.bom'].search([('id','=',bom_id.id)],limit=1)
+            else:
+                boms = self.env['mrp.bom'].search([('product_tmpl_id','=',product_id.product_tmpl_id.id)],limit=1)
+            for bom in boms:
+                if bom.product_tmpl_id.is_creation_of:
+                    sale_order_line.creer_of(product_id,quantite)
+                for line in bom.bom_line_ids:
+                    coef = line.product_uom_id._compute_quantity(1,line.product_id.uom_id )
+                    boms2 = self.env['mrp.bom'].search([('product_tmpl_id','=',line.product_id.product_tmpl_id.id)],limit=1)
+                    type_article="composant"
+                    if boms2:
+                        type_article="compose"
+                    product_qty = line.product_qty*quantite
+                    obj.creation_of_multi_niveaux(sale_order_line,niveau+1, product_qty, line.product_id)
+
+
+    def creer_of_action(self):
+        for obj in self:
+            if obj.product_id.is_creation_of:
+                obj.creation_of_multi_niveaux(obj,0, obj.product_uom_qty, obj.product_id)
+
+
+    def voir_productions_action(self):
+        for obj in self:
+            productions = self.env['mrp.production'].search([('is_sale_order_line_id','=',obj.id)])
+            ids=[]
+            for production in productions:
+                ids.append(production.id)
+            if len(ids)>0:
                 return {
-                    "name": "Ordre de fabrication",
-                    "view_mode": "form",
-                    "view_type": "form",
+                    "name": 'Productions',
+                    "view_mode": "tree,form",
                     "res_model": "mrp.production",
+                    "domain": [
+                        ("id" ,"in",ids),
+                    ],
                     "type": "ir.actions.act_window",
-                    "res_id": production.id,
-                    "domain": "[]",
                 }
 
 
-
-
-
-
-
-
-
+    def _compute_is_voir_production_vsb(self):
+        for obj in self:
+            vsb=False
+            productions = self.env['mrp.production'].search([('is_sale_order_line_id','=',obj.id)])
+            if len(productions)>0:
+                vsb=True
+            obj.is_voir_production_vsb = vsb

@@ -88,8 +88,7 @@ class product_template(models.Model):
     is_type_cuve_id           = fields.Many2one("is.product.type.cuve", string="Type de cuve")
     is_volume_cuve_id         = fields.Many2one("is.volume.cuve", string="Volume cuve")
     is_finition_cuve_ids      = fields.Many2many('is.finition.cuve','is_finition_cuve_product_rel','product_id','finition_id', string="Finition")
-
-
+    is_creation_of            = fields.Boolean('Création OF depuis commande', default=False, help="Si cette case est cochée, un OF sera créé automatiquement pour chaque niveau de la nomenclature au moment de la validation de la commande")
 
 
     @api.depends('is_cuve_thermoregulation','is_cuve_isolation','is_cuve_compartimente','is_cuve_plafond_mobile')

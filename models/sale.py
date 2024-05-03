@@ -488,7 +488,6 @@ class sale_order_line(models.Model):
     is_remise2                 = fields.Float("Remise 2 (%)", digits='Discount')
     is_production_id           = fields.Many2one("mrp.production", "Ordre de fabrication", copy=False)
     is_num_ligne               = fields.Integer("N°", help="Numéro de ligne automatique", compute="_compute_is_num_ligne", readonly=True, store=False)
-
     is_facturable_pourcent     = fields.Float("% facturable"                                                                        , digits=(14,2), copy=False, help="% facturable à ce jour permettant de générer une nouvelle facture" )
     is_facture_avant_pourcent  = fields.Float("% facturé avant"                                                                     , digits=(14,2), copy=False, help="% factturé hors situation (ex : Accompte) pour reprendre l'historique")
     is_deja_facture_pourcent   = fields.Float("% déjà facturé"  , store=True, readonly=True, compute='actualiser_facturable_action' , digits=(14,2), copy=False, help="%s déja facturé calculé à partir des factures")
@@ -603,7 +602,6 @@ class sale_order_line(models.Model):
         self.discount=remise
 
 
-
     def creer_of(self,product_id,quantite):
         for obj in self:
             production=False
@@ -635,7 +633,6 @@ class sale_order_line(models.Model):
                     production.action_confirm()
                     msg="Création OF %s pour la commande %s et l'article %s"%(production.name,obj.order_id.name,product_id.name)
                     _logger.info(msg)
-
 
 
     def creation_of_multi_niveaux(self, sale_order_line, niveau, quantite, product_id, bom_id=False):

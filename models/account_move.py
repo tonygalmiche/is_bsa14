@@ -79,6 +79,7 @@ class account_move(models.Model):
     is_situation    = fields.Char("Situation (ancien champ)", readonly=True)
     is_situation_id = fields.Many2one('is.situation', string='Situation')
     is_type_facturation = fields.Selection(related="is_sale_order_id.is_type_facturation")
+    is_condition_nouvelle_page = fields.Boolean("Conditions sur une nouvelle page de la facture", default=False)
 
 
     def write(self, vals):

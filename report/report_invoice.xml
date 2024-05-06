@@ -223,6 +223,7 @@
                     <t t-if="o.is_type_facturation=='avec_situation'">
                         <div t-if="o.is_situation_nouvelle_page" style="page-break-before:always"/>
                         <br t-if="o.is_situation_nouvelle_page==False"  />
+                        <h3>Situation comptable de l’affaire</h3>
                         <table class="table table-sm o_main_table">
                             <thead>
                                 <tr>

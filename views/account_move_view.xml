@@ -121,6 +121,7 @@
                     <field name="is_imputation_partenaire"/>
                     <field name="is_type_facturation"/>
                     <field name="is_condition_nouvelle_page"/>
+                    <field name="is_situation_nouvelle_page" attrs="{'invisible': [('is_type_facturation', '!=', 'avec_situation')],}"/>
                     <field name="is_situation" attrs="{'invisible': [('is_situation', '=', False)],}" />
                     <field name="is_situation_id"/>
                 </field>

@@ -526,6 +526,7 @@ class sale_order_line(models.Model):
                     if row[0]=='out_refund':
                         sens=-1
                     deja_facture_pourcent += 100*sens*(row[1] or 0)
+                deja_facture_pourcent = deja_facture_pourcent / (obj.product_uom_qty or 1)
                 #**********************************************************************************
 
                 # #** Liens entre ligne de commande, ligne de facture et mouvement de stock *********

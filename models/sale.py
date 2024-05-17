@@ -46,11 +46,11 @@ class sale_order(models.Model):
     _inherit = "sale.order"
 
 
-    def creation_of(self):
-        for obj in self:
-            for line in obj.order_line:
-                if line.product_id.is_creation_of:
-                    line.creation_of_multi_niveaux(line,0, 1, line.product_id)
+    # def creation_of(self):
+    #     for obj in self:
+    #         for line in obj.order_line:
+    #             if line.product_id.is_creation_of:
+    #                 line.creation_of_multi_niveaux(line,0, 1, line.product_id)
 
 
     def action_confirm(self):
@@ -64,7 +64,7 @@ class sale_order(models.Model):
                 self.env["project.task"].sudo().create(vals)
             except KeyError:
                 continue
-        self.creation_of()
+        #self.creation_of()
         return res
 
 
@@ -628,8 +628,8 @@ class sale_order_line(models.Model):
                 production=mrp_production_obj.create(vals)
                 if production:
                     production.onchange_product_id()
-                    production.product_qty = quantite
                     production._onchange_bom_id()
+                    production.product_qty = quantite
                     production._onchange_move_raw()
                     production.action_confirm()
                     msg="Création OF %s pour la commande %s et l'article %s"%(production.name,obj.order_id.name,product_id.name)
@@ -638,6 +638,9 @@ class sale_order_line(models.Model):
 
     def creation_of_multi_niveaux(self, sale_order_line, niveau, quantite, product_id, bom_id=False):
         for obj in self:
+
+
+
             if bom_id:
                 boms = self.env['mrp.bom'].search([('id','=',bom_id.id)],limit=1)
             else:

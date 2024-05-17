@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #import cProfile
 from odoo import models,fields,api
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 import calendar
 from pytz import timezone
@@ -62,6 +62,57 @@ class hr_employee(models.Model):
     def action_view_badge(self):
         for obj in self:
             print(obj)
+
+
+    def ajout_pauses_ir_cron(self):
+        tz = timezone('Europe/Paris')
+        now = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+
+        offset    = tz.localize(now).utcoffset().total_seconds()/3600
+
+
+
+
+        employes=self.env['hr.employee'].search([])
+        nb = len(employes)
+        ct=1
+        for employe in employes:
+            for pause in employe.resource_calendar_id.is_pause_ids:
+                if pause.dayofweek == str(now.weekday()):
+
+
+                    heure_debut = now + timedelta(minutes=pause.hour_from*60) - timedelta(hours=offset)
+                    heure_fin   = now + timedelta(minutes=pause.hour_to*60) - timedelta(hours=offset)
+
+                    filtre=[
+                        ('employe_id' ,'=', employe.id),
+                        ('heure_debut','<=', heure_debut),
+                        ('heure_fin','>=', heure_debut),
+                    ]
+                    lines=self.env['is.suivi.temps.production'].search(filtre,limit=1)
+                    if len(lines)>0:
+                        for line in lines:
+                            #** Recherche si la pause est déja créée **********
+                            filtre=[
+                                ('line_id'    ,'=', line.line_id.id),
+                                ('employe_id' ,'=', employe.id),
+                                ('heure_debut','=', heure_fin),
+                                ('heure_fin'  ,'=', heure_debut),
+                            ]
+                            crees=self.env['is.ordre.travail.line.temps.passe'].search(filtre)
+                            #**************************************************
+                            if len(crees)==0:
+                                vals={
+                                    'line_id': line.line_id.id,
+                                    'employe_id': line.employe_id.id,
+                                    'heure_debut': heure_fin,
+                                    'heure_fin': heure_debut,
+                                }
+                                res=self.env['is.ordre.travail.line.temps.passe'].create(vals)
+                                msg = "Création pause '%s' pour '%s' sur l'opération '%s' de l'OT '%s'"%(pause.name, line.employe_id.name, line.line_id.name, line.line_id.ordre_id.name)
+                                _logger.info(msg)
+            ct+=1
+
 
 
 class is_motif_absence(models.Model):
@@ -542,3 +593,28 @@ class is_calcul_dispo_ressource_wizard(models.TransientModel):
         }
 
 
+class is_resource_calendar_pause(models.Model):
+    _name = "is.resource.calendar.pause"
+    _description = "Horaires des pauses"
+    _order = 'sequence'
+
+    name = fields.Char('Pause',required=True)
+    sequence = fields.Integer(default=10)
+    dayofweek = fields.Selection([
+        ('0', 'Lundi'),
+        ('1', 'Mardi'),
+        ('2', 'Mercredi'),
+        ('3', 'Jeudi'),
+        ('4', 'Vendredi'),
+        ('5', 'Samedi'),
+        ('6', 'Dimanche')
+        ], 'Jour', required=True, index=True, default='0')
+    hour_from = fields.Float(string='Début de pause', required=True, index=True)
+    hour_to = fields.Float(string='Fin de pausse', required=True)
+    calendar_id = fields.Many2one("resource.calendar", string="Calendrier", required=True, ondelete='cascade')
+
+
+class resource_calendar(models.Model):
+    _inherit = "resource.calendar"
+
+    is_pause_ids = fields.One2many('is.resource.calendar.pause', 'calendar_id', 'Pauses')

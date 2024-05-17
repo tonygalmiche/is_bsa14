@@ -14,6 +14,18 @@ from math import pi,sin,cos,tan,sqrt, floor, ceil
 _logger = logging.getLogger(__name__)
 
 
+_TYPE_DEVIS=[
+    ('cuve'     , 'Cuve'),
+    ('bassin'   , 'Bassin'),
+    ('structure', 'Structure'),
+    ('ensemble' , 'Ensemble fini'),
+]
+
+_OUI_NON=[
+    ('oui'   , 'Oui'),
+    ('non'   , 'Non'),
+]
+
 class is_devis_parametrable_affaire(models.Model):
     _name='is.devis.parametrable.affaire'
     _inherit = ['mail.thread', 'mail.activity.mixin', 'portal.mixin']
@@ -55,11 +67,7 @@ class is_devis_parametrable_affaire(models.Model):
     devise_client_id  = fields.Many2one('res.currency', "Devise Client", readonly=True, compute='_compute_montants')
     descriptif_affaire       = fields.Html(string="Descriptif de l'affaire", default="")
     descriptif_affaire_suite = fields.Html(string="Descriptif de l'affaire (suite)", default="")
-    type_devis               = fields.Selection([
-        ('cuve'     , 'Cuve'),
-        ('bassin'   , 'Bassin'),
-        ('structure', 'Structure'),
-    ], "Type devis", readonly=True, compute='_compute_montants', tracking=True)
+    type_devis               = fields.Selection(_TYPE_DEVIS, "Type devis", readonly=True, compute='_compute_montants', tracking=True)
 
 
     def write(self, vals):
@@ -254,7 +262,7 @@ class is_devis_parametrable_affaire(models.Model):
                 ct+=1
 
             #** Variantes *****************************************************
-            if obj.type_devis!='structure':
+            if obj.type_devis not in ('structure','ensemble'):
                 for line in obj.variante_ids:
                     if line.variante_id:
                         pdf = request.env.ref('is_bsa14.action_report_variante_devis_parametrable').sudo()._render_qweb_pdf([line.variante_id.id])[0]
@@ -265,7 +273,17 @@ class is_devis_parametrable_affaire(models.Model):
                         f.close()
                         ct+=1
 
-           #** Récapitulatif par quantité généré ******************************
+            #** Récapitulatif pour ensemble fini ******************************
+            if obj.type_devis in ('ensemble'):
+                pdf = request.env.ref('is_bsa14.action_report_devis_parametrable_affaire_recapitulatif_ensemble').sudo()._render_qweb_pdf([obj.id])[0]
+                path="/tmp/affaire_%s_%02d_recapitulatif_ensemble.pdf"%(obj.id,ct)
+                paths.append(path)
+                f = open(path,'wb')
+                f.write(pdf)
+                f.close()
+                ct+=1
+
+            #** Récapitulatif par quantité généré ******************************
             if obj.type_devis=='structure':
                 pdf = request.env.ref('is_bsa14.action_report_devis_parametrable_affaire_quantite').sudo()._render_qweb_pdf([obj.id])[0]
                 path="/tmp/affaire_%s_%02d_recapitulatif_par_quantite.pdf"%(obj.id,ct)
@@ -332,7 +350,7 @@ class is_devis_parametrable_affaire(models.Model):
             #******************************************************************
 
 
-
+            print(paths)
 
             # ** Merge des PDF *************************************************
             path_merged="/tmp/affaire_%s.pdf"%(obj.id)
@@ -503,11 +521,7 @@ class is_devis_parametrable(models.Model):
 
     name                       = fields.Char("N°", readonly=True)
     version                    = fields.Char("Version", tracking=True)
-    type_devis                 = fields.Selection([
-            ('cuve'     , 'Cuve'),
-            ('bassin'   , 'Bassin'),
-            ('structure', 'Structure'),
-        ], "Type devis", default="cuve", required=True, tracking=True)
+    type_devis                 = fields.Selection(_TYPE_DEVIS, "Type devis", default="cuve", required=True, tracking=True)
     nom_affaire                = fields.Char("Nom affaire", tracking=True)
     image                      = fields.Binary("Image", related="type_cuve_id.image")
     code_devis                 = fields.Char("Code devis", tracking=True)
@@ -559,6 +573,7 @@ class is_devis_parametrable(models.Model):
     montant_option_thermo   = fields.Float("Montant options Thermorégulation", store=False, readonly=True, compute='_compute_montant_option')
     commentaire        = fields.Text("Commentaire")
     duree_totale       = fields.Float("Durée totale (HH:MM)", store=True, readonly=True, compute='_compute_duree_totale')
+    modele             = fields.Boolean("Modèle", help="Devis utilisable dans toutes les affaires", default=False)
 
 
     @api.depends('article_ids','article_ids.duree_totale')
@@ -1245,6 +1260,7 @@ class is_devis_parametrable_variante(models.Model):
 
     devis_id          = fields.Many2one('is.devis.parametrable', 'Devis paramètrable', required=True, ondelete='cascade')
     type_devis        = fields.Selection(related="devis_id.type_devis")
+    modele            = fields.Boolean(related="devis_id.modele")
     name              = fields.Char("Nom", required=True)
     description       = fields.Text("Description", readonly=True, compute='_compute_description')
     description_libre = fields.Text("Description libre")
@@ -1333,19 +1349,10 @@ class is_devis_parametrable_variante(models.Model):
     intitule_remise_devise   = fields.Char("Intitulé remise (Devise)"             , readonly=True, compute='_compute_montants')
     prix_vente_remise_devise = fields.Integer("Prix de vente remisé (Devise)"     , readonly=True, compute='_compute_montants')
     prix_par_hl_devise       = fields.Integer("Prix par HL (Devise)"              , readonly=True, compute='_compute_montants')
-    impression_matieres      = fields.Selection([
-            ('oui'   , 'Oui'),
-            ('non'   , 'Non'),
-        ], "Impression Matières", default="oui")
-    impression_dimensions      = fields.Selection([
-            ('oui'   , 'Oui'),
-            ('non'   , 'Non'),
-        ], "Impression Dimensions", default="oui")
-    impression_options      = fields.Selection([
-            ('oui'   , 'Oui'),
-            ('non'   , 'Non'),
-        ], "Impression Options", default="oui")
-    impression_equipements      = fields.Selection([
+    impression_matieres      = fields.Selection(_OUI_NON, "Impression Matières"  , default="oui")
+    impression_dimensions    = fields.Selection(_OUI_NON, "Impression Dimensions", default="oui")
+    impression_options       = fields.Selection(_OUI_NON, "Impression Options"   , default="oui")
+    impression_equipements   = fields.Selection([
             ('standard' , 'Standard (sans les prix)'),
             ('detaillee', 'Détaillée (avec le détail des prix)'),
             ('non'      , 'Non'),
@@ -1354,6 +1361,7 @@ class is_devis_parametrable_variante(models.Model):
             ('prix_vente_net'      , 'Prix de vente net'),
             ('prix_vente_revendeur', 'Prix de vente revendeur'),
         ], "Prix à afficher sur le PDF", default="prix_vente_net")
+    afficher_remise = fields.Selection(_OUI_NON, "Afficher remise"   , default="oui")
 
 
     def name_get(self):

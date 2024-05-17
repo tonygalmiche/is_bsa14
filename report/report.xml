@@ -131,12 +131,12 @@
         <field name="binding_type">report</field>
     </record>
 
-    <record id="action_report_devis_parametrable_affaire_recapitulatif_bassin" model="ir.actions.report">
-        <field name="name">Récapitulatif pour Type=Bassin</field>
+    <record id="action_report_devis_parametrable_affaire_recapitulatif_ensemble" model="ir.actions.report">
+        <field name="name">Récapitulatif pour ensemble fini</field>
         <field name="model">is.devis.parametrable.affaire</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">is_bsa14.report_devis_parametrable_affaire_recapitulatif_bassin</field>
-        <field name="report_file">is_bsa14.report_devis_parametrable_affaire_recapitulatif_bassin</field>
+        <field name="report_name">is_bsa14.report_devis_parametrable_affaire_recapitulatif_ensemble</field>
+        <field name="report_file">is_bsa14.report_devis_parametrable_affaire_recapitulatif_ensemble</field>
         <field name="binding_model_id" ref="model_is_devis_parametrable_affaire"/>
         <field name="binding_type">report</field>
     </record>

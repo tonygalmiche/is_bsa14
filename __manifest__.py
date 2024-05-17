@@ -103,7 +103,7 @@ InfoSaône - Module Odoo 14 pour BSA
 
         "report/report_devis_parametrable_affaire_entete.xml",
         "report/report_devis_parametrable_affaire_recapitulatif.xml",
-        "report/report_devis_parametrable_affaire_recapitulatif_bassin.xml",
+        "report/report_devis_parametrable_affaire_recapitulatif_ensemble.xml",
         "report/report_devis_parametrable_affaire_quantite.xml",
         "report/report_devis_parametrable_variante_parametre.xml",
         "report/report_devis_parametrable_variante.xml",

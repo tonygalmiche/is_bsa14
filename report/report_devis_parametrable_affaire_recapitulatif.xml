@@ -22,8 +22,7 @@
                             <div t-field="o.descriptif_affaire_suite"/>
                         </t>
 
-                        <t t-if="o.type_devis!='structure'">
-
+                        <t t-if="o.type_devis not in ('structure','ensemble')">
                             <t t-if="len(o.variante_ids)>0">
                                 <h3>Récapitulatif de l'offre</h3>
                                 <table class="table table-sm o_main_table">

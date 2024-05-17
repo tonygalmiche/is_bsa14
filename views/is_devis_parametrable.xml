@@ -98,7 +98,7 @@
                                     <field name="affaire_id" invisible="1"/>
                                     <field 
                                         name="variante_id"
-                                        domain="[('partner_id','=',parent.partner_id)]"
+                                        domain="['|',('partner_id','=',parent.partner_id),('modele','=', True)]"
                                     />
                                     <field name="capacite" sum="Total"            optional="show"/>
                                     <field name="unite"                           optional="show"/>
@@ -192,6 +192,7 @@
                     <field name="commentaire"      optional="hide"/>
                     <field name="total_equipement" optional="show" sum="Total"/>
                     <field name="duree_totale"     optional="hide" sum="Total" widget="float_time"/>
+                    <field name="modele"           optional="show"/>
                 </tree>
             </field>
         </record>
@@ -256,8 +257,8 @@
                                 <field name="type_cuve_id"/>
                                 <field name="designation"/>
                                 <field name="designation_complementaire"/>
-                                <label for="capacite" string="Capacité"  attrs="{'invisible':[('type_devis','not in',['cuve','bassin'])]}"/>
-                                <div class="d-flex"                      attrs="{'invisible':[('type_devis','not in',['cuve','bassin'])]}">
+                                <label for="capacite" string="Capacité"  attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble'])]}"/>
+                                <div class="d-flex"                      attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble'])]}">
                                     <field name="capacite" readonly="1"/>
                                     <span class="o_form_label mx-3"> </span>
                                     <field name="unite"/>
@@ -270,12 +271,13 @@
                                 <field name="createur_id"/>
                                 <field name="montant_matiere" invisible="1"/>
                                 <field name="duree_totale"/>
+                                <field name="modele"/>
                             </group>
                          </group>
                         <notebook>
                             <page string="Devis">
 
-                                <group string="Dimensions" attrs="{'invisible':[('type_devis','not in',['cuve','bassin'])]}">
+                                <group string="Dimensions" attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble'])]}">
                                     <field name="dimension_ids" nolabel="1">
                                         <tree editable="bottom">
                                             <field name="sequence" widget="handle" />
@@ -289,7 +291,7 @@
                                     </field>
                                 </group>
                                 <group>
-                                    <group string="Temps" attrs="{'invisible':[('type_devis','not in',['cuve','bassin'])]}">
+                                    <group string="Temps" attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble'])]}">
                                         <field name="tps_montage"    widget="float_time" readonly="1" />
                                         <field name="tps_assemblage" widget="float_time"/>
                                         <field name="tps_majoration" widget="float_time"/>
@@ -298,7 +300,7 @@
                                         <field name="tps_be"         widget="float_time"/>
                                     </group>
                                 </group>
-                                <group string="Matières" attrs="{'invisible':[('type_devis','not in',['cuve','bassin'])]}">
+                                <group string="Matières" attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble'])]}">
                                     <field name="matiere_ids" nolabel="1">
                                         <tree editable="bottom">
                                             <field name="sequence" widget="handle" />
@@ -366,7 +368,7 @@
                                     <field name="montant_option_comprise"/>
                                     <field name="montant_option_thermo"/>
                                 </group>
-                                <group string="Sections des équipements" attrs="{'invisible':[('type_devis','not in',['cuve','bassin'])]}">
+                                <group string="Sections des équipements" attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble'])]}">
                                     <field name="section_ids" nolabel="1" readonly="0">
                                         <tree>
                                             <field name="sequence" widget="handle" />
@@ -656,6 +658,7 @@
                                 <field name="impression_dimensions"/>
                                 <field name="impression_options"/>
                                 <field name="impression_equipements"/>
+                                <field name="afficher_remise"/>
                             </group>
                             <group string="Prix de vente unitaire (Devise)">
                                 <field name="prix_par_hl"/>
@@ -725,10 +728,7 @@
                                 <field name="devis_id" invisible="1"/>
                                 <field name="section_id"/>
                                 <field name="tps_montage" widget="float_time"/>
-
                                 <field name="type_devis" invisible="1"/>
-
-
                             </group>
                          </group>
                         <field name="product_ids">
@@ -738,17 +738,17 @@
                                 <field name="type_equipement_id" class="test_scss"/>
                                 <field name="product_id" domain="[('is_type_equipement_id', '=', type_equipement_id)]" class="test_scss"/>
                                 <field name="description"/>
-                                <field name="description_detaillee" attrs="{'column_invisible':[('parent.type_devis','!=','bassin')]}" optional="show"/>
-                                <field name="quantite"                   sum="Total"/>
-                                <field name="uom_po_id"   optional="hide"/>
-                                <field name="prix"        optional="show"/>
-                                <field name="date_achat"  optional="hide"/>
-                                <field name="montant"     optional="show" sum="Total"/>
-                                <field name="marge"       optional="show"/>
-                                <field name="marge_equipement_variante" optional="hide"/>
-                                <field name="montant_avec_marge"        optional="show" sum="Total"/>
-                                <field name="prix_avec_marge_devise"    optional="hide"/>
-                                <field name="montant_avec_marge_devise" optional="hide" sum="Total"/>
+                                <field name="description_detaillee"     optional="show"    attrs="{'column_invisible':[('parent.type_devis','!=','bassin')]}"/>
+                                <field name="quantite"                                  sum="Total"/>
+                                <field name="uom_po_id"                 optional="hide"/>
+                                <field name="prix"                      optional="show"/>
+                                <field name="date_achat"                optional="hide"/>
+                                <field name="montant"                   optional="show" sum="Total"/>
+                                <field name="marge"                     optional="show" attrs="{'column_invisible':[('parent.type_devis','!=','bassin')]}"/>
+                                <field name="marge_equipement_variante" optional="hide" attrs="{'column_invisible':[('parent.type_devis','!=','bassin')]}"/>
+                                <field name="montant_avec_marge"        optional="show" attrs="{'column_invisible':[('parent.type_devis','!=','bassin')]}" sum="Total"/>
+                                <field name="prix_avec_marge_devise"    optional="hide" attrs="{'column_invisible':[('parent.type_devis','!=','bassin')]}"/>
+                                <field name="montant_avec_marge_devise" optional="hide" attrs="{'column_invisible':[('parent.type_devis','!=','bassin')]}" sum="Total"/>
                                 <field name="devise_client_id" invisible="1"/>
                                 <field name="tps_montage"        optional="show" sum="Total" widget="float_time"/>
                                 <field name="tps_montage_force"  optional="show" sum="Total" widget="float_time"/>

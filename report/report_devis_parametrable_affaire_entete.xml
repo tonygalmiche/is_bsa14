@@ -71,7 +71,7 @@
                                     </td>
                                 </t>
                             </tr>
-                            <tr>
+                            <tr t-if="o.type_devis not in ('ensemble')">
                                 <th>Affaire : </th>
                                 <td><span t-field="o.name"/></td>
                             </tr>
@@ -93,19 +93,27 @@
                             <div style="padding:2mm;font-size:22pt;font-weight:bold;color:black">Descriptif de l'affaire</div>
                         </div>
 
+                        <t t-if="o.type_devis in ('ensemble')">
+                            <div style="text-align:center;padding:20mm;font-size:22pt;font-weight:bold;color:black"><span t-field="o.name"/></div>
+                        </t>
+
+
+
                         <t t-if="o.descriptif_affaire">
                             <div t-field="o.descriptif_affaire"/>
                         </t>
 
-                        <div style="font-size:11pt;text-align:left;color:black">
-                            <t t-foreach="o.variante_ids" t-as="variante">
-                                <div style="padding-top:2mm;padding-left:33mm">
-                                    - <span t-field="variante.variante_id.quantite"/> x 
-                                    <span t-field="variante.variante_id.devis_id.designation"/>
-                                </div>
-                            </t>
-                        </div>
-                        <div style="text-align:center;margin-top:10mm">
+                        <t t-if="o.type_devis not in ('ensemble')">
+                            <div style="font-size:11pt;text-align:left;color:black">
+                                <t t-foreach="o.variante_ids" t-as="variante">
+                                    <div style="padding-top:2mm;padding-left:33mm">
+                                        - <span t-field="variante.variante_id.quantite"/> x 
+                                        <span t-field="variante.variante_id.devis_id.designation"/>
+                                    </div>
+                                </t>
+                            </div>    
+                        </t>
+                         <div style="text-align:center;margin-top:10mm">
                             <img 
                                 t-if="o.is_societe_commerciale_id.made_in" 
                                 t-att-src="image_data_uri(o.is_societe_commerciale_id.made_in)" 

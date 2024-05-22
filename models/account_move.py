@@ -81,6 +81,7 @@ class account_move(models.Model):
     is_type_facturation = fields.Selection(related="is_sale_order_id.is_type_facturation")
     is_condition_nouvelle_page = fields.Boolean("Conditions sur une nouvelle page de la facture", default=False)
     is_situation_nouvelle_page = fields.Boolean("Tableau de situation sur une nouvelle page de la facture", default=False)
+    is_societe_commerciale_id  = fields.Many2one("is.societe.commerciale", "Société commerciale")
 
 
     def write(self, vals):

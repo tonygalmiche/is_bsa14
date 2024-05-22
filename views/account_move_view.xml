@@ -117,6 +117,7 @@
                     <field name="is_mode_reglement_id"/>
                 </field>
                 <field name="payment_reference" position="after">
+                    <field name="is_societe_commerciale_id"/>
                     <field name="is_contact_id" domain="[('parent_id','=',partner_id)]" />
                     <field name="is_imputation_partenaire"/>
                     <field name="is_type_facturation"/>
@@ -142,6 +143,10 @@
             <field name="model">account.move</field>
             <field name="inherit_id" ref="account.view_invoice_tree"/>
             <field name="arch" type="xml">
+                <field name="invoice_date" position="before">
+                    <field name="is_societe_commerciale_id" optional="show"/>
+                </field>
+            
                 <field name="invoice_date_due" position="before">
                     <field name="invoice_payment_term_id"  optional="show"/>
                     <field name="invoice_date_due"         optional="show"/>
@@ -160,6 +165,7 @@
                 <field name="invoice_user_id" position="before">
                     <field name="is_sale_order_id"/>
                     <field name="is_type_facturation"/>
+                    <field name="is_societe_commerciale_id"/>
                 </field>
             </field>
         </record>

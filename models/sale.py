@@ -547,7 +547,7 @@ class sale_order_line(models.Model):
 
             pourcentage_facture = (deja_facture_pourcent+obj.is_facture_avant_pourcent)/100
             if pourcentage_facture>0:
-                obj.qty_invoiced = pourcentage_facture
+                obj.qty_invoiced = pourcentage_facture*obj.product_uom_qty
 
             is_deja_facture=(deja_facture_pourcent+obj.is_facture_avant_pourcent)*obj.price_subtotal/100
             obj.is_deja_facture_pourcent = deja_facture_pourcent

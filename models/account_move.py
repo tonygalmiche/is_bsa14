@@ -83,6 +83,33 @@ class account_move(models.Model):
     is_situation_nouvelle_page = fields.Boolean("Tableau de situation sur une nouvelle page de la facture", default=False)
     is_societe_commerciale_id  = fields.Many2one("is.societe.commerciale", "Société commerciale")
 
+    is_client_order_ref_vsb = fields.Boolean("Afficher commande client", compute='_compute_is_client_order_ref_vsb')
+    is_bl_vsb               = fields.Boolean("Afficher BL"             , compute='_compute_bl_vsb')
+
+
+    @api.depends('invoice_line_ids')
+    def _compute_is_client_order_ref_vsb(self):
+        for obj in self:
+            vsb = False
+            for line in obj.invoice_line_ids:
+                for l in line.sale_line_ids:
+                    if l.order_id.client_order_ref:
+                        vsb=True
+                        break
+            if obj.is_sale_order_id.client_order_ref:
+                vsb=True
+            obj.is_client_order_ref_vsb = vsb
+           
+
+    @api.depends('invoice_line_ids')
+    def _compute_bl_vsb(self):
+        for obj in self:
+            vsb = False
+            for line in obj.invoice_line_ids:
+                if line.is_stock_move_id.picking_id:
+                    vsb=True
+            obj.is_bl_vsb = vsb
+
 
     def write(self, vals):
         res = super(account_move, self).write(vals)

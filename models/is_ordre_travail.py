@@ -240,7 +240,7 @@ class is_ordre_travail(models.Model):
             ORDER BY line.heure_debut
         """
 
-        print(SQL,workcenter_id)
+        #print(SQL,workcenter_id)
 
 
         cr.execute(SQL,[workcenter_id])
@@ -249,7 +249,7 @@ class is_ordre_travail(models.Model):
         lines=[]
         for line in res:
 
-            print(line)
+            #print(line)
 
 
             #** Recherche si les boutons de l'opération sont actifs ***********
@@ -259,7 +259,7 @@ class is_ordre_travail(models.Model):
                 test = operation.afficher_start_stop
             #******************************************************************
 
-            print('test=',test)
+            #print('test=',test)
 
 
             if test:
@@ -269,7 +269,7 @@ class is_ordre_travail(models.Model):
                 line["product_name"]   = line["product_name"].encode('utf_8').decode('latin_1')
                 lines.append(line)
 
-                print(line)
+                print(line["operation"] , line["product_name"])
 
 
 

@@ -240,18 +240,11 @@ class is_ordre_travail(models.Model):
             ORDER BY line.heure_debut
         """
 
-        #print(SQL,workcenter_id)
-
-
         cr.execute(SQL,[workcenter_id])
         res = cr.dictfetchall()
         ids=[]
         lines=[]
         for line in res:
-
-            #print(line)
-
-
             #** Recherche si les boutons de l'opération sont actifs ***********
             test=False
             operation=self.env['is.ordre.travail.line'].browse(line["line_id"])
@@ -259,20 +252,14 @@ class is_ordre_travail(models.Model):
                 test = operation.afficher_start_stop
             #******************************************************************
 
-            #print('test=',test)
-
-
             if test:
                 ids.append(line["line_id"])
                 #** Problème d'encodage en XML-RPC ??
                 line["operation"]      = operation.name.encode('utf_8').decode('latin_1')
                 line["product_name"]   = line["product_name"].encode('utf_8').decode('latin_1')
+                line["line_name"]      = line["line_name"].encode('utf_8').decode('latin_1')
+                line["is_nom_affaire"] = (line["is_nom_affaire"] or '').encode('utf_8').decode('latin_1')
                 lines.append(line)
-
-                print(line["operation"] , line["product_name"])
-
-
-
 
         return {
             'test':'ok éè€',

@@ -239,6 +239,45 @@
                             </div>
                         </div>
                     </div>
+
+                    <div t-if="o.is_condition_nouvelle_page" style="page-break-before:always"/>
+
+
+                    <div style="height:3mm"/>
+                    <p><strong>Type de livraison: </strong><span t-field="o.is_type_livraison"/></p>
+                    <p t-if="o.narration">
+                        <strong>Conditions générales: </strong><br />
+                        <span t-field="o.narration"/>
+                    </p>
+                    <p t-if="o.invoice_payment_term_id.note">
+                        <strong>Conditions de règlement: </strong>
+                        <span t-field="o.invoice_payment_term_id.note"/>
+                    </p>
+                    <p t-if="o.fiscal_position_id.note">
+                        <strong>Conditions: </strong>
+                        <span t-field="o.fiscal_position_id.note"/>
+                    </p>
+                    <p>
+                        Notre société restera propriétaire de la marchandise livrée jusqu'au paiement intégral.<br />
+                        Pas d'escompte pour paiement anticipé, passée la date d'échéance, tout paiement différé entraine l'application d'une pénalité de 1,5 fois le taux d'intérêt légal<br />
+                        (Loi no 92-1442 du 31 décembre 1992). L'indemnité forfaitaire s'ajoutant aux indemnités de retard est fixée à 40€.
+                    </p>
+                    <p t-if="o.partner_id.is_rib_bsa">
+                        Paiement par virement sur ce compte : 
+                        <table class="table table-sm">
+                            <tr>
+                                <td>IBAN (International Bank Account Number)</td>
+                                <td>BIC (Bank Identifier Code)</td>
+                            </tr>
+                            <tr>
+                                <td><span t-field="o.partner_id.is_rib_bsa.acc_number"/></td>
+                                <td><span t-field="o.partner_id.is_rib_bsa.bank_id.bic"/></td>
+                            </tr>
+                        </table>
+                    </p>
+
+
+
                     <t t-if="o.is_type_facturation=='avec_situation'">
                         <div t-if="o.is_situation_nouvelle_page" style="page-break-before:always"/>
                         <br t-if="o.is_situation_nouvelle_page==False"  />
@@ -287,41 +326,6 @@
                     </t>
 
 
-                    <div t-if="o.is_condition_nouvelle_page" style="page-break-before:always"/>
-
-
-                    <div style="height:3mm"/>
-                    <p><strong>Type de livraison: </strong><span t-field="o.is_type_livraison"/></p>
-                    <p t-if="o.narration">
-                        <strong>Conditions générales: </strong><br />
-                        <span t-field="o.narration"/>
-                    </p>
-                    <p t-if="o.invoice_payment_term_id.note">
-                        <strong>Conditions de règlement: </strong>
-                        <span t-field="o.invoice_payment_term_id.note"/>
-                    </p>
-                    <p t-if="o.fiscal_position_id.note">
-                        <strong>Conditions: </strong>
-                        <span t-field="o.fiscal_position_id.note"/>
-                    </p>
-                    <p>
-                        Notre société restera propriétaire de la marchandise livrée jusqu'au paiement intégral.<br />
-                        Pas d'escompte pour paiement anticipé, passée la date d'échéance, tout paiement différé entraine l'application d'une pénalité de 1,5 fois le taux d'intérêt légal<br />
-                        (Loi no 92-1442 du 31 décembre 1992). L'indemnité forfaitaire s'ajoutant aux indemnités de retard est fixée à 40€.
-                    </p>
-                    <p t-if="o.partner_id.is_rib_bsa">
-                        Paiement par virement sur ce compte : 
-                        <table class="table table-sm">
-                            <tr>
-                                <td>IBAN (International Bank Account Number)</td>
-                                <td>BIC (Bank Identifier Code)</td>
-                            </tr>
-                            <tr>
-                                <td><span t-field="o.partner_id.is_rib_bsa.acc_number"/></td>
-                                <td><span t-field="o.partner_id.is_rib_bsa.bank_id.bic"/></td>
-                            </tr>
-                        </table>
-                    </p>
                 </div>
             </xpath>
         </template>

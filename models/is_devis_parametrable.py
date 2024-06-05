@@ -839,7 +839,7 @@ class is_devis_parametrable_dimension(models.Model):
     devis_id     = fields.Many2one('is.devis.parametrable', 'Devis', required=True, ondelete='cascade')
     sequence     = fields.Integer("Sequence")
     dimension_id = fields.Many2one('is.dimension', 'Dimension')
-    valeur       = fields.Integer("Valeur", help="Utilisée dans les calculs")
+    valeur       = fields.Float("Valeur", digits=(16, 2), help="Utilisée dans les calculs")
     unite_id     = fields.Many2one('is.devis.parametrable.unite', 'Unité', default=lambda self: self._get_unite_id())
     description  = fields.Char("Description"   , help="Information pour le client")
     imprimer     = fields.Boolean("Imprimer"   , help="Afficher cette ligne sur le PDF", default=True)

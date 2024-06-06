@@ -738,7 +738,7 @@
                                 <field name="type_equipement_id" class="test_scss"/>
                                 <field name="product_id" domain="[('is_type_equipement_id', '=', type_equipement_id)]" class="test_scss"/>
                                 <field name="description"/>
-                                <field name="description_detaillee"     optional="show"    attrs="{'column_invisible':[('parent.type_devis','!=','bassin')]}"/>
+                                <field name="description_detaillee"     optional="show"/>
                                 <field name="quantite"                                  sum="Total"/>
                                 <field name="uom_po_id"                 optional="hide"/>
                                 <field name="prix"                      optional="show"/>

@@ -840,10 +840,22 @@ class is_devis_parametrable_dimension(models.Model):
     sequence     = fields.Integer("Sequence")
     dimension_id = fields.Many2one('is.dimension', 'Dimension')
     valeur       = fields.Float("Valeur", digits=(16, 2), help="Utilisée dans les calculs")
+    valeur_txt   = fields.Char("Valeur formatée", compute='_compute_valeur_txt', help="Utilisée dans les rapports")
     unite_id     = fields.Many2one('is.devis.parametrable.unite', 'Unité', default=lambda self: self._get_unite_id())
     description  = fields.Char("Description"   , help="Information pour le client")
     imprimer     = fields.Boolean("Imprimer"   , help="Afficher cette ligne sur le PDF", default=True)
 
+
+
+    @api.depends('valeur')
+    def _compute_valeur_txt(self):
+        for obj in self:
+            val = obj.valeur
+            nb_decimales = obj.devis_id.type_cuve_id.nb_decimales
+            x = "{:,.%sf}"%nb_decimales
+            txt = x.format(val).replace(","," ").replace(".",",")
+            obj.valeur_txt = txt
+           
 
 class is_devis_parametrable_article(models.Model):
     _name = 'is.devis.parametrable.article'
@@ -1639,6 +1651,7 @@ class is_type_cuve(models.Model):
     image         = fields.Binary("Image")
     pourcentage_perte_matiere = fields.Float("Perte matière (%)", default=15, help="La valeure indiquée ici sera utilisée comme donnée d'entrée avec le code 'pourcentage_perte_matiere'")
     perte_decoupe = fields.Integer("Perte à la découpe (%)")
+    nb_decimales  = fields.Integer("Nb décimales pour les dimensions")
     import_ids    = fields.Many2many('ir.attachment', 'is_type_cuve_import_ids_rel', 'type_cuve_id', 'attachment_id', 'Import xlsx')
     calcul_ids    = fields.One2many('is.type.cuve.calcul', 'type_cuve_id', 'Calculs', copy=True)
 

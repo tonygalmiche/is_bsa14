@@ -879,6 +879,7 @@
                 <tree >
                     <field name="name"/>
                     <field name="pourcentage_perte_matiere"/>
+                    <field name="nb_decimales"/>
                 </tree>
             </field>
         </record>
@@ -901,6 +902,7 @@
                             <group>
                                 <field name="name"/>
                                 <field name="pourcentage_perte_matiere"/>
+                                <field name="nb_decimales"/>
                                 <field name="import_ids" widget="many2many_binary"/>
                             </group>
                          </group>

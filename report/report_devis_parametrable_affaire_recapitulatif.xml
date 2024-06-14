@@ -29,7 +29,10 @@
                                     <thead>
                                         <tr>
                                             <th class="text-left">Description</th>
-                                            <th class="text-center">Capacité</th>
+
+                                            <t t-if="o.type_devis in ['cuve','bassin','structure']">
+                                                <th class="text-center">Capacité</th>
+                                            </t>
                                             <th class="text-right">Prix unitaire</th>
                                             <th class="text-center">Quantité prévue</th>
                                             <th class="text-right">Montant HT</th>
@@ -39,7 +42,9 @@
                                         <t t-foreach="o.variante_ids" t-as="variante">
                                             <tr style="border-bottom: 1px solid;">
                                                 <td class="text-left"><span t-field="variante.variante_id.devis_id.designation"/></td>
-                                                <td class="text-center"><span t-field="variante.variante_id.devis_id.capacite_txt"/></td>
+                                                <t t-if="o.type_devis in ['cuve','bassin','structure']">
+                                                    <td class="text-center"><span t-field="variante.variante_id.devis_id.capacite_txt"/></td>
+                                                </t>
                                                 <td class="text-right"><span t-field="variante.prix_vente_remise_devise"/> <span t-field="o.devise_client_id.symbol"/></td>
                                                 <td class="text-center"><span t-field="variante.quantite"/></td>
                                                 <td t-if="variante.quantite>0"  class="text-right"><span t-field="variante.montant"/> <span t-field="o.devise_client_id.symbol"/></td>

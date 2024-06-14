@@ -72,6 +72,23 @@
     </record>
 
 
+
+
+
+
+
+    <record id="action_report_devis_parametrable" model="ir.actions.report">
+        <field name="name">Descriptif avec prix de vente</field>
+        <field name="model">is.devis.parametrable</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">is_bsa14.report_devis_parametrable</field>
+        <field name="report_file">is_bsa14.report_devis_parametrable</field>
+        <field name="binding_model_id" ref="model_is_devis_parametrable"/>
+        <field name="binding_type">report</field>
+    </record>
+
+
+
     <record id="action_report_variante_devis_parametrable" model="ir.actions.report">
         <field name="name">Descriptif avec prix de vente</field>
         <field name="model">is.devis.parametrable.variante</field>

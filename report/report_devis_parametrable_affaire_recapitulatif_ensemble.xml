@@ -17,7 +17,7 @@
 
                     <div class="page">
                         <h3><span t-field="o.name"/></h3>
-                        <table class="table table-sm o_main_table">
+                        <table class="table table-sm o_main_table" style="border-left:0;border-right:0;">
                             <thead>
                                 <tr>
                                     <th style="border-left:0;border-right:0;" class="text-center">Pos</th>

@@ -19,6 +19,7 @@ _TYPE_DEVIS=[
     ('bassin'   , 'Bassin'),
     ('structure', 'Structure'),
     ('ensemble' , 'Ensemble fini'),
+    ('ombriere' , 'Ombrière'),
 ]
 
 _OUI_NON=[
@@ -67,7 +68,17 @@ class is_devis_parametrable_affaire(models.Model):
     devise_client_id  = fields.Many2one('res.currency', "Devise Client", readonly=True, compute='_compute_montants')
     descriptif_affaire       = fields.Html(string="Descriptif de l'affaire", default="")
     descriptif_affaire_suite = fields.Html(string="Descriptif de l'affaire (suite)", default="")
-    type_devis               = fields.Selection(_TYPE_DEVIS, "Type devis", readonly=True, compute='_compute_montants', tracking=True)
+    type_devis               = fields.Selection(_TYPE_DEVIS, "Type devis", compute='_compute_type_devis', store=True, readonly=False, tracking=True)
+
+
+    @api.depends('variante_ids')
+    def _compute_type_devis(self):
+        for obj in self:
+            type_devis=False
+            for line in obj.variante_ids:
+                type_devis = line.variante_id.type_devis
+                break
+            obj.type_devis = type_devis
 
 
     def write(self, vals):
@@ -170,12 +181,12 @@ class is_devis_parametrable_affaire(models.Model):
             obj.currency_id = company.currency_id.id
             ht=tva=ttc=0
             tax_id = False
-            type_devis=False
+            #type_devis=False
             devise_client_id = False
             for line in obj.variante_ids:
                 tax_id = line.variante_id.devis_id.tax_id.id
                 devise_client_id = line.variante_id.devise_client_id.id
-                type_devis       = line.variante_id.type_devis
+                #type_devis       = line.variante_id.type_devis
                 qt = line.quantite
                 #prix_vente=line.variante_id.prix_vente_remise
                 #ht+=prix_vente*qt
@@ -187,7 +198,7 @@ class is_devis_parametrable_affaire(models.Model):
             obj.montant_ttc      = ttc
             obj.tax_id           = tax_id
             obj.devise_client_id = devise_client_id
-            obj.type_devis       = type_devis
+            #obj.type_devis       = type_devis
 
 
     def acceder_affaire_action(self):
@@ -490,13 +501,16 @@ class is_devis_parametrable(models.Model):
     @api.depends('section_ids',"tps_assemblage","tps_majoration","tps_minoration")
     def _compute_montant(self):
         for obj in self:
-            montant=tps_montage=0
+            montant=tps_montage=montant_equipement_devise=0
             for line in obj.section_ids:
                 montant+=line.montant_total
                 tps_montage+=line.tps_montage
+                for l in line.product_ids:
+                    montant_equipement_devise+=l.montant_avec_marge_devise
             obj.total_equipement = montant
             obj.tps_montage      = tps_montage
             obj.tps_total = tps_montage + obj.tps_assemblage + obj.tps_majoration - obj.tps_minoration
+            obj.montant_equipement_devise = montant_equipement_devise
 
 
     def _compute_affaire_ids(self):
@@ -574,6 +588,13 @@ class is_devis_parametrable(models.Model):
     commentaire        = fields.Text("Commentaire")
     duree_totale       = fields.Float("Durée totale (HH:MM)", store=True, readonly=True, compute='_compute_duree_totale')
     modele             = fields.Boolean("Modèle", help="Devis utilisable dans toutes les affaires", default=False)
+
+
+    montant_equipement_devise = fields.Monetary("Montant équipement (Device)", readonly=True, compute='_compute_montant', currency_field='devise_client_id')
+
+
+
+
 
 
     @api.depends('article_ids','article_ids.duree_totale')
@@ -1140,7 +1161,8 @@ class is_devis_parametrable_section(models.Model):
             montant=montant_avec_marge=0
             for line in obj.product_ids:
                 montant+=line.montant
-                montant_avec_marge+=line.montant_avec_marge
+                #montant_avec_marge+=line.montant_avec_marge
+                montant_avec_marge+=line.montant_avec_marge_devise
             obj.montant_total = montant
             obj.montant_total_avec_marge = montant_avec_marge
 
@@ -1199,15 +1221,18 @@ class is_devis_parametrable_section_product(models.Model):
             obj.montant = montant
 
 
-    @api.depends('product_id','quantite','prix','marge')
+    @api.depends('product_id','quantite','prix','marge','remise')
     def _compute_avec_marge(self):
         for obj in self:
             marge=obj.marge or obj.marge_equipement_variante
             taux = obj.section_id.devis_id.taux_devise or 1
-            montant_avec_marge = obj.montant*(1+marge/100)
-            prix_avec_marge_devise = (obj.prix+obj.prix*marge/100)/taux
+            prix_avec_marge        = (obj.prix+obj.prix*marge/100) - obj.remise
+            arrondi = obj.section_id.devis_id.is_societe_commerciale_id.arrondi
+            if arrondi<1:
+                arrondi=10
+            prix_avec_marge_arrondi = arrondi*ceil(prix_avec_marge/arrondi)
+            prix_avec_marge_devise = prix_avec_marge_arrondi/taux
             montant_avec_marge_devise = prix_avec_marge_devise*obj.quantite
-            obj.montant_avec_marge        = montant_avec_marge
             obj.prix_avec_marge_devise    = prix_avec_marge_devise
             obj.montant_avec_marge_devise = montant_avec_marge_devise
 
@@ -1247,22 +1272,21 @@ class is_devis_parametrable_section_product(models.Model):
     description_detaillee = fields.Text("Description détaillée")
     description_report = fields.Text("Description pour le rapport PDF", compute='_compute_description_report',)
     uom_po_id          = fields.Many2one('uom.uom', "Unité", help="Unité de mesure d'achat", related="product_id.uom_po_id", readonly=True)
-    marge              = fields.Float("Marge (%)", help="Si ce champ n'est pas renseigné, la marge par défaut de la variante sera appliquée")
     marge_equipement_variante = fields.Float("Marge variante (%)", related="section_id.devis_id.variante_id.marge_equipement", help="Marge des équipements de la variante")
-    quantite           = fields.Float("Quantité", default=1, digits=(16, 2))
-    prix               = fields.Float("Prix", help="Prix d'achat", digits=(16, 2))
     date_achat         = fields.Date("Date"    , store=True, readonly=True, compute='_compute_date_achat', help="Date du dernier achat")
     tps_montage        = fields.Float("Tps (HH:MM)"      , help="Temps de montage (HH:MM)", store=True, readonly=True, compute='_compute_tps_montage')
     tps_montage_force  = fields.Float("Tps forcé (HH:MM)", help="Si ce temps est renseigné, il remplacera le champ 'Tps (HH:MM)'")
 
-    montant            = fields.Float("Montant", store=True, readonly=True, compute='_compute_montant', digits=(16, 2))
+    quantite           = fields.Float("Quantité", default=1, digits=(16, 2))
+    marge              = fields.Float("Marge (%)", help="Si ce champ n'est pas renseigné, la marge par défaut de la variante sera appliquée")
+    remise             = fields.Float("Remise (€)", digits=(16, 2), help="Utilisée pour arrondir un prix")
 
-    montant_avec_marge = fields.Float("Montant avec marge", store=False, readonly=True, compute='_compute_avec_marge', digits=(16, 2))
-    devise_client_id   = fields.Many2one(related="section_id.devis_id.devise_client_id")
-    prix_avec_marge_devise    = fields.Monetary("Prix avec marge (Devise)"   , readonly=True, compute='_compute_avec_marge', currency_field='devise_client_id')
-    montant_avec_marge_devise = fields.Monetary("Montant avec marge (Devise)", readonly=True, compute='_compute_avec_marge', currency_field='devise_client_id')
+    prix               = fields.Float("Prix"   , help="Prix d'achat" , digits=(16, 2))
+    montant            = fields.Float("Montant", help="Montant achat", digits=(16, 2), store=True , readonly=True, compute='_compute_montant')
 
-
+    devise_client_id          = fields.Many2one(related="section_id.devis_id.devise_client_id")
+    prix_avec_marge_devise    = fields.Monetary("Prix vendu"   , readonly=True, compute='_compute_avec_marge', currency_field='devise_client_id', help="Prix en device avec marge, remise et arrondi indiqué dans la société commerciale")
+    montant_avec_marge_devise = fields.Monetary("Montant vendu", readonly=True, compute='_compute_avec_marge', currency_field='devise_client_id')
 
 
 class is_devis_parametrable_variante(models.Model):

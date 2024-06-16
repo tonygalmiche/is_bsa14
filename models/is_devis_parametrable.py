@@ -455,6 +455,18 @@ class is_devis_parametrable_affaire_variante(models.Model):
             return res
 
 
+class is_devis_parametrable_tax(models.Model):
+    _name='is.devis.parametrable.tax'
+    _description = "Taux de TVA du devis paramètrable"
+    _order='tax_id'
+
+    devis_id         = fields.Many2one('is.devis.parametrable', 'Devis', required=True, ondelete='cascade')
+    tax_id           = fields.Many2one('account.tax', 'TVA'            , required=True, domain=[('type_tax_use','=','sale')])
+    montant_ht       = fields.Monetary("Montant HT"                    , required=True, currency_field='devise_client_id')
+    montant_tva      = fields.Monetary("Montant TVA"                   , required=True, currency_field='devise_client_id')
+    devise_client_id = fields.Many2one(related="devis_id.devise_client_id")
+
+
 class is_devis_parametrable(models.Model):
     _name='is.devis.parametrable'
     _inherit = ['mail.thread', 'mail.activity.mixin', 'portal.mixin']
@@ -560,8 +572,7 @@ class is_devis_parametrable(models.Model):
 
     devise_client_id   = fields.Many2one('res.currency', "Devise Client", default=lambda self: self.env.user.company_id.currency_id.id)
     taux_devise        = fields.Float("Taux devise", default=1, digits=(12, 6), help="Nombre d'Euro pour une devise")
-
-    tax_id             = fields.Many2one('account.tax', 'TVA à appliquer')
+    tax_id             = fields.Many2one('account.tax', 'TVA', domain=[('type_tax_use','=','sale')])
     tps_montage        = fields.Float("Tps montage (HH:MM)", help="Temps de montage (HH:MM)", store=False, readonly=True, compute='_compute_montant')
     tps_assemblage     = fields.Float("Tps assemblage (HH:MM)", readonly=True)
     tps_majoration     = fields.Float("Tps majoration (HH:MM)")
@@ -582,17 +593,57 @@ class is_devis_parametrable(models.Model):
     total_equipement   = fields.Float("Total équipement"                     , store=False, readonly=True, compute='_compute_montant')
     montant_matiere    = fields.Float("Montant matière", store=False, readonly=True, compute='_compute_montant_matiere')
     montant_option     = fields.Float("Montant options", store=False, readonly=True, compute='_compute_montant_option')
-    montant_option_active   = fields.Float("Montant options actives"  , store=False, readonly=True, compute='_compute_montant_option')
-    montant_option_comprise = fields.Float("Montant options comprises", store=False, readonly=True, compute='_compute_montant_option')
-    montant_option_thermo   = fields.Float("Montant options Thermorégulation", store=False, readonly=True, compute='_compute_montant_option')
-    commentaire        = fields.Text("Commentaire")
-    duree_totale       = fields.Float("Durée totale (HH:MM)", store=True, readonly=True, compute='_compute_duree_totale')
-    modele             = fields.Boolean("Modèle", help="Devis utilisable dans toutes les affaires", default=False)
-
-
+    montant_option_active     = fields.Float("Montant options actives"  , store=False, readonly=True, compute='_compute_montant_option')
+    montant_option_comprise   = fields.Float("Montant options comprises", store=False, readonly=True, compute='_compute_montant_option')
+    montant_option_thermo     = fields.Float("Montant options Thermorégulation", store=False, readonly=True, compute='_compute_montant_option')
+    commentaire               = fields.Text("Commentaire")
+    duree_totale              = fields.Float("Durée totale (HH:MM)", store=True, readonly=True, compute='_compute_duree_totale')
+    modele                    = fields.Boolean("Modèle", help="Devis utilisable dans toutes les affaires", default=False)
     montant_equipement_devise = fields.Monetary("Montant équipement (Device)", readonly=True, compute='_compute_montant', currency_field='devise_client_id')
+    tax_ids                   = fields.One2many('is.devis.parametrable.tax'  , 'devis_id', 'Montant TVA', copy=True, store=True, readonly=True, compute='_compute_tax_ids')
+    montant_equipement_ht     = fields.Monetary("Montant Equipements HT" , store=True, readonly=True, compute='_compute_tax_ids', currency_field='devise_client_id')
+    montant_equipement_ttc    = fields.Monetary("Montant Equipements TTC", store=True, readonly=True, compute='_compute_tax_ids', currency_field='devise_client_id')
 
 
+
+    @api.depends('section_ids','section_ids.product_ids','section_ids.montant_total','tax_id')
+    def _compute_tax_ids(self):
+        for obj in self:
+            obj.tax_ids.unlink()
+            lines={}
+            montant_equipement_ht = montant_equipement_ttc = 0
+            devis_tax_id = obj.tax_id
+            if type(obj.id)==int:
+                for section in obj.section_ids:
+                    for product in section.product_ids:
+                        montant_equipement_ht+=product.montant_avec_marge_devise
+                        tax_id = product.tax_id or devis_tax_id
+                        if tax_id:
+                            if tax_id not in lines:
+                                lines[tax_id] = 0
+                            lines[tax_id] += product.montant_avec_marge_devise
+                montant_equipement_ttc = montant_equipement_ht
+                for tax in lines:
+                    montant_tva = round(lines[tax]*tax.amount/100,2)
+                    montant_equipement_ttc+=montant_tva
+                    vals={
+                        'devis_id'   : obj.id,
+                        'tax_id'     : tax.id,
+                        'montant_ht' : lines[tax],
+                        'montant_tva': montant_tva,
+                    }
+                    self.env['is.devis.parametrable.tax'].create(vals)
+            obj.montant_equipement_ht  = montant_equipement_ht
+            obj.montant_equipement_ttc = montant_equipement_ttc
+
+
+    @api.depends('article_ids','article_ids.duree_totale')
+    def _compute_duree_totale(self):
+        for obj in self:
+            duree=0
+            for line in obj.article_ids:
+                duree+=line.duree_totale
+            obj.duree_totale = duree
 
 
 
@@ -897,7 +948,7 @@ class is_devis_parametrable_article(models.Model):
     cout_mo_force      = fields.Float("Coût MO forcé"     , digits=(16, 2))
     total_matiere      = fields.Float("Total matière", digits=(16, 2), store=True, readonly=True, compute='_compute_total')
     total_mo           = fields.Float("Total MO"     , digits=(16, 2), store=True, readonly=True, compute='_compute_total')
-    nomenclature_ids   = fields.One2many('is.devis.parametrable.article.nomenclature', 'article_id', 'Nomenclature', copy=True)
+    nomenclature_ids   = fields.One2many('is.devis.parametrable.article.nomenclature', 'article_id', 'Nomenclatures', copy=True)
     operation_ids      = fields.One2many('is.devis.parametrable.article.operation'   , 'article_id', 'Opérations', copy=True)
     duree_totale       = fields.Float("Durée totale (HH:MM)", store=True, readonly=True, compute='_compute_duree_totale')
 
@@ -1287,6 +1338,7 @@ class is_devis_parametrable_section_product(models.Model):
     devise_client_id          = fields.Many2one(related="section_id.devis_id.devise_client_id")
     prix_avec_marge_devise    = fields.Monetary("Prix vendu"   , readonly=True, compute='_compute_avec_marge', currency_field='devise_client_id', help="Prix en device avec marge, remise et arrondi indiqué dans la société commerciale")
     montant_avec_marge_devise = fields.Monetary("Montant vendu", readonly=True, compute='_compute_avec_marge', currency_field='devise_client_id')
+    tax_id                    = fields.Many2one('account.tax', 'TVA', domain=[('type_tax_use','=','sale')])
 
 
 class is_devis_parametrable_variante(models.Model):

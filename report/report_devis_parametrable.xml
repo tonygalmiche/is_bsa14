@@ -40,12 +40,6 @@
                     }
                 </style>
                 <h1><span t-field="o.designation"/></h1>
-
-               
-        
-               
-                     
-
                 <table class="table table-sm o_main_table" style="border-left:0;border-right:0;">
                     <thead>
                         <tr>
@@ -54,6 +48,9 @@
                             <th style="border-left:0;border-right:0;" class="text-center">Quantité</th>
                             <th style="border-left:0;border-right:0;" class="text-right text-nowrap">Prix unitaire</th>
                             <th style="border-left:0;border-right:0;" class="text-right text-nowrap">Montant HT</th>
+                            <t t-if="o.montant_equipement_ht!=o.montant_equipement_ttc">
+                                <th style="border-left:0;border-right:0;" class="text-right text-nowrap">TVA</th>
+                            </t>
                         </tr>
                     </thead>
                     <tbody>
@@ -67,8 +64,11 @@
                                         <div t-if="l.description_detaillee" t-field="l.description_detaillee"/>
                                     </td>
                                     <td style="border-left:0;border-right:0;" class="text-center"><span t-field="l.quantite"/></td>
-                                    <td style="border-left:0;border-right:0;" class="text-right"><span t-field="l.prix_avec_marge_devise"/></td>
-                                    <td style="border-left:0;border-right:0;" class="text-right"><span t-field="l.montant_avec_marge_devise"/></td>
+                                    <td style="border-left:0;border-right:0;" class="text-right"> <span t-field="l.prix_avec_marge_devise"/></td>
+                                    <td style="border-left:0;border-right:0;" class="text-right"> <span t-field="l.montant_avec_marge_devise"/></td>
+                                    <t t-if="o.montant_equipement_ht!=o.montant_equipement_ttc">
+                                        <td style="border-left:0;border-right:0;" class="text-center"><span t-field="l.tax_id"/></td>
+                                    </t>
                                 </tr>
                                 <t t-set="pos" t-value="pos+1"/>
                             </t>
@@ -79,21 +79,29 @@
                 <div class="row">
                     <div class="col-6 ml-auto">
                         <table class="table table-sm o_main_table" style="page-break-inside: avoid;">
-                            <tr>
-                                <td><strong>Total HT</strong></td>
-                                <td class="text-right" style="width:40mm"><span t-field="o.montant_equipement_devise"/></td>
-                            </tr>
-                            <!-- <t t-if="o.montant_remise_devise">
+                            <t t-if="o.montant_equipement_ht==o.montant_equipement_ttc">
                                 <tr>
-                                    <td><strong><span t-field="o.intitule_remise_devise"/></strong></td>
-                                    <td class="text-right"><span t-field="o.montant_remise_devise"/> <span t-field="o.devise_client_id.symbol"/></td>
+                                    <td><strong>Total</strong></td>
+                                    <td class="text-right" style="width:40mm"><span t-field="o.montant_equipement_ttc"/></td>
                                 </tr>
+                            </t>
+                            <t t-if="o.montant_equipement_ht!=o.montant_equipement_ttc">
                                 <tr>
-                                    <td><strong>Prix unitaire avec remise HT</strong></td>
-                                    <td class="text-right"><span t-field="o.prix_vente_remise_devise"/> <span t-field="o.devise_client_id.symbol"/></td>
+                                    <td><strong>Total HT</strong></td>
+                                    <td class="text-right" style="width:40mm"><span t-field="o.montant_equipement_ht"/></td>
                                 </tr>
-                            </t> -->
-                        </table>
+                                <t t-foreach="o.tax_ids" t-as="t">
+                                    <tr>
+                                        <td><strong>TVA <span t-field="t.tax_id"/></strong></td>
+                                        <td class="text-right" style="width:40mm"><span t-field="t.montant_tva"/></td>
+                                    </tr>
+                                </t>
+                                <tr>
+                                    <td><strong>Total TTC</strong></td>
+                                    <td class="text-right" style="width:40mm"><span t-field="o.montant_equipement_ttc"/></td>
+                                </tr>
+                            </t>
+                         </table>
                     </div>
                 </div>
                 

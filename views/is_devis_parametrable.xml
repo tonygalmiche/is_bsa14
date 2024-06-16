@@ -388,6 +388,21 @@
                                     string="Actualiser les prix"
                                     attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble'])]}"
                                 />
+                                <group string="Montant TVA" attrs="{'invisible':[('type_devis','not in',['ombriere'])]}">
+                                    <group>
+                                        <field name="tax_ids" nolabel="1" readonly="1" colspan="2">
+                                            <tree>
+                                                <field name="devis_id"         invisible="1"/>
+                                                <field name="devise_client_id" invisible="1"/>
+                                                <field name="tax_id" widget="many2one_clickable"/>
+                                                <field name="montant_ht"  sum="Total"/>
+                                                <field name="montant_tva" sum="Total"/>
+                                            </tree>
+                                        </field>    
+                                        <field name="montant_equipement_ht"/>
+                                        <field name="montant_equipement_ttc"/>
+                                    </group>
+                                 </group>
                                 <group string="Variantes" attrs="{'invisible':[('type_devis','in',['ombriere'])]}">
                                     <field name="variante_ids" nolabel="1" readonly="1">
                                         <tree>
@@ -751,8 +766,9 @@
                                 <field name="marge_equipement_variante" optional="show" attrs="{'column_invisible':[('parent.type_devis','!=','bassin')]}"/>
                                 <field name="prix_avec_marge_devise"    optional="show" attrs="{'column_invisible':[('parent.type_devis','not in',['bassin','ombriere'])]}"/>
                                 <field name="montant_avec_marge_devise" optional="show" attrs="{'column_invisible':[('parent.type_devis','not in',['bassin','ombriere'])]}" sum="Total"/>
-                                <field name="tps_montage"               optional="show" attrs="{'column_invisible':[('parent.type_devis','in',['ombriere'])]}" sum="Total" widget="float_time"/>
-                                <field name="tps_montage_force"         optional="show" attrs="{'column_invisible':[('parent.type_devis','in',['ombriere'])]}" sum="Total" widget="float_time"/>
+                                <field name="tax_id"                    optional="show" attrs="{'column_invisible':[('parent.type_devis','not in',['ombriere'])]}"/>
+                                <field name="tps_montage"               optional="show" attrs="{'column_invisible':[('parent.type_devis','in',['ombriere'])]}"              sum="Total" widget="float_time"/>
+                                <field name="tps_montage_force"         optional="show" attrs="{'column_invisible':[('parent.type_devis','in',['ombriere'])]}"              sum="Total" widget="float_time"/>
                                 <field name="devise_client_id" invisible="1"/>
                             </tree>
                         </field>

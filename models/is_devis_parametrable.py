@@ -426,6 +426,10 @@ class is_devis_parametrable_affaire(models.Model):
                 copy = line.variante_id.devis_id.copy()
                 for variante in copy.variante_ids:
                     line.variante_id = variante.id
+            for line in copy_affaire.devis_parametrable_ids:
+                print("TEST 1",line)
+                copy = line.devis_id.copy()
+                line.devis_id = copy.id
             return copy_affaire.acceder_affaire_action()
 
 
@@ -679,6 +683,7 @@ class is_devis_parametrable(models.Model):
     ratio_wc                      = fields.Float("Ratio Wc"                        , readonly=True, compute='_compute_montant')
     tax_ids                       = fields.One2many('is.devis.parametrable.tax', 'devis_id', 'Montant TVA', store=True, readonly=True, compute='_compute_tax_ids')
     montant_equipement_ttc        = fields.Monetary("Montant équipements TTC"                             , store=True, readonly=True, compute='_compute_tax_ids', currency_field='devise_client_id')
+    impression_dimensions         = fields.Selection(_OUI_NON, "Impression dimensions", default="oui")
 
 
     @api.depends('section_ids','section_ids.product_ids','section_ids.montant_total','tax_id')
@@ -1386,6 +1391,7 @@ class is_devis_parametrable_section_product(models.Model):
             montant_avec_marge_devise = prix_avec_marge_devise*obj.quantite
             obj.prix_avec_marge_devise    = prix_avec_marge_devise
             obj.montant_avec_marge_devise = montant_avec_marge_devise
+            obj.montant_remise = obj.remise * obj.quantite
 
 
     @api.depends('product_id','quantite','prix')
@@ -1431,12 +1437,12 @@ class is_devis_parametrable_section_product(models.Model):
     quantite           = fields.Float("Quantité", default=1, digits=(16, 2))
 
     devise_bsa_id      = fields.Many2one(related="section_id.devis_id.devise_bsa_id")
+    devise_client_id   = fields.Many2one(related="section_id.devis_id.devise_client_id")
     prix               = fields.Monetary("Prix d'achat" , currency_field='devise_bsa_id')
     montant            = fields.Monetary("Montant achat", currency_field='devise_bsa_id', store=True , readonly=True, compute='_compute_montant')
     marge              = fields.Float("Marge (%)", help="Si ce champ n'est pas renseigné, la marge par défaut de la variante sera appliquée")
     remise             = fields.Monetary("Remise", currency_field='devise_bsa_id', help="Utilisée pour arrondir un prix")
-
-    devise_client_id          = fields.Many2one(related="section_id.devis_id.devise_client_id")
+    montant_remise            = fields.Monetary("Montant Remise"   , readonly=True, compute='_compute_avec_marge', currency_field='devise_bsa_id')
     prix_avec_marge           = fields.Monetary("Prix vendu (€)"   , readonly=True, compute='_compute_avec_marge', currency_field='devise_bsa_id'   , help="Prix avec marge, remise et arrondi indiqué dans la société commerciale")
     montant_avec_marge        = fields.Monetary("Montant vendu (€)", readonly=True, compute='_compute_avec_marge', currency_field='devise_bsa_id')
     prix_avec_marge_devise    = fields.Monetary("Prix vendu"       , readonly=True, compute='_compute_avec_marge', currency_field='devise_client_id', help="Prix en device")
@@ -1541,7 +1547,6 @@ class is_devis_parametrable_variante(models.Model):
     prix_vente_remise_devise = fields.Integer("Prix de vente remisé (Devise)"     , readonly=True, compute='_compute_montants')
     prix_par_hl_devise       = fields.Integer("Prix par HL (Devise)"              , readonly=True, compute='_compute_montants')
     impression_matieres      = fields.Selection(_OUI_NON, "Impression Matières"  , default="oui")
-    impression_dimensions    = fields.Selection(_OUI_NON, "Impression Dimensions", default="oui")
     impression_options       = fields.Selection(_OUI_NON, "Impression Options"   , default="oui")
     impression_equipements   = fields.Selection([
             ('standard' , 'Standard (sans les prix)'),

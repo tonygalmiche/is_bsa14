@@ -40,6 +40,29 @@
                     }
                 </style>
                 <h1><span t-field="o.designation"/></h1>
+
+
+                <t t-if="o.impression_dimensions=='oui'">
+                    <h3>Dimensions : </h3>
+                    <table class="table table-sm o_main_table">
+                        <tbody>
+                            <t t-foreach="o.dimension_ids" t-as="l">
+                                <t t-if="l.imprimer">
+                                    <tr>
+                                        <td class="text-left">  <span t-field="l.dimension_id.name"/></td>
+                                        <td class="text-left">
+                                            <span t-field="l.valeur_txt"/><span t-field="l.unite_id.name"/>
+                                            <span t-field="l.description"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </t>
+                        </tbody>
+                    </table>
+                </t>
+
+
+
                 <table class="table table-sm o_main_table" style="border-left:0;border-right:0;">
                     <thead>
                         <tr>

@@ -94,7 +94,7 @@
                             </tbody>
                         </table>
                     </t>
-                    <t t-if="o.impression_dimensions=='oui'">
+                    <t t-if="o.devis_id.impression_dimensions=='oui'">
                         <h3>Dimensions : </h3>
                         <table class="table table-sm o_main_table">
                             <tbody>

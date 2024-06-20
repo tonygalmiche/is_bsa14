@@ -532,7 +532,12 @@
                                     </tree>
                                 </field>
                             </page>
-                        </notebook>
+                            <page string="Paramétrage">
+                                <group string="Paramétrage du PDF">
+                                    <field name="impression_dimensions"/>
+                                </group>    
+                            </page>
+                         </notebook>
 
 
                     </sheet>
@@ -727,7 +732,7 @@
                             <group string="Paramétrage du PDF / Prix à afficher">
                                 <field name="prix_a_afficher"/>
                                 <field name="impression_matieres"/>
-                                <field name="impression_dimensions"/>
+                                <!-- <field name="impression_dimensions"/> -->
                                 <field name="impression_options"/>
                                 <field name="impression_equipements"/>
                                 <field name="afficher_remise"/>
@@ -818,6 +823,7 @@
                                 <field name="montant"                   optional="show" sum="Total"/>
                                 <field name="marge"                     optional="show"/>
                                 <field name="remise"                    optional="show" attrs="{'column_invisible':[('parent.type_devis','not in',['ombriere'])]}"/>
+                                <field name="montant_remise"            optional="show" attrs="{'column_invisible':[('parent.type_devis','not in',['ombriere'])]}"          sum="Total"/>
                                 <field name="marge_equipement_variante" optional="show" attrs="{'column_invisible':[('parent.type_devis','!=','bassin')]}"/>
                                 <field name="prix_avec_marge"           optional="show" attrs="{'column_invisible':[('parent.type_devis','not in',['bassin','ombriere'])]}"/>
                                 <field name="montant_avec_marge"        optional="show" attrs="{'column_invisible':[('parent.type_devis','not in',['bassin','ombriere'])]}" sum="Total"/>

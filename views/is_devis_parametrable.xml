@@ -91,7 +91,7 @@
                             <field name="conditions_generales"/>
                             <field name="vendeur_id"/>
                         </group>
-                        <group string="Variantes des devis">
+                        <group string="Variantes des devis" attrs="{'invisible':[('type_devis','=','ombriere')]}">
                             <field name="variante_ids" nolabel="1">
                                 <tree editable="bottom">
                                     <field name="sequence" widget="handle" />
@@ -100,6 +100,7 @@
                                     <field 
                                         name="variante_id"
                                         domain="['|',('partner_id','=',parent.partner_id),('modele','=', True)]"
+                                        widget="many2one_clickable"
                                     />
                                     <field name="capacite" sum="Total"            optional="show"/>
                                     <field name="unite"                           optional="show"/>
@@ -114,7 +115,34 @@
                                 </tree>
                             </field>
                         </group>
-                        <group>
+                        <group string="Devis" attrs="{'invisible':[('type_devis','!=','ombriere')]}">
+                            <field name="devis_parametrable_ids" nolabel="1">
+                                <tree editable="bottom">
+                                    <field name="sequence" widget="handle" />
+                                    <field name="affaire_id" invisible="1"/>
+                                    <field 
+                                        name="devis_id"
+                                        domain="['|',('partner_id','=',parent.partner_id),('modele','=', True)]"
+                                        widget="many2one_clickable"
+                                    />
+                                    <field name="capacite"         optional="show"/>
+                                    <field name="ratio_wc"         optional="show"/>
+                                    <field name="quantite"         optional="show"/>
+                                    <field name="prix_achat"       optional="show"/>
+                                    <field name="prix_vendu"       optional="show"/>
+                                    <field name="marge"            optional="show"/>
+                                    <field name="montant_achat"    optional="show" sum="Total"/>
+                                    <field name="montant_vendu"    optional="show" sum="Total"/>
+                                    <field name="montant_marge"    optional="show" sum="Total"/>
+                                    <field name="taux_marge"       optional="show"/>
+                                    <field name="prix_devise_ht"   optional="show"/>
+                                    <field name="prix_devise_ttc"  optional="show"/>
+                                    <field name="devise_bsa_id"    invisible="1"/>
+                                    <field name="devise_client_id" invisible="1"/>
+                                </tree>
+                            </field>
+                        </group>
+                        <group attrs="{'invisible':[('type_devis','=','ombriere')]}">
                             <field name="devise_client_id"/>
                             <field name="montant_ht"/>
 
@@ -243,41 +271,43 @@
                                 max-height: 500px;
                             }
                         </style>
-                        <group>
-                            <group>
-                                <field name="name"/>
-                                <field name="version"/>
-                                <field name="type_devis"/>
-                                <field name="is_societe_commerciale_id"/>
-                                <field name="partner_id"/>
-                                <field name="devise_client_id"/>
-                                <field name="taux_devise"/>
-                                <a href="https://www.xe.com/fr/currencyconverter/convert/?Amount=1&amp;From=CHF&amp;To=EUR" target="_blank">Recherche taux de la devise</a>
-                                <field name="nom_affaire"/>
-                                <field name="type_cuve_id"/>
-                                <field name="designation"/>
-                                <field name="designation_complementaire" attrs="{'invisible':[('type_devis','in',['ombriere'])]}"/>
-                                <label for="capacite" string="Capacité"  attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble'])]}"/>
-                                <div class="d-flex"                      attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble'])]}">
-                                    <field name="capacite" readonly="1"/>
-                                    <span class="o_form_label mx-3"> </span>
-                                    <field name="unite"/>
-                                </div>
-                            </group>
-                            <group>
-                                <field name="tax_id"/>
-                                <field name="date_creation"/>
-                                <field name="date_actualisation" readonly="1"/>
-                                <field name="createur_id"/>
-                                <field name="montant_matiere" invisible="1"/>
-                                <field name="duree_totale"/>
-                                <field name="modele"/>
-                            </group>
-                         </group>
                         <notebook>
-                            <page string="Devis">
-
-                                <group string="Dimensions" attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble','ombriere'])]}">
+                            <page string="Entête">
+                                <group>
+                                    <group>
+                                        <field name="name"/>
+                                        <field name="version"/>
+                                        <field name="type_devis"/>
+                                        <field name="is_societe_commerciale_id"/>
+                                        <field name="partner_id"/>
+                                        <field name="devise_bsa_id"/>
+                                        <field name="devise_client_id"/>
+                                        <field name="taux_devise"/>
+                                        <a href="https://www.xe.com/fr/currencyconverter/convert/?Amount=1&amp;From=CHF&amp;To=EUR" target="_blank">Recherche taux de la devise</a>
+                                        <field name="nom_affaire"/>
+                                        <field name="type_cuve_id"/>
+                                        <field name="designation"/>
+                                        <field name="designation_complementaire" attrs="{'invisible':[('type_devis','in',['ombriere'])]}"/>
+                                        <label for="capacite" string="Capacité"  attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble','ombriere'])]}"/>
+                                        <div class="d-flex"                      attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble','ombriere'])]}">
+                                            <field name="capacite" readonly="1"/>
+                                            <span class="o_form_label mx-3"> </span>
+                                            <field name="unite"/>
+                                        </div>
+                                    </group>
+                                    <group>
+                                        <field name="tax_id"/>
+                                        <field name="date_creation"/>
+                                        <field name="date_actualisation" readonly="1"/>
+                                        <field name="createur_id"/>
+                                        <field name="montant_matiere" invisible="1"/>
+                                        <field name="duree_totale"/>
+                                        <field name="modele"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Dimensions" attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble','ombriere'])]}">
+                                <group string="Dimensions">
                                     <field name="dimension_ids" nolabel="1">
                                         <tree editable="bottom">
                                             <field name="sequence" widget="handle" />
@@ -290,8 +320,10 @@
                                         </tree>
                                     </field>
                                 </group>
+                            </page>
+                            <page string="Temps" attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble'])]}">
                                 <group>
-                                    <group string="Temps" attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble'])]}">
+                                    <group string="Temps">
                                         <field name="tps_montage"    widget="float_time" readonly="1" />
                                         <field name="tps_assemblage" widget="float_time"/>
                                         <field name="tps_majoration" widget="float_time"/>
@@ -300,7 +332,9 @@
                                         <field name="tps_be"         widget="float_time"/>
                                     </group>
                                 </group>
-                                <group string="Matières" attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble'])]}">
+                            </page>
+                            <page string="Matières" attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble'])]}">
+                                <group string="Matières">
                                     <field name="matiere_ids" nolabel="1">
                                         <tree editable="bottom">
                                             <field name="sequence" widget="handle" />
@@ -322,7 +356,9 @@
                                     string="Actualiser les prix"
                                     attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble'])]}"
                                 />
-                                <group string="Articles" attrs="{'invisible':[('type_devis','not in',['structure'])]}">
+                            </page>
+                            <page string="Articles" attrs="{'invisible':[('type_devis','not in',['structure'])]}">
+                                <group string="Articles">
                                     <field name="article_ids" nolabel="1">
                                         <tree editable="bottom">
                                             <field name="sequence" widget="handle" />
@@ -343,7 +379,10 @@
                                         </tree>
                                     </field>
                                 </group>
-                                <group string="Options" attrs="{'invisible':[('type_devis','in',['ombriere'])]}">
+
+                            </page>
+                            <page string="Options" attrs="{'invisible':[('type_devis','in',['ombriere'])]}">
+                                <group string="Options">
                                     <field name="options_ids" nolabel="1">
                                         <tree editable="bottom">
                                             <field name="sequence" widget="handle" />
@@ -369,7 +408,11 @@
                                     <field name="montant_option_comprise"/>
                                     <field name="montant_option_thermo"/>
                                 </group>
-                                <group string="Sections des équipements" attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble','ombriere'])]}">
+
+
+                            </page>
+                            <page string="Equipements" attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble','ombriere'])]}">
+                                <group string="Sections des équipements">
                                     <field name="section_ids" nolabel="1" readonly="0">
                                         <tree>
                                             <field name="sequence" widget="handle" />
@@ -378,7 +421,11 @@
                                             <field name="section_id"/>
                                             <field name="montant_total"            sum="Total"/>
                                             <field name="montant_total_avec_marge" sum="Total"/>
+                                            <field name="montant_marge"            sum="Total"/>
+                                            <field name="taux_marge"/>
                                             <field name="tps_montage"              sum="Total" widget="float_time"/>
+                                            <field name="devise_client_id" invisible="1"/>
+                                            <field name="devise_bsa_id"    invisible="1"/>
                                         </tree>
                                     </field>
                                 </group>
@@ -399,11 +446,19 @@
                                                 <field name="montant_tva" sum="Total"/>
                                             </tree>
                                         </field>    
-                                        <field name="montant_equipement_ht"/>
+                                        <field name="montant_equipement_achat"/>
+                                        <field name="montant_equipement_vendu"/>
+                                        <field name="montant_equipement_marge"/>
+                                        <field name="montant_equipement_taux_marge"/>
+                                        <field name="montant_equipement_devise"/>
                                         <field name="montant_equipement_ttc"/>
+                                        <field name="ratio_wc"/>
                                     </group>
                                  </group>
-                                <group string="Variantes" attrs="{'invisible':[('type_devis','in',['ombriere'])]}">
+
+                            </page>
+                            <page string="Variantes" attrs="{'invisible':[('type_devis','in',['ombriere'])]}">
+                                <group string="Variantes">
                                     <field name="variante_ids" nolabel="1" readonly="1">
                                         <tree>
                                             <button title="Variante" name="acceder_variante_action" type="object" icon="fa-search-plus"/>
@@ -447,8 +502,6 @@
                                     <field name="variante_id"/>
                                 </group>
                             </page>
-
-
                             <page string="Affaires">
                                 <field name="affaire_ids">
                                     <tree>
@@ -764,14 +817,27 @@
                                 <field name="marge"                     optional="show"/>
                                 <field name="remise"                    optional="show" attrs="{'column_invisible':[('parent.type_devis','not in',['ombriere'])]}"/>
                                 <field name="marge_equipement_variante" optional="show" attrs="{'column_invisible':[('parent.type_devis','!=','bassin')]}"/>
-                                <field name="prix_avec_marge_devise"    optional="show" attrs="{'column_invisible':[('parent.type_devis','not in',['bassin','ombriere'])]}"/>
+                                <field name="prix_avec_marge"           optional="show" attrs="{'column_invisible':[('parent.type_devis','not in',['bassin','ombriere'])]}"/>
+                                <field name="montant_avec_marge"        optional="show" attrs="{'column_invisible':[('parent.type_devis','not in',['bassin','ombriere'])]}" sum="Total"/>
+                                <field name="prix_avec_marge_devise"    optional="hide" attrs="{'column_invisible':[('parent.type_devis','not in',['bassin','ombriere'])]}"/>
                                 <field name="montant_avec_marge_devise" optional="show" attrs="{'column_invisible':[('parent.type_devis','not in',['bassin','ombriere'])]}" sum="Total"/>
                                 <field name="tax_id"                    optional="show" attrs="{'column_invisible':[('parent.type_devis','not in',['ombriere'])]}"/>
                                 <field name="tps_montage"               optional="show" attrs="{'column_invisible':[('parent.type_devis','in',['ombriere'])]}"              sum="Total" widget="float_time"/>
                                 <field name="tps_montage_force"         optional="show" attrs="{'column_invisible':[('parent.type_devis','in',['ombriere'])]}"              sum="Total" widget="float_time"/>
+                                <field name="devise_bsa_id"    invisible="1"/>
                                 <field name="devise_client_id" invisible="1"/>
                             </tree>
                         </field>
+                        <group>
+                            <group>
+                                <field name="montant_total"/>
+                                <field name="montant_total_avec_marge"/>
+                                <field name="montant_marge"/>
+                                <field name="taux_marge"/>
+                                <field name="devise_bsa_id"    invisible="1"/>
+                                <field name="devise_client_id" invisible="1"/>
+                            </group>
+                        </group>
                     </sheet>
                 </form>
             </field>

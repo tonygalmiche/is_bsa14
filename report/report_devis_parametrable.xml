@@ -48,7 +48,7 @@
                             <th style="border-left:0;border-right:0;" class="text-center">Quantité</th>
                             <th style="border-left:0;border-right:0;" class="text-right text-nowrap">Prix unitaire</th>
                             <th style="border-left:0;border-right:0;" class="text-right text-nowrap">Montant HT</th>
-                            <t t-if="o.montant_equipement_ht!=o.montant_equipement_ttc">
+                            <t t-if="o.montant_equipement_devise!=o.montant_equipement_ttc">
                                 <th style="border-left:0;border-right:0;" class="text-right text-nowrap">TVA</th>
                             </t>
                         </tr>
@@ -66,8 +66,10 @@
                                     <td style="border-left:0;border-right:0;" class="text-center"><span t-field="l.quantite"/></td>
                                     <td style="border-left:0;border-right:0;" class="text-right"> <span t-field="l.prix_avec_marge_devise"/></td>
                                     <td style="border-left:0;border-right:0;" class="text-right"> <span t-field="l.montant_avec_marge_devise"/></td>
-                                    <t t-if="o.montant_equipement_ht!=o.montant_equipement_ttc">
-                                        <td style="border-left:0;border-right:0;" class="text-center"><span t-field="l.tax_id"/></td>
+                                    <t t-if="o.montant_equipement_devise!=o.montant_equipement_ttc">
+                                        <td style="border-left:0;border-right:0;" class="text-center">
+                                            <span t-esc="l.tax_id.name or o.tax_id.name or ''"/>
+                                        </td>
                                     </t>
                                 </tr>
                                 <t t-set="pos" t-value="pos+1"/>
@@ -79,16 +81,16 @@
                 <div class="row">
                     <div class="col-6 ml-auto">
                         <table class="table table-sm o_main_table" style="page-break-inside: avoid;">
-                            <t t-if="o.montant_equipement_ht==o.montant_equipement_ttc">
+                            <t t-if="o.montant_equipement_devise==o.montant_equipement_ttc">
                                 <tr>
                                     <td><strong>Total</strong></td>
                                     <td class="text-right" style="width:40mm"><span t-field="o.montant_equipement_ttc"/></td>
                                 </tr>
                             </t>
-                            <t t-if="o.montant_equipement_ht!=o.montant_equipement_ttc">
+                            <t t-if="o.montant_equipement_devise!=o.montant_equipement_ttc">
                                 <tr>
                                     <td><strong>Total HT</strong></td>
-                                    <td class="text-right" style="width:40mm"><span t-field="o.montant_equipement_ht"/></td>
+                                    <td class="text-right" style="width:40mm"><span t-field="o.montant_equipement_devise"/></td>
                                 </tr>
                                 <t t-foreach="o.tax_ids" t-as="t">
                                     <tr>

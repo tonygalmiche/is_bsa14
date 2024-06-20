@@ -288,10 +288,8 @@ class is_devis_parametrable_affaire(models.Model):
                         ct+=1
 
             #** Devis *********************************************************
-            print("TEST 1",obj.type_devis,obj.devis_parametrable_ids)
             if obj.type_devis in ('ombriere'):
                 for line in obj.devis_parametrable_ids:
-                    print("TEST 2",line)
                     if line.devis_id:
                         pdf = request.env.ref('is_bsa14.action_report_devis_parametrable').sudo()._render_qweb_pdf([line.devis_id.id])[0]
                         path="/tmp/affaire_%s_%02d_devis.pdf"%(obj.id,ct)
@@ -300,10 +298,6 @@ class is_devis_parametrable_affaire(models.Model):
                         f.write(pdf)
                         f.close()
                         ct+=1
-
-
-
-
 
             #** Récapitulatif pour ensemble fini ******************************
             if obj.type_devis in ('ensemble'):
@@ -381,8 +375,6 @@ class is_devis_parametrable_affaire(models.Model):
                     ct+=1
             #******************************************************************
 
-
-            print(paths)
 
             # ** Merge des PDF *************************************************
             path_merged="/tmp/affaire_%s.pdf"%(obj.id)
@@ -637,6 +629,7 @@ class is_devis_parametrable(models.Model):
             ('Litre', 'Litre'),
             ('m3'   , 'm3'),
             ('HL'   , 'HL'),
+            ('kWc'  , 'kWc'),
         ], "Unité")
 
     capacite_txt       = fields.Char("Capacité ", compute='_compute_capacite_txt')
@@ -843,6 +836,15 @@ class is_devis_parametrable(models.Model):
             #******************************************************************
 
 
+            #** Recalcul des équipements **************************************
+            for section in obj.section_ids:
+                for product in section.product_ids:
+                    product._compute_montant()
+                section._compute_montant()
+                section._compute_tps_montage()
+            #******************************************************************
+
+        
     def creation_section_action(self):
         for obj in self:
             res= {
@@ -1229,6 +1231,7 @@ class is_devis_parametrable_option(models.Model):
     _order='sequence,id'
 
     devis_id           = fields.Many2one('is.devis.parametrable', 'Devis', required=True, ondelete='cascade')
+    devise_client_id   = fields.Many2one(related="devis_id.devise_client_id")
     sequence           = fields.Integer("Sequence")
     option_id          = fields.Many2one('is.option', 'Option')
     description        = fields.Text("Description BSA" , help="Information pour le client (mettre [quantite] pour récupérer la quantité dans le PDF")
@@ -1236,13 +1239,16 @@ class is_devis_parametrable_option(models.Model):
     valeur             = fields.Float("Valeur"     , help="Donnée d'entrée du calculateur")
     quantite           = fields.Float("Quantitée"  , help="Donnée de sortie du calculateur")
     prix               = fields.Float("Prix"       , help="Prix unitaire de l'option")
-    montant            = fields.Float("Montant"            , store=True, readonly=True, compute='_compute_montant')
+    montant            = fields.Float("Montant (€)"        , store=True, readonly=True, compute='_compute_montant')
     montant_int        = fields.Integer("Montant (arrondi)", store=True, readonly=True, compute='_compute_montant')
+    montant_devise     = fields.Monetary("Montant"         , store=True, readonly=True, compute='_compute_montant', currency_field='devise_client_id')
     entree2            = fields.Float("Entrée 2")
     sortie2            = fields.Float("Sortie 2")
     option_active      = fields.Boolean("Active"  , default=True)
     option_comprise    = fields.Boolean("Comprise", default=True)
     thermoregulation   = fields.Boolean("Thermo.", help="Thermorégulation", related="option_id.thermoregulation")
+
+
 
 
     @api.onchange('option_id')
@@ -1262,8 +1268,11 @@ class is_devis_parametrable_option(models.Model):
             if obj.prix and obj.quantite:
                 montant = obj.prix*obj.quantite
             montant_int = arrondi*ceil(montant/arrondi)
-            obj.montant     = montant
-            obj.montant_int = montant_int
+            taux = obj.devis_id.taux_devise or 1
+            montant_devise = montant_int / taux
+            obj.montant        = montant
+            obj.montant_int    = montant_int
+            obj.montant_devise = montant_devise
 
 
     @api.depends('description','valeur','quantite','prix','montant','entree2','sortie2')

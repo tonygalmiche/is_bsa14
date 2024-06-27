@@ -306,8 +306,11 @@
                                     </group>
                                 </group>
                             </page>
-                            <page string="Dimensions" attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble','ombriere'])]}">
-                                <group string="Dimensions">
+                            <page string="Dimensions et Matières">
+                                <group>
+                                    <field name="capacite" readonly="1"/>
+                                </group>
+                                <group string="Dimensions" attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble','ombriere'])]}">
                                     <field name="dimension_ids" nolabel="1">
                                         <tree editable="bottom">
                                             <field name="sequence" widget="handle" />
@@ -320,21 +323,7 @@
                                         </tree>
                                     </field>
                                 </group>
-                            </page>
-                            <page string="Temps" attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble'])]}">
-                                <group>
-                                    <group string="Temps">
-                                        <field name="tps_montage"    widget="float_time" readonly="1" />
-                                        <field name="tps_assemblage" widget="float_time"/>
-                                        <field name="tps_majoration" widget="float_time"/>
-                                        <field name="tps_minoration" widget="float_time"/>
-                                        <field name="tps_total"      widget="float_time"/>
-                                        <field name="tps_be"         widget="float_time"/>
-                                    </group>
-                                </group>
-                            </page>
-                            <page string="Matières" attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble'])]}">
-                                <group string="Matières">
+                                <group string="Matières" attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble'])]}">
                                     <field name="matiere_ids" nolabel="1">
                                         <tree editable="bottom">
                                             <field name="sequence" widget="handle" />
@@ -357,6 +346,20 @@
                                     attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble'])]}"
                                 />
                             </page>
+
+                            <page string="Temps" attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble'])]}">
+                                <group>
+                                    <group string="Temps">
+                                        <field name="tps_montage"    widget="float_time" readonly="1" />
+                                        <field name="tps_assemblage" widget="float_time"/>
+                                        <field name="tps_majoration" widget="float_time"/>
+                                        <field name="tps_minoration" widget="float_time"/>
+                                        <field name="tps_total"      widget="float_time"/>
+                                        <field name="tps_be"         widget="float_time"/>
+                                    </group>
+                                </group>
+                            </page>
+                          
                             <page string="Articles" attrs="{'invisible':[('type_devis','not in',['structure'])]}">
                                 <group string="Articles">
                                     <field name="article_ids" nolabel="1">
@@ -381,40 +384,11 @@
                                 </group>
 
                             </page>
-                            <page string="Options" attrs="{'invisible':[('type_devis','in',['ombriere'])]}">
-                                <group string="Options">
-                                    <field name="options_ids" nolabel="1">
-                                        <tree editable="bottom">
-                                            <field name="sequence" widget="handle" />
-                                            <field name="devis_id" invisible="1"/>
-                                            <field name="option_id"          class="test_scss"/>
-                                            <field name="option_active"/>
-                                            <field name="option_comprise"/>
-                                            <field name="thermoregulation"    optional="hide"/>
-                                            <field name="description"         optional="show" class="test_scss" />
-                                            <field name="description_client"  optional="show" class="test_scss"/>
-                                            <field name="valeur"              optional="show"/>
-                                            <field name="quantite"            optional="show"/>
-                                            <field name="prix"                optional="show"/>
-                                            <field name="montant"        sum="Total" optional="show"/>
-                                            <field name="montant_int"    sum="Total" optional="hide"/>
-                                            <field name="montant_devise" sum="Total" optional="hide"/>
-                                            <field name="entree2"             optional="show"/>
-                                            <field name="sortie2"             optional="show"/>
-                                            <field name="devise_client_id" invisible="1"/>
-                                        </tree>
-                                    </field>
+                            <page string="Equipements et Options">
+                                <group>
+                                    <field name="capacite" readonly="1"/>
                                 </group>
-                                <group attrs="{'invisible':[('type_devis','in',['ombriere'])]}">
-                                    <field name="montant_option_active"/>
-                                    <field name="montant_option_comprise"/>
-                                    <field name="montant_option_thermo"/>
-                                </group>
-
-
-                            </page>
-                            <page string="Equipements" attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble','ombriere'])]}">
-                                <group string="Sections des équipements">
+                                <group string="Sections des équipements" attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble','ombriere'])]}">
                                     <field name="section_ids" nolabel="1" readonly="0">
                                         <tree>
                                             <field name="sequence" widget="handle" />
@@ -457,8 +431,36 @@
                                         <field name="ratio_wc"/>
                                     </group>
                                  </group>
-
+                                <group string="Options" attrs="{'invisible':[('type_devis','in',['ombriere'])]}">
+                                    <field name="options_ids" nolabel="1">
+                                        <tree editable="bottom">
+                                            <field name="sequence" widget="handle" />
+                                            <field name="devis_id" invisible="1"/>
+                                            <field name="option_id"          class="test_scss"/>
+                                            <field name="option_active"/>
+                                            <field name="option_comprise"/>
+                                            <field name="thermoregulation"    optional="hide"/>
+                                            <field name="description"         optional="show" class="test_scss" />
+                                            <field name="description_client"  optional="show" class="test_scss"/>
+                                            <field name="valeur"              optional="show"/>
+                                            <field name="quantite"            optional="show"/>
+                                            <field name="prix"                optional="show"/>
+                                            <field name="montant"        sum="Total" optional="show"/>
+                                            <field name="montant_int"    sum="Total" optional="hide"/>
+                                            <field name="montant_devise" sum="Total" optional="hide"/>
+                                            <field name="entree2"             optional="show"/>
+                                            <field name="sortie2"             optional="show"/>
+                                            <field name="devise_client_id" invisible="1"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                                <group attrs="{'invisible':[('type_devis','in',['ombriere'])]}">
+                                    <field name="montant_option_active"/>
+                                    <field name="montant_option_comprise"/>
+                                    <field name="montant_option_thermo"/>
+                                </group>
                             </page>
+                            
                             <page string="Variantes" attrs="{'invisible':[('type_devis','in',['ombriere'])]}">
                                 <group string="Variantes">
                                     <field name="variante_ids" nolabel="1" readonly="1">

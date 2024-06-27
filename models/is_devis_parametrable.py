@@ -14,12 +14,16 @@ from math import pi,sin,cos,tan,sqrt, floor, ceil
 _logger = logging.getLogger(__name__)
 
 
+
+# Champ Capicite à mettre dans onglet dimenssion  et dans Equipemenet en plus d'entète
+
+
 _TYPE_DEVIS=[
     ('cuve'     , 'Cuve'),
-    ('bassin'   , 'Bassin'),
     ('structure', 'Structure'),
-    ('ensemble' , 'Ensemble fini'),
-    ('ombriere' , 'Ombrière'),
+    ('ombriere' , 'Ombrière / PPV / Install'),
+    ('bassin'   , 'Bassin (archivé)'),
+    ('ensemble' , 'Ensemble fini (archivé)'),
 ]
 
 _OUI_NON=[

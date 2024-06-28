@@ -45,14 +45,6 @@ class is_sale_order_line_group(models.Model):
 class sale_order(models.Model):
     _inherit = "sale.order"
 
-
-    # def creation_of(self):
-    #     for obj in self:
-    #         for line in obj.order_line:
-    #             if line.product_id.is_creation_of:
-    #                 line.creation_of_multi_niveaux(line,0, 1, line.product_id)
-
-
     def action_confirm(self):
         res = super(sale_order, self).action_confirm()
         for obj in self:
@@ -64,9 +56,7 @@ class sale_order(models.Model):
                 self.env["project.task"].sudo().create(vals)
             except KeyError:
                 continue
-        #self.creation_of()
         return res
-
 
     @api.depends("amount_untaxed","is_montant_commission", "is_pourcentage_commission")
     def _compute_montant_hors_commission(self):
@@ -109,8 +99,6 @@ class sale_order(models.Model):
             obj.is_date_prevue = date_prevue
 
 
-    # renommage de la description
-    #date_order                 = fields.Datetime("Date AR")
     is_societe_commerciale_id  = fields.Many2one("is.societe.commerciale", "Société commerciale")
     is_condition_livraison     = fields.Char("Conditions de livraison")
     is_apporteur_affaire_id    = fields.Many2one("res.partner", "Apporteur d'affaire")
@@ -134,6 +122,7 @@ class sale_order(models.Model):
             ('standard'      , 'Standard'),
             ('avec_situation', 'Avec situation'),
         ], "Type de facturation", default="standard")
+    is_commercial_client_id = fields.Many2one("res.partner", "Commercial client")
 
 
     @api.depends('order_line.invoice_lines')
@@ -487,7 +476,7 @@ class sale_order_line(models.Model):
     is_remise1                 = fields.Float("Remise 1 (%)", digits='Discount')
     is_remise2                 = fields.Float("Remise 2 (%)", digits='Discount')
     is_production_id           = fields.Many2one("mrp.production", "Ordre de fabrication", copy=False)
-    is_num_ligne               = fields.Integer("N°", help="Numéro de ligne automatique", compute="_compute_is_num_ligne", readonly=True, store=False)
+    is_num_ligne               = fields.Char("N°", help="Numéro de ligne automatique", compute="_compute_is_num_ligne", readonly=True, store=False)
     is_facturable_pourcent     = fields.Float("% facturable"                                                                        , digits=(14,2), copy=False, help="% facturable à ce jour permettant de générer une nouvelle facture" )
     is_facture_avant_pourcent  = fields.Float("% facturé avant"                                                                     , digits=(14,2), copy=False, help="% factturé hors situation (ex : Accompte) pour reprendre l'historique")
     is_deja_facture_pourcent   = fields.Float("% déjà facturé"  , store=True, readonly=True, compute='actualiser_facturable_action' , digits=(14,2), copy=False, help="%s déja facturé calculé à partir des factures")

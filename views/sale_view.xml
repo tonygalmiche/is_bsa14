@@ -22,8 +22,8 @@
                     <field name="is_reste"              optional="show"/>
                     <field name="is_production_id"            optional="show"/>
                     <field name="salesman_id" readonly="True" optional="show"/>
-                    <field name="is_remise1" readonly="True" optional="hide"/>
-                    <field name="is_remise2" readonly="True" optional="hide"/>
+                    <!-- <field name="is_remise1" readonly="True" optional="hide"/>
+                    <field name="is_remise2" readonly="True" optional="hide"/> -->
                     <field name="discount"   readonly="True" optional="hide"/>
                     <field name="price_subtotal" sum="Total"  optional="show" readonly="True"/>
                     <field name="is_facturable_pourcent"    sum="Total"  optional="hide"/>
@@ -127,13 +127,35 @@
                         attrs="{'invisible': [('state','in',('draft','sent'))]}"
                     />
                 </field>
+
+
+                <xpath expr="//div[@name='invoice_lines']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='order_line']/form/group/group/div/field[@name='qty_delivered']" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </xpath>
+
+
+                <xpath expr="//field[@name='order_line']/form/group/group/field[@name='analytic_tag_ids']" position="after">
+                    <field name="is_facturable_pourcent"/>
+                    <field name="is_facture_avant_pourcent"/>
+                    <field name="is_deja_facture_pourcent"/>
+                    <field name="is_facturable"/>
+                    <field name="is_deja_facture"/>
+                    <field name="is_a_facturer"/>
+                    <field name="is_reste_a_facturer"/>
+                </xpath>
+
+
+
                  <xpath expr="//group[@name='order_details']/div[2]/label[@for='date_order']" position="attributes">
                     <attribute name="string">Date AR</attribute>
                 </xpath>
-                <!-- <field name="date_order" position="after">
-                    <field name="is_arc_a_faire"/>
-                    <field name="is_date_ar"/>
-                </field> -->
+                <field name="partner_invoice_id" position="before">
+                    <field name="is_commercial_client_id"/>
+                </field>
                 <field name="client_order_ref" position="replace"/>
                 <field name="user_id" position="replace"/>
                 <field name="partner_shipping_id" position="after">
@@ -148,24 +170,30 @@
                     <attribute name="class">oe_form_sheet_width_wider</attribute>
                 </xpath>
                 <xpath expr="//sheet/notebook/page/field[@name='order_line']/tree/field[@name='product_id']" position="before">
-                    <field name="is_num_ligne" optional="hide"/>
+                    <field name="is_num_ligne" optional="hide"  style="width:10px;text-align:center" class="oe_read_only"/>
                     <field name="is_voir_production_vsb" invisible="1"/>
-                    <button name="voir_productions_action"    type="object" icon="fa-list" title="Voir les productions" attrs="{'invisible':[('is_voir_production_vsb','=',False)]}"/>
+                    <button 
+                        name="voir_productions_action"    type="object" icon="fa-list" 
+                        title="Voir les productions" 
+                        attrs="{'invisible':[('is_voir_production_vsb','=',False)]}"
+                        class="oe_read_only" 
+                    />
                     <button
                         title="Créer les OF" name="creer_of_action" type="object" icon="fa-plus" 
                         attrs="{'invisible':[('is_voir_production_vsb','=',True)]}" 
+                        class="oe_read_only" 
                     />
                 </xpath>
                 <xpath expr="//sheet/notebook/page/field[@name='order_line']/tree/field[@name='price_unit']" position="after">
-                    <field name="is_date_demandee"         optional="show"/>
+                    <field name="is_date_demandee"         optional="hide"/>
                     <field name="is_date_prevue"           optional="show"/>
-                    <field name="is_derniere_date_prevue"  optional="show"/>
+                    <field name="is_derniere_date_prevue"  optional="hide"/>
                 </xpath>
-                <xpath expr="//sheet/notebook/page/field[@name='order_line']/tree/field[@name='discount']" position="before">
+                <!-- <xpath expr="//sheet/notebook/page/field[@name='order_line']/tree/field[@name='discount']" position="before">
                     <field name="is_remise1" on_change="onchange_remise(is_remise1,is_remise2)" optional="show"/>
                     <field name="is_remise2" on_change="onchange_remise(is_remise1,is_remise2)" optional="show"/>
-                </xpath>
-                <xpath expr="//page/field[@name='order_line']/tree/field[@name='price_subtotal']" position="after">
+                </xpath> -->
+                <!-- <xpath expr="//page/field[@name='order_line']/tree/field[@name='price_subtotal']" position="after">
                     <field name="is_facturable_pourcent"    optional="hide"/>
                     <field name="is_facture_avant_pourcent" optional="hide"/>
                     <field name="is_deja_facture_pourcent"  optional="hide"/>
@@ -173,7 +201,7 @@
                     <field name="is_deja_facture"           optional="hide" sum="Total"/>
                     <field name="is_a_facturer"             optional="hide" sum="Total"/>
                     <field name="is_reste_a_facturer"       optional="hide" sum="Total"/>
-                </xpath>
+                </xpath> -->
                 <field name="validity_date" position="after">
                     <field name="is_date_commande_client"/>
                     <field name="is_date_prevue"/>
@@ -243,7 +271,6 @@
                                     <field name="name"/>
                                     <field name="invoice_date"/>
                                     <field name="invoice_date_due"/>
-                                    <!-- <field name="is_a_facturer" sum="Total"/> -->
                                     <field name="amount_untaxed_signed" sum="Total" string="Montant HT"/>
                                     <field name="state" widget="badge" decoration-success="state == 'posted'" decoration-info="state == 'draft'" optional="show"/>
                                 </tree>
@@ -273,6 +300,24 @@
 
             </field>
         </record>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         <record model="ir.ui.view" id="is_view_quotation_tree">
             <field name="name">is_view_quotation_tree</field>
             <field name="model">sale.order</field>
@@ -339,6 +384,57 @@
         <record id="sale.action_orders" model="ir.actions.act_window">
             <field name="domain">[('state', 'not in', ('draft', 'cancel', 'sent'))]</field>
         </record>
+
+
+
+
+
+
+
+    <!-- Saisie des commandes en ligne pour la facturation -->
+    <record id="is_view_order_facturation_form" model="ir.ui.view">
+        <field name="name">is_view_order_facturation_form</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="is_bsa14.is_view_order_form"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='order_lines']/field[@name='order_line']/tree" position="attributes">
+                <attribute name="editable"/> 
+            </xpath>
+            <xpath expr="//page/field[@name='order_line']/tree/field[@name='price_subtotal']" position="after">
+                <field name="is_facturable_pourcent"    optional="show"/>
+                <field name="is_facture_avant_pourcent" optional="show"/>
+                <field name="is_deja_facture_pourcent"  optional="hide"/>
+                <field name="is_facturable"             optional="hide" sum="Total"/>
+                <field name="is_deja_facture"           optional="hide" sum="Total"/>
+                <field name="is_a_facturer"             optional="hide" sum="Total"/>
+                <field name="is_reste_a_facturer"       optional="show" sum="Total"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="is_view_order_facturation_action" model="ir.actions.act_window">
+        <field name="name">Commandes (vue Facturation)</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('is_view_order_tree')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('is_view_order_facturation_form')}),
+            ]"
+        />
+        <field name="domain">[]</field>
+    </record>
+
+
+
+
+
+
+
+
+
+
+
 
 
         <!-- is.societe.commerciale -->

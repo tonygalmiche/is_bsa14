@@ -58,6 +58,16 @@
 
 
         <!-- Ventes -->
+
+        <menuitem 
+            id="is_view_order_hekipia_menu" 
+            sequence="2" 
+            name="Commandes (vue Facturation)" 
+            parent="sale.sale_order_menu" 
+            action="is_view_order_facturation_action"
+        />
+
+
         <record id="is_menu_sale_order_line" model="ir.ui.menu" >
             <field name="name">Lignes de commandes</field>
             <field name="sequence">70</field>

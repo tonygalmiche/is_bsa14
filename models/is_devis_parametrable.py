@@ -1350,8 +1350,10 @@ class is_devis_parametrable_section(models.Model):
                 'res_model': 'is.devis.parametrable.section',
                 'res_id': obj.id,
                 'type': 'ir.actions.act_window',
+                'context': {'default_devis_id': obj.devis_id.id },
             }
             return res
+
 
 
 class is_devis_parametrable_section_product(models.Model):

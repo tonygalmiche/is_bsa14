@@ -125,18 +125,19 @@
                                         domain="['|',('partner_id','=',parent.partner_id),('modele','=', True)]"
                                         widget="many2one_clickable"
                                     />
+                                    <field name="designation"      optional="show"/>
                                     <field name="capacite"         optional="show"/>
                                     <field name="ratio_wc"         optional="show"/>
                                     <field name="quantite"         optional="show"/>
                                     <field name="prix_achat"       optional="show"/>
                                     <field name="prix_vendu"       optional="show"/>
-                                    <field name="marge"            optional="show"/>
+                                    <field name="marge"            optional="hide"/>
                                     <field name="montant_achat"    optional="show" sum="Total"/>
                                     <field name="montant_vendu"    optional="show" sum="Total"/>
                                     <field name="montant_marge"    optional="show" sum="Total"/>
                                     <field name="taux_marge"       optional="show"/>
                                     <field name="prix_devise_ht"   optional="show"/>
-                                    <field name="prix_devise_ttc"  optional="show"/>
+                                    <field name="prix_devise_ttc"  optional="hide"/>
                                     <field name="devise_bsa_id"    invisible="1"/>
                                     <field name="devise_client_id" invisible="1"/>
                                 </tree>

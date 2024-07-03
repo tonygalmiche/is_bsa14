@@ -13,11 +13,6 @@ from math import pi,sin,cos,tan,sqrt, floor, ceil
 
 _logger = logging.getLogger(__name__)
 
-
-
-# Champ Capicite à mettre dans onglet dimenssion  et dans Equipemenet en plus d'entète
-
-
 _TYPE_DEVIS=[
     ('cuve'     , 'Cuve'),
     ('structure', 'Structure'),
@@ -188,24 +183,21 @@ class is_devis_parametrable_affaire(models.Model):
             obj.currency_id = company.currency_id.id
             ht=tva=ttc=0
             tax_id = False
-            #type_devis=False
             devise_client_id = False
             for line in obj.variante_ids:
                 tax_id = line.variante_id.devis_id.tax_id.id
                 devise_client_id = line.variante_id.devise_client_id.id
-                #type_devis       = line.variante_id.type_devis
                 qt = line.quantite
-                #prix_vente=line.variante_id.prix_vente_remise
-                #ht+=prix_vente*qt
                 ht+=line.montant
                 tva+=line.variante_id.montant_tva*qt
                 ttc+=line.variante_id.prix_vente_ttc*qt
+            for line in obj.devis_parametrable_ids:
+                ht+=line.montant_vendu
             obj.montant_ht       = ht
             obj.montant_tva      = tva
             obj.montant_ttc      = ttc
             obj.tax_id           = tax_id
             obj.devise_client_id = devise_client_id
-            #obj.type_devis       = type_devis
 
 
     def acceder_affaire_action(self):
@@ -322,6 +314,19 @@ class is_devis_parametrable_affaire(models.Model):
                 f.write(pdf)
                 f.close()
                 ct+=1
+
+
+            #** Récapitulatif pour Ombrière ***********************************
+            if obj.type_devis=='ombriere':
+                pdf = request.env.ref('is_bsa14.action_report_devis_parametrable_affaire_recapitulatif_ombriere').sudo()._render_qweb_pdf([obj.id])[0]
+                path="/tmp/affaire_%s_%02d_recapitulatif_par_quantite.pdf"%(obj.id,ct)
+                paths.append(path)
+                f = open(path,'wb')
+                f.write(pdf)
+                f.close()
+                ct+=1
+
+
 
             #** Récapitulatif ajouté ******************************************
             if obj.recapitulatif_ids:
@@ -490,6 +495,7 @@ class is_devis_parametrable_affaire_devis(models.Model):
     quantite    = fields.Integer('Quantité')
     devise_bsa_id    = fields.Many2one(related="devis_id.devise_bsa_id")
     devise_client_id = fields.Many2one(related="devis_id.devise_client_id")
+    designation      = fields.Char(related="devis_id.designation")
     prix_achat       = fields.Monetary("Prix achat", related="devis_id.montant_equipement_achat" , currency_field='devise_bsa_id')
     prix_vendu       = fields.Monetary("Prix vendu", related="devis_id.montant_equipement_vendu" , currency_field='devise_bsa_id')
     marge            = fields.Monetary("Marge"     , related="devis_id.montant_equipement_marge" , currency_field='devise_bsa_id')

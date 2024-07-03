@@ -141,6 +141,11 @@
                 </xpath>
 
 
+
+                <xpath expr="//field[@name='order_line']/form/group/group/field[@name='price_unit']" position="after">
+                    <field name="is_date_prevue"/>
+                </xpath>
+
                 <xpath expr="//field[@name='order_line']/form/group/group/field[@name='analytic_tag_ids']" position="after">
                     <field name="is_facturable_pourcent"/>
                     <field name="is_facture_avant_pourcent"/>
@@ -400,6 +405,7 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="is_bsa14.is_view_order_form"/>
         <field name="mode">primary</field>
+        <field name="priority" eval="99"/>
         <field name="arch" type="xml">
             <xpath expr="//page[@name='order_lines']/field[@name='order_line']/tree" position="attributes">
                 <attribute name="editable"/> 

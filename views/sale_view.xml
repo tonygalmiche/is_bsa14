@@ -33,6 +33,9 @@
                     <field name="is_deja_facture"           sum="Total"  optional="show"/>
                     <field name="is_a_facturer"             sum="Total"  optional="hide"/>
                     <field name="is_reste_a_facturer"       sum="Total"  optional="hide"/>
+
+                    <field name="tax_id" widget="many2many_tags" options="{'no_create': True}" domain="[('type_tax_use','=','sale')]" optional="hide"/>
+
                     <field name="state"                       optional="show" readonly="True"/>
                     <field name="company_id" invisible="True"/>
                 </tree>

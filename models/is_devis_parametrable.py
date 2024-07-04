@@ -90,6 +90,14 @@ class is_devis_parametrable_affaire(models.Model):
             for obj in self:
                 for line in obj.variante_ids:
                     line.variante_id.devis_id.partner_id = vals['partner_id']
+                for line in obj.devis_parametrable_ids:
+                    line.devis_id.partner_id = vals['partner_id']
+        if 'is_societe_commerciale_id' in vals:
+            for obj in self:
+                for line in obj.variante_ids:
+                    line.variante_id.devis_id.is_societe_commerciale_id = vals['is_societe_commerciale_id']
+                for line in obj.devis_parametrable_ids:
+                    line.devis_id.is_societe_commerciale_id = vals['is_societe_commerciale_id']
         return res
 
 

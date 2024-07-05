@@ -291,7 +291,7 @@ class is_devis_parametrable_affaire(models.Model):
 
     def generer_pdf_action(self):
         for obj in self:
-            obj._compute_tax_ids()
+            #obj._compute_tax_ids()
 
             #** Mise à jour société commerciale *******************************
             societe_id=False

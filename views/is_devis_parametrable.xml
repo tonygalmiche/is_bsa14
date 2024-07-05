@@ -142,6 +142,24 @@
                                     <field name="devise_client_id" invisible="1"/>
                                 </tree>
                             </field>
+
+                            <group>
+                                <field name="montant_ht"/>
+                                <field name="montant_tva"/>
+                                <field name="montant_ttc"/>
+                            </group>
+
+                            <group>
+                                <field name="tax_ids" nolabel="1" readonly="1" colspan="2">
+                                    <tree>
+                                        <field name="affaire_id"         invisible="1"/>
+                                        <field name="devise_client_id" invisible="1"/>
+                                        <field name="tax_id" widget="many2one_clickable"/>
+                                        <field name="montant_ht"  sum="Total"/>
+                                        <field name="montant_tva" sum="Total"/>
+                                    </tree>
+                                </field>    
+                            </group>
                         </group>
                         <group attrs="{'invisible':[('type_devis','=','ombriere')]}">
                             <field name="devise_client_id"/>

@@ -71,6 +71,88 @@ class is_devis_parametrable_affaire(models.Model):
     descriptif_affaire       = fields.Html(string="Descriptif de l'affaire", default="")
     descriptif_affaire_suite = fields.Html(string="Descriptif de l'affaire (suite)", default="")
     type_devis               = fields.Selection(_TYPE_DEVIS, "Type devis", compute='_compute_type_devis', store=True, readonly=False, tracking=True)
+    tax_ids                  = fields.One2many('is.devis.parametrable.affaire.tax', 'affaire_id', 'Montant TVA', compute='_compute_tax_ids', store=True, readonly=True)
+
+
+    @api.depends('devis_parametrable_ids','devis_parametrable_ids.quantite')
+    def _compute_tax_ids(self):
+        for obj in self:
+            print(obj)
+            lines={}
+            tax_id = False
+            devise_client_id = False
+            montant_equipement_devise = montant_equipement_ttc = ht = tva = ttc = 0
+            if type(obj.id)==int:
+                obj.tax_ids.unlink()
+                for line in obj.devis_parametrable_ids:
+                    devis_tax_id = line.devis_id.tax_id
+                    for section in line.devis_id.section_ids:
+                        for product in section.product_ids:
+                            montant_equipement_devise+=product.montant_avec_marge_devise*line.quantite
+                            tax_id = product.tax_id or devis_tax_id
+                            if tax_id:
+                                if tax_id not in lines:
+                                    lines[tax_id] = 0
+                                lines[tax_id] += product.montant_avec_marge_devise*line.quantite
+                    montant_equipement_ttc = montant_equipement_devise
+                for tax in lines:
+                    montant_tva = round(lines[tax]*tax.amount/100,2)
+                    montant_equipement_ttc+=montant_tva
+                    vals={
+                        'affaire_id' : obj.id,
+                        'tax_id'     : tax.id,
+                        'montant_ht' : lines[tax],
+                        'montant_tva': montant_tva,
+                    }
+                    self.env['is.devis.parametrable.affaire.tax'].create(vals)
+                # for line in obj.devis_parametrable_ids:
+                #     devise_client_id = line.devis_id.devise_client_id.id
+                # for line in obj.tax_ids:
+                #     tax_id = line.tax_id.id
+                #     tva+=line.montant_tva
+                #     ht+=line.montant_ht
+                #     ttc+=line.montant_ht+line.montant_tva
+                # obj.montant_ht       = ht
+                # obj.montant_tva      = tva
+                # obj.montant_ttc      = ttc
+                # obj.tax_id           = tax_id
+                # obj.devise_client_id = devise_client_id
+
+
+
+
+    @api.depends('variante_ids','devis_parametrable_ids')
+    def _compute_montants(self):
+        company = self.env.user.company_id
+        for obj in self:
+            obj.currency_id = company.currency_id.id
+            ht=tva=ttc=0
+            tax_id = False
+            devise_client_id = False
+            for line in obj.variante_ids:
+                tax_id = line.variante_id.devis_id.tax_id.id
+                devise_client_id = line.variante_id.devise_client_id.id
+                qt = line.quantite
+                ht+=line.montant
+                tva+=line.variante_id.montant_tva*qt
+                ttc+=line.variante_id.prix_vente_ttc*qt
+
+            for line in obj.devis_parametrable_ids:
+                devise_client_id = line.devis_id.devise_client_id.id
+               #ht+=line.montant_vendu
+            for line in obj.tax_ids:
+                tax_id = line.tax_id.id
+                tva+=line.montant_tva
+                ht+=line.montant_ht
+                ttc+=line.montant_ht+line.montant_tva
+
+            obj.montant_ht       = ht
+            obj.montant_tva      = tva
+            obj.montant_ttc      = ttc
+            obj.tax_id           = tax_id
+            obj.devise_client_id = devise_client_id
+
+
 
 
     @api.depends('variante_ids')
@@ -184,29 +266,6 @@ class is_devis_parametrable_affaire(models.Model):
             obj.code_affare = code
 
 
-    @api.depends('variante_ids')
-    def _compute_montants(self):
-        company = self.env.user.company_id
-        for obj in self:
-            obj.currency_id = company.currency_id.id
-            ht=tva=ttc=0
-            tax_id = False
-            devise_client_id = False
-            for line in obj.variante_ids:
-                tax_id = line.variante_id.devis_id.tax_id.id
-                devise_client_id = line.variante_id.devise_client_id.id
-                qt = line.quantite
-                ht+=line.montant
-                tva+=line.variante_id.montant_tva*qt
-                ttc+=line.variante_id.prix_vente_ttc*qt
-            for line in obj.devis_parametrable_ids:
-                ht+=line.montant_vendu
-            obj.montant_ht       = ht
-            obj.montant_tva      = tva
-            obj.montant_ttc      = ttc
-            obj.tax_id           = tax_id
-            obj.devise_client_id = devise_client_id
-
 
     def acceder_affaire_action(self):
         for obj in self:
@@ -232,6 +291,8 @@ class is_devis_parametrable_affaire(models.Model):
 
     def generer_pdf_action(self):
         for obj in self:
+            obj._compute_tax_ids()
+
             #** Mise à jour société commerciale *******************************
             societe_id=False
             for line in obj.variante_ids:
@@ -348,14 +409,15 @@ class is_devis_parametrable_affaire(models.Model):
                     ct+=1
 
             #** Récapitulatif généré ******************************************
-            if not obj.recapitulatif_ids:
-                pdf = request.env.ref('is_bsa14.action_report_devis_parametrable_affaire').sudo()._render_qweb_pdf([obj.id])[0]
-                path="/tmp/affaire_%s_%02d_recapitulatif.pdf"%(obj.id,ct)
-                paths.append(path)
-                f = open(path,'wb')
-                f.write(pdf)
-                f.close()
-                ct+=1
+            if obj.type_devis!='ombriere':
+                if not obj.recapitulatif_ids:
+                    pdf = request.env.ref('is_bsa14.action_report_devis_parametrable_affaire').sudo()._render_qweb_pdf([obj.id])[0]
+                    path="/tmp/affaire_%s_%02d_recapitulatif.pdf"%(obj.id,ct)
+                    paths.append(path)
+                    f = open(path,'wb')
+                    f.write(pdf)
+                    f.close()
+                    ct+=1
 
 
             #** Pied ********************************************************
@@ -528,6 +590,18 @@ class is_devis_parametrable_affaire_devis(models.Model):
             obj.montant_vendu = montant_vendu
             obj.montant_marge = montant_marge
             obj.taux_marge    = taux_marge
+
+
+class is_devis_parametrable_affaire_tax(models.Model):
+    _name='is.devis.parametrable.affaire.tax'
+    _description = "Taux de TVA de l'affaire"
+    _order='tax_id'
+
+    affaire_id       = fields.Many2one('is.devis.parametrable.affaire', 'Affaire', required=True, ondelete='cascade')
+    tax_id           = fields.Many2one('account.tax', 'TVA'            , required=True, domain=[('type_tax_use','=','sale')])
+    montant_ht       = fields.Monetary("Montant HT"                    , required=True, currency_field='devise_client_id')
+    montant_tva      = fields.Monetary("Montant TVA"                   , required=True, currency_field='devise_client_id')
+    devise_client_id = fields.Many2one(related="affaire_id.devise_client_id")
 
 
 class is_devis_parametrable_tax(models.Model):

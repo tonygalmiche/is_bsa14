@@ -6,21 +6,25 @@
                 <t t-call="web.external_layout">
                     <style>
                         h3{
-                            font-size:14pt;
+                            font-size:12pt;
                             font-weight:bold;
                             padding:0;
                             margin:0;
                             margin-bottom:1mm;
-                            margin-top:3mm;
+                            margin-top:1mm;
+                        }
+                        div{
+                            color:black;
+                            font-size:11pt;
                         }
                     </style>
 
                     <div class="page">
 
 
-                        <t t-if="o.descriptif_affaire_suite">
+                        <!-- <t t-if="o.descriptif_affaire_suite">
                             <div t-field="o.descriptif_affaire_suite"/>
-                        </t>
+                        </t> -->
 
                         <t t-if="len(o.devis_parametrable_ids)>0">
                             <h3>Récapitulatif de l'offre</h3>
@@ -51,14 +55,17 @@
                                             <td><strong>Total HT</strong></td>
                                             <td class="text-right"><span t-field="o.montant_ht"/></td>
                                         </tr>
-                                        <!-- <tr>
-                                            <td><strong>TVA</strong></td>
-                                            <td class="text-right"><span t-field="o.montant_tva"/></td>
-                                        </tr>
+
+                                        <t t-foreach="o.tax_ids" t-as="t">
+                                            <tr>
+                                                <td><strong>TVA <span t-field="t.tax_id"/></strong></td>
+                                                <td class="text-right" style="width:40mm"><span t-field="t.montant_tva"/></td>
+                                            </tr>
+                                        </t>
                                         <tr>
                                             <td><strong>Total TTC</strong></td>
                                             <td class="text-right"><span t-field="o.montant_ttc"/></td>
-                                        </tr> -->
+                                        </tr>
                                     </table>
                                 </div>
                             </div>

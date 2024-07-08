@@ -26,6 +26,13 @@ _OUI_NON=[
     ('non'   , 'Non'),
 ]
 
+_UNITE=[
+    ('Litre', 'Litre'),
+    ('m3'   , 'm3'),
+    ('HL'   , 'HL'),
+    ('kWc'  , 'kWc'),
+]
+
 class is_devis_parametrable_affaire(models.Model):
     _name='is.devis.parametrable.affaire'
     _inherit = ['mail.thread', 'mail.activity.mixin', 'portal.mixin']
@@ -55,13 +62,14 @@ class is_devis_parametrable_affaire(models.Model):
     variante_ids           = fields.One2many('is.devis.parametrable.affaire.variante', 'affaire_id', 'Variantes', copy=True)
     devis_parametrable_ids = fields.One2many('is.devis.parametrable.affaire.devis'   , 'affaire_id', 'Devis.'   , copy=True)
 
-    tax_id      = fields.Many2one('account.tax', 'TVA à appliquer', readonly=True, compute='_compute_montants')
-    currency_id = fields.Many2one('res.currency', "Devise"        , readonly=True, compute='_compute_montants')
-    montant_ht  = fields.Monetary("Montant HT"                    , readonly=True, compute='_compute_montants', currency_field='devise_client_id')
+    tax_id         = fields.Many2one('account.tax', 'TVA à appliquer', readonly=True, compute='_compute_montants')
+    currency_id    = fields.Many2one('res.currency', "Devise"        , readonly=True, compute='_compute_montants')
+    montant_ht     = fields.Monetary("Montant HT"                    , readonly=True, compute='_compute_montants', currency_field='devise_client_id')
     capacite          = fields.Integer("Capacité totale (HL)", compute='_compute_capacite', store=False, readonly=True)
     prix_par_hl       = fields.Integer("Prix par HL"         , compute='_compute_capacite', store=False, readonly=True)
-    montant_tva       = fields.Monetary("TVA"        , readonly=True, compute='_compute_montants', currency_field='devise_client_id')
-    montant_ttc       = fields.Monetary("Montant TTC", readonly=True, compute='_compute_montants', currency_field='devise_client_id')
+    montant_tva       = fields.Monetary("TVA"          , readonly=True, compute='_compute_montants', currency_field='devise_client_id')
+    montant_ttc       = fields.Monetary("Montant TTC"  , readonly=True, compute='_compute_montants', currency_field='devise_client_id')
+    total_capacite    = fields.Char("Total capacité"   , readonly=True, compute='_compute_montants')
     entete_ids        = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_entete_rel'       , 'affaire_id', 'attachment_id', 'Entête')
     recapitulatif_ids = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_recapitulatif_rel', 'affaire_id', 'attachment_id', 'Récapitulatif')
     pied_ids          = fields.Many2many('ir.attachment', 'is_devis_parametrable_affaire_pied_rel'         , 'affaire_id', 'attachment_id', 'Pied')
@@ -72,9 +80,10 @@ class is_devis_parametrable_affaire(models.Model):
     descriptif_affaire_suite = fields.Html(string="Descriptif de l'affaire (suite)", default="")
     type_devis               = fields.Selection(_TYPE_DEVIS, "Type devis", compute='_compute_type_devis', store=True, readonly=False, tracking=True)
     tax_ids                  = fields.One2many('is.devis.parametrable.affaire.tax', 'affaire_id', 'Montant TVA', compute='_compute_tax_ids', store=True, readonly=True)
+    afficher_capacite        = fields.Boolean("Indiquer capacité sur récapititualtif", default=False)
 
 
-    @api.depends('devis_parametrable_ids','devis_parametrable_ids.quantite')
+    @api.depends('devis_parametrable_ids','devis_parametrable_ids.quantite','devis_parametrable_ids.devis_id.montant_equipement_ttc')
     def _compute_tax_ids(self):
         for obj in self:
             print(obj)
@@ -125,6 +134,8 @@ class is_devis_parametrable_affaire(models.Model):
     def _compute_montants(self):
         company = self.env.user.company_id
         for obj in self:
+            unite=""
+            total_capacite = 0
             obj.currency_id = company.currency_id.id
             ht=tva=ttc=0
             tax_id = False
@@ -139,6 +150,8 @@ class is_devis_parametrable_affaire(models.Model):
 
             for line in obj.devis_parametrable_ids:
                 devise_client_id = line.devis_id.devise_client_id.id
+                total_capacite+=line.capacite
+                unite = line.unite
                #ht+=line.montant_vendu
             for line in obj.tax_ids:
                 tax_id = line.tax_id.id
@@ -151,6 +164,7 @@ class is_devis_parametrable_affaire(models.Model):
             obj.montant_ttc      = ttc
             obj.tax_id           = tax_id
             obj.devise_client_id = devise_client_id
+            obj.total_capacite   = "%s %s"%(total_capacite,unite)
 
 
 
@@ -561,6 +575,7 @@ class is_devis_parametrable_affaire_devis(models.Model):
     sequence    = fields.Integer("Sequence")
     devis_id    = fields.Many2one('is.devis.parametrable', 'Devis')
     capacite    = fields.Integer(related="devis_id.capacite")
+    unite       = fields.Selection(related="devis_id.unite")
     ratio_wc    = fields.Float(related="devis_id.ratio_wc")
     quantite    = fields.Integer('Quantité')
     devise_bsa_id    = fields.Many2one(related="devis_id.devise_bsa_id")
@@ -721,13 +736,7 @@ class is_devis_parametrable(models.Model):
     descriptif                 = fields.Text("Descriptif bassin", help="Utilisé pour les bassins uniquement", tracking=True)
     is_societe_commerciale_id  = fields.Many2one("is.societe.commerciale", "Société commerciale", tracking=True)
     capacite                   = fields.Integer("Capacité")
-    unite                      = fields.Selection([
-            ('Litre', 'Litre'),
-            ('m3'   , 'm3'),
-            ('HL'   , 'HL'),
-            ('kWc'  , 'kWc'),
-        ], "Unité")
-
+    unite                      = fields.Selection(_UNITE, "Unité")
     capacite_txt       = fields.Char("Capacité ", compute='_compute_capacite_txt')
     type_cuve_id       = fields.Many2one('is.type.cuve', 'Type de fabrication', required=True)
     calcul_ids         = fields.One2many('is.type.cuve.calcul', 'devis_parametrable_id', 'Calculs', copy=True)

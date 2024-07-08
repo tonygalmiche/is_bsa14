@@ -31,6 +31,7 @@
                                 <thead>
                                     <tr>
                                         <th class="text-left">Description</th>
+                                        <th t-if="o.afficher_capacite" class="text-right">Capacité</th>
                                         <th class="text-right">Prix unitaire</th>
                                         <th class="text-center">Quantité prévue</th>
                                         <th class="text-right">Montant HT</th>
@@ -39,10 +40,11 @@
                                 <tbody>
                                     <t t-foreach="o.devis_parametrable_ids" t-as="devis">
                                         <tr style="border-bottom: 1px solid;">
-                                            <td class="text-left">    <span t-field="devis.designation"/></td>
-                                                <td class="text-right">  <span t-field="devis.prix_vendu"/></td>
-                                                <td class="text-center"> <span t-field="devis.quantite"/></td>
-                                                <td class="text-right">  <span t-field="devis.montant_vendu"/></td>
+                                            <td class="text-left">  <span t-field="devis.designation"/></td>
+                                            <td t-if="o.afficher_capacite" class="text-right"><span t-field="devis.capacite"/> <span t-field="devis.unite"/></td>
+                                            <td class="text-right"> <span t-field="devis.prix_vendu"/></td>
+                                            <td class="text-center"><span t-field="devis.quantite"/></td>
+                                            <td class="text-right"> <span t-field="devis.montant_vendu"/></td>
                                         </tr>
                                     </t>
                                 </tbody>
@@ -50,6 +52,10 @@
                             <div class="row">
                                 <div class="col-6 ml-auto">
                                     <table class="table table-sm o_main_table" style="page-break-inside: avoid;">
+                                        <tr t-if="o.afficher_capacite">
+                                            <td><strong>Total capacité</strong></td>
+                                            <td class="text-right"><span t-field="o.total_capacite"/></td>
+                                        </tr>
                                         <tr>
                                             <td><strong>Total HT</strong></td>
                                             <td class="text-right"><span t-field="o.montant_ht"/></td>

@@ -126,7 +126,8 @@
                                         widget="many2one_clickable"
                                     />
                                     <field name="designation"      optional="show"/>
-                                    <field name="capacite"         optional="show"/>
+                                    <field name="capacite"         optional="show" sum="Total"/>
+                                    <field name="unite"            optional="show"/>
                                     <field name="ratio_wc"         optional="show"/>
                                     <field name="quantite"         optional="show"/>
                                     <field name="prix_achat"       optional="show"/>
@@ -147,6 +148,8 @@
                                 <field name="montant_ht"/>
                                 <field name="montant_tva"/>
                                 <field name="montant_ttc"/>
+                                <field name="afficher_capacite"/>
+                                <field name="total_capacite" attrs="{'invisible':[('afficher_capacite','=',False)]}"/>
                             </group>
 
                             <group>

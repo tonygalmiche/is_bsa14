@@ -88,6 +88,10 @@ class stock_move(models.Model):
             obj._action_cancel()
  
 
+    @api.depends('state', 'picking_id', 'product_id')
+    def _compute_is_quantity_done_editable(self):
+        for move in self:
+            move.is_quantity_done_editable = True
 
 
 class stock_quant(models.Model):

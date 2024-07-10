@@ -487,6 +487,40 @@ class sale_order_line(models.Model):
     is_voir_production_vsb     = fields.Boolean("Voir les productions vsb", compute='_compute_is_voir_production_vsb')
 
 
+
+
+
+
+    # @api.depends('move_ids.state', 'move_ids.scrapped', 'move_ids.product_uom_qty', 'move_ids.product_uom')
+    # def _compute_qty_delivered(self):
+    #     super(sale_order_line, self)._compute_qty_delivered()
+    #     for line in self:  # TODO: maybe one day, this should be done in SQL for performance sake
+
+    #         print('TEST 1 _compute_qty_delivered',line,line.qty_delivered_method)
+    #         if line.qty_delivered_method == 'stock_move':
+    #             qty = 0.0
+    #             outgoing_moves, incoming_moves = line._get_outgoing_incoming_moves()
+    #             for move in outgoing_moves:
+    #                 if move.state != 'done':
+    #                     continue
+    #                 qty += move.product_uom._compute_quantity(move.product_uom_qty, line.product_uom, rounding_method='HALF-UP')
+    #                 print('out',move,qty)
+    #             for move in incoming_moves:
+    #                 if move.state != 'done':
+    #                     continue
+    #                 qty -= move.product_uom._compute_quantity(move.product_uom_qty, line.product_uom, rounding_method='HALF-UP')
+    #                 print('in',move,qty)
+    #             line.qty_delivered = qty
+    #             print('TEST 2 _compute_qty_delivered',line,qty)
+
+
+
+
+
+
+
+
+
     @api.depends('product_uom_qty','qty_invoiced','price_unit','price_subtotal')
     def _compute_is_reste_a_facturer(self):
         for obj in self:

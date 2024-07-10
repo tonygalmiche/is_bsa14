@@ -520,7 +520,6 @@ class is_devis_parametrable_affaire(models.Model):
                 for variante in copy.variante_ids:
                     line.variante_id = variante.id
             for line in copy_affaire.devis_parametrable_ids:
-                print("TEST 1",line)
                 copy = line.devis_id.copy()
                 line.devis_id = copy.id
             return copy_affaire.acceder_affaire_action()

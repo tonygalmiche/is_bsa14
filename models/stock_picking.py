@@ -81,7 +81,16 @@ class stock_picking(models.Model):
 
     def annuler_mouvement_action(self):
         for obj in self:
+            print(obj)
+
             if obj.state=='done':
+            #     copy = obj.copy()
+            #     for line in copy.move_ids_without_package:
+            #         line.quantity_done = line.product_uom_qty
+            #     copy.action_confirm()
+            #     copy.with_context(cancel_backorder=False)._action_done()
+
+
                 for move in obj.move_ids_without_package:
                     if move.state=='done':
                         copy = move.copy()
@@ -92,10 +101,12 @@ class stock_picking(models.Model):
                         for line in copy.move_line_ids:
                             line.location_id      = move.location_dest_id.id
                             line.location_dest_id = move.location_id.id
-
-
                         copy._action_done() #_action_confirm() _action_assign _action_done
                         copy.picking_id = move.picking_id.id
+                        move.state='cancel'
+                        copy.state='cancel'
+                for line in obj.sale_id.order_line:
+                    line._compute_qty_delivered()
                 obj.state='cancel'
 
 

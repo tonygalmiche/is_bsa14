@@ -45,6 +45,14 @@
             <field name="state">code</field>
             <field name="code">action = records.facturation_picking_action()</field>
         </record>
+        <!-- <record id="is_annuler_mouvement_action_server" model="ir.actions.server">
+            <field name="name">Annuler les mouvemnts de stock</field>
+            <field name="model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_view_types">form</field>
+            <field name="state">code</field>
+            <field name="code">action = records.annuler_mouvement_action()</field>
+        </record> -->
         <record id="is_view_picking_form" model="ir.ui.view">
             <field name="name">is_view_picking_form</field>
             <field name="model">stock.picking</field>
@@ -65,6 +73,17 @@
                     <field name="is_commentaire" placeholder="Commentaire à ajouter sur le bon de livraison"/>
                 </field>
                 <xpath expr="//button[@name='action_cancel']" position="after">
+
+
+                    <button 
+                        name="annuler_mouvement_action" 
+                        string="Annuler les mouvements" type="object" 
+                        confirm="Voulez-vous vraiment annuler les mouvements de stock et ce picking ?"
+                        attrs="{'invisible': [('state', 'not in', ['done'])]}"
+                    />
+
+
+
                     <button name="%(action_is_imprimer_etiquette)d"
                     string="Imprimer Etiquette" 
                     groups="base.group_user" type="action" class="oe_highlight"

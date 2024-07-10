@@ -79,6 +79,26 @@ class stock_picking(models.Model):
         return action
 
 
+    def annuler_mouvement_action(self):
+        for obj in self:
+            if obj.state=='done':
+                for move in obj.move_ids_without_package:
+                    if move.state=='done':
+                        copy = move.copy()
+                        copy.quantity_done = copy.product_uom_qty
+                        copy.picking_id       = False
+                        copy.location_id      = move.location_dest_id.id
+                        copy.location_dest_id = move.location_id.id
+                        for line in copy.move_line_ids:
+                            line.location_id      = move.location_dest_id.id
+                            line.location_dest_id = move.location_id.id
+
+
+                        copy._action_done() #_action_confirm() _action_assign _action_done
+                        copy.picking_id = move.picking_id.id
+                obj.state='cancel'
+
+
     def facturation_picking_action(self):
         action=False
         picking_type_id=False

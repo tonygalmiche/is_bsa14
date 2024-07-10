@@ -790,11 +790,11 @@ class is_devis_parametrable(models.Model):
     @api.depends('section_ids','section_ids.product_ids','section_ids.montant_total','tax_id')
     def _compute_tax_ids(self):
         for obj in self:
-            obj.tax_ids.unlink()
             lines={}
             montant_equipement_devise = montant_equipement_ttc = 0
             devis_tax_id = obj.tax_id
             if type(obj.id)==int:
+                obj.tax_ids.unlink()
                 for section in obj.section_ids:
                     for product in section.product_ids:
                         montant_equipement_devise+=product.montant_avec_marge_devise

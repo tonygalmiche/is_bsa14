@@ -79,9 +79,10 @@
             <field name="inherit_id" ref="base.view_partner_tree"/>
             <field name="arch" type="xml">
                 <field name="email" position="after">
-                    <field name="is_code_client"         optional="show"/>
-                    <field name="is_code_client_affare"  optional="show"/>
-                    <field name="is_categorie_client_id" optional="show"/>
+                    <field name="is_code_client"           optional="show"/>
+                    <field name="is_code_client_affare"    optional="show"/>
+                    <field name="is_categorie_client_id"   optional="show"/>
+                    <field name="property_payment_term_id" optional="hide"/>
                 </field>
             </field>
         </record>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- is.sav --> 
+        <record id="is_sav_seq" model="ir.sequence">
+            <field name="name">SAV</field>
+            <field name="code">is.sav</field>
+            <field name="padding">5</field>
+            <field eval="False" name="company_id"/>
+        </record>
+        <record model="ir.ui.view" id="is_sav_form_view">
+            <field name="name">is_sav_form_view</field>
+            <field name="model">is.sav</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>  
+                    <header>
+                        <!-- <button name="action_send_mail" string="Envoie par mail" type="object" /> -->
+                        <field name="state" widget="statusbar"  options="{'clickable': '1'}"/>
+                    </header>
+                    <sheet>
+                        <style>
+                            .o_form_label{
+                                white-space: nowrap;
+                            }
+                        </style>
+
+                        <group>
+                            <field name="name"/> 
+                            <field name="date_defaut"/> 
+                            <field name="partner_id" domain="[('is_company','=',True)]" /> 
+                            <field name="etiquette_id"/> 
+                            <field name="libelle"/> 
+                            <field name="action_preventive"/> 
+                            <field name="action_corrective"/> 
+                            <field name="order_id"/> 
+                            <field name="temps_passe" widget="float_time"/> 
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_sav_tree_view">
+            <field name="name">is_sav_tree_view</field>
+            <field name="model">is.sav</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name" optional="show"/> 
+                    <field name="date_defaut" optional="show"/> 
+                    <field name="partner_id" optional="show" widget="many2one_clickable"/> 
+                    <field name="etiquette_id" optional="show" widget="many2one_clickable"/> 
+                    <field name="libelle" optional="show"/> 
+                    <field name="action_preventive" optional="show"/> 
+                    <field name="action_corrective" optional="show"/> 
+                    <field name="order_id" optional="show" widget="many2one_clickable"/> 
+                    <field name="temps_passe" optional="show"  widget="float_time"  sum="Total"/> 
+                    <field name="state" optional="show"/> 
+          
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_sav_search_view" >
+            <field name="name">is_sav_search_view</field>
+            <field name="model">is.sav</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/> 
+                    <field name="date_defaut"/> 
+                    <field name="partner_id" /> 
+                    <field name="etiquette_id"/> 
+                    <field name="libelle"/> 
+                    <field name="action_preventive"/> 
+                    <field name="action_corrective"/> 
+                    <field name="order_id"/>            
+                    <field name="state"/>            
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_sav_action">
+            <field name="name">SAV</field>
+            <field name="res_model">is.sav</field>
+            <field name="view_mode">tree,form,graph</field>
+        </record>
+    </data>
+</odoo>

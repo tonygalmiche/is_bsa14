@@ -52,6 +52,7 @@ class is_devis_parametrable_affaire(models.Model):
     conditions_particulieres   = fields.Text("Conditions particulières")
     information_technique      = fields.Text("Informations techniques")
     information_complementaire = fields.Text("Informations complémentaires")
+    payment_term_id            = fields.Many2one(string="Conditions de règlement client",related="partner_id.property_payment_term_id")
     conditions_reglement       = fields.Text("Conditions de règlement")
     delais                     = fields.Char("Délais")
     duree_validite             = fields.Char("Durée de validité de l'offre")
@@ -177,6 +178,16 @@ class is_devis_parametrable_affaire(models.Model):
                 type_devis = line.variante_id.type_devis
                 break
             obj.type_devis = type_devis
+
+
+
+
+    @api.onchange('partner_id')
+    def onchange_partner_id(self):
+        for obj in self:
+            note = obj.partner_id.property_payment_term_id.note
+            if note : 
+                obj.conditions_reglement = note
 
 
     def write(self, vals):

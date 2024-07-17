@@ -2,10 +2,10 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_is_fiche_travail,is_fiche_travail,model_is_fiche_travail,base.group_user,1,1,1,1
 access_is_stock_category,access_is_stock_category,model_is_stock_category,base.group_user,1,1,1,1
 
-
 access_bsa_fnc,access_bsa_fnc,model_bsa_fnc,is_bsa14.is_qualite_group,1,1,1,1
 access_bsa_fnc_categorie,access_bsa_fnc_categorie,model_bsa_fnc_categorie,is_bsa14.is_qualite_group,1,1,1,1
 
+access_is_sav,access_is_sav,model_is_sav,is_bsa14.is_qualite_group,1,1,1,1
 
 access_is_gabarit,access_is_gabarit,model_is_gabarit,base.group_user,1,1,1,1
 access_is_liste_manquants,access_is_liste_manquants,model_is_liste_manquants,base.group_user,1,0,0,0
@@ -195,6 +195,15 @@ access_is_volume_cuve_manager,access_is_volume_cuve_manager,model_is_volume_cuve
 
 access_is_finition_cuve,access_is_finition_cuve,model_is_finition_cuve,base.group_user,1,0,0,0
 access_is_finition_cuve_manager,access_is_finition_cuve_manager,model_is_finition_cuve,sales_team.group_sale_manager,1,1,1,1
+
+access_is_emplacement_lieu,access_is_emplacement_lieu,model_is_emplacement_lieu,base.group_user,1,0,0,0 
+access_is_emplacement_lieu_manager,access_is_emplacement_lieu_manager,model_is_emplacement_lieu,sales_team.group_sale_manager,1,1,1,1
+
+access_is_emplacement_etagere,access_is_emplacement_etagere,model_is_emplacement_etagere,base.group_user,1,0,0,0 
+access_is_emplacement_etagere_manager,access_is_emplacement_etagere_manager,model_is_emplacement_etagere,sales_team.group_sale_manager,1,1,1,1
+
+access_is_emplacement_niveau,access_is_emplacement_niveau,model_is_emplacement_niveau,base.group_user,1,0,0,0 
+access_is_emplacement_niveau_manager,access_is_emplacement_niveau_manager,model_is_emplacement_niveau,sales_team.group_sale_manager,1,1,1,1
 
 access_is_salon,access_is_salon,model_is_salon,sales_team.group_sale_salesman_all_leads,1,1,1,1
 access_is_suivi_commercial,access_is_suivi_commercial,model_is_suivi_commercial,sales_team.group_sale_salesman_all_leads,1,1,1,1

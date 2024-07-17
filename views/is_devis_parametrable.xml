@@ -84,6 +84,7 @@
                             <field name="conditions_particulieres"/>
                             <field name="information_technique"/>
                             <field name="information_complementaire"/>
+                            <field name="payment_term_id" attrs="{'invisible':[('payment_term_id','=',False)]}"/>
                             <field name="conditions_reglement"/>
                             <field name="delais"/>
                             <field name="duree_validite"/>

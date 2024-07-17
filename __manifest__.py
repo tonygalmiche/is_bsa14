@@ -84,6 +84,7 @@ InfoSaône - Module Odoo 14 pour BSA
         "views/is_calcul_pmp.xml",
         "views/is_suivi_commercial_view.xml",
         "views/is_suivi_temps_production_view.xml",
+        "views/is_sav_view.xml",
         "report/external_layout_boxed.xml",
         "report/report_template.xml",
         "report/conditions_generales_de_vente_bressane_templates.xml",

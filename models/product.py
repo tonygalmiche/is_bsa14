@@ -51,6 +51,27 @@ class is_finition_cuve(models.Model):
     name = fields.Char(string="Finition", required=True)
 
 
+class is_emplacement_lieu(models.Model):
+    _name = "is.emplacement.lieu"
+    _description="Emplacement de stock - Lieu"
+    _order="name"
+    name = fields.Char(string="Lieu", required=True)
+
+
+class is_emplacement_etagere(models.Model):
+    _name = "is.emplacement.etagere"
+    _description="Emplacement de stock - Etagère"
+    _order="name"
+    name = fields.Char(string="Etagère", required=True)
+
+
+class is_emplacement_niveau(models.Model):
+    _name = "is.emplacement.niveau"
+    _description="Emplacement de stock - Niveau"
+    _order="name"
+    name = fields.Char(string="Niveau", required=True)
+
+
 class product_template(models.Model):
     _inherit = 'product.template'
     
@@ -89,6 +110,20 @@ class product_template(models.Model):
     is_volume_cuve_id         = fields.Many2one("is.volume.cuve", string="Volume cuve")
     is_finition_cuve_ids      = fields.Many2many('is.finition.cuve','is_finition_cuve_product_rel','product_id','finition_id', string="Finition")
     is_creation_of            = fields.Boolean('Création OF depuis commande', default=False, help="Si cette case est cochée, un OF sera créé automatiquement pour chaque niveau de la nomenclature au moment de la validation de la commande")
+    is_emplacement_lieu_id    = fields.Many2one("is.emplacement.lieu", string="Lieu")
+    is_emplacement_etagere_id = fields.Many2one("is.emplacement.etagere", string="Etagère")
+    is_emplacement_niveau_id  = fields.Many2one("is.emplacement.niveau", string="Niveau")
+
+
+    def copy(self, default=None):
+        if default is None:
+            default = {}
+        default.update({
+            'property_account_income_id' : self.property_account_income_id,
+            'property_account_expense_id': self.property_account_expense_id,
+        })
+        res=super(product_template, self).copy(default)
+        return res
 
 
     @api.depends('is_cuve_thermoregulation','is_cuve_isolation','is_cuve_compartimente','is_cuve_plafond_mobile')

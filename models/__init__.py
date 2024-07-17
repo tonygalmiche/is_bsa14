@@ -47,3 +47,4 @@ from . import crm_lead
 from . import is_ordre_travail
 from . import is_suivi_commercial
 from . import is_suivi_temps_production
+from . import is_sav

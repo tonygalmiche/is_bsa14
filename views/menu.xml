@@ -137,6 +137,31 @@
         />
 
 
+
+        <menuitem 
+            name="Emplacement - Lieu"
+            id="is_emplacement_lieu_menu"
+            parent="sale.prod_config_main"
+            action="is_emplacement_lieu_action"
+            sequence="130"
+        />
+        <menuitem 
+            name="Emplacement - Etagère"
+            id="is_emplacement_etagere_menu"
+            parent="sale.prod_config_main"
+            action="is_emplacement_etagere_action"
+            sequence="140"
+        />
+        <menuitem 
+            name="Emplacement - Niveau"
+            id="is_emplacement_niveau_menu"
+            parent="sale.prod_config_main"
+            action="is_emplacement_niveau_action"
+            sequence="150"
+        />
+      
+
+
         <!-- is.devis.parametrable -->
         <record id="is_devis_parametrable_main_menu" model="ir.ui.menu" >
             <field name="name">Devis paramètrable</field>
@@ -885,11 +910,21 @@
         <!--<menuitem action="hr.open_view_employee_list_my" id="is_menu_open_view_employee_list_my" sequence="10" parent="hr.menu_hr_main"/>-->
 
 
-       <!-- Qualité -->
+       <!-- Qualité / FNC -->
         <menuitem id="bsa_qualite_main_menu"      sequence="85" name="Qualité"/>
         <menuitem id="bsa_fnc_menu"           sequence="10" name="FNC"           parent="bsa_qualite_main_menu"/>
         <menuitem id="bsa_fnc_menu_10"        sequence="10" name="FNC"           parent="bsa_fnc_menu" action="bsa_fnc_action"/>
         <menuitem id="bsa_fnc_categorie_menu" sequence="20" name="Catégorie FNC" parent="bsa_fnc_menu" action="bsa_fnc_categorie_action"/>
+
+        <!-- Qualité / SAV -->
+        <menuitem id="is_sav_main_menu"  sequence="15" name="SAV" parent="bsa_qualite_main_menu"/>
+        <menuitem   
+            name="SAV"
+            action="is_sav_action"  
+            id="is_sav_menu" 
+            parent="is_sav_main_menu"
+            sequence="10"
+        />
 
         <menuitem   
             name="Fiches de contrôle"

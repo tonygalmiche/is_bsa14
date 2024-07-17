@@ -167,6 +167,136 @@
 
 
 
+
+       <!-- is.emplacement.lieu --> 
+       <record model="ir.ui.view" id="is_emplacement_lieu_form_view">
+        <field name="name">is_emplacement_lieu_form_view</field>
+        <field name="model">is.emplacement.lieu</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form>  
+                <sheet>
+                    <group>
+                        <field name="name"  /> 
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="is_emplacement_lieu_tree_view">
+        <field name="name">is_emplacement_lieu_tree_view</field>
+        <field name="model">is.emplacement.lieu</field>
+        <field name="type">tree</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/> 
+            </tree>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="is_emplacement_lieu_search_view" >
+        <field name="name">is_emplacement_lieu_search_view</field>
+        <field name="model">is.emplacement.lieu</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/> 
+            </search>
+        </field>
+    </record>
+    <record model="ir.actions.act_window" id="is_emplacement_lieu_action">
+        <field name="name">Emplacement - Lieu</field>
+        <field name="res_model">is.emplacement.lieu</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+
+
+       <!-- is.emplacement.etagere --> 
+       <record model="ir.ui.view" id="is_emplacement_etagere_form_view">
+        <field name="name">is_emplacement_etagere_form_view</field>
+        <field name="model">is.emplacement.etagere</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form>  
+                <sheet>
+                    <group>
+                        <field name="name"  /> 
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="is_emplacement_etagere_tree_view">
+        <field name="name">is_emplacement_etagere_tree_view</field>
+        <field name="model">is.emplacement.etagere</field>
+        <field name="type">tree</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/> 
+            </tree>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="is_emplacement_etagere_search_view" >
+        <field name="name">is_emplacement_etagere_search_view</field>
+        <field name="model">is.emplacement.etagere</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/> 
+            </search>
+        </field>
+    </record>
+    <record model="ir.actions.act_window" id="is_emplacement_etagere_action">
+        <field name="name">Emplacement - Etagère</field>
+        <field name="res_model">is.emplacement.etagere</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+
+       <!-- is.emplacement.niveau --> 
+       <record model="ir.ui.view" id="is_emplacement_niveau_form_view">
+        <field name="name">is_emplacement_niveau_form_view</field>
+        <field name="model">is.emplacement.niveau</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form>  
+                <sheet>
+                    <group>
+                        <field name="name"  /> 
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="is_emplacement_niveau_tree_view">
+        <field name="name">is_emplacement_niveau_tree_view</field>
+        <field name="model">is.emplacement.niveau</field>
+        <field name="type">tree</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/> 
+            </tree>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="is_emplacement_niveau_search_view" >
+        <field name="name">is_emplacement_niveau_search_view</field>
+        <field name="model">is.emplacement.niveau</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/> 
+            </search>
+        </field>
+    </record>
+    <record model="ir.actions.act_window" id="is_emplacement_niveau_action">
+        <field name="name">Emplacement - Niveau</field>
+        <field name="res_model">is.emplacement.niveau</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+
+
+
         <!-- Recalcul du prix de revient -->
         <record id="is_recalcul_prix_revient_action_server" model="ir.actions.server">
             <field name="name">Recalcul du prix de revient</field>
@@ -242,10 +372,17 @@
                     <field name="is_creation_of"/>
                 </field>
                 <xpath expr="//page/group[@name='inventory']" position="after">
-                     <group name="is_tracabilte" string='Traçabilité'>
-                         <field name="is_trace_reception"/>
-                         <field name="is_gestion_lot"/>
-                     </group>
+                    <group>
+                        <group name="is_tracabilte" string='Traçabilité'>
+                            <field name="is_trace_reception"/>
+                            <field name="is_gestion_lot"/>
+                        </group>
+                        <group string='Emplacement de stock'>
+                            <field name="is_emplacement_lieu_id"/>
+                            <field name="is_emplacement_etagere_id"/>
+                            <field name="is_emplacement_niveau_id"/>
+                        </group>
+                    </group>
                 </xpath>
                 <field name="invoice_policy" position="after">
                     <field name="is_type_livraison"/>
@@ -312,6 +449,9 @@
                     <field name="is_volume_cuve_id" />
                     <field name="is_cuve_niveau_complexite" />
                     <field name="is_finition_cuve_ids" />
+                    <field name="is_emplacement_lieu_id"/>
+                    <field name="is_emplacement_etagere_id"/>
+                    <field name="is_emplacement_niveau_id"/>
                 </field>
 
             </field>
@@ -343,6 +483,9 @@
                     <field name="is_creation_of"            optional="hide"/>
                     <field name="taxes_id"                  optional="hide" widget="many2many_tags"/>
                     <field name="supplier_taxes_id"         optional="hide" widget="many2many_tags"/>
+                    <field name="is_emplacement_lieu_id"    optional="hide"/>
+                    <field name="is_emplacement_etagere_id" optional="hide"/>
+                    <field name="is_emplacement_niveau_id"  optional="hide"/>
                     <field name="create_date"               optional="hide"/>
                     <field name="write_date"                optional="hide"/>
                 </tree>

@@ -54,7 +54,15 @@ class mrp_production(models.Model):
             ('oui', 'Oui'),
             ('non', 'Non'),
         ], "Prêt", help="Prêt à produire")
-    
+    is_move_production_ids = fields.One2many('stock.move', 'production_id', 'Produits finis',  copy=False, readonly=True)
+    is_move_production_nb  = fields.Integer("Nb mouvements", compute='_compute_is_move_production_nb')
+
+
+    @api.depends('is_move_production_ids')
+    def _compute_is_move_production_nb(self):
+        for obj in self:
+            obj.is_move_production_nb = len(obj.is_move_production_ids)
+
     
     def write(self, vals):
         if "date_planned_start" in vals:

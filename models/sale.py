@@ -619,7 +619,9 @@ class sale_order_line(models.Model):
                     production.onchange_product_id()
                     production._onchange_bom_id()
                     production.product_qty = quantite
+                    production._onchange_product_qty()
                     production._onchange_move_raw()
+                    production._onchange_move_finished_product()
                     production.action_confirm()
                     msg="Création OF %s pour la commande %s et l'article %s"%(production.name,obj.order_id.name,product_id.name)
                     _logger.info(msg)

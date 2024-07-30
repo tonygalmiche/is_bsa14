@@ -87,7 +87,6 @@ class is_devis_parametrable_affaire(models.Model):
     @api.depends('devis_parametrable_ids','devis_parametrable_ids.quantite','devis_parametrable_ids.devis_id.montant_equipement_ttc')
     def _compute_tax_ids(self):
         for obj in self:
-            print(obj)
             lines={}
             tax_id = False
             devise_client_id = False
@@ -795,6 +794,93 @@ class is_devis_parametrable(models.Model):
     tax_ids                       = fields.One2many('is.devis.parametrable.tax', 'devis_id', 'Montant TVA', store=True, readonly=True, compute='_compute_tax_ids')
     montant_equipement_ttc        = fields.Monetary("Montant équipements TTC"                             , store=True, readonly=True, compute='_compute_tax_ids', currency_field='devise_client_id')
     impression_dimensions         = fields.Selection(_OUI_NON, "Impression dimensions", default="oui")
+    montant_option_matiere        = fields.Float("Montant option matière", store=True, readonly=True, compute='_compute_option_matiere')
+
+
+    @api.depends('matiere_ids', 'matiere_ids.matiere_option_id', 'matiere_ids.epaisseur', 'montant_matiere', 'variante_ids', 'variante_ids.marge_matiere')
+    def _compute_option_matiere(self):
+        for obj in self:
+            delta = 0
+            test=False
+            for line in obj.matiere_ids:
+                if line.matiere_option_id.id:
+                    test=True
+                    break
+            if test:
+                if type(obj.id)==int:
+                    options =  self.env['is.option'].search([('matiere_auto','=',True)],limit=1)
+                    if len(options)>0:
+                        option_id = options[0].id
+                        #** Mémorisation des matières *************************
+                        matieres={}
+                        for line in obj.matiere_ids:
+                            matieres[line] = line.matiere_id.id
+                        #******************************************************
+
+                        #** Mise en place option matière **********************
+                        for line in obj.matiere_ids:
+                            if line.matiere_option_id:
+                                line.matiere_id = line.matiere_option_id.id
+                                line.onchange_matiere_id()
+                            line.montant_option = line.prix_achat * line.poids
+                        obj._compute_montant_matiere()    
+                        #******************************************************
+
+                        #** Recherche du prix de l'option *********************
+                        prix_vente_option = 0
+                        for line in obj.variante_ids:
+                            line._compute_montants()
+                            prix_vente_option =line.prix_vente_int
+                            break
+                        #******************************************************
+
+                        #** Mise en place matière initiale ********************
+                        for key in matieres:
+                            key.matiere_id = matieres[key]
+                            key.onchange_matiere_id()
+                        obj._compute_montant_matiere()    
+                        #******************************************************
+
+                        #** Recherche du prix de la variante initial **********
+                        prix_vente_standard = 0
+                        for line in obj.variante_ids:
+                            line._compute_montants()
+                            prix_vente_standard =line.prix_vente_int
+                            break
+                        #******************************************************
+
+                        delta = round(prix_vente_option - prix_vente_standard,2)
+                        domain = [
+                            ('devis_id','=',obj.id),
+                            ('option_id','=',option_id),
+                        ]
+                        options =  self.env['is.devis.parametrable.option'].search(domain,limit=1)
+                        if len(options)==0:
+                            if delta>0:
+                                description = "Plus-value variante matière"
+                            else:
+                                description = "Moins-value variante matière"
+                            vals={
+                                'devis_id'   : obj.id,
+                                'sequence'   : 900,
+                                'option_id'  : option_id,
+                                'description': description,
+                                'description_client': description,
+                                'valeur': 1,
+                                'quantite': 1,
+                                'option_active': False,
+                                'option_comprise': False,
+                            }
+                            option = self.env['is.devis.parametrable.option'].create(vals)
+                        else:
+                            option = options[0]
+                        vals={
+                            'prix'     : delta,
+                        }
+                        option.write(vals)
+            obj.montant_option_matiere = delta
+
+
 
 
     @api.depends('section_ids','section_ids.product_ids','section_ids.montant_total','tax_id')
@@ -1063,6 +1149,19 @@ class is_devis_parametrable_matiere(models.Model):
     _description = "Matieres du devis paramètrable"
     _order='sequence,id'
 
+    devis_id           = fields.Many2one('is.devis.parametrable', 'Devis', required=True, ondelete='cascade')
+    sequence           = fields.Integer("Sequence")
+    section_id         = fields.Many2one('is.section.devis', "Section")
+    matiere_id         = fields.Many2one('is.matiere', "Matière")
+    matiere_option_id  = fields.Many2one('is.matiere', "Matière Option")
+    montant_option     = fields.Float("Montant option", readonly=True)
+    epaisseur          = fields.Float("Épaisseur")
+    poids              = fields.Float("Poids (Kg)")
+    prix_achat         = fields.Float("Prix d'achat au Kg")
+    date_actualisation = fields.Date("Date d'actualisation")
+    montant            = fields.Float("Montant", store=True, readonly=True, compute='_compute_montant')
+    imprimer           = fields.Boolean("Imprimer", help="Afficher cette ligne sur le PDF", default=True)
+ 
     @api.depends('prix_achat', 'matiere_id', 'poids')
     def _compute_montant(self):
         for obj in self:
@@ -1076,16 +1175,6 @@ class is_devis_parametrable_matiere(models.Model):
             obj.date_actualisation = obj.matiere_id.date_actualisation
 
 
-    devis_id   = fields.Many2one('is.devis.parametrable', 'Devis', required=True, ondelete='cascade')
-    sequence   = fields.Integer("Sequence")
-    section_id = fields.Many2one('is.section.devis', "Section")
-    matiere_id = fields.Many2one('is.matiere', "Matière")
-    epaisseur  = fields.Float("Épaisseur")
-    poids              = fields.Float("Poids (Kg)")
-    prix_achat         = fields.Float("Prix d'achat au Kg")
-    date_actualisation = fields.Date("Date d'actualisation")
-    montant            = fields.Float("Montant", store=True, readonly=True, compute='_compute_montant')
-    imprimer           = fields.Boolean("Imprimer", help="Afficher cette ligne sur le PDF", default=True)
 
 
 class is_devis_parametrable_unite(models.Model):
@@ -2261,4 +2350,5 @@ class is_option(models.Model):
     lien_entree2_id  = fields.Many2one('is.lien.odoo.excel', 'Lien Odoo Excel Entrée 2')
     lien_sortie2_id  = fields.Many2one('is.lien.odoo.excel', 'Lien Odoo Excel Sortie 2')
     thermoregulation = fields.Boolean("Thermorégulation", default=False)
+    matiere_auto     = fields.Boolean("Option matière automatique", default=False)
 

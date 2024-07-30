@@ -351,16 +351,21 @@
                                         <tree editable="bottom">
                                             <field name="sequence" widget="handle" />
                                             <field name="devis_id" invisible="1"/>
-                                            <field name="section_id"/>
-                                            <field name="matiere_id"/>
-                                            <field name="epaisseur"/>
-                                            <field name="poids" sum="Total" readonly="1"/>
-                                            <field name="prix_achat"/>
-                                            <field name="date_actualisation"/>
-                                            <field name="montant" sum="Total"/>
-                                            <field name="imprimer"/>
+                                            <field name="section_id"         optional="show"/>
+                                            <field name="matiere_id"         optional="show"/>
+                                            <field name="matiere_option_id"  optional="show"/>
+                                            <field name="epaisseur"          optional="show"/>
+                                            <field name="poids"              optional="show" sum="Total" readonly="1"/>
+                                            <field name="prix_achat"         optional="show"/>
+                                            <field name="date_actualisation" optional="show"/>
+                                            <field name="montant"            optional="show" sum="Total"/>
+                                            <field name="montant_option"     optional="show" sum="Total"/>
+                                            <field name="imprimer"           optional="show"/>
                                         </tree>
                                     </field>
+                                </group>
+                                <group>
+                                    <field name="montant_option_matiere" attrs="{'invisible':[('montant_option_matiere','=',0)]}"/>
                                 </group>
                                 <button
                                     name="actualiser_prix_action"
@@ -1174,13 +1179,14 @@
             <field name="arch" type="xml">
                 <tree >
                     <field name="name"/>
-                    <field name="thermoregulation"/>
-                    <field name="prix"/>
-                    <field name="lien_valeur_id"/>
-                    <field name="lien_quantite_id"/>
-                    <field name="lien_entree2_id"/>
-                    <field name="lien_sortie2_id"/>
-                    <field name="lien_sortie2_id"/>
+                    <field name="matiere_auto"     optional="show"/>
+                    <field name="thermoregulation" optional="show"/>
+                    <field name="prix"             optional="show"/>
+                    <field name="lien_valeur_id"   optional="show"/>
+                    <field name="lien_quantite_id" optional="show"/>
+                    <field name="lien_entree2_id"  optional="show"/>
+                    <field name="lien_sortie2_id"  optional="show"/>
+                    <field name="lien_sortie2_id"  optional="show"/>
                 </tree>
             </field>
         </record>
@@ -1197,6 +1203,7 @@
                         </style>
                         <group>
                             <field name="name"/>
+                            <field name="matiere_auto"/>
                             <field name="thermoregulation"/>
                             <field name="prix"/>
                             <field name="lien_valeur_id"/>

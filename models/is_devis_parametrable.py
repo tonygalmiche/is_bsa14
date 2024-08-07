@@ -859,19 +859,19 @@ class is_devis_parametrable(models.Model):
 
                         #** Contenu du champ 'descrition' *********************
                         if delta>0:
-                            description = "Plus-value"
+                            description = "Plus-value pour changement de la nuance d'inox.\n→ Dôme, fond et virole tout en inox 316L"
                         else:
-                            description = "Moins-value"
-                        matiere=False
-                        modifs=[]
-                        for line in obj.matiere_ids:
-                            if line.matiere_option_id and line.matiere_option_id!=line.matiere_id:
-                                matiere=line.matiere_option_id.name
-                                modifs.append(line.section_id.name)
-                        if matiere:
-                            modifs=', '.join(modifs)
-                            modifs = re.sub(r'(.*), ', r'\1 et ', modifs).strip() # Remplacer la dernière virgule par 'et'
-                            description="%s pour changement de la nuance d'inox:\n→ %s tout en inox %s"%(description,modifs,matiere)
+                            description = "Moins-value pour changement de la nuance d'inox.\n→ Dôme en inox 316L, fond et virole en inox 304L (MIXTE)."
+                        # matiere=False
+                        # modifs=[]
+                        # for line in obj.matiere_ids:
+                        #     if line.matiere_option_id and line.matiere_option_id!=line.matiere_id:
+                        #         matiere=line.matiere_option_id.name
+                        #         modifs.append(line.section_id.name)
+                        # if matiere:
+                        #     modifs=', '.join(modifs)
+                        #     modifs = re.sub(r'(.*), ', r'\1 et ', modifs).strip() # Remplacer la dernière virgule par 'et'
+                        #     description="%s pour changement de la nuance d'inox:\n→ %s tout en inox %s"%(description,modifs,matiere)
                         #******************************************************
 
                         if len(options)==0:

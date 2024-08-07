@@ -10,6 +10,7 @@ import openpyxl
 from glob import glob
 import logging
 from math import pi,sin,cos,tan,sqrt, floor, ceil
+import re
 
 _logger = logging.getLogger(__name__)
 
@@ -855,11 +856,25 @@ class is_devis_parametrable(models.Model):
                             ('option_id','=',option_id),
                         ]
                         options =  self.env['is.devis.parametrable.option'].search(domain,limit=1)
+
+                        #** Contenu du champ 'descrition' *********************
+                        if delta>0:
+                            description = "Plus-value"
+                        else:
+                            description = "Moins-value"
+                        matiere=False
+                        modifs=[]
+                        for line in obj.matiere_ids:
+                            if line.matiere_option_id and line.matiere_option_id!=line.matiere_id:
+                                matiere=line.matiere_option_id.name
+                                modifs.append(line.section_id.name)
+                        if matiere:
+                            modifs=', '.join(modifs)
+                            modifs = re.sub(r'(.*), ', r'\1 et ', modifs).strip() # Remplacer la dernière virgule par 'et'
+                            description="%s pour changement de la nuance d'inox:\n→ %s tout en inox %s"%(description,modifs,matiere)
+                        #******************************************************
+
                         if len(options)==0:
-                            if delta>0:
-                                description = "Plus-value variante matière"
-                            else:
-                                description = "Moins-value variante matière"
                             vals={
                                 'devis_id'   : obj.id,
                                 'sequence'   : 900,
@@ -876,11 +891,11 @@ class is_devis_parametrable(models.Model):
                             option = options[0]
                         vals={
                             'prix'     : delta,
+                            #'description': description,
+                            #'description_client': description,
                         }
                         option.write(vals)
             obj.montant_option_matiere = delta
-
-
 
 
     @api.depends('section_ids','section_ids.product_ids','section_ids.montant_total','tax_id')

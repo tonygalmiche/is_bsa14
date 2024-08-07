@@ -237,7 +237,17 @@
                     </div>
                 </div>
                 <t t-if="o.impression_options=='oui'">
-                    <t t-if="(o.devis_id.montant_option_active-o.devis_id.montant_option_comprise)>0">
+
+                    <t t-set="imprime" t-value="False"/>
+                    <t t-foreach="o.devis_id.options_ids" t-as="option">
+                        <t t-if="option.option_active and not option.option_comprise">
+                            <t t-set="imprime" t-value="True"/>
+                        </t>
+                    </t>
+
+
+
+                    <t t-if="imprime==True">
                         <h3>Autres Options non comprises : </h3>
                         <table class="table table-sm o_main_table">
                             <tbody>

@@ -165,7 +165,7 @@ class purchase_order(models.Model):
 
 
     is_a_commander           = fields.Boolean("A commander", default=False)
-    is_arc                   = fields.Boolean("ARC reçu"   , default=False)
+    is_arc                   = fields.Boolean("ARC reçu"   , default=False, copy=False)
     is_article_vendu_id      = fields.Many2one("product.template", "Article vendu", help="Utilsé pour l'importation de la nomenclature")
     is_quantite_vendue       = fields.Integer("Qt article vendu")
     is_nomenclature_ids      = fields.One2many("is.purchase.order.nomenclature", "order_id", "Importation nomenclature")

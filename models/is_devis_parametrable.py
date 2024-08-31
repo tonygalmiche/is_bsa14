@@ -584,10 +584,11 @@ class is_devis_parametrable_affaire_devis(models.Model):
     affaire_id  = fields.Many2one('is.devis.parametrable.affaire', 'Affaire', required=True, ondelete='cascade')
     sequence    = fields.Integer("Sequence")
     devis_id    = fields.Many2one('is.devis.parametrable', 'Devis')
-    capacite    = fields.Integer(related="devis_id.capacite")
+    capacite    = fields.Integer(related="devis_id.capacite", string="Capacité unitaire")
     unite       = fields.Selection(related="devis_id.unite")
     ratio_wc    = fields.Float(related="devis_id.ratio_wc")
     quantite    = fields.Integer('Quantité')
+    capacite_totale  = fields.Integer("Capacité", compute='_compute_capacite_totale', store=False, readonly=True)
     devise_bsa_id    = fields.Many2one(related="devis_id.devise_bsa_id")
     devise_client_id = fields.Many2one(related="devis_id.devise_client_id")
     designation      = fields.Char(related="devis_id.designation")
@@ -600,6 +601,15 @@ class is_devis_parametrable_affaire_devis(models.Model):
     montant_vendu    = fields.Monetary("Montant vendu", compute='_compute_montant', store=False, readonly=True, currency_field='devise_bsa_id')
     montant_marge    = fields.Monetary("Montant marge", compute='_compute_montant', store=False, readonly=True, currency_field='devise_bsa_id')
     taux_marge       = fields.Float("Marge (%)"       , compute='_compute_montant', store=False, readonly=True)
+
+
+    @api.depends('capacite',"quantite")
+    def _compute_capacite_totale(self):
+        for obj in self:
+            capacite=0
+            if obj.capacite and obj.quantite:
+                capacite = obj.capacite * obj.quantite
+            obj.capacite_totale = capacite
 
 
     @api.depends('quantite',"prix_achat","prix_vendu")

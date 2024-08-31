@@ -127,10 +127,11 @@
                                         widget="many2one_clickable"
                                     />
                                     <field name="designation"      optional="show"/>
-                                    <field name="capacite"         optional="show" sum="Total"/>
+                                    <field name="capacite"         optional="hide"/>
                                     <field name="unite"            optional="show"/>
                                     <field name="ratio_wc"         optional="show"/>
                                     <field name="quantite"         optional="show"/>
+                                    <field name="capacite_totale"  optional="show" sum="Total"/>
                                     <field name="prix_achat"       optional="show"/>
                                     <field name="prix_vendu"       optional="show"/>
                                     <field name="marge"            optional="hide"/>

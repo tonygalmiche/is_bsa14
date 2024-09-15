@@ -595,12 +595,16 @@ class is_devis_parametrable_affaire_devis(models.Model):
     prix_achat       = fields.Monetary("Prix achat", related="devis_id.montant_equipement_achat" , currency_field='devise_bsa_id')
     prix_vendu       = fields.Monetary("Prix vendu", related="devis_id.montant_equipement_vendu" , currency_field='devise_bsa_id')
     marge            = fields.Monetary("Marge"     , related="devis_id.montant_equipement_marge" , currency_field='devise_bsa_id')
-    prix_devise_ht   = fields.Monetary("Prix HT"   , related="devis_id.montant_equipement_devise", currency_field='devise_client_id')
-    prix_devise_ttc  = fields.Monetary("Prix TTC"  , related="devis_id.montant_equipement_ttc"   , currency_field='devise_client_id')
     montant_achat    = fields.Monetary("Montant achat", compute='_compute_montant', store=False, readonly=True, currency_field='devise_bsa_id')
     montant_vendu    = fields.Monetary("Montant vendu", compute='_compute_montant', store=False, readonly=True, currency_field='devise_bsa_id')
     montant_marge    = fields.Monetary("Montant marge", compute='_compute_montant', store=False, readonly=True, currency_field='devise_bsa_id')
     taux_marge       = fields.Float("Marge (%)"       , compute='_compute_montant', store=False, readonly=True)
+
+    prix_devise_ht      = fields.Monetary("Prix HT (Devise)"    , related="devis_id.montant_equipement_devise", currency_field='devise_client_id')
+    prix_devise_ttc     = fields.Monetary("Prix TTC (Devise)"   , related="devis_id.montant_equipement_ttc"   , currency_field='devise_client_id')
+
+    montant_devise_ht   = fields.Monetary("Montant HT (Devise)" , compute='_compute_montant', store=False, readonly=True, currency_field='devise_client_id')
+    montant_devise_ttc  = fields.Monetary("Montant TTC (Devise)", compute='_compute_montant', store=False, readonly=True, currency_field='devise_client_id')
 
 
     @api.depends('capacite',"quantite")
@@ -615,16 +619,18 @@ class is_devis_parametrable_affaire_devis(models.Model):
     @api.depends('quantite',"prix_achat","prix_vendu")
     def _compute_montant(self):
         for obj in self:
-            montant_achat = montant_vendu = montant_marge = taux_marge = 0
+            montant_achat = montant_vendu = montant_marge = taux_marge = montant_devise_ht = montant_devise_ttc = 0
             montant_achat = obj.prix_achat * obj.quantite
             montant_vendu = obj.prix_vendu * obj.quantite
             montant_marge = montant_vendu - montant_achat
             if montant_vendu!=0:
                 taux_marge = 100*montant_marge/montant_vendu
-            obj.montant_achat = montant_achat
-            obj.montant_vendu = montant_vendu
-            obj.montant_marge = montant_marge
-            obj.taux_marge    = taux_marge
+            obj.montant_achat      = montant_achat
+            obj.montant_vendu      = montant_vendu
+            obj.montant_marge      = montant_marge
+            obj.taux_marge         = taux_marge
+            obj.montant_devise_ht  = obj.prix_devise_ht  * obj.quantite
+            obj.montant_devise_ttc = obj.prix_devise_ttc * obj.quantite
 
 
 class is_devis_parametrable_affaire_tax(models.Model):
@@ -1525,21 +1531,28 @@ class is_devis_parametrable_section(models.Model):
     _description = "Sections du devis paramètrable"
     _order='sequence,id'
 
-    @api.depends('product_ids')
+    @api.depends('product_ids','product_ids.quantite','product_ids.prix','product_ids.marge','product_ids.commission')
     def _compute_montant(self):
         for obj in self:
-            montant=montant_avec_marge=0
+            montant=montant_avec_marge=montant_commission=mt_vendu_avec_commission=montant_avec_marge_devise=0
             for line in obj.product_ids:
-                montant+=line.montant
-                montant_avec_marge+=line.montant_avec_marge
+                montant                   +=line.montant
+                montant_avec_marge        +=line.montant_avec_marge
+                montant_commission        +=line.montant_commission
+                mt_vendu_avec_commission  +=line.mt_vendu_avec_commission
+                montant_avec_marge_devise +=line.montant_avec_marge_devise
             montant_marge = montant_avec_marge - montant
             taux_marge = 0
             if montant_avec_marge!=0:
                 taux_marge = 100*montant_marge/montant_avec_marge
-            obj.montant_total            = montant
-            obj.montant_total_avec_marge = montant_avec_marge
-            obj.montant_marge            = montant_marge
-            obj.taux_marge               = taux_marge
+            obj.montant_total             = montant
+            obj.montant_total_avec_marge  = montant_avec_marge
+            obj.montant_marge             = montant_marge
+            obj.taux_marge                = taux_marge
+            obj.montant_commission        = montant_commission
+            obj.mt_vendu_avec_commission  = mt_vendu_avec_commission
+            obj.montant_avec_marge_devise = montant_avec_marge_devise
+
 
     @api.depends('product_ids')
     def _compute_tps_montage(self):
@@ -1556,11 +1569,14 @@ class is_devis_parametrable_section(models.Model):
     sequence         = fields.Integer("Sequence")
     section_id       = fields.Many2one('is.section.devis', "Section")
     product_ids      = fields.One2many('is.devis.parametrable.section.product', 'section_id', 'Articles', copy=True)
-    montant_total            = fields.Monetary("Total achat", store=True, readonly=True, compute='_compute_montant', currency_field='devise_bsa_id')
-    montant_total_avec_marge = fields.Monetary("Total vendu", store=True, readonly=True, compute='_compute_montant', currency_field='devise_bsa_id')
-    montant_marge = fields.Monetary("Montant marge"         , store=True, readonly=True, compute='_compute_montant', currency_field='devise_bsa_id')
-    taux_marge    = fields.Float("Marge (%)"                , store=True, readonly=True, compute='_compute_montant')
-    tps_montage   = fields.Float("Tps (HH:MM)", help="Temps de montage (HH:MM)", store=True, readonly=True, compute='_compute_tps_montage')
+    tps_montage               = fields.Float("Tps (HH:MM)", help="Temps de montage (HH:MM)", store=True, readonly=True, compute='_compute_tps_montage')
+    taux_marge                = fields.Float("Marge (%)"                           , store=True, readonly=True, compute='_compute_montant')
+    montant_marge             = fields.Monetary("Mt marge"                         , store=True, readonly=True, compute='_compute_montant', currency_field='devise_bsa_id')
+    montant_total             = fields.Monetary("Mt achat"                         , store=True, readonly=True, compute='_compute_montant', currency_field='devise_bsa_id')
+    montant_total_avec_marge  = fields.Monetary("Mt vendu"                         , store=True, readonly=True, compute='_compute_montant', currency_field='devise_bsa_id')
+    montant_commission        = fields.Monetary("Mt Commission (€)"                , store=True, readonly=True, compute='_compute_montant', currency_field='devise_bsa_id')
+    mt_vendu_avec_commission  = fields.Monetary("Mt vendu avec commission (€)"     , store=True, readonly=True, compute='_compute_montant', currency_field='devise_bsa_id')
+    montant_avec_marge_devise = fields.Monetary("Mt vendu avec commission (Devise)", store=True, readonly=True, compute='_compute_montant', currency_field='devise_client_id')
 
 
     def acceder_section_action(self):
@@ -1601,24 +1617,34 @@ class is_devis_parametrable_section_product(models.Model):
             obj.montant = montant
 
 
-    @api.depends('product_id','quantite','prix','marge','remise')
+    @api.depends('product_id','quantite','prix','marge','remise','commission')
     def _compute_avec_marge(self):
         for obj in self:
             marge=obj.marge or obj.marge_equipement_variante
             taux = obj.section_id.devis_id.taux_devise or 1
-            prix_avec_marge        = (obj.prix+obj.prix*marge/100) - obj.remise
+            montant_marge_unitaire = obj.prix*marge/100
+            prix_avec_marge        = obj.prix + montant_marge_unitaire - obj.remise
+            montant_commission_unitaire   = prix_avec_marge * obj.commission/100
+            montant_avec_marge            = prix_avec_marge * obj.quantite
+            montant_commission            = montant_commission_unitaire * obj.quantite
+            obj.prix_avec_marge           = prix_avec_marge
+            obj.montant_marge             = montant_marge_unitaire  * obj.quantite
+            obj.montant_remise            = obj.remise              * obj.quantite
+            obj.montant_avec_marge        = montant_avec_marge
+            obj.montant_commission        = montant_commission
+            obj.mt_vendu_avec_commission  = montant_avec_marge + montant_commission
+
+
+            #** Prix unitaire et montant en devise avec arrondi ***************
             arrondi = obj.section_id.devis_id.is_societe_commerciale_id.arrondi
             if arrondi<1:
                 arrondi=10
-            prix_avec_marge_arrondi = arrondi*ceil(prix_avec_marge/arrondi)
-            obj.prix_avec_marge    = prix_avec_marge_arrondi
-            obj.montant_avec_marge = prix_avec_marge_arrondi * obj.quantite
+            prix_avec_marge_et_commission = prix_avec_marge + montant_commission_unitaire
+            prix_en_devise                = prix_avec_marge_et_commission/taux
+            prix_en_devise_arrondi        = arrondi*ceil(prix_en_devise/arrondi)
 
-            prix_avec_marge_devise = prix_avec_marge_arrondi/taux
-            montant_avec_marge_devise = prix_avec_marge_devise*obj.quantite
-            obj.prix_avec_marge_devise    = prix_avec_marge_devise
-            obj.montant_avec_marge_devise = montant_avec_marge_devise
-            obj.montant_remise = obj.remise * obj.quantite
+            obj.prix_avec_marge_devise    = prix_en_devise_arrondi
+            obj.montant_avec_marge_devise = prix_en_devise_arrondi  * obj.quantite
 
 
     @api.depends('product_id','quantite','prix')
@@ -1663,17 +1689,21 @@ class is_devis_parametrable_section_product(models.Model):
 
     quantite           = fields.Float("Quantité", default=1, digits=(16, 2))
 
-    devise_bsa_id      = fields.Many2one(related="section_id.devis_id.devise_bsa_id")
-    devise_client_id   = fields.Many2one(related="section_id.devis_id.devise_client_id")
-    prix               = fields.Monetary("Prix d'achat" , currency_field='devise_bsa_id')
-    montant            = fields.Monetary("Montant achat", currency_field='devise_bsa_id', store=True , readonly=True, compute='_compute_montant')
-    marge              = fields.Float("Marge (%)", help="Si ce champ n'est pas renseigné, la marge par défaut de la variante sera appliquée")
-    remise             = fields.Monetary("Remise", currency_field='devise_bsa_id', help="Utilisée pour arrondir un prix")
-    montant_remise            = fields.Monetary("Montant Remise"   , readonly=True, compute='_compute_avec_marge', currency_field='devise_bsa_id')
-    prix_avec_marge           = fields.Monetary("Prix vendu (€)"   , readonly=True, compute='_compute_avec_marge', currency_field='devise_bsa_id'   , help="Prix avec marge, remise et arrondi indiqué dans la société commerciale")
-    montant_avec_marge        = fields.Monetary("Montant vendu (€)", readonly=True, compute='_compute_avec_marge', currency_field='devise_bsa_id')
-    prix_avec_marge_devise    = fields.Monetary("Prix vendu"       , readonly=True, compute='_compute_avec_marge', currency_field='devise_client_id', help="Prix en device")
-    montant_avec_marge_devise = fields.Monetary("Montant vendu"    , readonly=True, compute='_compute_avec_marge', currency_field='devise_client_id')
+    devise_bsa_id             = fields.Many2one(related="section_id.devis_id.devise_bsa_id")
+    devise_client_id          = fields.Many2one(related="section_id.devis_id.devise_client_id")
+    prix                      = fields.Monetary("Prix d'achat (€)"                                                        , currency_field='devise_bsa_id')
+    montant                   = fields.Monetary("Mt achat (€)", readonly=True, store=True, compute='_compute_montant', currency_field='devise_bsa_id')
+    marge                     = fields.Float("Marge (%)", help="Si ce champ n'est pas renseigné, la marge par défaut de la variante sera appliquée")
+    remise                    = fields.Monetary("Remise (€)"                                                          , currency_field='devise_bsa_id', help="Utilisée pour arrondir un prix")
+    montant_remise            = fields.Monetary("Mt Remise (€)"               , readonly=True, compute='_compute_avec_marge', currency_field='devise_bsa_id')
+    prix_avec_marge           = fields.Monetary("Prix vendu (€)"              , readonly=True, compute='_compute_avec_marge', currency_field='devise_bsa_id'   , help="Prix avec marge, remise et arrondi indiqué dans la société commerciale")
+    montant_marge             = fields.Monetary("Mt Marge (€)"                , readonly=True, compute='_compute_avec_marge', currency_field='devise_bsa_id')
+    montant_avec_marge        = fields.Monetary("Mt vendu (€)"                , readonly=True, compute='_compute_avec_marge', currency_field='devise_bsa_id')
+    commission                = fields.Float("Commission (%)")
+    montant_commission        = fields.Monetary("Mt Commission (€)"           , readonly=True, compute='_compute_avec_marge', currency_field='devise_bsa_id')
+    mt_vendu_avec_commission  = fields.Monetary("Mt vendu avec commission (€)", readonly=True, compute='_compute_avec_marge', currency_field='devise_bsa_id')
+    prix_avec_marge_devise    = fields.Monetary("Prix vendu (Devise)"         , readonly=True, compute='_compute_avec_marge', currency_field='devise_client_id', help="Prix en device")
+    montant_avec_marge_devise = fields.Monetary("Mt vendu (Devise)"      , readonly=True, compute='_compute_avec_marge', currency_field='devise_client_id')
     tax_id                    = fields.Many2one('account.tax', 'TVA', domain=[('type_tax_use','=','sale')])
 
 

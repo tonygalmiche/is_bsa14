@@ -42,9 +42,9 @@
                                         <tr style="border-bottom: 1px solid;">
                                             <td class="text-left">  <span t-field="devis.designation"/></td>
                                             <td t-if="o.afficher_capacite" class="text-right"><span t-field="devis.capacite"/> <span t-field="devis.unite"/></td>
-                                            <td class="text-right"> <span t-field="devis.prix_vendu"/></td>
+                                            <td class="text-right"> <span t-field="devis.prix_devise_ht"/></td>
                                             <td class="text-center"><span t-field="devis.quantite"/></td>
-                                            <td class="text-right"> <span t-field="devis.montant_vendu"/></td>
+                                            <td class="text-right"> <span t-field="devis.montant_devise_ht"/></td>
                                         </tr>
                                     </t>
                                 </tbody>

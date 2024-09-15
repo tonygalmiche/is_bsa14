@@ -52,6 +52,9 @@
                 </header>
                     <sheet>
                         <style>
+                            .o_form_view .o_form_sheet_bg > .o_form_sheet{
+                                max-width: 1800px;
+                            }
                             .o_form_label{
                                 white-space: nowrap;
                             }
@@ -119,6 +122,8 @@
                         <group string="Devis" attrs="{'invisible':[('type_devis','!=','ombriere')]}">
                             <field name="devis_parametrable_ids" nolabel="1">
                                 <tree editable="bottom">
+                                    <field name="devise_bsa_id"    invisible="1"/>
+                                    <field name="devise_client_id" invisible="1"/>
                                     <field name="sequence" widget="handle" />
                                     <field name="affaire_id" invisible="1"/>
                                     <field 
@@ -126,24 +131,24 @@
                                         domain="['|',('partner_id','=',parent.partner_id),('modele','=', True)]"
                                         widget="many2one_clickable"
                                     />
-                                    <field name="designation"      optional="show"/>
-                                    <field name="capacite"         optional="hide"/>
-                                    <field name="unite"            optional="show"/>
-                                    <field name="ratio_wc"         optional="show"/>
-                                    <field name="quantite"         optional="show"/>
-                                    <field name="capacite_totale"  optional="show" sum="Total"/>
-                                    <field name="prix_achat"       optional="show"/>
-                                    <field name="prix_vendu"       optional="show"/>
-                                    <field name="marge"            optional="hide"/>
-                                    <field name="montant_achat"    optional="show" sum="Total"/>
-                                    <field name="montant_vendu"    optional="show" sum="Total"/>
-                                    <field name="montant_marge"    optional="show" sum="Total"/>
-                                    <field name="taux_marge"       optional="show"/>
-                                    <field name="prix_devise_ht"   optional="show"/>
-                                    <field name="prix_devise_ttc"  optional="hide"/>
-                                    <field name="devise_bsa_id"    invisible="1"/>
-                                    <field name="devise_client_id" invisible="1"/>
-                                </tree>
+                                    <field name="designation"        optional="show"/>
+                                    <field name="capacite"           optional="hide"/>
+                                    <field name="unite"              optional="show"/>
+                                    <field name="ratio_wc"           optional="show"/>
+                                    <field name="quantite"           optional="show"/>
+                                    <field name="capacite_totale"    optional="show" sum="Total"/>
+                                    <field name="prix_achat"         optional="show"/>
+                                    <field name="prix_vendu"         optional="show"/>
+                                    <field name="marge"              optional="hide"/>
+                                    <field name="montant_achat"      optional="show" sum="Total"/>
+                                    <field name="montant_vendu"      optional="show" sum="Total"/>
+                                    <field name="montant_marge"      optional="show" sum="Total"/>
+                                    <field name="taux_marge"         optional="show"/>
+                                    <field name="prix_devise_ht"     optional="hide"/>
+                                    <field name="prix_devise_ttc"    optional="hide"/>
+                                    <field name="montant_devise_ht"  optional="show" sum="Total"/>
+                                    <field name="montant_devise_ttc" optional="hide" sum="Total"/>
+                                 </tree>
                             </field>
 
                             <group>
@@ -420,18 +425,21 @@
                                 <group string="Sections des équipements" attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble','ombriere'])]}">
                                     <field name="section_ids" nolabel="1" readonly="0">
                                         <tree>
+                                            <field name="devise_client_id" invisible="1"/>
+                                            <field name="devise_bsa_id"    invisible="1"/>
                                             <field name="sequence" widget="handle" />
                                             <button title="Section" name="acceder_section_action" type="object" icon="fa-search-plus"/>
                                             <field name="devis_id" invisible="1"/>
                                             <field name="section_id"/>
-                                            <field name="montant_total"            sum="Total"/>
-                                            <field name="montant_total_avec_marge" sum="Total"/>
-                                            <field name="montant_marge"            sum="Total"/>
+                                            <field name="tps_montage"               sum="Total" widget="float_time"/>
+                                            <field name="montant_total"             sum="Total"/>
+                                            <field name="montant_total_avec_marge"  sum="Total"/>
+                                            <field name="montant_marge"             sum="Total"/>
                                             <field name="taux_marge"/>
-                                            <field name="tps_montage"              sum="Total" widget="float_time"/>
-                                            <field name="devise_client_id" invisible="1"/>
-                                            <field name="devise_bsa_id"    invisible="1"/>
-                                        </tree>
+                                            <field name="montant_commission"        sum="Total"/>
+                                            <field name="mt_vendu_avec_commission"  sum="Total"/>
+                                            <field name="montant_avec_marge_devise" sum="Total"/>
+                                         </tree>
                                     </field>
                                 </group>
                                 <button
@@ -830,6 +838,9 @@
                             .o_form_view .o_form_sheet_bg > .o_form_sheet{
                                 max-width: 1800px;
                             }
+                            .o_form_label{
+                                white-space: nowrap;
+                            }
                         </style>
                         <group>
                             <group>
@@ -843,21 +854,27 @@
                             <tree editable="bottom">
                                 <field name="section_id" invisible="1"/>
                                 <field name="sequence" widget="handle"/>
-                                <field name="type_equipement_id" class="test_scss"/>
-                                <field name="product_id" domain="[('is_type_equipement_id', '=', type_equipement_id)]" class="test_scss"/>
-                                <field name="description"/>
+                                <field name="type_equipement_id"        optional="show" class="test_scss"/>
+                                <field name="product_id"                optional="show" domain="[('is_type_equipement_id', '=', type_equipement_id)]" class="test_scss"/>
+                                <field name="description"               optional="show"/>
                                 <field name="description_detaillee"     optional="show"/>
-                                <field name="quantite"                                  sum="Total"/>
+                                <field name="quantite"                                   sum="Total"/>
                                 <field name="uom_po_id"                 optional="hide"/>
                                 <field name="prix"                      optional="show"/>
                                 <field name="date_achat"                optional="hide"/>
                                 <field name="montant"                   optional="show" sum="Total"/>
                                 <field name="marge"                     optional="show"/>
+                                <field name="montant_marge"             optional="show" sum="Total"/>
                                 <field name="remise"                    optional="show" attrs="{'column_invisible':[('parent.type_devis','not in',['ombriere'])]}"/>
                                 <field name="montant_remise"            optional="show" attrs="{'column_invisible':[('parent.type_devis','not in',['ombriere'])]}"          sum="Total"/>
                                 <field name="marge_equipement_variante" optional="show" attrs="{'column_invisible':[('parent.type_devis','!=','bassin')]}"/>
                                 <field name="prix_avec_marge"           optional="show" attrs="{'column_invisible':[('parent.type_devis','not in',['bassin','ombriere'])]}"/>
                                 <field name="montant_avec_marge"        optional="show" attrs="{'column_invisible':[('parent.type_devis','not in',['bassin','ombriere'])]}" sum="Total"/>
+
+                                <field name="commission"                optional="show" attrs="{'column_invisible':[('parent.type_devis','not in',['ombriere'])]}"/>
+                                <field name="montant_commission"        optional="show" attrs="{'column_invisible':[('parent.type_devis','not in',['ombriere'])]}"          sum="Total"/>
+                                <field name="mt_vendu_avec_commission"  optional="show" attrs="{'column_invisible':[('parent.type_devis','not in',['ombriere'])]}"          sum="Total"/>
+
                                 <field name="prix_avec_marge_devise"    optional="hide" attrs="{'column_invisible':[('parent.type_devis','not in',['bassin','ombriere'])]}"/>
                                 <field name="montant_avec_marge_devise" optional="show" attrs="{'column_invisible':[('parent.type_devis','not in',['bassin','ombriere'])]}" sum="Total"/>
                                 <field name="tax_id"                    optional="show" attrs="{'column_invisible':[('parent.type_devis','not in',['ombriere'])]}"/>
@@ -869,13 +886,16 @@
                         </field>
                         <group>
                             <group>
+                                <field name="devise_bsa_id"    invisible="1"/>
+                                <field name="devise_client_id" invisible="1"/>
                                 <field name="montant_total"/>
                                 <field name="montant_total_avec_marge"/>
                                 <field name="montant_marge"/>
                                 <field name="taux_marge"/>
-                                <field name="devise_bsa_id"    invisible="1"/>
-                                <field name="devise_client_id" invisible="1"/>
-                            </group>
+                                <field name="montant_commission"/>
+                                <field name="mt_vendu_avec_commission"/>
+                                <field name="montant_avec_marge_devise"/>
+                             </group>
                         </group>
                     </sheet>
                 </form>

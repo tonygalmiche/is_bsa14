@@ -60,8 +60,50 @@ class is_tracabilite_reception(models.Model):
 
     def imprimer_etiquette_direct(self):
         for obj in self:
-            etiquettes=obj.generer_etiquette()
-            obj.imprimer_etiquette(etiquettes)
+            company = self.env.user.company_id
+            if company.is_type_imprimante=='zebra':
+                etiquette=obj.generer_etiquette_zpl()
+            else:
+                etiquette=obj.generer_etiquette()
+            obj.imprimer_etiquette(etiquette)
+
+
+    def zpl_text(self,x,y,size,txt):
+        ZPL=''
+        ZPL+='^FO%s,%s'%(x,y)   # Positionnement en x,y
+        ZPL+='^CF0,%s'%size     # Taille des caractères
+        ZPL+='^FD%s^FS \n'%txt  # Texte à imprimer
+        return ZPL
+
+
+    def generer_etiquette_zpl(self):
+        #TODO : Ajout d'une image en la convertissant ici => https://labelary.com/viewer.html
+        #path='/media/sf_dev_odoo/14.0/bsa/is_bsa14/static/src/img/logo-bsa-tech.zpl'
+        #logo = open(path,'rb').read().decode("utf-8")
+
+        for obj in self:
+            ZPL=''
+            ZPL+='^XA \n'                                     # Début de l'étiquette
+            ZPL+='^CI28 \n'                                   # Encodage en UTF-8
+            ZPL+='^PR3~SD25 \n'                               # PR4=Vitesse de 4 (sur 6) et SD30= Contraste à 30 => Pour imprimer sur du papier Plolypro avec un ruban transfert résine, il est nécessaire de mettre une valeur de chauffe (contraste) de la tête d impression entre 20 et 30 e
+            ZPL+='^LH170,35 \n'                               # Décalage x,y depuis le point supérieur gauche
+            ZPL+='^FO1,1 ^GB920,675,3,0,1^FS \n'              # Cadre de l'étiquette (Largeur, Hauteur, Epaisseur, Couleur, Arrondi) => 300pt = 2,54mm
+   
+            #ZPL+=logo
+   
+            size=40; x=15
+            y=40;  ZPL+=obj.zpl_text(x,y,size,'ARTICLE : %s'%obj.product_id.name)
+            y+=50; ZPL+=obj.zpl_text(x,y,size,'FOURNISSEUR : %s'%obj.picking_id.partner_id.name)
+            y+=50; ZPL+=obj.zpl_text(x,y,size,'REF INTERNE : %s'%(obj.product_id.default_code or ''))
+            y+=50; ZPL+=obj.zpl_text(x,y,size,'RECEPTION : %s'%obj.picking_id.name)
+            y+=50; ZPL+=obj.zpl_text(x,y,size,'BL FOURNISSEUR : %s'%obj.bl_fournisseur)
+            y+=50; ZPL+=obj.zpl_text(x,y,size,'DATE : %s'%obj.move_id.create_date)[0:10]
+            y+=50; ZPL+=obj.zpl_text(x,y,size,'LOT : %s'%obj.name)
+            height=150;         ZPL+='^BY5,2,%s'%height         # Taille du code barre
+            x=70; y=400;        ZPL+='^FO%s,%s'%(x,y)           # Positionnement en x, y
+            codebar=obj.name;   ZPL+='^BC^FD%s^FS \n'%(codebar) # Code barre
+            ZPL+='^XZ'                                          # Fin de l'étiquette
+            return ZPL
 
 
     def generer_etiquette(self):
@@ -122,12 +164,12 @@ class is_tracabilite_reception(models.Model):
             return txt
 
 
-    def imprimer_etiquette(self, etiquettes):
+    def imprimer_etiquette(self, etiquette):
         path="/tmp/etiquette.txt"
         err=""
         fichier = open(path, "w")
         if err=="":
-            fichier.write(etiquettes)
+            fichier.write(etiquette)
             fichier.close()
             user  = self.env['res.users'].browse(self._uid)
             imprimante = user.company_id.is_nom_imprimante or 'Datamax'
@@ -196,8 +238,35 @@ class is_tracabilite_livraison(models.Model):
 
     def imprimer_etiquette_livraison_direct(self):
         for obj in self:
-            etiquettes=obj.generer_etiquette_livraison()
+            company = self.env.user.company_id
+            if company.is_type_imprimante=='zebra':
+                etiquettes=obj.generer_etiquette_zpl()
+            else:
+                etiquettes=obj.generer_etiquette_livraison()
             self.env['is.tracabilite.reception'].imprimer_etiquette(etiquettes)
+
+
+    def generer_etiquette_zpl(self):
+        o = self.env['is.tracabilite.reception']
+        for obj in self:
+            ZPL=''
+            ZPL+='^XA \n'                                     # Début de l'étiquette
+            ZPL+='^CI28 \n'                                   # Encodage en UTF-8
+            ZPL+='^PR3~SD25 \n'                               # PR4=Vitesse de 4 (sur 6) et SD30= Contraste à 30 => Pour imprimer sur du papier Plolypro avec un ruban transfert résine, il est nécessaire de mettre une valeur de chauffe (contraste) de la tête d impression entre 20 et 30 e
+            ZPL+='^LH170,35 \n'                               # Décalage x,y depuis le point supérieur gauche
+            ZPL+='^FO1,1 ^GB920,675,3,0,1^FS \n'              # Cadre de l'étiquette (Largeur, Hauteur, Epaisseur, Couleur, Arrondi) => 300pt = 2,54mm
+            size=40; x=15
+            y=40;  ZPL+=o.zpl_text(x,y,size,'ARTICLE : %s'%obj.product_id.name)
+            y+=50; ZPL+=o.zpl_text(x,y,size,'REF : %s'%(obj.product_id.default_code or ''))
+            y+=50; ZPL+=o.zpl_text(x,y,size,'QT : %s'%(obj.lot_fabrication))
+            y+=50; ZPL+=o.zpl_text(x,y,size,'DATE : %s'%str(obj.create_date)[0:10])
+            y+=50; ZPL+=o.zpl_text(x,y,size,'LOT : %s'%obj.name)
+            y+=50; ZPL+=o.zpl_text(x,y,size,'OF : %s'%obj.production_id.name)
+            height=150;         ZPL+='^BY5,2,%s'%height         # Taille du code barre
+            x=70; y=400;        ZPL+='^FO%s,%s'%(x,y)           # Positionnement en x, y
+            codebar=obj.name;   ZPL+='^BC^FD%s^FS \n'%(codebar) # Code barre
+            ZPL+='^XZ'                                          # Fin de l'étiquette
+            return ZPL
 
 
     def generer_etiquette_livraison(self):

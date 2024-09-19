@@ -245,11 +245,16 @@ class mrp_production(models.Model):
 
 
     def action_creer_imprimer_etiquette_mrp(self):
+        company = self.env.user.company_id
         self.action_creer_etiquette_mrp()
         res=""
         for obj in self:
             for line in obj.etiquette_ids:
-                res+=line.generer_etiquette_livraison()
+                if company.is_type_imprimante=='zebra':
+                    res+=line.generer_etiquette_zpl()
+                else:
+                    res+=line.generer_etiquette_livraison()
+                #res+=line.generer_etiquette_livraison()
         self.env['is.tracabilite.reception'].imprimer_etiquette(res)
 
     

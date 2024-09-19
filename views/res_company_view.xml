@@ -6,8 +6,6 @@
             <field name="model">res.company</field>
             <field name="inherit_id" ref="base.view_company_form" />
             <field name="arch" type="xml">
-
-
                 <xpath expr="//sheet[1]" position="inside">
                     <style>
                         .o_form_label{
@@ -15,13 +13,11 @@
                         }
                     </style>
                 </xpath>
-
-
-
                 <page name="general_info" position="after">
                     <page string="BSA">
                         <group>
                             <field name="is_site"/>
+                            <field name="is_type_imprimante"/>
                             <field name="is_nom_imprimante"/>
                             <field name="is_imprimante_bl"/>
                             <field name="is_seuil_validation_rsp_achat"/>

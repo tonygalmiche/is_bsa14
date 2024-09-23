@@ -82,16 +82,17 @@
             <field name="arch" type="xml">
                 <tree string="Etiquettes en livraison">
                     <field name="name" />
-                    <field name="production_id" />
-                    <field name="lot_fabrication" sum="Total"/>
-                    <field name="product_id" />
-                    <field name="fabrique" />
-                    <field name="operateur_ids" />
-                    <field name="sale_id" />
-                    <field name="move_id" />
-                    <field name="livraison" />
-                    <field name="operateur_livraison_ids" />
-                    <field name="create_date" />
+                    <field name="production_id"           optional="show" />
+                    <field name="lot_fabrication"         optional="show" sum="Total"/>
+                    <field name="product_id"              optional="show" />
+                    <field name="fabrique"                optional="show" />
+                    <field name="operateur_ids"           optional="show" />
+                    <field name="sale_id"                 optional="show" />
+                    <field name="move_id"                 optional="show" />
+                    <field name="livraison"               optional="show" />
+                    <field name="operateur_livraison_ids" optional="show" />
+                    <field name="create_date"             optional="show" />
+                    <field name="num_serie"               optional="hide"/>
                 </tree>
             </field>
         </record>
@@ -118,6 +119,7 @@
                             <field name="move_id" />
                             <field name="livraison" />
                             <field name="operateur_livraison_ids"  widget="many2many_tags" />
+                            <field name="num_serie" />
                         </group>
                         <field name="etiquette_reception_id" >
                             <tree editable="bottom">
@@ -145,11 +147,10 @@
                     <field name="name" string="Numéro de série" />
                     <field name="production_id"/>
                     <field name="product_id" />
+                    <field name="num_serie"/>
                     <field name="operateur_ids" />
                     <field name="sale_id"/>
                     <field name="move_id"/>
-                    <!-- <field name="etiquette_reception"/> -->
-                    <!-- <field name="etiquette_livraison"/> -->
                     <group string="Group By">
                         <filter name="group_production_id" string="OF"            context="{'group_by':'production_id'}"/>
                         <filter name="group_product_id" string="Article"          context="{'group_by':'product_id'}"/>

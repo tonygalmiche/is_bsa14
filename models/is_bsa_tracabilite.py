@@ -34,7 +34,8 @@ class is_tracabilite_reception(models.Model):
     bl_fournisseur = fields.Char('Numéro du BL fournisseur', readonly=False)
     move_id        = fields.Many2one('stock.move', 'Mouvement de stock', readonly=False)
     quantity       = fields.Float('Quantité', readonly=False)
-    
+ 
+
     @api.model
     def create(self, vals):
         self.update_product(vals)
@@ -197,7 +198,16 @@ class is_tracabilite_livraison(models.Model):
     operateur_livraison_ids = fields.Many2many('hr.employee', 'is_tracabilite_livraison_operateur_livraison_rel', 'tracabilite_livraison_id', 'employee_id', 'Opérateurs Livraison')
     etiquette_reception_id  = fields.One2many('is.tracabilite.reception.line', 'livraison_id', 'Etiquettes réception')
     etiquette_livraison_id  = fields.One2many('is.tracabilite.livraison.line', 'livraison_id', 'Etiquettes semi-fini')
+    num_serie               = fields.Char('N°série', store=True, readonly=True, compute='_compute_num_serie')
+    
 
+    @api.depends('production_id','production_id.is_date_prevue','name')
+    def _compute_num_serie(self):
+        for obj in self:
+            date_client = obj.production_id.is_date_prevue.strftime('%m%y') 
+            num_serie =  "%s%s%s"%(obj.production_id.name,date_client,obj.name)
+            obj.num_serie = num_serie
+ 
 
     def ajouter_etiquette_of(self, etiquette, production_id):
         """ Ajouter l'etiquette à la liste des etiquettes de l'OF correspondant """
@@ -262,8 +272,9 @@ class is_tracabilite_livraison(models.Model):
             y+=50; ZPL+=o.zpl_text(x,y,size,'DATE : %s'%str(obj.create_date)[0:10])
             y+=50; ZPL+=o.zpl_text(x,y,size,'LOT : %s'%obj.name)
             y+=50; ZPL+=o.zpl_text(x,y,size,'OF : %s'%obj.production_id.name)
+            y+=50; ZPL+=o.zpl_text(x,y,60,'N°Série : %s'%obj.num_serie)
             height=150;         ZPL+='^BY5,2,%s'%height         # Taille du code barre
-            x=70; y=400;        ZPL+='^FO%s,%s'%(x,y)           # Positionnement en x, y
+            x=70; y=450;        ZPL+='^FO%s,%s'%(x,y)           # Positionnement en x, y
             codebar=obj.name;   ZPL+='^BC^FD%s^FS \n'%(codebar) # Code barre
             ZPL+='^XZ'                                          # Fin de l'étiquette
             return ZPL

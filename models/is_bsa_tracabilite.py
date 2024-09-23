@@ -204,7 +204,9 @@ class is_tracabilite_livraison(models.Model):
     @api.depends('production_id','production_id.is_date_prevue','name')
     def _compute_num_serie(self):
         for obj in self:
-            date_client = obj.production_id.is_date_prevue.strftime('%m%y') 
+            date_client=''
+            if obj.production_id.is_date_prevue:
+                date_client = obj.production_id.is_date_prevue.strftime('%m%y') 
             num_serie =  "%s%s%s"%(obj.production_id.name,date_client,obj.name)
             obj.num_serie = num_serie
  

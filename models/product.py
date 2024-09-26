@@ -229,22 +229,14 @@ class product_template(models.Model):
             ZPL+='^LH170,35 \n'                               # Décalage x,y depuis le point supérieur gauche
             ZPL+='^FO1,1 ^GB920,675,3,0,1^FS \n'              # Cadre de l'étiquette (Largeur, Hauteur, Epaisseur, Couleur, Arrondi) => 300pt = 2,54mm
             size=40; x=15
-            now=time.strftime('%Y-%m-%d',time.gmtime())
-            y=40;  ZPL+=o.zpl_text(x,y,size,'ARTICLE : %s'%obj.name)
+            y=40;  ZPL+=o.zpl_text(x,y,size,obj.name)
             y+=50; ZPL+=o.zpl_text(x,y,size,'REF : %s'%(obj.default_code or ''))
-            y+=50; ZPL+=o.zpl_text(x,y,size,'DATE : %s'%now)
-            y+=50; ZPL+=o.zpl_text(x,y,size,'ID : %s'%obj.name)
-
+            y+=50; ZPL+=o.zpl_text(x,y,size,'Catégorie : %s'%(obj.is_stock_category_id.name or ''))
+            y+=50; ZPL+=o.zpl_text(x,y,size,'ID : %s'%obj.id)
             lieu = "%s / %s / %s"%((obj.is_emplacement_lieu_id.name or ''),(obj.is_emplacement_etagere_id.name or ''),(obj.is_emplacement_niveau_id.name or ''),)
             y+=50; ZPL+=o.zpl_text(x,y,size,'LIEU : %s'%lieu)
             ZPL+='^XZ'  # Fin de l'étiquette
             return ZPL
-
-    # is_emplacement_lieu_id    = fields.Many2one("is.emplacement.lieu", string="Lieu")
-    # is_emplacement_etagere_id = fields.Many2one("is.emplacement.etagere", string="Etagère")
-    # is_emplacement_niveau_id  = fields.Many2one("is.emplacement.niveau", string="Niveau")
-
-
 
 
     def imprimer_etiquette_direct(self):

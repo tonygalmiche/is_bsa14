@@ -227,7 +227,7 @@ class product_template(models.Model):
             ZPL+='^CI28 \n'                                   # Encodage en UTF-8
             ZPL+='^PR3~SD25 \n'                               # PR4=Vitesse de 4 (sur 6) et SD30= Contraste à 30 => Pour imprimer sur du papier Plolypro avec un ruban transfert résine, il est nécessaire de mettre une valeur de chauffe (contraste) de la tête d impression entre 20 et 30 e
             ZPL+='^LH170,35 \n'                               # Décalage x,y depuis le point supérieur gauche
-            ZPL+='^FO1,1 ^GB920,675,3,0,1^FS \n'              # Cadre de l'étiquette (Largeur, Hauteur, Epaisseur, Couleur, Arrondi) => 300pt = 2,54mm
+            #ZPL+='^FO1,1 ^GB920,675,3,0,1^FS \n'              # Cadre de l'étiquette (Largeur, Hauteur, Epaisseur, Couleur, Arrondi) => 300pt = 2,54mm
             size=40; x=15
             y=40;  ZPL+=o.zpl_text(x,y,size,obj.name)
             y+=50; ZPL+=o.zpl_text(x,y,size,'REF : %s'%(obj.default_code or ''))

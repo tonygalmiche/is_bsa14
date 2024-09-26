@@ -271,7 +271,7 @@ class is_tracabilite_livraison(models.Model):
             ZPL+='^LH170,35 \n'                               # Décalage x,y depuis le point supérieur gauche
             ZPL+='^FO1,1 ^GB920,675,3,0,1^FS \n'              # Cadre de l'étiquette (Largeur, Hauteur, Epaisseur, Couleur, Arrondi) => 300pt = 2,54mm
             size=40; x=15
-            y=40;  ZPL+=o.zpl_text(x,y,size,'ARTICLE : %s'%obj.product_id.name)
+            y=40;  ZPL+=o.zpl_text(x,y,size,'ARTICLE é€ : %s'%obj.product_id.name)
             y+=50; ZPL+=o.zpl_text(x,y,size,'REF : %s'%(obj.product_id.default_code or ''))
             #y+=50; ZPL+=o.zpl_text(x,y,size,'QT : %s'%(obj.lot_fabrication))
             y+=50; ZPL+=o.zpl_text(x,y,size,'DATE : %s'%str(obj.create_date)[0:10])

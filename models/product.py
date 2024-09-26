@@ -249,7 +249,8 @@ class product_template(models.Model):
                 etiquettes=obj.generer_etiquette()
             path="/tmp/etiquette.txt"
             err=""
-            fichier = open(path, "w", encoding="windows-1252")
+            #fichier = open(path, "w", encoding="windows-1252")
+            fichier = open(path, "w")
             if err=="":
                 fichier.write(etiquettes )
                 fichier.close()

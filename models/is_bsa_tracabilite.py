@@ -78,10 +78,6 @@ class is_tracabilite_reception(models.Model):
 
 
     def generer_etiquette_zpl(self):
-        #TODO : Ajout d'une image en la convertissant ici => https://labelary.com/viewer.html
-        #path='/media/sf_dev_odoo/14.0/bsa/is_bsa14/static/src/img/logo-bsa-tech.zpl'
-        #logo = open(path,'rb').read().decode("utf-8")
-
         for obj in self:
             ZPL=''
             ZPL+='^XA \n'                                     # Début de l'étiquette
@@ -90,7 +86,6 @@ class is_tracabilite_reception(models.Model):
             ZPL+='^LH170,35 \n'                               # Décalage x,y depuis le point supérieur gauche
             ZPL+='^FO1,1 ^GB920,675,3,0,1^FS \n'              # Cadre de l'étiquette (Largeur, Hauteur, Epaisseur, Couleur, Arrondi) => 300pt = 2,54mm
    
-            #ZPL+=logo
    
             size=40; x=15
             y=40;  ZPL+=obj.zpl_text(x,y,size,'ARTICLE : %s'%obj.product_id.name)
@@ -198,17 +193,17 @@ class is_tracabilite_livraison(models.Model):
     operateur_livraison_ids = fields.Many2many('hr.employee', 'is_tracabilite_livraison_operateur_livraison_rel', 'tracabilite_livraison_id', 'employee_id', 'Opérateurs Livraison')
     etiquette_reception_id  = fields.One2many('is.tracabilite.reception.line', 'livraison_id', 'Etiquettes réception')
     etiquette_livraison_id  = fields.One2many('is.tracabilite.livraison.line', 'livraison_id', 'Etiquettes semi-fini')
-    num_serie               = fields.Char('N°série', store=True, readonly=True, compute='_compute_num_serie')
+    #num_serie               = fields.Char('N°série', store=True, readonly=True, compute='_compute_num_serie')
     
 
-    @api.depends('production_id','production_id.is_date_prevue','name')
-    def _compute_num_serie(self):
-        for obj in self:
-            date_client=''
-            if obj.production_id.is_date_prevue:
-                date_client = obj.production_id.is_date_prevue.strftime('%m%y') 
-            num_serie =  "%s%s%s"%(obj.production_id.name,date_client,obj.name)
-            obj.num_serie = num_serie
+    # @api.depends('production_id','production_id.is_date_prevue','name')
+    # def _compute_num_serie(self):
+    #     for obj in self:
+    #         date_client=''
+    #         if obj.production_id.is_date_prevue:
+    #             date_client = obj.production_id.is_date_prevue.strftime('%m%y') 
+    #         num_serie =  "%s%s%s"%(obj.production_id.name,date_client,obj.name)
+    #         obj.num_serie = num_serie
  
 
     def ajouter_etiquette_of(self, etiquette, production_id):
@@ -260,6 +255,14 @@ class is_tracabilite_livraison(models.Model):
 
     def generer_etiquette_zpl(self):
         o = self.env['is.tracabilite.reception']
+        #TODO : Ajout d'une image en la convertissant ici => https://labelary.com/viewer.html
+        path='/opt/addons/is_bsa14'
+        if not os.path.isdir(path):
+            path='/media/sf_dev_odoo/14.0/bsa/is_bsa14'
+        file_path='%s/static/src/img/logo-bsa-tech.zpl'%path
+        logo = open(file_path,'rb').read().decode("utf-8")
+        file_path='%s/static/src/img/logo-ce.zpl'%path
+        logo_ce = open(file_path,'rb').read().decode("utf-8")
         for obj in self:
             ZPL=''
             ZPL+='^XA \n'                                     # Début de l'étiquette
@@ -270,16 +273,24 @@ class is_tracabilite_livraison(models.Model):
             size=40; x=15
             y=40;  ZPL+=o.zpl_text(x,y,size,'ARTICLE : %s'%obj.product_id.name)
             y+=50; ZPL+=o.zpl_text(x,y,size,'REF : %s'%(obj.product_id.default_code or ''))
-            y+=50; ZPL+=o.zpl_text(x,y,size,'QT : %s'%(obj.lot_fabrication))
+            #y+=50; ZPL+=o.zpl_text(x,y,size,'QT : %s'%(obj.lot_fabrication))
             y+=50; ZPL+=o.zpl_text(x,y,size,'DATE : %s'%str(obj.create_date)[0:10])
-            y+=50; ZPL+=o.zpl_text(x,y,size,'LOT : %s'%obj.name)
+            #y+=50; ZPL+=o.zpl_text(x,y,size,'LOT : %s'%obj.name)
             y+=50; ZPL+=o.zpl_text(x,y,size,'OF : %s'%obj.production_id.name)
-            y+=50; ZPL+=o.zpl_text(x,y,60,'N°Série : %s'%obj.num_serie)
+            y+=150; ZPL+=o.zpl_text(x,y,60,'N°Série : %s'%obj.name)
+
+            ZPL+='^FO%s,%s'%(450,150)   # Positionnement en x,y du logo
+            ZPL+=logo
+
+            ZPL+='^FO%s,%s'%(770,500)   # Positionnement en x,y du logo_ce
+            ZPL+=logo_ce
+
             height=150;         ZPL+='^BY5,2,%s'%height         # Taille du code barre
             x=70; y=450;        ZPL+='^FO%s,%s'%(x,y)           # Positionnement en x, y
-            codebar=obj.name;   ZPL+='^BC^FD%s^FS \n'%(codebar) # Code barre
+            codebar=obj.name;   ZPL+='^BCN,150,N,N,N^FD%s^FS \n'%(codebar) # Code barre
             ZPL+='^XZ'                                          # Fin de l'étiquette
             return ZPL
+
 
 
     def generer_etiquette_livraison(self):

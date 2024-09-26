@@ -92,7 +92,7 @@
                     <field name="livraison"               optional="show" />
                     <field name="operateur_livraison_ids" optional="show" />
                     <field name="create_date"             optional="show" />
-                    <field name="num_serie"               optional="hide"/>
+                    <!-- <field name="num_serie"               optional="hide"/> -->
                 </tree>
             </field>
         </record>
@@ -119,7 +119,7 @@
                             <field name="move_id" />
                             <field name="livraison" />
                             <field name="operateur_livraison_ids"  widget="many2many_tags" />
-                            <field name="num_serie" />
+                            <!-- <field name="num_serie" /> -->
                         </group>
                         <field name="etiquette_reception_id" >
                             <tree editable="bottom">
@@ -147,7 +147,7 @@
                     <field name="name" string="Numéro de série" />
                     <field name="production_id"/>
                     <field name="product_id" />
-                    <field name="num_serie"/>
+                    <!-- <field name="num_serie"/> -->
                     <field name="operateur_ids" />
                     <field name="sale_id"/>
                     <field name="move_id"/>

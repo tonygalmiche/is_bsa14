@@ -219,9 +219,42 @@ class product_template(models.Model):
             return txt
 
 
+    def generer_etiquette_zpl(self):
+        o = self.env['is.tracabilite.reception']
+        for obj in self:
+            ZPL=''
+            ZPL+='^XA \n'                                     # Début de l'étiquette
+            ZPL+='^CI28 \n'                                   # Encodage en UTF-8
+            ZPL+='^PR3~SD25 \n'                               # PR4=Vitesse de 4 (sur 6) et SD30= Contraste à 30 => Pour imprimer sur du papier Plolypro avec un ruban transfert résine, il est nécessaire de mettre une valeur de chauffe (contraste) de la tête d impression entre 20 et 30 e
+            ZPL+='^LH170,35 \n'                               # Décalage x,y depuis le point supérieur gauche
+            ZPL+='^FO1,1 ^GB920,675,3,0,1^FS \n'              # Cadre de l'étiquette (Largeur, Hauteur, Epaisseur, Couleur, Arrondi) => 300pt = 2,54mm
+            size=40; x=15
+            now=time.strftime('%Y-%m-%d',time.gmtime())
+            y=40;  ZPL+=o.zpl_text(x,y,size,'ARTICLE : %s'%obj.name)
+            y+=50; ZPL+=o.zpl_text(x,y,size,'REF : %s'%(obj.default_code or ''))
+            y+=50; ZPL+=o.zpl_text(x,y,size,'DATE : %s'%now)
+            y+=50; ZPL+=o.zpl_text(x,y,size,'ID : %s'%obj.name)
+
+            lieu = "%s / %s / %s"%((obj.is_emplacement_lieu_id.name or ''),(obj.is_emplacement_etagere_id.name or ''),(obj.is_emplacement_niveau_id.name or ''),)
+            y+=50; ZPL+=o.zpl_text(x,y,size,'LIEU : %s'%lieu)
+            ZPL+='^XZ'  # Fin de l'étiquette
+            return ZPL
+
+    # is_emplacement_lieu_id    = fields.Many2one("is.emplacement.lieu", string="Lieu")
+    # is_emplacement_etagere_id = fields.Many2one("is.emplacement.etagere", string="Etagère")
+    # is_emplacement_niveau_id  = fields.Many2one("is.emplacement.niveau", string="Niveau")
+
+
+
+
     def imprimer_etiquette_direct(self):
         for obj in self:
-            etiquettes=self.generer_etiquette()
+            #etiquettes=self.generer_etiquette()
+            company = self.env.user.company_id
+            if company.is_type_imprimante=='zebra':
+                etiquettes=obj.generer_etiquette_zpl()
+            else:
+                etiquettes=obj.generer_etiquette()
             path="/tmp/etiquette.txt"
             err=""
             fichier = open(path, "w", encoding="windows-1252")

@@ -160,11 +160,16 @@ class is_ordre_travail(models.Model):
                         date_debut_ordre_production = tache.heure_debut
                     if tache.heure_fin>date_fin_ordre_production:
                         date_fin_ordre_production = tache.heure_fin
-            ordre.production_id.write({
-                "is_date_planifiee"    : date_debut_ordre_production,
-                "is_date_planifiee_fin": date_fin_ordre_production,
-                "date_planned_start"   : date_debut_ordre_production,
-            })
+
+
+            try:
+                ordre.production_id.write({
+                    "is_date_planifiee"    : date_debut_ordre_production,
+                    "is_date_planifiee_fin": date_fin_ordre_production,
+                    "date_planned_start"   : date_debut_ordre_production,
+                })
+            except:
+                print('ERR',ordre.name)
 
             #********************************************************************************
 

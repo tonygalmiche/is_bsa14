@@ -113,33 +113,8 @@ class mrp_workcenter(models.Model):
     is_ordre_travail_line_ids  = fields.One2many('is.ordre.travail.line', 'workcenter_id', 'Ordres de travail')
     is_fermeture_ids           = fields.One2many('is.mrp.workcenter.fermeture', 'workcenter_id', 'Fermetures')
     is_planning                = fields.Char("Planning")
-    is_activer_bouton_terminer = fields.Boolean("Activer bouton terminer", default=True, help="Activer le bouton pour terminer les opérations dans le suivi du temps de la tablette")
-
-
-    # def calculer_charge_action(self):
-    #     cr=self._cr
-    #     for obj in self:
-    #         for line in obj.is_temps_ouverture_ids:
-    #             SQL="""
-    #                 SELECT sum(hour)
-    #                 FROM mrp_production_workcenter_line
-    #                 WHERE 
-    #                     workcenter_id="""+str(obj.id)+""" and 
-    #                     is_date_debut=""""+str(line.date_ouverture)+"""" and
-    #                     state not in ("cancel","done")
-    #             """
-    #             cr.execute(SQL)
-    #             temps_planifie = 0.0
-    #             for row in cr.fetchall():
-    #                 temps_planifie = row[0] or 0.0
-    #             ecart = line.temps_ouverture - temps_planifie
-    #             charge = 100
-    #             if line.temps_ouverture>0:
-    #                 charge = 100*(temps_planifie / line.temps_ouverture)
-    #             line.temps_planifie = temps_planifie
-    #             line.ecart          = ecart
-    #             line.charge         = charge
-
+    is_activer_bouton_terminer = fields.Boolean("Activer bouton terminer"        , default=True , help="Activer le bouton pour terminer les opérations dans le suivi du temps de la tablette")
+    is_ne_pas_bloquer_solde    = fields.Boolean("Ne pas bloquer le solde de l’OF", default=False, help="Si cette case est cochée, il sera possible de solder l'OT et l'OF même si l'opération de ce poste de charge n'est pas terminée")
 
 
     def clear_fermeture_action(self):

@@ -165,9 +165,6 @@
             <field name="arch" type="xml">
                 <xpath expr="//sheet[1]" position="inside">
                     <style>
-                         .o_form_view .o_form_sheet_bg > .o_form_sheet{
-                            max-width: 1800px;
-                        }
                         .o_form_label{
                             white-space: nowrap;
                         }
@@ -180,36 +177,10 @@
                 <group  name="capacity" position="replace">
                     <group  string="Suivi du temps">
                         <field name="is_activer_bouton_terminer"/>
+                        <field name="is_ne_pas_bloquer_solde"/>
                     </group>
                 </group>              
                 <xpath expr="//label[@for='time_start']/.." position="replace"/>
-                <!-- <page name="general_info" position="after">
-                    <page string="Fermetures">
-                        <button name="clear_fermeture_action"    string="Clear"    title="Supprimer toutes les fermetures" type="object"  confirm="Voulez-vous vraiment supprimer toutes les fermetures" style="color:red" />
-                        <button name="fermeture_e1_action"       string="E1"       title="Fermeture Equipe 1" type="object" />
-                        <button name="fermeture_e2_action"       string="E2"       title="Fermeture Equipe 2" type="object" />
-                        <button name="fermeture_e3_action"       string="E3"       title="Fermeture Equipe 3" type="object" />
-                        <button name="fermeture_samedi_action"   string="Samedi"   title="Fermeture des samedis"   type="object" />
-                        <button name="fermeture_dimanche_action" string="Dimanche" title="Fermeture des dimanches" type="object" />
-                        <group />
-                        <field name="is_fermeture_ids" >
-                            <tree editable="bottom" limit="1000">
-                                <field name="date_debut"/>
-                                <field name="date_fin"/>
-                                <field name="motif"/>
-                             </tree>
-                        </field>
-                    </page>
-                    <page string="Planning">
-                        <button name="maj_planning_2J_action"  string="2J"  type="object" title="Mise à jour du planning sur 2 jours"/>
-                        <button name="maj_planning_5J_action"  string="5J"  type="object" title="Mise à jour du planning sur 5 jours"/>
-                        <button name="maj_planning_10J_action" string="10J" type="object" title="Mise à jour du planning sur 10 jours"/>
-                        <button name="maj_planning_20J_action" string="20J" type="object" title="Mise à jour du planning sur 20 jours"/>
-                        <group>
-                            <field name="is_planning" nolabel="1"  widget="html" readonly="1"/>
-                        </group>
-                    </page>
-                </page> -->
             </field>
         </record>
 
@@ -220,6 +191,7 @@
             <field name="arch" type="xml">
                 <field name="name" position="after">
                     <field name="is_activer_bouton_terminer"/>
+                    <field name="is_ne_pas_bloquer_solde"/>
                     <field name="costs_hour"/>
                 </field>
             </field>

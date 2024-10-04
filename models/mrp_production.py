@@ -169,6 +169,7 @@ class mrp_production(models.Model):
             if not any(production.move_raw_ids.mapped('quantity_done')):
                 raise UserError(_("You must indicate a non-zero amount consumed for at least one of your components"))
 
+
         #TODO : J'ai commenté ces lignes le 04/10/2023 pour désactver le wizard qui d'affiche si la nomenclature a changée
         #consumption_issues = self._get_consumption_issues()
         #if consumption_issues:
@@ -177,6 +178,10 @@ class mrp_production(models.Model):
         quantity_issues = self._get_quantity_produced_issues()
         if quantity_issues:
             return self._action_generate_backorder_wizard(quantity_issues)
+        
+
+
+
         return True
 
 

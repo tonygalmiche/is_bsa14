@@ -22,6 +22,20 @@ class is_ordre_travail(models.Model):
             obj.date_prevue = date_prevue
 
 
+    @api.depends('line_ids','line_ids.state','line_ids.ne_pas_bloquer_solde','production_id.state')
+    def _compute_of_a_solder(self):
+        for obj in self:
+            test=True
+            if obj.production_id.state not in ('cancel','done'):
+                for line in obj.line_ids:
+                    if line.state not in ('termine','annule') and line.ne_pas_bloquer_solde==False:
+                        test=False
+                        break
+            if test:
+                obj.state='termine'
+            obj.of_a_solder=test
+
+
     name                 = fields.Char("N°", readonly=True)
     createur_id          = fields.Many2one('res.users', 'Créateur', required=True, default=lambda self: self.env.user.id)
     date_creation        = fields.Date("Date de création"         , required=True, default=lambda *a: fields.Date.today())
@@ -29,8 +43,6 @@ class is_ordre_travail(models.Model):
     is_nom_affaire       = fields.Char(related="production_id.is_nom_affaire")
     procurement_group_id = fields.Many2one('procurement.group', "Groupe d'approvisionnement")
     quantite             = fields.Float('Qt prévue', digits=(14,2), readonly=True)
-    #date_prevue          = fields.Datetime('Date prévue' , related='production_id.date_planned_start')
-    #date_prevue          = fields.Datetime('Date client', related='production_id.is_date_prevue')
     date_prevue          = fields.Datetime('Date prévue', compute='_compute_date_prevue', store=True, readonly=True)
     product_id           = fields.Many2one('product.product', 'Article', related='production_id.product_id')
     bom_id               = fields.Many2one('mrp.bom', 'Nomenclature', related='production_id.bom_id')
@@ -38,7 +50,9 @@ class is_ordre_travail(models.Model):
             ('encours', 'En cours'),
             ('termine', 'Terminé'),
         ], "État", default='encours')
-    line_ids            = fields.One2many('is.ordre.travail.line', 'ordre_id', 'Lignes')
+    line_ids     = fields.One2many('is.ordre.travail.line', 'ordre_id', 'Lignes')
+    of_a_solder  = fields.Boolean('A solder', compute='_compute_of_a_solder', store=True, readonly=True, help="Indique si il est possible de solder l'OT et l'OF")
+    state_of     = fields.Selection(related='production_id.state', string='État OF')
 
 
     @api.model
@@ -46,6 +60,13 @@ class is_ordre_travail(models.Model):
         vals['name'] = self.env['ir.sequence'].next_by_code('is.ordre.travail')
         res = super(is_ordre_travail, self).create(vals)
         return res
+
+
+    def solder_ordre_travail_action(self):
+        for obj in self:
+            obj._compute_of_a_solder()
+            if obj.of_a_solder:
+                obj.state='termine'
 
 
     def get_heure_debut_fin(self,workcenter_id, duree, heure_debut=False, heure_fin=False, tache=False):
@@ -299,6 +320,7 @@ class is_ordre_travail_line(models.Model):
     sequence       = fields.Integer("Séquence"                              , required=True)
     ordre_planning = fields.Integer("Ordre", help="Ordre dans le planning")
     workcenter_id  = fields.Many2one('mrp.workcenter', 'Poste de Travail'   , required=True)
+    ne_pas_bloquer_solde = fields.Boolean(related='workcenter_id.is_ne_pas_bloquer_solde')
     recouvrement   = fields.Integer("Recouvrement (%)", required=True, default=0, help="0%: Cette ligne commence à la fin de la ligne précédente\n50%: Cette ligne commence quand la ligne précédente est terminée à 50%\n100%: Cette ligne commence en même temps que la ligne précédente" )
     tps_apres      = fields.Float("Tps passage après (HH:MN)", default=0, help="Temps d'attente après cette opération avant de commencer la suivante (en heures ouvrées)")
     duree_unitaire = fields.Float("Durée unitaire (HH:MM)"                      , required=True)
@@ -319,8 +341,6 @@ class is_ordre_travail_line(models.Model):
     afficher_start_stop = fields.Boolean("Afficher les boutons start/stop", compute="_compute_afficher_start_stop", readonly=True, store=False)
     commentaire     = fields.Text("Commentaire")
     commentaire_ids = fields.One2many('is.ordre.travail.line.commentaire', 'line_id', 'Commentaires')
-
-
 
 
     def _get_last_state(self):
@@ -442,6 +462,7 @@ class is_ordre_travail_line(models.Model):
             for line in obj.temps_passe_ids:
                 if not line.heure_fin:
                     line.heure_fin=now
+            obj.ordre_id.solder_ordre_travail_action()
         return True
 
 

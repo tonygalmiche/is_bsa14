@@ -67,6 +67,11 @@ class is_ordre_travail(models.Model):
             obj._compute_of_a_solder()
             if obj.of_a_solder:
                 obj.state='termine'
+                for line in obj.line_ids:
+                    line.state='termine'
+                qt = obj.production_id.product_qty
+                obj.production_id.declarer_une_fabrication_action(qt=qt)
+
 
 
     def get_heure_debut_fin(self,workcenter_id, duree, heure_debut=False, heure_fin=False, tache=False):

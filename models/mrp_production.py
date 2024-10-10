@@ -178,17 +178,15 @@ class mrp_production(models.Model):
         quantity_issues = self._get_quantity_produced_issues()
         if quantity_issues:
             return self._action_generate_backorder_wizard(quantity_issues)
-        
-
-
-
         return True
 
 
-    def declarer_une_fabrication_action(self):
+
+
+    def declarer_une_fabrication_action(self,qt=1):
         res=False
         for obj in self:
-            qt=1
+            #qt=1
             if obj.is_gestion_lot:
                 qt=obj.product_qty
             obj.qty_producing=qt

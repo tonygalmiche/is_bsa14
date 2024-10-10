@@ -90,6 +90,14 @@
             <field name="state">code</field>
             <field name="code">action = records.actualiser_facturable_action()</field>
         </record>
+        <record id="forcer_entierement_facture_action_server" model="ir.actions.server">
+            <field name="name">Forcer entièrement facturé</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="binding_model_id" ref="sale.model_sale_order"/>
+            <field name="binding_view_types">form</field>
+            <field name="state">code</field>
+            <field name="code">action = records.forcer_entierement_facture_action()</field>
+        </record>
         <record id="is_view_order_form" model="ir.ui.view">
             <field name="name">is.sale.order.form</field>
             <field name="model">sale.order</field>

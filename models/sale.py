@@ -401,6 +401,11 @@ class sale_order(models.Model):
             obj.order_line.actualiser_facturable_action()
 
 
+    def forcer_entierement_facture_action(self):
+        for obj in self:
+            obj.invoice_status='invoiced'
+
+
     def generer_facture_action(self):
         cr,uid,context,su = self.env.args
         for obj in self:

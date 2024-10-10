@@ -591,9 +591,14 @@
         />
         <menuitem id="bsa_affectation_gabarit_menu"   parent="mrp.menu_mrp_manufacturing" action="bsa_affectation_gabarit_action" sequence="10" />
         <menuitem id="mrp.menu_mrp_production_action" action="bsa_mrp_production_action" parent="mrp.menu_mrp_manufacturing" sequence="1"/>
-        <!-- <menuitem id="bsa_mrp_production_planification_menu" parent="mrp.menu_mrp_manufacturing" action="bsa_mrp_production_planification_action" sequence="11" /> -->
         <menuitem name="Gabarits" id="is_gabarit_menu" parent="mrp.menu_mrp_manufacturing" action="is_gabarit_action" sequence="90" />
-        <!-- <menuitem name="Dates postes de charge" id="is_mrp_workcenter_temps_ouverture_menu" parent="mrp.menu_mrp_manufacturing" action="is_mrp_workcenter_temps_ouverture_action" sequence="96" /> -->
+        <menuitem 
+            name="Valorisation encours" 
+            id="is_valorisation_encours_menu" 
+            parent="mrp.menu_mrp_manufacturing" 
+            action="is_valorisation_encours_action" 
+            sequence="92"
+        />
 
 
 

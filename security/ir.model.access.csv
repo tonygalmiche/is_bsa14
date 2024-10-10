@@ -238,3 +238,5 @@ access_is_situation,access_is_situation,model_is_situation,base.group_user,1,1,1
 
 access_is_resource_calendar_pause,access_is_resource_calendar_pause,model_is_resource_calendar_pause,base.group_user,1,1,1,1
 
+access_is_valorisation_encours,access_is_valorisation_encours,model_is_valorisation_encours,sales_team.group_sale_manager,1,1,1,1
+access_is_valorisation_encours_ligne,access_is_valorisation_encours_ligne,model_is_valorisation_encours_ligne,sales_team.group_sale_manager,1,1,1,1

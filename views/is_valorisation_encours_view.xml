@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- is.valorisation.encours.ligne -->
+        <record id="is_valorisation_encours_ligne_tree" model="ir.ui.view">
+            <field name="name">is.valorisation.encours.ligne.tree</field>
+            <field name="model">is.valorisation.encours.ligne</field>
+            <field name="arch" type="xml">
+                <tree editable="top">
+                    <field name="valorisation_id" invisible="1"/>
+                    <field name="production_id"       optional="show" widget="many2one_clickable"/>
+                    <field name="ordre_id"            optional="show" widget="many2one_clickable"/>
+                    <field name="order_id"            optional="show" widget="many2one_clickable"/>
+                    <field name="order_line_id"       optional="show" widget="many2one_clickable"/>
+                    <field name="temps_restant"       optional="show" sum="Total"/>
+                    <field name="prix_vente"          optional="show"/>
+                    <field name="montant_facture"     optional="show" sum="Total"/>
+                    <field name="reste_a_facturer"    optional="show" sum="Total"/>
+                    <field name="montant_tps_restant" optional="show" sum="Total"/>
+                    <field name="reste"               optional="show" sum="Total"/>
+                    <field name="abattement"          optional="show" sum="Total"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_valorisation_encours_ligne_search" model="ir.ui.view">
+            <field name="name">is.valorisation.encours.ligne.search</field>
+            <field name="model">is.valorisation.encours.ligne</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="production_id"/>
+                    <field name="ordre_id"/>
+                    <field name="order_id"/>
+               </search>
+            </field>
+        </record>
+        <record  id="is_valorisation_encours_ligne_action" model="ir.actions.act_window">
+            <field name="name">Détail des lignes</field>
+            <field name="res_model">is.valorisation.encours.ligne</field>
+            <field name="limit">1000</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('valorisation_id','=',active_id)]</field>
+            <field name="context">{'default_valorisation_id': active_id}</field>
+        </record>
+
+        <!-- is.valorisation.encours -->
+        <record id="is_valorisation_encours_seq" model="ir.sequence">
+            <field name="name">Valorisation encours</field>
+            <field name="code">is.valorisation.encours</field>
+            <field name="padding">4</field>
+            <field eval="False" name="company_id"/>
+        </record>
+        <record id="is_valorisation_encours_tree" model="ir.ui.view">
+            <field name="name">is.valorisation.encours.tree</field>
+            <field name="model">is.valorisation.encours</field>
+            <field name="arch" type="xml">
+                <tree >
+                    <field name="name" />
+                    <field name="create_date"/>
+                    <field name="create_uid"/>
+                    <field name="write_date"/>
+                    <field name="write_uid"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_valorisation_encours_form" model="ir.ui.view">
+            <field name="name">is.valorisation.encours.form</field>
+            <field name="model">is.valorisation.encours</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <field name="ligne_ids" invisible="1"/>
+                        <button name="generer_ligne_action"                     type="object" string="Générer les lignes"   attrs="{'invisible':[('ligne_ids','!=',[])]}"/>
+                        <button name="%(is_valorisation_encours_ligne_action)d" type="action" string="Voir les lignes"      attrs="{'invisible':[('ligne_ids','=' ,[])]}"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" />
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_valorisation_encours_search" model="ir.ui.view">
+            <field name="name">is.valorisation.encours.search</field>
+            <field name="model">is.valorisation.encours</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+               </search>
+            </field>
+        </record>
+        <record id="is_valorisation_encours_action" model="ir.actions.act_window">
+            <field name="name">Valorisation encours</field>
+            <field name="res_model">is.valorisation.encours</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>

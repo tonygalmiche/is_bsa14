@@ -74,6 +74,7 @@ class is_ordre_travail(models.Model):
 
 
 
+
     def get_heure_debut_fin(self,workcenter_id, duree, heure_debut=False, heure_fin=False, tache=False):
         cr=self._cr
         """Rechercher l'heure de fin si l'heure de début est fourni en fonction de la duree et des dispos et vis et versa"""
@@ -510,11 +511,15 @@ class is_ordre_travail_line_temps_passe(models.Model):
 class is_ordre_travail_line_commentaire(models.Model):
     _name='is.ordre.travail.line.commentaire'
     _description='Commentaires Ligne Ordre de travail'
+    _order='id desc'
 
     line_id     = fields.Many2one('is.ordre.travail.line', 'Ligne ordre de travail', required=True, ondelete='cascade')
+    ordre_id    = fields.Many2one(related='line_id.ordre_id')
     employe_id  = fields.Many2one("hr.employee", "Opérateur", required=True, default=lambda self: self.get_employe())
     date        = fields.Datetime("Date"                    , required=True, default=fields.Datetime.now)
     commentaire = fields.Text("Commentaire")
+    date_lu     = fields.Datetime("Lu le")
+
 
     def get_employe(self):
         employe_id=False
@@ -526,3 +531,7 @@ class is_ordre_travail_line_commentaire(models.Model):
             employe_id=employe.id
         return employe_id
 
+
+    def marquer_comme_lu_action(self):
+        for obj in self:
+            obj.date_lu = datetime.now()

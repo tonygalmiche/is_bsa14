@@ -238,10 +238,6 @@
                     </tree>
                </field>
           </record>
-
-
-
-
           <record model="ir.ui.view" id="is_ordre_travail_line_calendar_view" >
                <field name="name">is_ordre_travail_line_calendar_view</field>
                <field name="model">is.ordre.travail.line</field>
@@ -293,51 +289,18 @@
                          <field name="workcenter_id"/> 
                          <field name="state"/> 
                          <field name="date_prevue"/> 
-
                          <templates>
                               <t t-name="timeline-item">
-
-
-
-
                                    <div class="o_project_timeline_item">
                                         <span name="display_name">
                                              <t t-esc="record.display_name"/> (<t t-esc="record.date_prevue"/>)(<t t-esc="record.state"/>)
                                         </span>
-                                        <!-- <small name="date_prevue" class="text-info ml4">
-                                             <t t-esc="field_utils.format.float_time(record.date_prevue)"/>
-                                        </small> -->
                                    </div>
                               </t>
                          </templates>
-
-
                     </timeline>
-
-
                </field>
           </record>
-
-<!-- 
-<timeline date_start="date_start" date_stop="date_end" default_group_by="project_id" event_open_popup="true" colors="#ec7063: user_id == false; #2ecb71: kanban_state == 'done';">
-                <field name="user_id"/>
-                <field name="planned_hours"/>
-                <templates>
-                    <t t-name="timeline-item">
-                        <div class="o_project_timeline_item">
-                            <img t-if="record.user_id" t-attf-src="/web/image/res.users/#{record.user_id[0]}/image_128/16x16" t-att-title="record.user_id[1]" width="16" height="16" class="mr8" alt="User"/>
-                            <span name="display_name">
-                                <t t-esc="record.display_name"/>
-                            </span>
-                            <small name="planned_hours" class="text-info ml4">
-                                <t t-esc="field_utils.format.float_time(record.planned_hours)"/>
-                            </small>
-                        </div>
-                    </t>
-                </templates>
-            </timeline> -->
-
-
           <record model="ir.ui.view" id="is_ordre_travail_line_filter_view" >
                <field name="name">is_ordre_travail_line_filter_view</field>
                <field name="model">is.ordre.travail.line</field>
@@ -356,6 +319,54 @@
                <field name="name">Lignes ordres de travail</field>
                <field name="res_model">is.ordre.travail.line</field>
                <field name="view_mode">tree,form,calendar,pivot,graph,timeline</field>
+          </record>
+
+
+          <!-- is.ordre.travail.line.commentaire --> 
+          <record id="marquer_comme_lu_action_server" model="ir.actions.server">
+               <field name="name">Marquer comme lu</field>
+               <field name="model_id" ref="model_is_ordre_travail_line_commentaire"/>
+               <field name="binding_model_id" ref="model_is_ordre_travail_line_commentaire"/>
+               <field name="state">code</field>
+               <field name="code">action = records.marquer_comme_lu_action()</field>
+           </record>
+          <record model="ir.ui.view" id="is_ordre_travail_line_commentaire_tree_view">
+               <field name="name">is_ordre_travail_line_commentaire_tree_view</field>
+               <field name="model">is.ordre.travail.line.commentaire</field>
+               <field name="type">tree</field>
+               <field name="arch" type="xml">
+                    <tree>
+                         <field name="id"          optional="show"/> 
+                         <field name="ordre_id"    optional="show" widget="many2one_clickable"/> 
+                         <field name="line_id"     optional="show" widget="many2one_clickable"/> 
+                         <field name="employe_id"  optional="show" widget="many2one_clickable"/> 
+                         <field name="date"        optional="show"/> 
+                         <field name="commentaire"/> 
+                         <button title="Marqué comme lu" name= "marquer_comme_lu_action" type="object" icon="fa-check "  attrs="{'invisible':[('date_lu','!=',False)]}"/>
+                         <field name="date_lu"/> 
+                         <field name="create_date" optional="hide"/> 
+                         <field name="write_date"  optional="hide"/> 
+                    </tree>
+               </field>
+          </record>
+          <record model="ir.ui.view" id="is_ordre_travail_line_commentaire_search_view" >
+               <field name="name">is_ordre_travail_line_commentaire_search_view</field>
+               <field name="model">is.ordre.travail.line.commentaire</field>
+               <field name="arch" type="xml">
+                    <search>
+                         <field name="ordre_id"/> 
+                         <field name="line_id"/> 
+                         <field name="employe_id"/> 
+                         <field name="commentaire"/> 
+                         <filter string="Non lu" name="non_lu" domain="[('date_lu','=',False)]" />
+                    </search>
+               </field>
+          </record>
+          <record model="ir.actions.act_window" id="is_ordre_travail_line_commentaire_action">
+               <field name="name">Commentaires Ordres de travail</field>
+               <field name="res_model">is.ordre.travail.line.commentaire</field>
+               <field name="view_mode">tree</field>
+               <field name="context">{"search_default_non_lu":1}</field>
           </record>
      </data>
 </odoo>

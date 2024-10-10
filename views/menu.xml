@@ -640,6 +640,13 @@
             action="is_ordre_travail_line_action"
             sequence="60"
         />
+        <menuitem 
+            name="Commentaires Ordres de travail"
+            id="is_ordre_travail_line_commentaire_menu"
+            parent="mrp.mrp_planning_menu_root" 
+            action="is_ordre_travail_line_commentaire_action"
+            sequence="70"
+        />
 
 
 

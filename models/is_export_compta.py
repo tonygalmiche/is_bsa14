@@ -74,19 +74,20 @@ class is_export_compta(models.Model):
                         rp.is_code_client,
                         sum(aml.debit), 
                         sum(aml.credit),
-                        rp.id partner_id 
+                        rp.id partner_id,
+                        ai.id
                     FROM account_move_line aml inner join account_move ai      on aml.move_id=ai.id
                                                inner join account_account aa   on aml.account_id=aa.id
                                                inner join res_partner rp       on ai.partner_id=rp.id
                     WHERE ai.id=%s
-                    GROUP BY ai.invoice_date, ai.name, rp.id, rp.name, aa.code, ai.move_type, rp.is_code_client, ai.invoice_date_due
-                    ORDER BY ai.invoice_date, ai.name, rp.id, rp.name, aa.code, ai.move_type, rp.is_code_client, ai.invoice_date_due
+                    GROUP BY ai.invoice_date, ai.name, rp.id, rp.name, aa.code, ai.move_type, rp.is_code_client, ai.invoice_date_due, ai.id
+                    ORDER BY ai.invoice_date, ai.name, rp.id, rp.name, aa.code, ai.move_type, rp.is_code_client, ai.invoice_date_due, ai.id
                 """
                 cr.execute(sql,[invoice.id])
                 for row in cr.fetchall():
-                    compte=str(row[1])
+                    compte=str(row[1] or '')
                     if obj.type_interface=='ventes' and compte=='411100':
-                        compte=str(row[5])
+                        compte=str(row[5] or '')
                     vals={
                         'export_compta_id'  : obj.id,
                         'date_facture'      : row[0],
@@ -99,7 +100,7 @@ class is_export_compta(models.Model):
                         'piece'             : row[2],
                         'commentaire'       : False,
                         'partner_id'        : row[8],
-
+                        'invoice_id'        : row[9],
                     }
                     self.env['is.export.compta.ligne'].create(vals)
             if obj.format_export=='cegid':
@@ -228,7 +229,8 @@ class is_export_compta_ligne(models.Model):
     credit           = fields.Float("Crédit")
     devise           = fields.Char("Devise")
     commentaire      = fields.Char("Commentaire")
-    partner_id       = fields.Many2one('res.partner', u'Partenaire')
+    partner_id       = fields.Many2one('res.partner', 'Partenaire')
+    invoice_id       = fields.Many2one('account.move', 'Facture')
 
     _defaults = {
         'journal': 'VTE',

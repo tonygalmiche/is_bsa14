@@ -7,16 +7,17 @@
             <field name="model">is.export.compta.ligne</field>
             <field name="arch" type="xml">
                 <tree editable="top">
-                    <field name="date_facture" />
-                    <field name="journal" />
-                    <field name="partner_id" />
-                    <field name="compte" />
-                    <field name="piece" />
-                    <field name="libelle" />
-                    <field name="debit"  sum="Total"/>
-                    <field name="credit" sum="Total"/>
-                    <field name="devise" />
-                    <field name="commentaire" />
+                    <field name="date_facture" optional="show"/>
+                    <field name="journal"      optional="show"/>
+                    <field name="partner_id"   optional="show"  widget="many2one_clickable"/>
+                    <field name="compte"       optional="show" />
+                    <field name="piece"        optional="show" />
+                    <field name="invoice_id"   optional="show"  widget="many2one_clickable"/>
+                    <field name="libelle"      optional="show" />
+                    <field name="debit"        optional="show" sum="Total"/>
+                    <field name="credit"       optional="show" sum="Total"/>
+                    <field name="devise"       optional="show"/>
+                    <field name="commentaire"  optional="show"/>
                 </tree>
             </field>
         </record>
@@ -51,6 +52,7 @@
             <field name="arch" type="xml">
                 <search>
                     <field name="compte"/>
+                    <field name="invoice_id"/>
                     <field name="partner_id" />
                     <field name="piece"/>
                     <field name="libelle"/>

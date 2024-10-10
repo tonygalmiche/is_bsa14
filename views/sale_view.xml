@@ -7,25 +7,24 @@
             <field name="model">sale.order.line</field>
             <field name="arch" type="xml">
                 <tree string="Sales Order Lines" editable="top">
-                    <field name="product_id"                   invisible="1"/>
-                    <field name="order_id"                     optional="show" readonly="True"/>
-                    <field name="order_partner_id"             optional="show" readonly="True"/>
-                    <field name="is_client_order_ref"          optional="show" readonly="True"/>
-                    <field name="name"                         optional="show" readonly="True"/>
-                    <field name="is_date_demandee"             optional="show"/>
-                    <field name="is_date_prevue"               optional="show"/>
-                    <field name="is_derniere_date_prevue"      optional="show"/>
-                    <field name="product_uom_qty" string="Qt commandée" readonly="True" optional="show"/>
+                    <field name="product_id" invisible="1"/>
+                    <field name="order_id"                       optional="show" readonly="True"/>
+                    <field name="order_partner_id"               optional="show" readonly="True"/>
+                    <field name="is_client_order_ref"            optional="show" readonly="True"/>
+                    <field name="name"                           optional="show" readonly="True"/>
+                    <field name="is_date_demandee"               optional="show"/>
+                    <field name="is_date_prevue"                 optional="show"/>
+                    <field name="is_derniere_date_prevue"        optional="show"/>
+                    <field name="product_uom_qty"                optional="show" string="Qt commandée" readonly="True"/>
+                    <field name="qty_delivered"  readonly="True" optional="show"/>
                     <field name="qty_to_deliver" readonly="True" optional="show"/>
                     <field name="qty_invoiced"                   optional="hide"/>
-                    <field name="is_fabrication_prevue" optional="show"/>
-                    <field name="is_reste"              optional="show"/>
-                    <field name="is_production_id"            optional="show"/>
-                    <field name="salesman_id" readonly="True" optional="show"/>
-                    <!-- <field name="is_remise1" readonly="True" optional="hide"/>
-                    <field name="is_remise2" readonly="True" optional="hide"/> -->
-                    <field name="discount"   readonly="True" optional="hide"/>
-                    <field name="price_subtotal" sum="Total"  optional="show" readonly="True"/>
+                    <field name="is_fabrication_prevue"          optional="show"/>
+                    <field name="is_reste"                       optional="show"/>
+                    <field name="is_production_id"               optional="show"/>
+                    <field name="salesman_id" readonly="True"    optional="show"/>
+                    <field name="discount"   readonly="True"     optional="hide"/>
+                    <field name="price_subtotal" sum="Total"     optional="show" readonly="True"/>
                     <field name="is_facturable_pourcent"    sum="Total"  optional="hide"/>
                     <field name="is_facture_avant_pourcent" sum="Total"  optional="hide"/>
                     <field name="is_deja_facture_pourcent"  sum="Total"  optional="hide"/>

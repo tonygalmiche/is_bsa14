@@ -247,5 +247,106 @@
 
 
 
+
+
+    
+
+        <!-- is.suivi.temps.article -->
+        <record id="is_suivi_temps_article_form_view" model="ir.ui.view">
+            <field name="name">is_suivi_temps_article_form_view</field>
+            <field name="model">is.suivi.temps.article</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="product_id"/>
+                                <field name="is_cuve_niveau_complexite"/>
+                                <field name="is_type_cuve_id"/>
+                                <field name="is_finition_cuve_ids"/>
+                                <field name="is_volume_cuve_id"/>
+                                <field name="is_nom_affaire"/>
+                                <field name="production_id"/>
+                                <field name="is_client_order_ref"/>
+                                <field name="is_sale_order_line_id"/>
+                                <field name="is_sale_order_id"/>
+                                <field name="bom_id"/>
+                                <field name="date_prevue"/>
+                                <field name="ordre_id"/>
+                                <field name="duree_totale" widget="float_time"/>
+                                <field name="temps_passe"  widget="float_time"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_suivi_temps_article_tree_view" model="ir.ui.view">
+            <field name="name">is_suivi_temps_article_tree_view</field>
+            <field name="model">is.suivi.temps.article</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="product_id"                optional="show" widget="many2one_clickable"/>
+                    <field name="is_cuve_niveau_complexite" optional="show"/>
+                    <field name="is_type_cuve_id"           optional="show"/>
+                    <field name="is_finition_cuve_ids"      optional="show" widget="many2many_tags"/>
+                    <field name="is_volume_cuve_id"         optional="show"/>
+                    <field name="is_nom_affaire"            optional="show"/>
+                    <field name="production_id"             optional="show" widget="many2one_clickable"/>
+                    <field name="is_client_order_ref"       optional="hide"/>
+                    <field name="is_sale_order_line_id"     optional="hide" widget="many2one_clickable"/>
+                    <field name="is_sale_order_id"          optional="hide" widget="many2one_clickable"/>
+                    <field name="bom_id"                    optional="hide" widget="many2one_clickable"/>
+                    <field name="date_prevue"               optional="show"/>
+                    <field name="ordre_id"                  optional="show" widget="many2one_clickable"/>
+                    <field name="duree_totale"              optional="show" widget="float_time" sum="Total"/>
+                    <field name="temps_passe"               optional="show" widget="float_time" sum="Total"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_suivi_temps_article_search_view" model="ir.ui.view">
+            <field name="name">is_suivi_temps_article_search_view</field>
+            <field name="model">is.suivi.temps.article</field>
+            <field name="arch" type="xml">
+                <search string="Recherche">
+                    <field name="product_id"/>
+                    <field name="is_cuve_niveau_complexite"/>
+                    <field name="is_type_cuve_id"/>
+                    <field name="is_volume_cuve_id"/>
+                    <field name="is_finition_cuve_ids"  widget="many2many_tags"/>
+                    <field name="is_nom_affaire"/>
+                    <field name="production_id"/>
+                    <field name="is_client_order_ref"/>
+                    <field name="is_sale_order_id"/>
+                    <field name="ordre_id"/>
+                </search>
+            </field>
+        </record>
+        <record id="is_suivi_temps_article_graph_view" model="ir.ui.view">
+            <field name="name">is_suivi_temps_article_graph_view</field>
+            <field name="model">is.suivi.temps.article</field>
+            <field name="arch" type="xml">
+                <graph string="pivot">
+                    <field name="is_type_cuve_id"/>
+                    <field name="duree_totale" type="measure"/>
+                </graph>
+            </field>
+        </record>
+        <record id="is_suivi_temps_article_pivot_view" model="ir.ui.view">
+            <field name="name">is_suivi_temps_article_pivot_view</field>
+            <field name="model">is.suivi.temps.article</field>
+            <field name="arch" type="xml">
+                <pivot string="pivot">
+                    <field name="is_type_cuve_id" type="row"/>
+                    <field name="duree_totale"   type="measure"/>
+                    <field name="temps_passe"    type="measure"/>
+                </pivot>
+            </field>
+        </record>
+        <record id="is_suivi_temps_article_action" model="ir.actions.act_window">
+            <field name="name">Suivi du temps par article</field>
+            <field name="res_model">is.suivi.temps.article</field>
+            <field name="view_mode">tree,form,graph,pivot</field>
+        </record>
     </data>
 </odoo>

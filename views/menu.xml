@@ -807,13 +807,26 @@
             parent="is_suivi_temps_production_main_menu" 
             action="is_suivi_temps_prevu_affaire_action"
         />
+
+        <menuitem 
+            id="is_suivi_temps_article_menu" 
+            sequence="40" 
+            name="Suivi du temps par article" 
+            parent="is_suivi_temps_production_main_menu" 
+            action="is_suivi_temps_article_action"
+        />
+
+
         <menuitem 
             id="is_analyse_temps_declare_menu" 
-            sequence="40" 
+            sequence="50" 
             name="Analyse temps déclaré" 
             parent="is_suivi_temps_production_main_menu" 
             action="is_analyse_temps_declare_action"
         />
+
+
+
 
 
         <!-- Projets -->

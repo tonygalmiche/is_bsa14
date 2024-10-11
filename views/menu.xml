@@ -825,6 +825,16 @@
             action="is_analyse_temps_declare_action"
         />
 
+        <menuitem 
+            id="is_supervision_atelier_menu" 
+            sequence="60" 
+            name="Supervision atelier" 
+            parent="is_suivi_temps_production_main_menu" 
+            action="is_supervision_atelier_action_server"
+        />
+
+
+        
 
 
 

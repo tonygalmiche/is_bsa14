@@ -17,6 +17,7 @@
                     <page string="BSA">
                         <group>
                             <field name="is_site"/>
+                            <field name="is_bdd_pointage"/>
                             <field name="is_type_imprimante"/>
                             <field name="is_nom_imprimante"/>
                             <field name="is_imprimante_bl"/>

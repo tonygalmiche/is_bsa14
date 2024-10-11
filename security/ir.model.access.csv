@@ -246,3 +246,5 @@ access_is_analyse_temps_declare,access_is_analyse_temps_declare,model_is_analyse
 access_is_analyse_temps_declare_ligne,access_is_analyse_temps_declare_ligne,model_is_analyse_temps_declare_ligne,hr.group_hr_manager,1,1,1,1
 
 access_is_suivi_temps_article,access_is_suivi_temps_article,model_is_suivi_temps_article,base.group_user,1,0,0,0
+
+access_is_supervision_atelier,access_is_supervision_atelier,model_is_supervision_atelier,base.group_user,1,1,1,1

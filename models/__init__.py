@@ -50,3 +50,4 @@ from . import is_suivi_temps_production
 from . import is_sav
 from . import is_valorisation_encours
 from . import is_analyse_temps_declare
+from . import is_supervision_atelier

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- is.supervision.atelier -->
+
+        <record id="is_supervision_atelier_action_server" model="ir.actions.server">
+            <field name="name">Supervision atelier</field>
+            <field name="model_id" ref="model_is_supervision_atelier"/>
+            <field name="binding_model_id" ref=""/>
+            <field name="state">code</field>
+            <field name="code">action = model.is_supervision_atelier_action()</field>
+        </record>
+        <record id="is_supervision_atelier_tree" model="ir.ui.view">
+            <field name="name">is.supervision.atelier.tree</field>
+            <field name="model">is.supervision.atelier</field>
+            <field name="arch" type="xml">
+                <tree >
+                    <field name="employe_id"     widget="many2one_clickable"/>
+                    <field name="department_id"/>
+                    <field name="debut_pointage"/>
+                    <field name="workcenter_id"  widget="many2one_clickable"/>
+                    <field name="ligne_ot_id"    widget="many2one_clickable"/>
+                    <field name="debut_poste"/>
+                    <field name="temps_restant"  widget="float_time"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_supervision_atelier_search" model="ir.ui.view">
+            <field name="name">is.supervision.atelier.search</field>
+            <field name="model">is.supervision.atelier</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="employe_id"/>
+                    <field name="department_id"/>
+                    <filter string="Poste en cours" name="poste_en_cours" domain="[('debut_poste','!=',False)]" />
+               </search>
+            </field>
+        </record>
+    </data>
+</odoo>

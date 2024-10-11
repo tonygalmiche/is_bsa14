@@ -807,11 +807,14 @@
             parent="is_suivi_temps_production_main_menu" 
             action="is_suivi_temps_prevu_affaire_action"
         />
+        <menuitem 
+            id="is_analyse_temps_declare_menu" 
+            sequence="40" 
+            name="Analyse temps déclaré" 
+            parent="is_suivi_temps_production_main_menu" 
+            action="is_analyse_temps_declare_action"
+        />
 
-
-
-
-        
 
         <!-- Projets -->
         <menuitem   

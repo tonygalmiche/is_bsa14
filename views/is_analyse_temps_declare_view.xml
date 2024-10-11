@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- is.analyse.temps.declare.ligne -->
+        <record id="is_analyse_temps_declare_ligne_tree" model="ir.ui.view">
+            <field name="name">is.analyse.temps.declare.ligne.tree</field>
+            <field name="model">is.analyse.temps.declare.ligne</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="analyse_id" invisible="1"/>
+                    <field name="employe_id"    optional="show" widget="many2one_clickable"/>
+                    <field name="temps_prevu"   optional="show" sum="Total" widget="float_time"/>
+                    <field name="temps_declare" optional="show" sum="Total" widget="float_time"/>
+                    <button name="voir_temps_declare_action" type="object" icon="fa-list" title="Voir les temps déclarés" attrs="{'invisible': [('temps_declare', '=', 0)]}"/>
+                    <field name="ecart"         optional="show" sum="Total" widget="float_time"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_analyse_temps_declare_ligne_search" model="ir.ui.view">
+            <field name="name">is.analyse.temps.declare.ligne.search</field>
+            <field name="model">is.analyse.temps.declare.ligne</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="employe_id"/>
+               </search>
+            </field>
+        </record>
+        <record  id="is_analyse_temps_declare_ligne_action" model="ir.actions.act_window">
+            <field name="name">Détail des lignes</field>
+            <field name="res_model">is.analyse.temps.declare.ligne</field>
+            <field name="limit">1000</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('analyse_id','=',active_id)]</field>
+            <field name="context">{'default_analyse_id': active_id}</field>
+        </record>
+
+        <!-- is.analyse.temps.declare -->
+        <record id="is_analyse_temps_declare_seq" model="ir.sequence">
+            <field name="name">Analyse temps déclaré</field>
+            <field name="code">is.analyse.temps.declare</field>
+            <field name="padding">4</field>
+            <field eval="False" name="company_id"/>
+        </record>
+        <record id="is_analyse_temps_declare_tree" model="ir.ui.view">
+            <field name="name">is.analyse.temps.declare.tree</field>
+            <field name="model">is.analyse.temps.declare</field>
+            <field name="arch" type="xml">
+                <tree >
+                    <field name="name" />
+                    <field name="date_debut"/>
+                    <field name="date_fin"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_analyse_temps_declare_form" model="ir.ui.view">
+            <field name="name">is.analyse.temps.declare.form</field>
+            <field name="model">is.analyse.temps.declare</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <field name="ligne_ids" invisible="1"/>
+                        <button name="generer_ligne_action"                      type="object" string="Générer les lignes"   attrs="{'invisible':[('ligne_ids','!=',[])]}"/>
+                        <button name="%(is_analyse_temps_declare_ligne_action)d" type="action" string="Voir les lignes"      attrs="{'invisible':[('ligne_ids','=' ,[])]}"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" />
+                                <field name="date_debut" />
+                                <field name="date_fin" />
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_analyse_temps_declare_search" model="ir.ui.view">
+            <field name="name">is.analyse.temps.declare.search</field>
+            <field name="model">is.analyse.temps.declare</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+               </search>
+            </field>
+        </record>
+        <record id="is_analyse_temps_declare_action" model="ir.actions.act_window">
+            <field name="name">Analyse temps déclaré</field>
+            <field name="res_model">is.analyse.temps.declare</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>

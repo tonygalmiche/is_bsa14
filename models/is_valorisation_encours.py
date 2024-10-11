@@ -26,11 +26,14 @@ class is_valorisation_encours(models.Model):
             ]
             productions=self.env['mrp.production'].search(domain, order='name')
             for production in productions:
-                temps_restant=0
+                temps_restant=temps_passe=0
                 for line in production.is_ordre_travail_id.line_ids:
+                    temps_passe+=line.temps_passe
                     temps_restant+=line.reste
                 if temps_restant<0:
                     temps_restant=0
+                if temps_passe<0:
+                    temps_passe=0
 
                 order_line_id       = production.is_sale_order_line_id
                 montant_facture     = order_line_id.price_subtotal * order_line_id.qty_invoiced
@@ -43,6 +46,7 @@ class is_valorisation_encours(models.Model):
                     'ordre_id'           : production.is_ordre_travail_id.id,
                     'order_id'           : production.is_sale_order_id.id,
                     'order_line_id'      : order_line_id.id,
+                    'temps_passe'        : temps_passe, 
                     'temps_restant'      : temps_restant, 
                     'prix_vente'         : production.product_id.lst_price,
                     'montant_facture'    : montant_facture,
@@ -64,6 +68,7 @@ class is_valorisation_encours_ligne(models.Model):
     ordre_id            = fields.Many2one('is.ordre.travail', 'OT')
     order_id            = fields.Many2one('sale.order', 'Commande')
     order_line_id       = fields.Many2one('sale.order.line', 'Ligne de commande')
+    temps_passe         = fields.Float("Temps passé (HH:MM)")
     temps_restant       = fields.Float("Temps restant (HH:MM)")
     prix_vente          = fields.Float("Prix vente"     , digits='Product Price')
     montant_facture     = fields.Float("Montant facturé" , digits=(14,2), help="Montant facturé (Situation)")

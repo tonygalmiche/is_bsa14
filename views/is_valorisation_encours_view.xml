@@ -12,6 +12,7 @@
                     <field name="ordre_id"            optional="show" widget="many2one_clickable"/>
                     <field name="order_id"            optional="show" widget="many2one_clickable"/>
                     <field name="order_line_id"       optional="show" widget="many2one_clickable"/>
+                    <field name="temps_passe"         optional="show" sum="Total"/>
                     <field name="temps_restant"       optional="show" sum="Total"/>
                     <field name="prix_vente"          optional="show"/>
                     <field name="montant_facture"     optional="show" sum="Total"/>
@@ -30,6 +31,7 @@
                     <field name="production_id"/>
                     <field name="ordre_id"/>
                     <field name="order_id"/>
+                    <filter string="OT en cours" name="ot_en_cours" domain="[('temps_passe','&gt;',0.1)]" />
                </search>
             </field>
         </record>
@@ -39,7 +41,11 @@
             <field name="limit">1000</field>
             <field name="view_mode">tree,form</field>
             <field name="domain">[('valorisation_id','=',active_id)]</field>
-            <field name="context">{'default_valorisation_id': active_id}</field>
+            <field name="context">{
+                    'default_valorisation_id': active_id,
+                    'search_default_ot_en_cours':1,
+                }
+            </field>
         </record>
 
         <!-- is.valorisation.encours -->

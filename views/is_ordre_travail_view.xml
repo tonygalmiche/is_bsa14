@@ -47,6 +47,7 @@
                               <group>
                                    <field name="createur_id"/> 
                                    <field name="date_creation"/> 
+                                   <field name="heure_debut_reelle"/> 
                               </group>
                          </group>
                          <field name="line_ids" context="{'tree_view_ref':'is_bsa14.is_ordre_travail_line_tree_view'}"/>
@@ -67,6 +68,7 @@
                          <field name="bom_id"               optional="show" widget="many2one_clickable"/>
                          <field name="quantite"             optional="show"/>
                          <field name="date_prevue"          optional="show"/>
+                         <field name="heure_debut_reelle"   optional="show"/>
                          <field name="createur_id"          optional="show"/>
                          <field name="date_creation"        optional="show"/>
                          <field name="state_of"             optional="show"/>
@@ -201,14 +203,15 @@
                          <field name="ne_pas_bloquer_solde"                           optional="hide"/> 
                          <field name="libre"          widget="boolean_toggle"         optional="show"/>
                          <field name="recouvrement"                                   optional="hide"/>
-                         <field name="tps_apres"      widget="float_time" sum="Total" optional="show"/>
-                         <field name="duree_unitaire" widget="float_time" sum="Total" optional="hide"/>
-                         <field name="duree_totale"   widget="float_time" sum="Total" optional="show"/>
-                         <field name="temps_passe"    widget="float_time" sum="Total" optional="show"/>
-                         <field name="reste"          widget="float_time" sum="Total" optional="show"/>
-                         <field name="duree_reelle"   widget="float_time" sum="Total" optional="hide"/>
-                         <field name="heure_debut" readonly="1" optional="show"/>
-                         <field name="heure_fin"   readonly="1" optional="show"/>
+                         <field name="tps_apres"          widget="float_time" sum="Total" optional="show"/>
+                         <field name="duree_unitaire"     widget="float_time" sum="Total" optional="hide"/>
+                         <field name="duree_totale"       widget="float_time" sum="Total" optional="show"/>
+                         <field name="temps_passe"        widget="float_time" sum="Total" optional="show"/>
+                         <field name="reste"              widget="float_time" sum="Total" optional="show"/>
+                         <field name="duree_reelle"       widget="float_time" sum="Total" optional="hide"/>
+                         <field name="heure_debut"                           readonly="1" optional="show"/>
+                         <field name="heure_fin"                             readonly="1" optional="show"/>
+                         <field name="heure_debut_reelle"                                 optional="show"/>
                          <field name="afficher_start_stop" invisible="1"/>
                          <button 
                          name="start_action" 

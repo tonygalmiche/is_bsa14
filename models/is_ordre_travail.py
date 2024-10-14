@@ -50,9 +50,23 @@ class is_ordre_travail(models.Model):
             ('encours', 'En cours'),
             ('termine', 'Terminé'),
         ], "État", default='encours')
-    line_ids     = fields.One2many('is.ordre.travail.line', 'ordre_id', 'Lignes')
-    of_a_solder  = fields.Boolean('A solder', compute='_compute_of_a_solder', store=True, readonly=True, help="Indique si il est possible de solder l'OT et l'OF")
-    state_of     = fields.Selection(related='production_id.state', string='État OF')
+    line_ids           = fields.One2many('is.ordre.travail.line', 'ordre_id', 'Lignes')
+    of_a_solder        = fields.Boolean('A solder', compute='_compute_of_a_solder', store=True, readonly=True, help="Indique si il est possible de solder l'OT et l'OF")
+    state_of           = fields.Selection(related='production_id.state', string='État OF')
+    heure_debut_reelle = fields.Datetime("Heure début réelle", compute="_compute_heure_debut_reelle", readonly=True, store=True)
+
+
+    @api.depends('line_ids','line_ids.state','line_ids.heure_debut_reelle')
+    def _compute_heure_debut_reelle(self):
+        for obj in self:
+            heure_debut_reelle=False
+            for line in obj.line_ids:
+                if line.heure_debut_reelle:
+                    if not heure_debut_reelle:
+                        heure_debut_reelle = line.heure_debut_reelle
+                    if heure_debut_reelle>line.heure_debut_reelle:
+                        heure_debut_reelle=line.heure_debut_reelle
+            obj.heure_debut_reelle = heure_debut_reelle
 
 
     @api.model
@@ -332,8 +346,10 @@ class is_ordre_travail_line(models.Model):
     duree_unitaire = fields.Float("Durée unitaire (HH:MM)"                      , required=True)
     duree_totale   = fields.Float("Durée prévue (HH:MM)", compute='_compute_reste', store=True)
     duree_reelle   = fields.Float("Durée hors tout (HH:MM)"        , compute='_compute_duree_reelle', store=True, help="Durée entre Heure début et Heure fin")
-    heure_debut    = fields.Datetime("Heure début", index=True              , required=False)
-    heure_fin      = fields.Datetime("Heure fin"                            , required=False)
+    heure_debut    = fields.Datetime("Heure début prévue", index=True              , required=False)
+    heure_fin      = fields.Datetime("Heure fin prévue"                            , required=False)
+
+
     state          = fields.Selection([
             ('attente', 'Attente'),
             ('pret'   , 'Prêt'),
@@ -345,8 +361,20 @@ class is_ordre_travail_line(models.Model):
     temps_passe = fields.Float("Temps passé (HH:MM)", compute="_compute_temps_passe", readonly=True, store=True)
     reste       = fields.Float("Reste (HH:MM)"      , compute='_compute_temps_passe', readonly=True, store=True)
     afficher_start_stop = fields.Boolean("Afficher les boutons start/stop", compute="_compute_afficher_start_stop", readonly=True, store=False)
-    commentaire     = fields.Text("Commentaire")
-    commentaire_ids = fields.One2many('is.ordre.travail.line.commentaire', 'line_id', 'Commentaires')
+    commentaire         = fields.Text("Commentaire")
+    commentaire_ids     = fields.One2many('is.ordre.travail.line.commentaire', 'line_id', 'Commentaires')
+    heure_debut_reelle  = fields.Datetime("Heure début réelle", compute="_compute_heure_debut_reelle", readonly=True, store=True)
+
+
+
+    @api.depends('temps_passe_ids','temps_passe_ids.heure_debut')
+    def _compute_heure_debut_reelle(self):
+        for obj in self:
+            heure_debut=False
+            for line in obj.temps_passe_ids:
+                heure_debut=line.heure_debut
+                break
+            obj.heure_debut_reelle = heure_debut
 
 
     def _get_last_state(self):

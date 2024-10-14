@@ -10,6 +10,7 @@ import base64
 def s(txt,lg):
     #if type(txt)!=unicode:
     #    txt = unicode(txt,'utf-8')
+    txt = txt or ''
     txt = unicodedata.normalize('NFD', txt).encode('ascii', 'ignore').decode()
     txt = (txt+'                                                             ')[:lg]
     return txt

@@ -141,11 +141,12 @@ class is_suivi_temps_article(models.Model):
     temps_passe    = fields.Float("Temps passé (HH:MM)")
     ordre_id       = fields.Many2one('is.ordre.travail', 'N°OT')
     production_id  = fields.Many2one('mrp.production', 'Ordre de production')
+    date_client    = fields.Date('Date client')
     date_prevue    = fields.Datetime('Date prévue')
     is_client_order_ref   = fields.Char(string="Référence client")
     is_sale_order_line_id = fields.Many2one("sale.order.line", "Ligne de commande")
     is_sale_order_id      = fields.Many2one("sale.order", "Commande")
-    is_nom_affaire        = fields.Char("Nom de l'affaire")
+    is_nom_affaire        = fields.Char("Affaire")
     bom_id                = fields.Many2one('mrp.bom', 'Nomenclature')
     product_id            = fields.Many2one('product.product', 'Article')
 
@@ -154,19 +155,16 @@ class is_suivi_temps_article(models.Model):
     is_volume_cuve_id         = fields.Many2one("is.volume.cuve", string="Volume cuve")
     is_finition_cuve_ids      = fields.Many2many(related='product_id.is_finition_cuve_ids')
 
+    product_qty = fields.Float("Qt à produire")
+    is_pret     = fields.Selection([
+            ('oui', 'Oui'),
+            ('non', 'Non'),
+        ], "Prêt", help="Prêt à produire")
+    heure_debut_reelle = fields.Datetime("Heure début réelle")
 
-
-    # is_finition_cuve_ids      = fields.Many2many('is.finition.cuve','is_finition_cuve_product_rel','product_id','finition_id', string="Finition")
-
-
-
-# Ajouter les champs de la fiche article
-#     • Type de cuve
-#     • Volume cuve
-#     • Niveau de complexité
-#     • Finition
-
-
+    # • % avancement (barre de progression)
+    # • Opération en cours
+    # • État (masquée par défaut)
 
     def init(self):
         cr=self._cr
@@ -178,12 +176,16 @@ class is_suivi_temps_article(models.Model):
                     iot.id ordre_id,
                     iot.production_id,
                     iot.date_prevue,
+                    iot.heure_debut_reelle,
+                    mp.is_date_prevue date_client,
                     mp.is_client_order_ref,
                     mp.is_sale_order_line_id,
                     mp.is_sale_order_id,
                     mp.is_nom_affaire,
                     mp.bom_id,
                     mp.product_id,
+                    mp.product_qty,
+                    mp.is_pret,
                     pt.is_cuve_niveau_complexite,
                     pt.is_type_cuve_id,
                     pt.is_volume_cuve_id,
@@ -198,12 +200,16 @@ class is_suivi_temps_article(models.Model):
                     iot.id,
                     iot.production_id,
                     iot.date_prevue,
+                    iot.heure_debut_reelle,
+                    mp.is_date_prevue,
                     mp.is_client_order_ref,
                     mp.is_sale_order_line_id,
                     mp.is_sale_order_id,
                     mp.is_nom_affaire,
                     mp.bom_id,
                     mp.product_id,
+                    mp.product_qty,
+                    mp.is_pret,
                     pt.is_cuve_niveau_complexite,
                     pt.is_type_cuve_id,
                     pt.is_volume_cuve_id

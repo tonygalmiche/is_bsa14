@@ -42,6 +42,7 @@ class is_valorisation_encours(models.Model):
                 reste               = reste_a_facturer - montant_tps_restant
                 vals={
                     'valorisation_id'    : obj.id,
+                    'nom_affaire'        : production.is_nom_affaire,
                     'production_id'      : production.id,
                     'ordre_id'           : production.is_ordre_travail_id.id,
                     'order_id'           : production.is_sale_order_id.id,
@@ -61,9 +62,10 @@ class is_valorisation_encours(models.Model):
 class is_valorisation_encours_ligne(models.Model):
     _name = 'is.valorisation.encours.ligne'
     _description = "Lignes Valorisation encours"
-    _order='production_id'
+    _order='nom_affaire,production_id'
 
     valorisation_id     = fields.Many2one('is.valorisation.encours', 'Valorisation encours', required=True)
+    nom_affaire         = fields.Char("Nom de l'affaire")
     production_id       = fields.Many2one('mrp.production', 'OF')
     ordre_id            = fields.Many2one('is.ordre.travail', 'OT')
     order_id            = fields.Many2one('sale.order', 'Commande')

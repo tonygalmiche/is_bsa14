@@ -8,6 +8,7 @@
             <field name="arch" type="xml">
                 <tree editable="top">
                     <field name="valorisation_id" invisible="1"/>
+                    <field name="nom_affaire"         optional="show"/>
                     <field name="production_id"       optional="show" widget="many2one_clickable"/>
                     <field name="ordre_id"            optional="show" widget="many2one_clickable"/>
                     <field name="order_id"            optional="show" widget="many2one_clickable"/>
@@ -28,6 +29,7 @@
             <field name="model">is.valorisation.encours.ligne</field>
             <field name="arch" type="xml">
                 <search>
+                    <field name="nom_affaire"/>
                     <field name="production_id"/>
                     <field name="ordre_id"/>
                     <field name="order_id"/>

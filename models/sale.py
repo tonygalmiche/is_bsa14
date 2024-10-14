@@ -465,6 +465,7 @@ class sale_order(models.Model):
             move=self.env['account.move'].create(vals)
             move._onchange_partner_id()
             move._onchange_invoice_date()
+            move.partner_shipping_id = obj.partner_shipping_id.id
             #move.action_post()
 
 

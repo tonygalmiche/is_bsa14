@@ -8,6 +8,16 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
+_ETAT_OF=[
+    ('draft'    , 'Brouillon'),
+    ('confirmed', 'Confirmé'),
+    ('progress' , 'En cours'),
+    ('to_close' , 'À clôturer'),
+    ('done'     , 'Fait'),
+    ('cancel'   , 'Annulé'),
+]
+
+
 class mrp_production(models.Model):
     _inherit = "mrp.production"
     _order = "id desc"

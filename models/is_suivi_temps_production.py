@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api,tools
+from odoo.addons.is_bsa14.models.mrp_production import _ETAT_OF
+
 
 class is_suivi_temps_production(models.Model):
     _name='is.suivi.temps.production'
@@ -137,8 +139,7 @@ class is_suivi_temps_article(models.Model):
     _order='product_id'
     _auto = False
 
-    duree_totale   = fields.Float("Temps prévu (HH:MM)")
-    temps_passe    = fields.Float("Temps passé (HH:MM)")
+
     ordre_id       = fields.Many2one('is.ordre.travail', 'N°OT')
     production_id  = fields.Many2one('mrp.production', 'Ordre de production')
     date_client    = fields.Date('Date client')
@@ -149,22 +150,22 @@ class is_suivi_temps_article(models.Model):
     is_nom_affaire        = fields.Char("Affaire")
     bom_id                = fields.Many2one('mrp.bom', 'Nomenclature')
     product_id            = fields.Many2one('product.product', 'Article')
-
     is_cuve_niveau_complexite = fields.Text('Niveau de compléxité')
     is_type_cuve_id           = fields.Many2one("is.product.type.cuve", string="Type de cuve")
     is_volume_cuve_id         = fields.Many2one("is.volume.cuve", string="Volume cuve")
     is_finition_cuve_ids      = fields.Many2many(related='product_id.is_finition_cuve_ids')
-
-    product_qty = fields.Float("Qt à produire")
+    product_qty = fields.Float('Qt', help="Qt à produire")
     is_pret     = fields.Selection([
             ('oui', 'Oui'),
             ('non', 'Non'),
         ], "Prêt", help="Prêt à produire")
-    heure_debut_reelle = fields.Datetime("Heure début réelle")
+    heure_debut_reelle   = fields.Datetime("Heure début réelle")
+    duree_prevue         = fields.Float("Tps prévu")
+    temps_passe          = fields.Float("Tps passé")
+    avancement           = fields.Float("Avancement (%)", compute="_compute_temps_passe", readonly=True, store=True)
+    operation_encours_id = fields.Many2one('is.ordre.travail.line', 'Opération en cours')
+    etat_of              = fields.Selection(_ETAT_OF, "État OF")
 
-    # • % avancement (barre de progression)
-    # • Opération en cours
-    # • État (masquée par défaut)
 
     def init(self):
         cr=self._cr
@@ -177,6 +178,7 @@ class is_suivi_temps_article(models.Model):
                     iot.production_id,
                     iot.date_prevue,
                     iot.heure_debut_reelle,
+                    iot.operation_encours_id,
                     mp.is_date_prevue date_client,
                     mp.is_client_order_ref,
                     mp.is_sale_order_line_id,
@@ -186,33 +188,17 @@ class is_suivi_temps_article(models.Model):
                     mp.product_id,
                     mp.product_qty,
                     mp.is_pret,
+                    mp.state etat_of,
                     pt.is_cuve_niveau_complexite,
                     pt.is_type_cuve_id,
                     pt.is_volume_cuve_id,
-                    sum(line.duree_totale) duree_totale,
-                    sum(line.temps_passe) temps_passe
-                from is_ordre_travail_line line join is_ordre_travail iot on line.ordre_id=iot.id       
-                                                join mrp_production    mp on iot.production_id=mp.id        
-                                                join product_product   pp on mp.product_id=pp.id 
-                                                join product_template  pt on pp.product_tmpl_id=pt.id                       
-                where iot.id>0
-                group by 
-                    iot.id,
-                    iot.production_id,
-                    iot.date_prevue,
-                    iot.heure_debut_reelle,
-                    mp.is_date_prevue,
-                    mp.is_client_order_ref,
-                    mp.is_sale_order_line_id,
-                    mp.is_sale_order_id,
-                    mp.is_nom_affaire,
-                    mp.bom_id,
-                    mp.product_id,
-                    mp.product_qty,
-                    mp.is_pret,
-                    pt.is_cuve_niveau_complexite,
-                    pt.is_type_cuve_id,
-                    pt.is_volume_cuve_id
+                    iot.duree_prevue,
+                    iot.temps_passe,
+                    iot.avancement
+                from is_ordre_travail iot join mrp_production    mp on iot.production_id=mp.id        
+                                          join product_product   pp on mp.product_id=pp.id 
+                                          join product_template  pt on pp.product_tmpl_id=pt.id                       
+                where iot.id>0  
             );
         """)
 

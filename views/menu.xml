@@ -375,6 +375,16 @@
             action="is_liste_manquants_action" 
             parent="stock.menu_stock_inventory_control"
         />
+
+        <menuitem 
+            id="is_correction_stock_menu" 
+            sequence="92"  
+            name="Correction stock" 
+            action="is_correction_stock_action" 
+            parent="stock.menu_stock_inventory_control"
+        />
+
+
         <menuitem 
             action="action_is_stock_category_config" 
             id="menu_stock_category"
@@ -811,7 +821,7 @@
         <menuitem 
             id="is_suivi_temps_article_menu" 
             sequence="40" 
-            name="Suivi du temps par article" 
+            name="Suivi du temps par article et affaire" 
             parent="is_suivi_temps_production_main_menu" 
             action="is_suivi_temps_article_action"
         />

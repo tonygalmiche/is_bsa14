@@ -33,6 +33,8 @@ class bsa_fnc(models.Model):
     ref_partenaire      = fields.Char(u"Référence partenaire")
     categorie_id        = fields.Many2one('bsa.fnc.categorie', u'Catégorie')
     product_id          = fields.Many2one('product.product', u'Article')
+    nb_rebuts           = fields.Integer("Nb rebuts", help="Nombre de pièces à rebuter")
+    move_id             = fields.Many2one('stock.move', 'Mouvement de stock', readonly=True)
     rsp_projet_id       = fields.Many2one('res.users', u'Responsable de projet')
     date_projet         = fields.Date(u"Date du projet")
     description         = fields.Text(u"Description du problème")
@@ -133,4 +135,43 @@ class bsa_fnc(models.Model):
 
         res_id = model_pool.create(cr, uid, data, context=context)
         return res_id
+
+
+    def sortir_rebuts_action(self):
+        for obj in self:
+            if not obj.move_id:
+                location_id = location_dest_id = False                 
+                locations=self.env['stock.location'].search([('usage' ,'=', 'internal')],limit=1)
+                for location in locations:
+                    location_id = location.id
+                locations=self.env['stock.location'].search([('scrap_location' ,'=', True)],limit=1)
+                for location in locations:
+                    location_dest_id = location.id
+                if location_id and location_dest_id:
+                    vals={
+                        "product_id": obj.product_id.id,
+                        "product_uom": obj.product_id.uom_id.id,
+                        "location_id": location_id,
+                        "location_dest_id": location_dest_id,
+                        "origin": obj.name,
+                        "name": obj.name,
+                        "reference": obj.name,
+                        "product_uom_qty": obj.nb_rebuts,
+                        "scrapped": False,
+                        "propagate_cancel": True,
+                        "additional": False,
+                    }
+                    move=self.env['stock.move'].create(vals)
+                    vals={
+                        "move_id": move.id,
+                        "product_id": obj.product_id.id,
+                        "product_uom_id": obj.product_id.uom_id.id,
+                        "location_id": location_id,
+                        "location_dest_id": location_dest_id,
+                        "qty_done": obj.nb_rebuts,
+                        "reference": obj.name,
+                    }
+                    move_line=self.env['stock.move.line'].create(vals)
+                    move._action_done()
+                    obj.move_id = move.id
 

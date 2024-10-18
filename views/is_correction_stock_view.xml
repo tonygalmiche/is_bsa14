@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- is.correction.stock --> 
+        <record id="is_correction_stock_seq" model="ir.sequence">
+            <field name="name">Correction stock</field>
+            <field name="code">is.correction.stock</field>
+            <field name="padding">5</field>
+            <field name="prefix">CS</field>
+            <field eval="False" name="company_id"/>
+        </record>
+        <record model="ir.ui.view" id="is_correction_stock_form_view">
+            <field name="name">is_correction_stock_form_view</field>
+            <field name="model">is.correction.stock</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>  
+                    <header>
+                        <button 
+                            name="correction_stock_action" 
+                            string="Correction du stock" 
+                            type="object" 
+                            class="oe_highlight" 
+                             attrs="{'invisible': ['|','|',('quantite','=',0),('product_id','=',False),('move_id','!=',False)]}"
+                        />
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/> 
+                                <field name="product_id"       attrs="{'readonly': [('state','=','valide')]}"/> 
+                                <field name="quantite"         attrs="{'readonly': [('state','=','valide')]}"/> 
+                                <field name="location_id"      attrs="{'readonly': [('state','=','valide')]}"/> 
+                                <field name="location_dest_id" attrs="{'readonly': [('state','=','valide')]}"/> 
+                                <field name="move_id"/> 
+                                <field name="commentaire"      attrs="{'readonly': [('state','=','valide')]}"/> 
+                            </group>
+                            <group>
+                                <field name="create_date" string="Créé le"/> 
+                                <field name="create_uid"  string="Créé par"/> 
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_correction_stock_tree_view">
+            <field name="name">is_correction_stock_tree_view</field>
+            <field name="model">is.correction.stock</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/> 
+                    <field name="product_id"       optional="show" widget="many2one_clickable"/> 
+                    <field name="quantite"         optional="show"/> 
+                    <field name="location_id"      optional="show" widget="many2one_clickable"/> 
+                    <field name="location_dest_id" optional="show" widget="many2one_clickable"/> 
+                    <field name="move_id"          optional="show" widget="many2one_clickable"/> 
+                    <field name="commentaire"      optional="show"/> 
+                    <field name="create_date"      optional="show" string="Créé le"/> 
+                    <field name="create_uid"       optional="show" string="Créé par"/> 
+                    <field 
+                        name="state"
+                        widget="badge" 
+                        decoration-info="state == 'creation'" 
+                        decoration-muted="state == 'valide'" 
+                        optional="show"
+                    />
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_correction_stock_search_view" >
+            <field name="name">is_correction_stock_search_view</field>
+            <field name="model">is.correction.stock</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/> 
+                    <field name="product_id"/> 
+                    <field name="location_id"/> 
+                    <field name="location_dest_id"/> 
+                    <field name="commentaire"/> 
+                    <field name="create_uid"  string="Créé par"/> 
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_correction_stock_action">
+            <field name="name">Correction stock</field>
+            <field name="res_model">is.correction.stock</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>

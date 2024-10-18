@@ -54,6 +54,36 @@ class is_ordre_travail(models.Model):
     of_a_solder        = fields.Boolean('A solder', compute='_compute_of_a_solder', store=True, readonly=True, help="Indique si il est possible de solder l'OT et l'OF")
     state_of           = fields.Selection(related='production_id.state', string='État OF')
     heure_debut_reelle = fields.Datetime("Heure début réelle", compute="_compute_heure_debut_reelle", readonly=True, store=True)
+    duree_prevue = fields.Float("Durée prévue", compute="_compute_temps_passe", readonly=True, store=True)
+    temps_passe  = fields.Float("Temps passé" , compute="_compute_temps_passe", readonly=True, store=True)
+    avancement   = fields.Float("Avancement (%)"      , compute="_compute_temps_passe", readonly=True, store=True)
+    operation_encours_id = fields.Many2one('is.ordre.travail.line', 'Opération en cours', compute="_compute_operation_encours_id", readonly=True, store=True)
+
+
+    @api.depends('line_ids','line_ids.state')
+    def _compute_operation_encours_id(self):
+        for obj in self:
+            encours_id=False
+            if obj.state=='encours':
+                for line in obj.line_ids:
+                    if line.state=='encours':
+                        encours_id=line.id
+                        break
+            obj.operation_encours_id = encours_id
+               
+
+    @api.depends('line_ids','line_ids.state','line_ids.duree_totale','line_ids.temps_passe')
+    def _compute_temps_passe(self):
+        for obj in self:
+            duree_prevue=temps_passe=avancement=0
+            for line in obj.line_ids:
+                duree_prevue += line.duree_totale
+                temps_passe  += line.temps_passe
+            if duree_prevue>0:
+                avancement = 100 * temps_passe / duree_prevue
+            obj.duree_prevue = duree_prevue
+            obj.temps_passe  = temps_passe
+            obj.avancement   = avancement
 
 
     @api.depends('line_ids','line_ids.state','line_ids.heure_debut_reelle')

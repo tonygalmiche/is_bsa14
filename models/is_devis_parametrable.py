@@ -304,6 +304,39 @@ class is_devis_parametrable_affaire(models.Model):
             return res
 
 
+    def liste_variantes_action(self):
+        for obj in self:
+            ids=[]
+            for line in obj.variante_ids:
+                ids.append(line.variante_id.id)
+            res={
+                'name': 'Variantes',
+                'view_mode': 'tree,form',
+                'res_model': 'is.devis.parametrable.variante',
+                'type': 'ir.actions.act_window',
+                "domain": [
+                    ("id" ,"in",ids),
+                ],
+            }
+            return res
+
+
+    def liste_devis_action(self):
+        for obj in self:
+            ids=[]
+            for line in obj.devis_parametrable_ids:
+                ids.append(line.devis_id.id)
+            res={
+                'name': 'Devis',
+                'view_mode': 'tree,form',
+                'res_model': 'is.devis.parametrable.variante',
+                'type': 'ir.actions.act_window',
+                "domain": [
+                    ("id" ,"in",ids),
+                ],
+            }
+            return res
+
 
     def get_devis(self):
         devis = {}
@@ -555,6 +588,8 @@ class is_devis_parametrable_affaire_variante(models.Model):
     montant                  = fields.Integer("Montant", compute='_compute_montant', store=False, readonly=True)
     sous_total_marge         = fields.Monetary(related="variante_id.sous_total_marge")
     sous_total_capacite      = fields.Integer(related="variante_id.sous_total_capacite")
+    sous_total_capacite      = fields.Integer(related="variante_id.sous_total_capacite")
+    taux_marge_commerciale   = fields.Float(related="variante_id.taux_marge_commerciale", string="Tx cial", help="Taux de marge commerciale (%)")
 
 
     @api.depends('quantite',"prix_vente_remise_devise")

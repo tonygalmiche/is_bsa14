@@ -274,8 +274,11 @@
                                 <field name="bom_id"/>
                                 <field name="date_prevue"/>
                                 <field name="ordre_id"/>
-                                <field name="duree_totale" widget="float_time"/>
+                                <field name="duree_prevue" widget="float_time"/>
                                 <field name="temps_passe"  widget="float_time"/>
+                                <field name="avancement" widget="progressbar"/>
+                                <field name="operation_encours_id"/>
+                                <field name="etat_of"/>
                             </group>
                         </group>
                     </sheet>
@@ -293,7 +296,7 @@
                     <field name="is_finition_cuve_ids"      optional="show" widget="many2many_tags"/>
                     <field name="is_volume_cuve_id"         optional="show"/>
                     <field name="is_nom_affaire"            optional="show"/>
-                    <field name="production_id"             optional="show" widget="many2one_clickable"/>
+                    <field name="production_id"             optional="hide" widget="many2one_clickable"/>
                     <field name="product_qty"               optional="show"/>
                     <field name="is_pret"                   optional="hide"/>
                     <field name="is_client_order_ref"       optional="hide"/>
@@ -304,8 +307,18 @@
                     <field name="date_prevue"               optional="show"/>
                     <field name="ordre_id"                  optional="show" widget="many2one_clickable"/>
                     <field name="heure_debut_reelle"        optional="show"/>
-                    <field name="duree_totale"              optional="show" widget="float_time" sum="Total"/>
-                    <field name="temps_passe"               optional="show" widget="float_time" sum="Total"/>
+                    <field name="duree_prevue"              optional="hide" widget="float_time" sum="Total"/>
+                    <field name="temps_passe"               optional="hide" widget="float_time" sum="Total"/>
+                    <field name="avancement"                optional="hide" widget="progressbar"/>
+                    <field name="operation_encours_id"      optional="hide" widget="many2one_clickable"/>
+                    <field 
+                        name="etat_of"
+                        optional="hide"
+                        widget="badge" 
+                        decoration-info="etat_of in ['draft','encours','confirmed','progress','to_close']" 
+                        decoration-success="etat_of == 'done'" 
+                        decoration-muted="etat_of == 'cancel'" 
+                    />
                 </tree>
             </field>
         </record>
@@ -324,6 +337,8 @@
                     <field name="is_client_order_ref"/>
                     <field name="is_sale_order_id"/>
                     <field name="ordre_id"/>
+                    <field name="etat_of"/>
+                    <filter string="OT en cours" name="ot_en_cours" domain="[('temps_passe','&gt;',0.1),('etat_of','not in',['cancel','done'])]" />
                 </search>
             </field>
         </record>
@@ -333,7 +348,7 @@
             <field name="arch" type="xml">
                 <graph string="pivot">
                     <field name="is_type_cuve_id"/>
-                    <field name="duree_totale" type="measure"/>
+                    <field name="duree_prevue" type="measure"/>
                 </graph>
             </field>
         </record>
@@ -343,15 +358,19 @@
             <field name="arch" type="xml">
                 <pivot string="pivot">
                     <field name="is_type_cuve_id" type="row"/>
-                    <field name="duree_totale"   type="measure"/>
+                    <field name="duree_prevue"   type="measure"/>
                     <field name="temps_passe"    type="measure"/>
                 </pivot>
             </field>
         </record>
         <record id="is_suivi_temps_article_action" model="ir.actions.act_window">
-            <field name="name">Suivi du temps par article</field>
+            <field name="name">Suivi du temps par article et affaire</field>
             <field name="res_model">is.suivi.temps.article</field>
             <field name="view_mode">tree,form,graph,pivot</field>
+            <field name="context">{
+                    'search_default_ot_en_cours':1,
+                }
+            </field>
         </record>
     </data>
 </odoo>

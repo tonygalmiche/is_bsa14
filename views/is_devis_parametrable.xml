@@ -49,6 +49,16 @@
                             string="Dupliquer l'affaire et ses variantes" type="object" 
                             confirm="Voulez-vous vraiment dupliquer cette affaire avec ses variantes et devis associés ?"
                         />
+                        <button 
+                            name="liste_variantes_action" 
+                            string="Liste des variantes" type="object" 
+                            attrs="{'invisible':[('variante_ids','=',[])]}"
+                        />
+                        <button 
+                            name="liste_devis_action" 
+                            string="Liste des devis" type="object" 
+                            attrs="{'invisible':[('devis_parametrable_ids','=',[])]}"
+                        />
                 </header>
                     <sheet>
                         <style>
@@ -115,6 +125,7 @@
                                     <field name="prix_a_afficher"            optional="hide"/>
                                     <field name="prix_vente_remise_devise"   optional="show"/>
                                     <field name="montant" sum="Total"        optional="show"/>
+                                    <field name="taux_marge_commerciale"     optional="show"/>
                                     <field name="devise_client_id"           optional="hide"/>
                                 </tree>
                             </field>
@@ -626,7 +637,7 @@
                     <field name="montant_unitaire"       optional="show"/>
                     <field name="prix_vente"             optional="show"/>
                     <field name="montant_marge"          optional="show"/>
-                    <field name="taux_marge_commerciale" optional="show"/>
+                    <field name="taux_marge_commerciale" optional="show" string="Tx cial"/>
                     <field name="intitule_remise" optional="hide"/>
                 </tree>
             </field>

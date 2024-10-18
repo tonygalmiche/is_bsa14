@@ -233,7 +233,14 @@
                     <field name="is_sale_order_id"                   optional="show" widget="many2one_clickable"/>
                     <field name="is_client_order_ref"                optional="show"/>
                     <field name="is_nom_affaire"                     optional="show"/>
-                    <field name="state"/>
+                    <field 
+                        name="state"
+                        optional="show"
+                        widget="badge" 
+                        decoration-info="state in ['draft','encours','confirmed','progress','to_close']" 
+                        decoration-success="state == 'done'" 
+                        decoration-muted="state == 'cancel'" 
+                    />
                     <field name="company_id" invisible="1"/>
                 </tree>
             </field>
@@ -256,10 +263,7 @@
                     <field name="is_mois_prevu"                                       optional="hide"/>
                     <field name="is_date_planifiee"                                   optional="hide"/>
                     <field name="is_date_planifiee_fin"                               optional="hide"/>
-                    <!-- <field name="is_ecart_date"                                       optional="hide"/> -->
                     <field name="is_pret"                                             optional="show"/>
-
-
                     <field name="is_gabarit_id"                                       optional="hide"/>
                     <field name="is_sale_order_line_id" readonly="1"                  optional="hide"/>
                     <field name="is_sale_order_id"                                    optional="show" widget="many2one_clickable"/>
@@ -268,8 +272,14 @@
                     <field name="create_date"                                         optional="show"/>
                     <field name="create_uid"                                          optional="show"/>
                     <field name="is_move_production_nb"                               optional="show"/>
-                    <!-- <field name="is_ref_client"                                       optional="show"/> -->
-                    <field name="state"/>
+                    <field 
+                        name="state"
+                        optional="show"
+                        widget="badge" 
+                        decoration-info="state in ['draft','encours','confirmed','progress','to_close']" 
+                        decoration-success="state == 'done'" 
+                        decoration-muted="state == 'cancel'" 
+                    />
                 </tree>
             </field>
         </record>

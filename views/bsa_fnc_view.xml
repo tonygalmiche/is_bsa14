@@ -58,6 +58,13 @@
                 <form>  
                     <header>
                         <button name="action_send_mail" string="Envoie par mail" type="object" />
+                        <button 
+                            name="sortir_rebuts_action" 
+                            string="Sortir les rebuts du stock" 
+                            type="object" 
+                            class="oe_highlight" 
+                             attrs="{'invisible': ['|','|',('nb_rebuts','=',0),('product_id','=',False),('move_id','!=',False)]}"
+                        />
                         <field name="state" widget="statusbar"  options="{'clickable': '1'}"/>
                     </header>
                     <sheet>
@@ -76,6 +83,8 @@
                         <group>
                             <field name="categorie_id"/>
                             <field name="product_id"/>
+                            <field name="nb_rebuts"/>
+                            <field name="move_id" attrs="{'invisible': [('move_id','=',False)]}"/>
                             <field name="rsp_projet_id"/>
                             <field name="description"/>
                             <field 
@@ -108,19 +117,21 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="name"/>
-                    <field name="createur_id"/>
-                    <field name="date_creation"/>
-                    <field name="type_fnc"/>
-                    <field name="partner_id"/>
-                    <field name="ref_partenaire"/>
-                    <field name="categorie_id"/>
-                    <field name="product_id"/>
-                    <field name="rsp_projet_id"/>
-                    <field name="description"/>
-                    <field name="demande_bsa"/>
-                    <field name="date_reponse"/>
-                    <field name="cout" sum="Total"/>
-                    <field name="state"/>
+                    <field name="createur_id"    optional="show"/>
+                    <field name="date_creation"  optional="show"/>
+                    <field name="type_fnc"       optional="show"/>
+                    <field name="partner_id"     optional="show" widget="many2one_clickable"/>
+                    <field name="ref_partenaire" optional="show"/>
+                    <field name="categorie_id"   optional="show"/>
+                    <field name="product_id"     optional="show" widget="many2one_clickable"/>
+                    <field name="nb_rebuts"      optional="show"/>
+                    <field name="move_id"        optional="hide" widget="many2one_clickable"/>
+                    <field name="rsp_projet_id"  optional="show"/>
+                    <field name="description"    optional="show"/>
+                    <field name="demande_bsa"    optional="show"/>
+                    <field name="date_reponse"   optional="show"/>
+                    <field name="cout"           optional="show" sum="Total"/>
+                    <field name="state"          optional="show"/>
                 </tree>
             </field>
         </record>

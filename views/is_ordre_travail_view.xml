@@ -48,6 +48,10 @@
                                    <field name="createur_id"/> 
                                    <field name="date_creation"/> 
                                    <field name="heure_debut_reelle"/> 
+                                   <field name="duree_prevue"/> 
+                                   <field name="temps_passe"/> 
+                                   <field name="avancement" widget="progressbar"/>
+                                   <field name="operation_encours_id"/>
                               </group>
                          </group>
                          <field name="line_ids" context="{'tree_view_ref':'is_bsa14.is_ordre_travail_line_tree_view'}"/>
@@ -69,14 +73,25 @@
                          <field name="quantite"             optional="show"/>
                          <field name="date_prevue"          optional="show"/>
                          <field name="heure_debut_reelle"   optional="show"/>
+                         <field name="duree_prevue"         optional="show"/>
+                         <field name="temps_passe"          optional="show"/>
+                         <field name="avancement"           optional="show" widget="progressbar"/>
+                         <field name="operation_encours_id" optional="hide" widget="many2one_clickable"/>
                          <field name="createur_id"          optional="show"/>
                          <field name="date_creation"        optional="show"/>
-                         <field name="state_of"             optional="show"/>
+                         <field 
+                              name="state_of"
+                              optional="show"
+                              widget="badge" 
+                              decoration-info="state_of in ['draft','encours','confirmed','progress','to_close']" 
+                              decoration-success="state_of == 'done'" 
+                              decoration-muted="state_of == 'cancel'" 
+                         />
                          <field 
                               name="state" 
                               widget="badge" 
                               decoration-info="state == 'encours'" 
-                              decoration-muted="state == 'termine'" 
+                              decoration-success="state == 'termine'" 
                               optional="show"
                          />
                     </tree>

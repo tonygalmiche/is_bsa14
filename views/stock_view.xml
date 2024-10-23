@@ -154,13 +154,15 @@
                         }
                     </style>
                 </xpath>
-                <field name="group_id" position="after">
-                    <field name="picking_id"/>
-                    <field name="picking_type_id"/>
-                    <field name="is_account_move_line_id"/>
+                <field name="group_id" position="replace">
+                    <field name="production_id"              attrs="{'invisible': [('production_id', '=', False)]}"/>
+                    <field name="raw_material_production_id" attrs="{'invisible': [('raw_material_production_id', '=', False)]}"/>
+                    <field name="picking_id"                 attrs="{'invisible': [('picking_id', '=', False)]}"/>
+                    <field name="picking_type_id"            attrs="{'invisible': [('picking_type_id', '=', False)]}"/>
+                    <field name="is_account_move_line_id"    attrs="{'invisible': [('is_account_move_line_id', '=', False)]}"/>
                     <field name="price_unit"/>
-                    <field name="sale_line_id"/>
-                    <field name="purchase_line_id"/>
+                    <field name="sale_line_id"               attrs="{'invisible': [('sale_line_id', '=', False)]}"/>
+                    <field name="purchase_line_id"           attrs="{'invisible': [('purchase_line_id', '=', False)]}"/>
                     <field name="create_uid"/>
                     <field name="write_uid"/>
                     <field name="create_date"/>
@@ -192,20 +194,30 @@
                     <field name="origin"/>
                 </field>
                <field name="state" position="before">
-                    <field name="price_unit"       optional="hide"/>
-                    <field name="picking_id"       optional="hide"/>
-                    <field name="picking_type_id"  optional="hide"/>
-                    <field name="sale_line_id"     optional="hide"/>
-                    <field name="purchase_line_id" optional="hide"/>
-                    <field name="create_uid"       optional="hide"/>
-                    <field name="write_uid"        optional="hide"/>
-                    <field name="create_date"       optional="hide"/>
-                    <field name="write_date"        optional="hide"/>
+                    <field name="price_unit"                 optional="hide"/>
+                    <field name="picking_id"                 optional="hide" widget="many2one_clickable"/>
+                    <field name="picking_type_id"            optional="hide"/>
+                    <field name="sale_line_id"               optional="hide" widget="many2one_clickable"/>
+                    <field name="purchase_line_id"           optional="hide" widget="many2one_clickable"/>
+                    <field name="production_id"              optional="hide" widget="many2one_clickable" string="OF"/>
+                    <field name="raw_material_production_id" optional="hide" widget="many2one_clickable" string="Composant OF"/>
+                    <field name="create_uid"                 optional="hide"/>
+                    <field name="write_uid"                  optional="hide"/>
+                    <field name="create_date"                optional="hide"/>
+                    <field name="write_date"                 optional="hide"/>
+                </field>
+                <field name="product_id" position="attributes">
+                    <attribute name="optional">show</attribute>
+                    <attribute name="widget">many2one_clickable</attribute>
+                </field>
+                <field name="reference" position="attributes">
+                    <attribute name="optional">show</attribute>
+                </field>
+                <field name="origin" position="attributes">
+                    <attribute name="optional">show</attribute>
                 </field>
             </field>
         </record>
-
-
         <record id="is_ligne_reception_a_traiter_tree_view" model="ir.ui.view">
             <field name="name">is_ligne_reception_a_traiter_tree_view</field>
             <field name="model">stock.move</field>
@@ -310,14 +322,13 @@
             <field name="inherit_id" ref="stock.view_move_line_tree"/>
             <field name="arch" type="xml">
                 <field name="location_dest_id" position="after">
-                    <field name="move_id" optional="hide"/>
+                    <field name="move_id" optional="hide" widget="many2one_clickable"/>
+                </field>
+                <field name="product_id" position="attributes">
+                    <attribute name="optional">show</attribute>
+                    <attribute name="widget">many2one_clickable</attribute>
                 </field>
             </field>
         </record>
-
-
-
-
-
     </data>
 </odoo>

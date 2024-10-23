@@ -216,8 +216,8 @@
             <field name="model">is.devis.parametrable.affaire</field>
             <field name="arch" type="xml">
                 <search>
-                    <field name="partner_id"/>
                     <field name="name"/>
+                    <field name="partner_id"/>
                     <field name="code_affare"/>
                     <field name="attention_de"/>
                     <field name="is_societe_commerciale_id"/>
@@ -604,10 +604,14 @@
             <field name="model">is.devis.parametrable</field>
             <field name="arch" type="xml">
                 <search>
-                    <field name="name"/>
+                    <field name="name" string="N° / Affaire"  filter_domain="[
+                            '|', 
+                            ('name'       , 'ilike', self), 
+                            ('nom_affaire', 'ilike', self)
+                        ]"
+                    />
                     <field name="version"/>
                     <field name="type_devis"/>
-                    <field name="nom_affaire"/>
                     <field name="designation"/>
                     <field name="partner_id"/>
                     <field name="createur_id"/>
@@ -812,9 +816,13 @@
             <field name="model">is.devis.parametrable.variante</field>
             <field name="arch" type="xml">
                 <search >
-                    <field name="devis_id"/>
+                    <field name="devis_id" string="N° / Nom"  filter_domain="[
+                            '|', 
+                            ('devis_id', 'ilike', self), 
+                            ('name', 'ilike', self)
+                        ]"
+                    />
                     <field name="partner_id"/>
-                    <field name="name"/>
                 </search>
             </field>
         </record>

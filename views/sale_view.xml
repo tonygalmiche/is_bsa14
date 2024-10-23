@@ -377,14 +377,22 @@
                 </field>
             </field>
         </record>
-
-
-
         <record model="ir.ui.view" id="is_view_sales_order_filter">
             <field name="name">is.sale.order.list.select</field>
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="sale.view_sales_order_filter"/>
             <field name="arch" type="xml">
+                <field name="name" position="attributes">
+                    <attribute name="filter_domain">[
+                            '|', '|', '|', 
+                            ('name', 'ilike', self), 
+                            ('client_order_ref', 'ilike', self), 
+                            ('is_nom_affaire', 'ilike', self), 
+                            ('partner_id', 'child_of', self)
+                        ]
+                    </attribute>
+                    <attribute name="string">Commande / Affaire</attribute>
+                </field>
                 <xpath expr="//field[@name='name']" position="after">
                     <field name="client_order_ref" string="Commande client" filter_domain="[('client_order_ref','ilike',self)]"/>
                     <field name="is_nom_affaire"/>
@@ -392,6 +400,12 @@
                 </xpath>
             </field>
         </record>
+
+
+        <!-- <field name="name" string="Order" filter_domain="['|', '|', ('name', 'ilike', self), ('client_order_ref', 'ilike', self), ('partner_id', 'child_of', self)]"/> -->
+
+
+
         <record id="sale.action_quotations_with_onboarding" model="ir.actions.act_window">
             <field name="domain">[('state', 'not in', ('sale', 'done'))]</field>
         </record>

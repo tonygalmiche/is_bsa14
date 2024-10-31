@@ -268,7 +268,7 @@
             <field name="name">is.devis.parametrable.form</field>
             <field name="model">is.devis.parametrable</field>
             <field name="arch" type="xml">
-                <form>
+                <form disable_autofocus="1">
                     <header>
                         <button
                             name="creation_section_action"

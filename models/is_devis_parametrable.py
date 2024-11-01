@@ -847,6 +847,9 @@ class is_devis_parametrable(models.Model):
     montant_equipement_ttc        = fields.Monetary("Montant équipements TTC"                             , store=True, readonly=True, compute='_compute_tax_ids', currency_field='devise_client_id')
     impression_dimensions         = fields.Selection(_OUI_NON, "Impression dimensions", default="oui")
     montant_option_matiere        = fields.Float("Montant option matière", store=True, readonly=True, compute='_compute_option_matiere')
+    test_autofocus                = fields.Char("Test autofocus  ")
+
+
 
 
     @api.depends('matiere_ids', 'matiere_ids.matiere_option_id', 'matiere_ids.epaisseur', 'montant_matiere', 'variante_ids', 'variante_ids.marge_matiere')

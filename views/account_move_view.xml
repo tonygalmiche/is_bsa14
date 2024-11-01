@@ -100,6 +100,14 @@
                         }
                     </style>
                 </xpath>
+
+
+                <xpath expr="//form" position="attributes">
+                    <attribute name="disable_autofocus">true</attribute>
+                </xpath>
+
+
+
                 <field name="payment_reference" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </field>

@@ -268,7 +268,7 @@
             <field name="name">is.devis.parametrable.form</field>
             <field name="model">is.devis.parametrable</field>
             <field name="arch" type="xml">
-                <form disable_autofocus="1">
+                <form disable_autofocus="true">
                     <header>
                         <button
                             name="creation_section_action"
@@ -311,8 +311,13 @@
                                 max-height: 500px;
                             }
                         </style>
+
+                      
+
+
+
                         <notebook>
-                            <page string="Entête">
+                            <page string="Devis">
                                 <group>
                                     <group>
                                         <field name="name"/>
@@ -345,14 +350,14 @@
                                         <field name="modele"/>
                                     </group>
                                 </group>
-                            </page>
-                            <page string="Dimensions et Matières">
+                            <!-- </page> -->
+                            <!-- <page string="Dimensions et Matières"> -->
                                 <group>
                                     <field name="capacite" readonly="1"/>
                                 </group>
                                 <group string="Dimensions" attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble','ombriere'])]}">
                                     <field name="dimension_ids" nolabel="1">
-                                        <tree editable="bottom">
+                                        <tree editable="bottom" limit="100">
                                             <field name="sequence" widget="handle" />
                                             <field name="devis_id" invisible="1"/>
                                             <field name="dimension_id"/>
@@ -390,10 +395,10 @@
                                     string="Actualiser les prix"
                                     attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble'])]}"
                                 />
-                            </page>
+                            <!-- </page> -->
 
-                            <page string="Temps" attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble'])]}">
-                                <group>
+                            <!-- <page string="Temps" attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble'])]}"> -->
+                                <group attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble'])]}">
                                     <group string="Temps">
                                         <field name="tps_montage"    widget="float_time" readonly="1" />
                                         <field name="tps_assemblage" widget="float_time"/>
@@ -403,10 +408,10 @@
                                         <field name="tps_be"         widget="float_time"/>
                                     </group>
                                 </group>
-                            </page>
+                            <!-- </page> -->
                           
-                            <page string="Articles" attrs="{'invisible':[('type_devis','not in',['structure'])]}">
-                                <group string="Articles">
+                            <!-- <page string="Articles" attrs="{'invisible':[('type_devis','not in',['structure'])]}"> -->
+                                <group string="Articles" attrs="{'invisible':[('type_devis','not in',['structure'])]}">
                                     <field name="article_ids" nolabel="1">
                                         <tree editable="bottom">
                                             <field name="sequence" widget="handle" />
@@ -428,8 +433,8 @@
                                     </field>
                                 </group>
 
-                            </page>
-                            <page string="Equipements et Options">
+                            <!-- </page> -->
+                            <!-- <page string="Equipements et Options"> -->
                                 <group>
                                     <field name="capacite" readonly="1"/>
                                 </group>
@@ -507,10 +512,10 @@
                                     <field name="montant_option_comprise"/>
                                     <field name="montant_option_thermo"/>
                                 </group>
-                            </page>
+                            <!-- </page> -->
                             
-                            <page string="Variantes" attrs="{'invisible':[('type_devis','in',['ombriere'])]}">
-                                <group string="Variantes">
+                            <!-- <page string="Variantes" attrs="{'invisible':[('type_devis','in',['ombriere'])]}"> -->
+                                <group string="Variantes" attrs="{'invisible':[('type_devis','in',['ombriere'])]}">
                                     <field name="variante_ids" nolabel="1" readonly="1">
                                         <tree>
                                             <button title="Variante" name="acceder_variante_action" type="object" icon="fa-search-plus"/>
@@ -542,19 +547,19 @@
                                         </tree>
                                     </field>
                                 </group>
-                                <group>
+                                <group attrs="{'invisible':[('type_devis','in',['ombriere'])]}">
                                     <field name="commentaire"/>
                                 </group>
-                            </page>
-                            <page string="Descriptif bassin" attrs="{'invisible':[('type_devis','!=','bassin')]}">
-                                <group>
+                            <!-- </page> -->
+                            <!-- <page string="Descriptif bassin" attrs="{'invisible':[('type_devis','!=','bassin')]}"> -->
+                                <group attrs="{'invisible':[('type_devis','!=','bassin')]}">
                                     <field name="descriptif" attrs="{'required':  [('type_devis', '=', 'bassin')]}" nolabel="1"/>
                                 </group>
-                                <group>
+                                <group attrs="{'invisible':[('type_devis','!=','bassin')]}">
                                     <field name="variante_id"/>
                                 </group>
-                            </page>
-                            <page string="Affaires">
+                            <!-- </page> -->
+                            <!-- <page string="Affaires"> -->
                                 <field name="affaire_ids">
                                     <tree>
                                         <button title="Affaire" name="acceder_affaire_action" type="object" icon="fa-search-plus"/>
@@ -567,7 +572,6 @@
                                 </field>
                             </page>
                             <page string="Calculs">
-                                <group string="Calculs"/>
                                 <field name="calcul_ids" nolabel="1">
                                     <tree editable="bottom" limit="2000">
                                         <field name="sequence" widget="handle" />
@@ -588,8 +592,6 @@
                                 </group>    
                             </page>
                          </notebook>
-
-
                     </sheet>
                     <div class="oe_chatter">
                         <field name="message_follower_ids"/>

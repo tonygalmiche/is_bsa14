@@ -114,9 +114,9 @@
                 </xpath>
 
 
-                <!-- <xpath expr="//form" position="attributes">
+                <xpath expr="//form" position="attributes">
                     <attribute name="disable_autofocus">true</attribute>
-                </xpath> -->
+                </xpath>
 
 
 

@@ -168,130 +168,174 @@
 
 
 
-       <!-- is.emplacement.lieu --> 
-       <record model="ir.ui.view" id="is_emplacement_lieu_form_view">
-        <field name="name">is_emplacement_lieu_form_view</field>
-        <field name="model">is.emplacement.lieu</field>
-        <field name="type">form</field>
-        <field name="arch" type="xml">
-            <form>  
-                <sheet>
-                    <group>
-                        <field name="name"  /> 
-                    </group>
-                </sheet>
-            </form>
-        </field>
-    </record>
-    <record model="ir.ui.view" id="is_emplacement_lieu_tree_view">
-        <field name="name">is_emplacement_lieu_tree_view</field>
-        <field name="model">is.emplacement.lieu</field>
-        <field name="type">tree</field>
-        <field name="arch" type="xml">
-            <tree>
-                <field name="name"/> 
-            </tree>
-        </field>
-    </record>
-    <record model="ir.ui.view" id="is_emplacement_lieu_search_view" >
-        <field name="name">is_emplacement_lieu_search_view</field>
-        <field name="model">is.emplacement.lieu</field>
-        <field name="arch" type="xml">
-            <search>
-                <field name="name"/> 
-            </search>
-        </field>
-    </record>
-    <record model="ir.actions.act_window" id="is_emplacement_lieu_action">
-        <field name="name">Emplacement - Lieu</field>
-        <field name="res_model">is.emplacement.lieu</field>
-        <field name="view_mode">tree,form</field>
-    </record>
+        <!-- is.emplacement.lieu --> 
+        <record model="ir.ui.view" id="is_emplacement_lieu_form_view">
+            <field name="name">is_emplacement_lieu_form_view</field>
+            <field name="model">is.emplacement.lieu</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>  
+                    <sheet>
+                        <group>
+                            <field name="name"  /> 
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_emplacement_lieu_tree_view">
+            <field name="name">is_emplacement_lieu_tree_view</field>
+            <field name="model">is.emplacement.lieu</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/> 
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_emplacement_lieu_search_view" >
+            <field name="name">is_emplacement_lieu_search_view</field>
+            <field name="model">is.emplacement.lieu</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/> 
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_emplacement_lieu_action">
+            <field name="name">Emplacement - Lieu</field>
+            <field name="res_model">is.emplacement.lieu</field>
+            <field name="view_mode">tree,form</field>
+        </record>
 
 
 
 
-       <!-- is.emplacement.etagere --> 
-       <record model="ir.ui.view" id="is_emplacement_etagere_form_view">
-        <field name="name">is_emplacement_etagere_form_view</field>
-        <field name="model">is.emplacement.etagere</field>
-        <field name="type">form</field>
-        <field name="arch" type="xml">
-            <form>  
-                <sheet>
-                    <group>
-                        <field name="name"  /> 
-                    </group>
-                </sheet>
-            </form>
-        </field>
-    </record>
-    <record model="ir.ui.view" id="is_emplacement_etagere_tree_view">
-        <field name="name">is_emplacement_etagere_tree_view</field>
-        <field name="model">is.emplacement.etagere</field>
-        <field name="type">tree</field>
-        <field name="arch" type="xml">
-            <tree>
-                <field name="name"/> 
-            </tree>
-        </field>
-    </record>
-    <record model="ir.ui.view" id="is_emplacement_etagere_search_view" >
-        <field name="name">is_emplacement_etagere_search_view</field>
-        <field name="model">is.emplacement.etagere</field>
-        <field name="arch" type="xml">
-            <search>
-                <field name="name"/> 
-            </search>
-        </field>
-    </record>
-    <record model="ir.actions.act_window" id="is_emplacement_etagere_action">
-        <field name="name">Emplacement - Etagère</field>
-        <field name="res_model">is.emplacement.etagere</field>
-        <field name="view_mode">tree,form</field>
-    </record>
+        <!-- is.emplacement.etagere --> 
+        <record model="ir.ui.view" id="is_emplacement_etagere_form_view">
+            <field name="name">is_emplacement_etagere_form_view</field>
+            <field name="model">is.emplacement.etagere</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>  
+                    <sheet>
+                        <group>
+                            <field name="name"  /> 
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_emplacement_etagere_tree_view">
+            <field name="name">is_emplacement_etagere_tree_view</field>
+            <field name="model">is.emplacement.etagere</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/> 
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_emplacement_etagere_search_view" >
+            <field name="name">is_emplacement_etagere_search_view</field>
+            <field name="model">is.emplacement.etagere</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/> 
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_emplacement_etagere_action">
+            <field name="name">Emplacement - Etagère</field>
+            <field name="res_model">is.emplacement.etagere</field>
+            <field name="view_mode">tree,form</field>
+        </record>
 
 
 
-       <!-- is.emplacement.niveau --> 
-       <record model="ir.ui.view" id="is_emplacement_niveau_form_view">
-        <field name="name">is_emplacement_niveau_form_view</field>
-        <field name="model">is.emplacement.niveau</field>
-        <field name="type">form</field>
-        <field name="arch" type="xml">
-            <form>  
-                <sheet>
-                    <group>
-                        <field name="name"  /> 
-                    </group>
-                </sheet>
-            </form>
-        </field>
-    </record>
-    <record model="ir.ui.view" id="is_emplacement_niveau_tree_view">
-        <field name="name">is_emplacement_niveau_tree_view</field>
-        <field name="model">is.emplacement.niveau</field>
-        <field name="type">tree</field>
-        <field name="arch" type="xml">
-            <tree>
-                <field name="name"/> 
-            </tree>
-        </field>
-    </record>
-    <record model="ir.ui.view" id="is_emplacement_niveau_search_view" >
-        <field name="name">is_emplacement_niveau_search_view</field>
-        <field name="model">is.emplacement.niveau</field>
-        <field name="arch" type="xml">
-            <search>
-                <field name="name"/> 
-            </search>
-        </field>
-    </record>
-    <record model="ir.actions.act_window" id="is_emplacement_niveau_action">
-        <field name="name">Emplacement - Niveau</field>
-        <field name="res_model">is.emplacement.niveau</field>
-        <field name="view_mode">tree,form</field>
-    </record>
+        <!-- is.emplacement.niveau --> 
+        <record model="ir.ui.view" id="is_emplacement_niveau_form_view">
+            <field name="name">is_emplacement_niveau_form_view</field>
+            <field name="model">is.emplacement.niveau</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>  
+                    <sheet>
+                        <group>
+                            <field name="name"  /> 
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_emplacement_niveau_tree_view">
+            <field name="name">is_emplacement_niveau_tree_view</field>
+            <field name="model">is.emplacement.niveau</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/> 
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_emplacement_niveau_search_view" >
+            <field name="name">is_emplacement_niveau_search_view</field>
+            <field name="model">is.emplacement.niveau</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/> 
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_emplacement_niveau_action">
+            <field name="name">Emplacement - Niveau</field>
+            <field name="res_model">is.emplacement.niveau</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+
+
+
+        <!-- is.famille --> 
+        <record model="ir.ui.view" id="is_famille_form_view">
+            <field name="name">is_famille_form_view</field>
+            <field name="model">is.famille</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>  
+                    <sheet>
+                        <group>
+                            <field name="name"  /> 
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_famille_tree_view">
+            <field name="name">is_famille_tree_view</field>
+            <field name="model">is.famille</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/> 
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_famille_search_view" >
+            <field name="name">is_famille_search_view</field>
+            <field name="model">is.famille</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/> 
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_famille_action">
+            <field name="name">Famille</field>
+            <field name="res_model">is.famille</field>
+            <field name="view_mode">tree,form</field>
+        </record>
 
 
 

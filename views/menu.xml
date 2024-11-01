@@ -159,7 +159,14 @@
             action="is_emplacement_niveau_action"
             sequence="150"
         />
-      
+        <menuitem 
+            name="Famille"
+            id="is_famille_menu"
+            parent="sale.prod_config_main"
+            action="is_famille_action"
+            sequence="150"
+        />
+  
 
 
         <!-- is.devis.parametrable -->

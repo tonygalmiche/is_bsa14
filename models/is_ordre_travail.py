@@ -117,6 +117,7 @@ class is_ordre_travail(models.Model):
                     line.state='termine'
                 qt = obj.production_id.product_qty
                 obj.production_id.declarer_une_fabrication_action(qt=qt)
+                obj.production_id.calculer_pru_action()
 
 
 

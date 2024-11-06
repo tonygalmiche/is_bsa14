@@ -67,6 +67,10 @@ class mrp_production(models.Model):
     is_move_production_ids = fields.One2many('stock.move', 'production_id', 'Produits finis',  copy=False, readonly=True)
     is_move_production_nb  = fields.Integer("Nb mouvements", compute='_compute_is_move_production_nb')
 
+    is_pru_matiere = fields.Float("PRU Matière", readonly=True, copy=False, digits=(14,4))
+    is_pru_mo      = fields.Float("PRU MO"     , readonly=True, copy=False, digits=(14,4))
+    is_pru_total   = fields.Float("PRU Total"  , readonly=True, copy=False, digits=(14,4))
+
 
     @api.depends('is_move_production_ids')
     def _compute_is_move_production_nb(self):
@@ -115,19 +119,20 @@ class mrp_production(models.Model):
 
     def creer_ordre_travail_action(self):
         for obj in self:
-            #** Recherche de la qty restant à fabriquer ***********************
+            #** Recherche de la qty à fabriquer de tous les backorders *******
             qty=0
             filtre=[
                 ("procurement_group_id","=",obj.procurement_group_id.id),
-                ("state","not in",['cancel','done']),
+                ("state","!=",'cancel'),
+                #("state","not in",['cancel','done']),
             ]
             productions = self.env["mrp.production"].search(filtre)
             for production in productions:
-                qty=production.product_qty
+                qty+=production.product_qty
             #******************************************************************
 
-            if obj.state not in ['cancel','done'] and obj.bom_id.operation_ids:
-                ordre=False
+            ordre=False
+            if obj.state!='cancel' and obj.bom_id.operation_ids:
                 filtre=[
                     ("procurement_group_id","=",obj.procurement_group_id.id),
                 ]
@@ -162,10 +167,12 @@ class mrp_production(models.Model):
                             'line_ids'            : line_ids,
                         }
                         ordre = self.env['is.ordre.travail'].create(vals)
-                if ordre:
-                    obj.is_ordre_travail_id=ordre.id
-                    ordre.quantite = qty
-                    ordre.calculer_charge_ordre_travail()
+            if ordre:
+                obj.is_ordre_travail_id=ordre.id
+                ordre.quantite = qty
+                ordre.calculer_charge_ordre_travail()
+                if obj.state!='done':
+                    ordre.production_id = obj.id
 
 
     def _pre_button_mark_done(self):
@@ -173,11 +180,11 @@ class mrp_production(models.Model):
         if productions_to_immediate:
             return productions_to_immediate._action_generate_immediate_wizard()
 
-        for production in self:
-            if float_is_zero(production.qty_producing, precision_rounding=production.product_uom_id.rounding):
-                raise UserError(_('The quantity to produce must be positive!'))
-            if not any(production.move_raw_ids.mapped('quantity_done')):
-                raise UserError(_("You must indicate a non-zero amount consumed for at least one of your components"))
+        #for production in self:
+        #    if float_is_zero(production.qty_producing, precision_rounding=production.product_uom_id.rounding):
+        #        raise UserError(_('The quantity to produce must be positive!'))
+        #    if not any(production.move_raw_ids.mapped('quantity_done')):
+        #        raise UserError(_("You must indicate a non-zero amount consumed for at least one of your components"))
 
 
         #TODO : J'ai commenté ces lignes le 04/10/2023 pour désactver le wizard qui d'affiche si la nomenclature a changée
@@ -206,6 +213,7 @@ class mrp_production(models.Model):
                 res=obj.with_context(skip_backorder=True).button_mark_done()
             else:
                 res=obj.with_context(skip_backorder=True, mo_ids_to_backorder=obj.id).button_mark_done()
+            obj.calculer_pru_action()
             return res
         return True
 
@@ -361,6 +369,50 @@ class mrp_production(models.Model):
 
         duree = (datetime.now() - debut).total_seconds()
         _logger.info("calculer_charge_action : ** FIN en %.1fs"%duree)
+
+
+    def calculer_pru_action(self):
+        for obj in self:
+            pru_matiere = pru_mo = 0
+
+            #** PRU des composants ********************************************
+            for line in obj.move_raw_ids:
+                production= False
+                domain=[
+                    ('product_id' , '=', line.product_id.id),
+                    ('state'      , '=', 'done'),
+                    ('write_date' , '<', obj.write_date),
+                ]
+                productions=self.env['mrp.production'].search(domain, order='id desc', limit=1)
+                for p in productions:
+                    production=p
+                line.is_pru_matiere=1.23
+                if production:
+                    line.is_pru_production_id = production.id
+                    line.is_pru_matiere = production.is_pru_matiere
+                    line.is_pru_mo      = production.is_pru_mo
+                else:
+                    line.is_pru_matiere = line.product_id.standard_price
+                line.is_pru_matiere_total = line.is_pru_matiere*line.quantity_done
+                line.is_pru_mo_total      = line.is_pru_mo*line.quantity_done
+                line.is_pru_total         = line.is_pru_matiere_total + line.is_pru_mo_total
+                pru_matiere += line.is_pru_matiere_total
+                pru_mo      += line.is_pru_mo_total
+            #******************************************************************
+
+            #** PRU ordre de fabrication **************************************
+            if obj.is_ordre_travail_id:
+                for line in obj.is_ordre_travail_id.line_ids:
+                    pru_mo += line.temps_passe*line.workcenter_id.costs_hour
+            #******************************************************************
+
+            if obj.product_qty>0:
+                obj.is_pru_matiere = pru_matiere / obj.product_qty
+                obj.is_pru_mo      = pru_mo / obj.product_qty
+                obj.is_pru_total   = obj.is_pru_matiere + obj.is_pru_mo
+
+
+
 
 
     def vue_gantt_ordre_production_action(self):

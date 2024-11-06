@@ -9,6 +9,13 @@
             <field name="state">code</field>
             <field name="code">action = records.creer_ordre_travail_action()</field>
         </record>
+        <record id="calculer_pru_action_server" model="ir.actions.server">
+            <field name="name">Calculer PRU</field>
+            <field name="model_id" ref="mrp.model_mrp_production"/>
+            <field name="binding_model_id" ref="mrp.model_mrp_production"/>
+            <field name="state">code</field>
+            <field name="code">action = records.calculer_pru_action()</field>
+        </record>
         <record id="is_mrp_production_form_view" model="ir.ui.view">
             <field name="name">is_mrp_production_form_view</field>
             <field name="model">mrp.production</field>
@@ -53,12 +60,18 @@
                 <xpath expr="//sheet/group/group/field[@name='product_id']" position="attributes">
                     <attribute name="domain">[('bom_ids', '!=', False)]</attribute>
                 </xpath>
+                <xpath expr="//page[@name='components']/field/tree/field[@name='lot_ids']" position="after">
+                    <field name="is_pru_matiere"       optional="hide"/>
+                    <field name="is_pru_mo"            optional="hide"/>
+                    <field name="is_pru_matiere_total" optional="show" sum="Total"/>
+                    <field name="is_pru_mo_total"      optional="show" sum="Total"/>
+                    <field name="is_pru_total"         optional="show" sum="Total"/>
+                    <field name="is_pru_production_id" optional="show" widget="many2one_clickable"/>
+                </xpath>
                 <page name="operations" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </page>
                 <page name="miscellaneous" position="before">
-
-
                     <page string="Mouvements">
 
                         <field name="is_move_production_ids"/>
@@ -66,8 +79,6 @@
                             <field name="is_move_production_nb"/>
                         </group>
                     </page>
-
-
                     <page string="Opérations">
                         <div style="margin-bottom:10px">
                             <button 
@@ -93,48 +104,6 @@
                             />
                         </div>
                         <field name="is_operation_ids" context="{'tree_view_ref':'is_bsa14.is_ordre_travail_line_tree_view'}"/>
-                        <!-- <field name="is_operation_ids">
-                            <tree>
-                                <button title="Voir l'opération" name="acceder_operation_action" type="object" icon="fa-search-plus"/>
-                                <field name="name"/>
-                                <field name="workcenter_id"/>
-                                <field name="recouvrement"/>
-                                <field name="tps_apres"      widget="float_time" sum="Total"/>
-                                <field name="duree_unitaire" widget="float_time" sum="Total" optional="hide"/>
-                                <field name="duree_totale"   widget="float_time" sum="Total" optional="show"/>
-                                <field name="temps_passe"    widget="float_time" sum="Total" optional="show"/>
-                                <field name="reste"          widget="float_time" sum="Total" optional="show"/>
-                                <field name="duree_reelle"   widget="float_time" sum="Total" optional="hide"/>
-                                <field name="heure_debut" readonly="1" optional="show"/>
-                                <field name="heure_fin"   readonly="1" optional="show"/>
-                                <field name="afficher_start_stop" invisible="1"/>
-                                <button 
-                                    name="start_action" 
-                                    type="object" string="Start" class="btn-success"
-                                    attrs="{'invisible': [('afficher_start_stop', '=', False)]}"
-                                />
-                                <button 
-                                    name="stop_action"  
-                                    type="object" string="Stop"  class="btn-danger"
-                                    attrs="{'invisible': [('afficher_start_stop', '=', False)]}"
-                                />
-                                <button 
-                                    name="end_action"  
-                                    type="object" string="End"  class="btn"
-                                    attrs="{'invisible': [('afficher_start_stop', '=', False)]}"
-                                />
-                                <field 
-                                    name="state" 
-                                    widget="badge" 
-                                    decoration-danger="state == 'attente'" 
-                                    decoration-warning="state == 'pret'" 
-                                    decoration-info="state == 'encours'" 
-                                    decoration-success="state == 'termine'" 
-                                    decoration-muted="state == 'annule'" 
-                                    optional="show"
-                                />
-                            </tree>
-                        </field> -->
                     </page>
                     <page string="Etiquettes">
                         <field name="etiquette_ids">
@@ -147,6 +116,13 @@
                         </field>
                         <field name="is_gestion_lot"    invisible="0"/>
                         <field name="generer_etiquette" invisible="0"/>
+                    </page>
+                    <page string="PRU">
+                        <group>
+                            <field name="is_pru_matiere"/>
+                            <field name="is_pru_mo"/>
+                            <field name="is_pru_total"/>
+                        </group>
                     </page>
                 </page>
                 <field name="bom_id" position="after">
@@ -189,6 +165,9 @@
                     <field name="is_sale_order_id"      optional="show" widget="many2one_clickable"/>
                     <field name="is_client_order_ref"   optional="show"/>
                     <field name="is_nom_affaire"        optional="show"/>
+                    <field name="is_pru_matiere"        optional="hide"/>
+                    <field name="is_pru_mo"             optional="hide"/>
+                    <field name="is_pru_total"          optional="hide"/>
                 </field>
             </field>
         </record>
@@ -272,6 +251,9 @@
                     <field name="create_date"                                         optional="show"/>
                     <field name="create_uid"                                          optional="show"/>
                     <field name="is_move_production_nb"                               optional="show"/>
+                    <field name="is_pru_matiere"        optional="hide"/>
+                    <field name="is_pru_mo"             optional="hide"/>
+                    <field name="is_pru_total"          optional="hide"/>
                     <field 
                         name="state"
                         optional="show"

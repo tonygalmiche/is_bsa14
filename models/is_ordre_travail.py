@@ -72,7 +72,7 @@ class is_ordre_travail(models.Model):
             obj.operation_encours_id = encours_id
                
 
-    @api.depends('line_ids','line_ids.state','line_ids.duree_totale','line_ids.temps_passe')
+    @api.depends('line_ids','line_ids.state','line_ids.duree_totale','line_ids.temps_passe','state')
     def _compute_temps_passe(self):
         for obj in self:
             duree_prevue=temps_passe=avancement=0
@@ -81,6 +81,8 @@ class is_ordre_travail(models.Model):
                 temps_passe  += line.temps_passe
             if duree_prevue>0:
                 avancement = 100 * temps_passe / duree_prevue
+            if obj.state=='termine':
+                avancement=100
             obj.duree_prevue = duree_prevue
             obj.temps_passe  = temps_passe
             obj.avancement   = avancement

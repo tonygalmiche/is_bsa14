@@ -18,10 +18,10 @@
                                 }
                                 .table td {
                                     white-space: nowrap;
-                                    font-size: 9pt;
+                                    font-size: 11pt;
                                 }
                                 .table th {
-                                    font-size: 9pt;
+                                    font-size: 11pt;
                                 }
                                 .gris{
                                     background-color : Gainsboro;
@@ -42,7 +42,7 @@
                                     <tr t-foreach="o.ligne_ids" t-as="line" style="border-bottom: 1px solid;">
                                         <td class="text-left"><span t-field="line.designation"/></td>
                                         <td class="text-center"><span t-field="line.reference"/></td>
-                                        <td class="text-right"><span t-field="line.stock_category_id"/></td>
+                                        <!-- <td class="text-right"><span t-field="line.stock_category_id"/></td> -->
                                         <td class="text-right"><span t-esc="(line.qt_theorique or '')"/></td>
                                         <td></td>
                                     </tr>

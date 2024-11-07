@@ -421,10 +421,12 @@
                             <field name="is_trace_reception"/>
                             <field name="is_gestion_lot"/>
                         </group>
-                        <group string='Emplacement de stock'>
+                        <group string='Emplacement de stock et inventaire tournant'>
                             <field name="is_emplacement_lieu_id"/>
                             <field name="is_emplacement_etagere_id"/>
                             <field name="is_emplacement_niveau_id"/>
+                            <field name="is_frequence_inventaire"/>
+                            <field name="is_date_inventaire"/>
                         </group>
                     </group>
                 </xpath>
@@ -506,7 +508,6 @@
                     <field name="is_emplacement_etagere_id"/>
                     <field name="is_emplacement_niveau_id"/>
                 </field>
-
             </field>
         </record>
         <record id="is_product_template_tree_view" model="ir.ui.view">
@@ -539,6 +540,8 @@
                     <field name="is_emplacement_lieu_id"    optional="hide"/>
                     <field name="is_emplacement_etagere_id" optional="hide"/>
                     <field name="is_emplacement_niveau_id"  optional="hide"/>
+                    <field name="is_frequence_inventaire"   optional="hide"/>
+                    <field name="is_date_inventaire"        optional="hide"/>
                     <field name="create_date"               optional="hide"/>
                     <field name="write_date"                optional="hide"/>
                 </tree>

@@ -167,4 +167,23 @@
         <field name="binding_model_id" ref="model_is_devis_parametrable_affaire"/>
         <field name="binding_type">report</field>
     </record>
+
+
+
+
+    <record id="action_report_is_inventaire_tournant" model="ir.actions.report">
+        <field name="name">Inventaire tournant</field>
+        <field name="model">is.inventaire.tournant</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">is_bsa14.report_is_inventaire_tournant</field>
+        <field name="report_file">is_bsa14.report_is_inventaire_tournant</field>
+        <field name="binding_model_id" ref="model_is_inventaire_tournant"/>
+        <field name="binding_type">report</field>
+    </record>
+
+
+
+
+
+
 </odoo>

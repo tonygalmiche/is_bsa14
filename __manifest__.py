@@ -89,6 +89,7 @@ InfoSaône - Module Odoo 14 pour BSA
         "views/is_analyse_temps_declare_view.xml",
         "views/is_supervision_atelier_view.xml",
         "views/is_correction_stock_view.xml",
+        "views/is_inventaire_tournant_view.xml",
 
         "report/external_layout_boxed.xml",
         "report/report_template.xml",
@@ -115,6 +116,7 @@ InfoSaône - Module Odoo 14 pour BSA
         "report/report_devis_parametrable_affaire_quantite.xml",
         "report/report_devis_parametrable_variante_parametre.xml",
         "report/report_devis_parametrable_variante.xml",
+        "report/report_is_inventaire_tournant.xml",
 
         "report/report.xml", 
         "report/sale_report_templates.xml",

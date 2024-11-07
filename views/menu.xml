@@ -405,6 +405,17 @@
             parent="stock.menu_stock_warehouse_mgmt"
             sequence="900"
         />
+        <menuitem   
+            name="Inventaire tournant"
+            action="is_inventaire_tournant_action"  
+            id="is_inventaire_tournant_menu" 
+            parent="stock.menu_stock_warehouse_mgmt"
+            sequence="910"
+        />
+
+
+
+
         <menuitem 
             id="menu_is_bsa_tracabilite" 
             name="Etiquettes" 

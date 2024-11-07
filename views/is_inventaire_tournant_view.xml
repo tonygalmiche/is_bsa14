@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- is.inventaire.tournant --> 
+        <record id="is_inventaire_tournant_seq" model="ir.sequence">
+            <field name="name">Inventaire tournant</field>
+            <field name="code">is.inventaire.tournant</field>
+            <field name="padding">5</field>
+            <field eval="False" name="company_id"/>
+        </record>
+        <record model="ir.ui.view" id="is_inventaire_tournant_form_view">
+            <field name="name">is_inventaire_tournant_form_view</field>
+            <field name="model">is.inventaire.tournant</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>  
+                    <header>
+                        <field name="ligne_ids" invisible="1"/>
+                        <button 
+                            name="recherche_article_action" string="Rechercher les articles à inventorier" type="object" 
+                            attrs="{'invisible':[('ligne_ids','!=',[])]}"
+                        />
+                        <button 
+                            name="voir_lignes_action" string="Voir les lignes" type="object" 
+                            attrs="{'invisible':[('ligne_ids','=',[])]}"
+                        />
+                        <button 
+                            name="valider_inventaire_action" string="Valider l'inventaire" type="object" 
+                            attrs="{'invisible':['|',('state','!=','encours'),('ligne_ids','=',[])]}"
+                            confirm="Voulez-vous vraiment mettre à jour le stock ?"
+                        />
+                        <button 
+                            name="voir_mouvements_action" string="Voir les mouvements de stocks" type="object" 
+                            attrs="{'invisible':['|',('state','=','encours'),('ligne_ids','=',[])]}"
+                        />
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <style>
+                            .o_form_label{
+                                white-space: nowrap;
+                            }
+                        </style>
+                        <group>
+                            <group>
+                                <field name="name"/> 
+                                <field name="stock_category_ids" widget="many2many_tags" />
+                            </group>
+                            <group>
+                                <field name="location_id"/> 
+                                <field name="location_dest_id"/> 
+                                <field name="create_date"/> 
+                                <field name="create_uid"/> 
+                            </group>
+                        </group>
+                         <!-- <field name="ligne_ids" readonly="1">
+                            <tree>
+                                <field name="product_id"  widget="many2one_clickable"/>
+                            </tree>
+                        </field> -->
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_inventaire_tournant_tree_view">
+            <field name="name">is_inventaire_tournant_tree_view</field>
+            <field name="model">is.inventaire.tournant</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree  decoration-muted="state=='termine'" decoration-warning="state=='encours'">
+                    <field name="name" optional="show"/> 
+                    <field name="stock_category_ids" widget="many2many_tags" optional="show"/>
+                    <field name="location_id" optional="show"/> 
+                    <field name="location_dest_id" optional="show"/> 
+                    <field name="create_date" optional="show"/> 
+                    <field name="create_uid" optional="show"/> 
+                    <field name="state" optional="show" widget="badge" decoration-success="state == 'termine'" decoration-warning="state == 'encours'"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_inventaire_tournant_search_view" >
+            <field name="name">is_inventaire_tournant_search_view</field>
+            <field name="model">is.inventaire.tournant</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/> 
+                    <field name="stock_category_ids"/> 
+                    <field name="state" />   
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_inventaire_tournant_action">
+            <field name="name">Inventaire tournant</field>
+            <field name="res_model">is.inventaire.tournant</field>
+            <field name="view_mode">tree,form,graph</field>
+        </record>
+
+        <!-- is.inventaire.tournant.ligne --> 
+        <record model="ir.ui.view" id="is_inventaire_tournant__ligne_tree_view">
+            <field name="name">is_inventaire_tournant__ligne_tree_view</field>
+            <field name="model">is.inventaire.tournant.ligne</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom" limit="2000" create="0">
+                    <button 
+                        title="Enlever cet article des inventaires tournant" name="enlever_article_action" type="object" icon="fa-ban"
+                        attrs="{'invisible':[('state','!=','encours')]}"
+                    />
+                    <field name="designation"       optional="hide"/>   
+                    <field name="reference"         optional="hide"/>   
+                    <field name="product_id"        optional="show" widget="many2one_clickable" readonly="1" /> 
+                    <field name="stock_category_id" optional="show"/>   
+                    <field name="qt_theorique"      readonly="1"/>   
+                    <field name="qt_comptee"        attrs="{'readonly':[('state','!=','encours')]}"/>   
+                    <field name="ecart"             readonly="1"/>   
+                    <field name="date_inventaire"   optional="hide"/>   
+                    <field name="move_id"           optional="hide"  widget="many2one_clickable" />   
+                    <field name="state"             optional="show" widget="badge" decoration-success="state == 'termine'" decoration-warning="state == 'encours'"/>
+                </tree>
+            </field>
+        </record>
+    </data>
+</odoo>

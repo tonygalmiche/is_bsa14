@@ -113,6 +113,8 @@ class product_template(models.Model):
     is_emplacement_lieu_id    = fields.Many2one("is.emplacement.lieu", string="Lieu")
     is_emplacement_etagere_id = fields.Many2one("is.emplacement.etagere", string="Etagère")
     is_emplacement_niveau_id  = fields.Many2one("is.emplacement.niveau", string="Niveau")
+    is_frequence_inventaire   = fields.Float('Fréquence inventaire (mois)', digits=(14,2), default=12, help="Fréquence inventaire tournant")
+    is_date_inventaire        = fields.Date('Date inventaire', help="Date derniere inventaire tournant")
 
 
     def copy(self, default=None):

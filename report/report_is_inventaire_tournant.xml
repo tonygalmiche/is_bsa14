@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_is_inventaire_tournant">
+           <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                           <style>
+                                .o_boxed_footer, .o_boxed_header, .o_report_layout_boxed {
+                                    color: #495057;
+                                    font-size: 11pt;
+                                }
+                                table th, .table td {
+                                    padding: 0.1rem;
+                                    padding-bottom: 0.2rem;
+                                    line-height: 1.1;
+                                }
+                                .table td {
+                                    white-space: nowrap;
+                                    font-size: 9pt;
+                                }
+                                .table th {
+                                    font-size: 9pt;
+                                }
+                                .gris{
+                                    background-color : Gainsboro;
+                                }
+                            </style>
+                            <h2 style="font-size: 12pt">Inventaire tournant <span t-field="o.name"/></h2>
+                            <table class="table table-condensed" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th class="text-left"><strong>Article</strong></th>
+                                        <th class="text-center"><strong>Référence</strong></th>
+                                        <!-- <th class="text-center"><strong>Catégorie</strong></th> -->
+                                        <th class="text-right"><strong>Qt théorique</strong></th>
+                                        <th class="text-right"><strong>Qt comptée</strong></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="o.ligne_ids" t-as="line" style="border-bottom: 1px solid;">
+                                        <td class="text-left"><span t-field="line.designation"/></td>
+                                        <td class="text-center"><span t-field="line.reference"/></td>
+                                        <td class="text-right"><span t-field="line.stock_category_id"/></td>
+                                        <td class="text-right"><span t-esc="(line.qt_theorique or '')"/></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                 </t>
+             </t>
+        </template>
+    </data>
+</odoo>

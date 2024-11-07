@@ -52,3 +52,4 @@ from . import is_valorisation_encours
 from . import is_analyse_temps_declare
 from . import is_supervision_atelier
 from . import is_correction_stock
+from . import is_inventaire_tournant

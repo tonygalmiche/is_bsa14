@@ -800,7 +800,10 @@ class is_devis_parametrable(models.Model):
     unite                      = fields.Selection(_UNITE, "Unité")
     capacite_txt       = fields.Char("Capacité ", compute='_compute_capacite_txt')
     type_cuve_id       = fields.Many2one('is.type.cuve', 'Type de fabrication', required=True)
-    calcul_ids         = fields.One2many('is.type.cuve.calcul', 'devis_parametrable_id', 'Calculs', copy=True)
+
+    #calcul_ids         = fields.One2many('is.type.cuve.calcul', 'devis_parametrable_id', 'Calculs', copy=True)
+    calcul_ids         = fields.One2many('is.type.cuve.calcul', 'devis_parametrable_id', 'Calculs', store=True, readonly=False, compute='actualiser_type_fabrication_action', copy=True)
+
     createur_id        = fields.Many2one('res.users', 'Créateur', required=True, default=lambda self: self.env.user.id , copy=False, tracking=True)
     date_creation      = fields.Date("Date de création"         , required=True, default=lambda *a: fields.Date.today(), copy=False, tracking=True)
     date_actualisation = fields.Datetime("Date d'actualisation"                , default=fields.Datetime.now, tracking=True)
@@ -848,6 +851,40 @@ class is_devis_parametrable(models.Model):
     impression_dimensions         = fields.Selection(_OUI_NON, "Impression dimensions", default="oui")
     montant_option_matiere        = fields.Float("Montant option matière", store=True, readonly=True, compute='_compute_option_matiere')
     test_autofocus                = fields.Char("Test autofocus  ")
+
+
+
+    #@api.onchange('type_cuve_id')
+    #def onchange_type_cuve_id(self):
+
+    @api.depends('type_cuve_id')
+    def actualiser_type_fabrication_action(self):
+        for obj in self:
+            lines = []
+            obj.calcul_ids=False
+            if obj.type_cuve_id:
+                for line in obj.type_cuve_id.calcul_ids:
+                    vals = {
+                        'devis_parametrable_id': obj.id,
+                        'name'                 : line.name,
+                        'description'          : line.description,
+                        'formule'              : line.formule,
+                        'formule_odoo'         : line.formule_odoo,
+                        'resultat'             : line.resultat,
+                        'unite'                : line.unite,
+                        'lien_id'              : line.lien_id.id,
+                    }
+                    lines.append([0,False,vals])
+                    commentaire = line.formule
+            print(lines)
+            obj.calcul_ids=lines
+
+
+
+    # def actualiser_type_fabrication_action(self):
+    #     for obj in self:
+    #         print(obj)
+    #         obj.onchange_type_cuve_id()
 
 
 
@@ -1011,6 +1048,7 @@ class is_devis_parametrable(models.Model):
 
     def write(self, vals):
         res = super(is_devis_parametrable, self).write(vals)
+        print(vals)
         if "capacite" not in vals and "tps_assemblage" not in vals:
             self.recalculer_action()
         return res
@@ -1178,27 +1216,6 @@ class is_devis_parametrable(models.Model):
                 date_achat = line[1]
         return[prix, date_achat]
 
-
-    @api.onchange('type_cuve_id')
-    def onchange_type_cuve_id(self):
-        for obj in self:
-            lines = []
-            obj.calcul_ids=False
-            if obj.type_cuve_id:
-                for line in obj.type_cuve_id.calcul_ids:
-                    vals = {
-                        'devis_parametrable_id': obj.id,
-                        'name'                 : line.name,
-                        'description'          : line.description,
-                        'formule'              : line.formule,
-                        'formule_odoo'         : line.formule_odoo,
-                        'resultat'             : line.resultat,
-                        'unite'                : line.unite,
-                        'lien_id'              : line.lien_id,
-                    }
-                    lines.append([0,False,vals])
-                    commentaire = line.formule
-            obj.calcul_ids=lines
 
 
 class is_lien_odoo_excel(models.Model):
@@ -1782,6 +1799,7 @@ class is_devis_parametrable_variante(models.Model):
     marge_montage     = fields.Float("Marge MO (%)")
     marge_be          = fields.Float("Marge BE (%)")
     marge_revendeur   = fields.Float("Marge revendeur (%)")
+    gain_matiere      = fields.Float("Gain matière première (%)")
     gain_productivite = fields.Float("Gain de productivé (%)", help="En fonction de la quantité prévue, vous pouvez ajouter un gain de productivité sur le temps de montage des équipements")
     remise            = fields.Monetary("Remise")
     remise_pourcent   = fields.Float("Remise (%)")
@@ -1876,7 +1894,7 @@ class is_devis_parametrable_variante(models.Model):
 
 
 
-    @api.depends('remise','remise_pourcent','quantite','marge_matiere','marge_equipement','marge_option','marge_montage','tps_be','marge_be','marge_revendeur','gain_productivite','cout_horaire_montage','cout_horaire_be')
+    @api.depends('remise','remise_pourcent','quantite','marge_matiere','marge_equipement','marge_option','marge_montage','tps_be','marge_be','marge_revendeur','gain_matiere','gain_productivite','cout_horaire_montage','cout_horaire_be')
     def _compute_montant_bassin(self):
         company = self.env.user.company_id
         for obj in self:
@@ -1891,7 +1909,7 @@ class is_devis_parametrable_variante(models.Model):
             obj.montant_bassin_marge_devise = montant_bassin_marge_devise
 
 
-    @api.depends('remise','remise_pourcent','quantite','marge_matiere','marge_equipement','marge_option','marge_montage','tps_be','marge_be','marge_revendeur','gain_productivite','cout_horaire_montage','cout_horaire_be')
+    @api.depends('remise','remise_pourcent','quantite','marge_matiere','marge_equipement','marge_option','marge_montage','tps_be','marge_be','marge_revendeur','gain_matiere','gain_productivite','cout_horaire_montage','cout_horaire_be')
     def _compute_montants(self):
         company = self.env.user.company_id
         for obj in self:
@@ -1908,6 +1926,8 @@ class is_devis_parametrable_variante(models.Model):
                 montant_montage+=line.total_mo*quantite
 
             montant_montage_productivite = montant_montage-montant_montage*obj.gain_productivite/100
+            montant_matiere              = montant_matiere-montant_matiere*obj.gain_matiere/100
+
             montant_be         = obj.tps_be * obj.cout_horaire_be
             montant_transport  = obj.cout_transport*quantite
 

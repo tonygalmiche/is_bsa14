@@ -290,6 +290,11 @@
                             type="object"
                             string="Actualiser le calculateur"
                         />
+                        <button
+                            name="actualiser_type_fabrication_action"
+                            type="object"
+                            string="Actualiser type de fabrication"
+                        />
                     </header>
                     <sheet>
                         <style>
@@ -531,6 +536,7 @@
                                             <field name="tps_be"            optional="hide" widget="float_time"/>
                                             <field name="marge_be"          optional="hide"/>
                                             <field name="marge_revendeur"   optional="hide"/>
+                                            <field name="gain_matiere"      optional="hide"/>
                                             <field name="gain_productivite" optional="hide"/>
                                             <field name="remise"            optional="hide"/>
                                             <field name="remise_pourcent"   optional="hide"/>
@@ -698,6 +704,7 @@
                                 <field name="marge_montage"/>
                                 <field name="marge_be"             attrs="{'invisible':[('type_devis','=','structure')]}"/>
                                 <field name="marge_revendeur"/>
+                                <field name="gain_matiere"/>
                                 <field name="gain_productivite"/>
                                 <field name="remise"/>
                                 <field name="remise_pourcent"/>

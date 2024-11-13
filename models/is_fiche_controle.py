@@ -9,33 +9,44 @@ class is_fiche_controle(models.Model):
     _description = "Fiche contrôle"
     _order='name desc'
 
-    name               = fields.Char("Fiche", readonly=True)
-    type_fiche         = fields.Selection([('interne', u'Interne'),('client', u'Client')], "Type de fiche", required=True)
-    product_id         = fields.Many2one('product.product', 'Article', required=True)
+    name               = fields.Char("Fiche")
+    type_fiche         = fields.Selection([
+        ('interne', 'Interne'),
+        ('client' , 'Client'),
+    ], "Type de fiche")
+    product_id         = fields.Many2one('product.product', 'Article')
     date_creation      = fields.Date("Date de création"              , required=True, default=lambda *a: fields.Date.today())
     createur_id        = fields.Many2one('res.users', 'Créateur'     , required=True, default=lambda self: self.env.user.id)
     controleur_id      = fields.Many2one('res.users', 'Contrôleur fabrication')
     soudeur_id         = fields.Many2one('res.users', 'Soudeur')
-    ligne_ids          = fields.One2many('is.fiche.controle.ligne', 'fiche_id', u'Lignes')
+    ligne_ids          = fields.One2many('is.fiche.controle.ligne', 'fiche_id', 'Lignes', copy=True)
     observation        = fields.Text("Observations")
+    modele             = fields.Boolean("Modèle", default=False)
+    operateur_id       = fields.Many2one('res.users', 'Opérateur')
+    ot_line_id         = fields.Many2one('is.ordre.travail.line', 'Ligne ordre de travail')
+    modele_id          = fields.Many2one('is.fiche.controle', "Modèle utilisé")
+    
 
     @api.model
     def create(self, vals):
-        vals['name'] = self.env['ir.sequence'].next_by_code('is.fiche.controle')
+        if vals.get('modele')!=True:
+            vals['name'] = self.env['ir.sequence'].next_by_code('is.fiche.controle')
         res = super(is_fiche_controle, self).create(vals)
         return res
 
     @api.onchange('type_fiche')
     def _onchange_type_fiche(self):
         if self.type_fiche:
-            lignes = []
-            points = self.env['is.fiche.controle.point'].search([])
-            for point in points:
-                lignes.append((0, 0, {
-                    'fiche_id': self.id,
-                    'point'   : point.name,
-                }))
-            self.ligne_ids = lignes
+            if not self.modele:
+                self.ligne_ids=False
+                lignes = []
+                points = self.env['is.fiche.controle.point'].search([])
+                for point in points:
+                    lignes.append((0, 0, {
+                        'fiche_id': self.id,
+                        'point'   : point.name,
+                    }))
+                self.ligne_ids = lignes
 
 
 class is_fiche_controle_ligne(models.Model):
@@ -49,7 +60,7 @@ class is_fiche_controle_ligne(models.Model):
             ('jaune' , '2-jaune'),
             ('orange', '3-orange'),
             ('non'   , '4-rouge'),
-        ], "Conforme", required=True)
+        ], "Conforme", required=False)
     action_corrective = fields.Text("Si non, action corrective")
 
 

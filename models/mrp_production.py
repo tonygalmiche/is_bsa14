@@ -148,16 +148,17 @@ class mrp_production(models.Model):
                         line_ids=[]
                         for line in obj.bom_id.operation_ids:
                             vals={
-                                'sequence'      : line.sequence,
-                                'name'          : line.name,
-                                'workcenter_id' : line.workcenter_id.id,
-                                'libre'         : line.is_libre,
-                                'recouvrement'  : line.is_recouvrement,
-                                'tps_apres'     : line.is_tps_apres,
-                                'duree_unitaire': line.is_duree_heure,
-                                'duree_totale'  : line.is_duree_heure*obj.product_qty,
-                                'heure_debut'   : obj.date_planned_start,
-                                'heure_fin'     : obj.date_planned_start,
+                                'sequence'          : line.sequence,
+                                'name'              : line.name,
+                                'workcenter_id'     : line.workcenter_id.id,
+                                'libre'             : line.is_libre,
+                                'modele_controle_id': line.is_modele_controle_id.id,
+                                'recouvrement'      : line.is_recouvrement,
+                                'tps_apres'         : line.is_tps_apres,
+                                'duree_unitaire'    : line.is_duree_heure,
+                                'duree_totale'      : line.is_duree_heure*obj.product_qty,
+                                'heure_debut'       : obj.date_planned_start,
+                                'heure_fin'         : obj.date_planned_start,
                             }
                             line_ids.append((0, 0, vals))
                         vals = {

@@ -397,7 +397,8 @@ class is_ordre_travail_line(models.Model):
     commentaire         = fields.Text("Commentaire")
     commentaire_ids     = fields.One2many('is.ordre.travail.line.commentaire', 'line_id', 'Commentaires')
     heure_debut_reelle  = fields.Datetime("Heure début réelle", compute="_compute_heure_debut_reelle", readonly=True, store=True)
-
+    modele_controle_id   = fields.Many2one('is.fiche.controle', 'Modèle du contrôle', domain=[('modele','=',True)])
+    fiche_controle_id    = fields.Many2one('is.fiche.controle', 'Contrôle éffectué', readonly=True,copy=False)
 
 
     @api.depends('temps_passe_ids','temps_passe_ids.heure_debut')

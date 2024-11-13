@@ -52,15 +52,16 @@ class mrp_bom(models.Model):
             obj.operation_ids.unlink()
             for line in obj.is_gamme_generique_id.ligne_ids:
                 vals={
-                    'bom_id'           : obj.id,
-                    'sequence'         : line.sequence,
-                    'name'             : line.name,
-                    'workcenter_id'    : line.workcenter_id.id,
-                    'time_cycle_manual': line.duree*60,
-                    'is_duree_heure'   : line.duree,
-                    'is_recouvrement'  : line.recouvrement,
-                    'is_tps_apres'     : line.tps_apres,
-                    'is_libre'         : line.libre,
+                    'bom_id'               : obj.id,
+                    'sequence'             : line.sequence,
+                    'name'                 : line.name,
+                    'workcenter_id'        : line.workcenter_id.id,
+                    'time_cycle_manual'    : line.duree*60,
+                    'is_duree_heure'       : line.duree,
+                    'is_recouvrement'      : line.recouvrement,
+                    'is_tps_apres'         : line.tps_apres,
+                    'is_libre'             : line.libre,
+                    'is_modele_controle_id': line.modele_controle_id.id,
                 }
                 self.env['mrp.routing.workcenter'].create(vals)
 
@@ -87,11 +88,12 @@ class mrp_bom_line(models.Model):
 class mrp_routing_workcenter(models.Model):
     _inherit  = "mrp.routing.workcenter"
 
-    is_offset       = fields.Integer("Offset (jour)", help="Offset en jours par rapport à l'opération précédente pour le calcul du planning")
-    is_duree_heure  = fields.Float("Durée (Heures)")
-    is_recouvrement = fields.Integer("Recouvrement (%)", required=True, default=0, help="0%: Cette ligne commence à la fin de la ligne précédente\n50%: Cette ligne commence quand la ligne précédente est terminée à 50%\n100%: Cette ligne commence en même temps que la ligne précédente" )
-    is_tps_apres    = fields.Float("Tps passage après (HH:MN)", default=0, help="Temps d'attente après cette opération avant de commencer la suivante (en heures ouvrées)")
-    is_libre        = fields.Boolean("Libre", default=False, help="Permet de démarrer le suivi du temps sur cette opération à tout moment")
+    is_offset             = fields.Integer("Offset (jour)", help="Offset en jours par rapport à l'opération précédente pour le calcul du planning")
+    is_duree_heure        = fields.Float("Durée (Heures)")
+    is_recouvrement       = fields.Integer("Recouvrement (%)", required=True, default=0, help="0%: Cette ligne commence à la fin de la ligne précédente\n50%: Cette ligne commence quand la ligne précédente est terminée à 50%\n100%: Cette ligne commence en même temps que la ligne précédente" )
+    is_tps_apres          = fields.Float("Tps passage après (HH:MN)", default=0, help="Temps d'attente après cette opération avant de commencer la suivante (en heures ouvrées)")
+    is_libre              = fields.Boolean("Libre", default=False, help="Permet de démarrer le suivi du temps sur cette opération à tout moment")
+    is_modele_controle_id = fields.Many2one('is.fiche.controle', 'Modèle du contrôle', domain=[('modele','=',True)])
 
 
     @api.onchange('is_duree_heure')

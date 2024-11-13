@@ -36,6 +36,7 @@
                     <field name="is_recouvrement"                                                                   optional="show"/>
                     <field name="is_tps_apres"   widget="float_time"                        sum="Total"             optional="show"/>
                     <field name="is_libre" widget="boolean_toggle" optional="show"/>
+                    <field name="is_modele_controle_id" optional="show" widget="many2one_clickable"/>
                 </field>
             </field>
         </record>

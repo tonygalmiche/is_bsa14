@@ -173,6 +173,8 @@
                                         <field name="duree_totale" widget="float_time"/> 
                                         <field name="temps_passe"  widget="float_time"/> 
                                         <field name="reste"        widget="float_time"/>      
+                                        <field name="modele_controle_id"/>
+                                        <field name="fiche_controle_id"  attrs="{'invisible': [('fiche_controle_id','=', False)]}"/>
                                    </group>
                               </group>
                               <group string="Suivi du temps"/>
@@ -227,6 +229,8 @@
                          <field name="heure_debut"                           readonly="1" optional="show"/>
                          <field name="heure_fin"                             readonly="1" optional="show"/>
                          <field name="heure_debut_reelle"                                 optional="show"/>
+                         <field name="modele_controle_id"                                 optional="hide" widget="many2one_clickable"/> 
+                         <field name="fiche_controle_id"                                  optional="hide" widget="many2one_clickable"/> 
                          <field name="afficher_start_stop" invisible="1"/>
                          <button 
                          name="start_action" 

@@ -28,6 +28,7 @@
                                 <field name="recouvrement"/>
                                 <field name="tps_apres" widget="float_time" sum="Total"/>
                                 <field name="libre" widget="boolean_toggle"/>
+                                <field name="modele_controle_id" widget="many2one_clickable"/>
                             </tree>
                         </field>
                     </sheet>

@@ -14,18 +14,19 @@ class is_fiche_controle(models.Model):
         ('interne', 'Interne'),
         ('client' , 'Client'),
     ], "Type de fiche")
-    product_id         = fields.Many2one('product.product', 'Article')
+    product_id         = fields.Many2one('product.product', 'Article', tracking=True)
     date_creation      = fields.Date("Date de création"              , required=True, default=lambda *a: fields.Date.today())
     createur_id        = fields.Many2one('res.users', 'Créateur'     , required=True, default=lambda self: self.env.user.id)
     controleur_id      = fields.Many2one('res.users', 'Contrôleur fabrication')
     soudeur_id         = fields.Many2one('res.users', 'Soudeur')
     ligne_ids          = fields.One2many('is.fiche.controle.ligne', 'fiche_id', 'Lignes', copy=True)
-    observation        = fields.Text("Observations")
+    observation        = fields.Text("Observations", tracking=True)
     modele             = fields.Boolean("Modèle", default=False)
     operateur_id       = fields.Many2one('res.users', 'Opérateur')
     ot_line_id         = fields.Many2one('is.ordre.travail.line', 'Ligne ordre de travail')
     modele_id          = fields.Many2one('is.fiche.controle', "Modèle utilisé")
-    
+    active             = fields.Boolean("Actif", default="True", tracking=True)
+
 
     @api.model
     def create(self, vals):

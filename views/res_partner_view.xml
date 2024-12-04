@@ -54,6 +54,12 @@
                         }
                     </style>
                 </xpath>
+                <xpath expr="//sheet/group/group/field[@name='website']" position="before">
+                    <field 
+                        name="is_contact_relance_facture_id" 
+                        attrs="{'invisible': [('is_company', '=', False)]}"
+                    />
+                </xpath>
                 <field name="property_account_position_id" position="before">
                     <field name="is_code_client"         attrs="{'invisible': [('is_company','!=', True)]}"/>
                     <field name="is_code_client_affare"  attrs="{'invisible': [('is_company','!=', True)]}"/>

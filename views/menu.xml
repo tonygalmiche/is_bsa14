@@ -501,8 +501,19 @@
             action="is_livraisons_a_facturer_action_server"  
             id="is_livraisons_a_facturer_menu" 
             parent="account.menu_finance_receivables" 
+            sequence="805"
+        />
+
+
+        <menuitem   
+            name="Relance de factures"
+            action="is_relance_facture_action"  
+            id="is_relance_facture_menu" 
+            parent="account.menu_finance_receivables" 
             sequence="810"
         />
+
+
 
         <menuitem   
             name="Correction lien ligne commande / ligne livraison"

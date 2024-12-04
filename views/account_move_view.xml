@@ -143,8 +143,17 @@
                     <field name="is_a_facturer"          optional="hide" sum="Total"/>
                     <field name="is_sale_line_id"        optional="hide"/>
                 </xpath>
+                <div name="journal_div" position="after">
+                    <field name="is_date_relance"      attrs="{'invisible':[('is_sale_order_compute_id','=',False)]}"/>
+                    <field name="is_num_relance"       attrs="{'invisible':[('is_sale_order_compute_id','=',False)]}"/>
+                    <field name="is_intitule_relance"  attrs="{'invisible':[('is_sale_order_compute_id','=',False)]}"/>
+                    <field name="is_remarque_paiement" attrs="{'invisible':[('is_sale_order_compute_id','=',False)]}"/>
+                </div>
             </field>
         </record>
+
+
+
 
         <record id="is_view_invoice_tree" model="ir.ui.view">
             <field name="name">is_view_invoice_tree</field>

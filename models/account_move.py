@@ -85,6 +85,12 @@ class account_move(models.Model):
 
     is_client_order_ref_vsb = fields.Boolean("Afficher commande client", compute='_compute_is_client_order_ref_vsb')
     is_bl_vsb               = fields.Boolean("Afficher BL"             , compute='_compute_bl_vsb')
+    is_num_relance          = fields.Integer("N° de relance")
+    is_intitule_relance     = fields.Char("Intitulé relance")
+
+    is_remarque_paiement = fields.Char("Remarque paiememt")
+    is_date_relance      = fields.Date(string='Date relance', help='Date dernière relance')
+    is_date_envoi        = fields.Date(string="Date d'envoi", help="Date d'envoi de la facture par mail")
 
 
     @api.depends('invoice_line_ids')

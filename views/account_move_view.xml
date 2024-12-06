@@ -144,17 +144,13 @@
                     <field name="is_sale_line_id"        optional="hide"/>
                 </xpath>
                 <div name="journal_div" position="after">
-                    <field name="is_date_relance"      attrs="{'invisible':[('is_sale_order_compute_id','=',False)]}"/>
-                    <field name="is_num_relance"       attrs="{'invisible':[('is_sale_order_compute_id','=',False)]}"/>
-                    <field name="is_intitule_relance"  attrs="{'invisible':[('is_sale_order_compute_id','=',False)]}"/>
-                    <field name="is_remarque_paiement" attrs="{'invisible':[('is_sale_order_compute_id','=',False)]}"/>
+                    <field name="is_date_relance"/>
+                    <field name="is_num_relance"/>
+                    <field name="is_intitule_relance"/>
+                    <field name="is_remarque_paiement"/>
                 </div>
             </field>
         </record>
-
-
-
-
         <record id="is_view_invoice_tree" model="ir.ui.view">
             <field name="name">is_view_invoice_tree</field>
             <field name="model">account.move</field>
@@ -163,7 +159,6 @@
                 <field name="invoice_date" position="before">
                     <field name="is_societe_commerciale_id" optional="show"/>
                 </field>
-            
                 <field name="invoice_date_due" position="before">
                     <field name="invoice_payment_term_id"  optional="show"/>
                     <field name="invoice_date_due"         optional="show"/>
@@ -171,6 +166,10 @@
                     <field name="is_sale_order_id"         optional="hide"/>
                     <field name="is_type_facturation"      optional="hide"/>
                     <field name="is_situation_id"          optional="hide"/>
+                    <field name="is_date_relance"          optional="hide"/>
+                    <field name="is_num_relance"           optional="hide"/>
+                    <field name="is_intitule_relance"      optional="hide"/>
+                    <field name="is_remarque_paiement"     optional="hide"/>
                 </field>
             </field>
         </record>

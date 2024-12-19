@@ -448,6 +448,7 @@ class sale_order(models.Model):
                         'is_sale_line_id'       : line.id,
                         'tax_ids'               : tax_ids,
                         "is_a_facturer"         : line.is_a_facturer,
+                        "discount"              : line.discount,
                     }
                     total_cumul_ht+=sens*quantity*line.price_unit
                     is_a_facturer+=line.is_a_facturer

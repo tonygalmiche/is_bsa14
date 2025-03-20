@@ -889,7 +889,8 @@ class is_devis_parametrable(models.Model):
 
 
 
-    @api.depends('matiere_ids', 'matiere_ids.matiere_option_id', 'matiere_ids.epaisseur', 'montant_matiere', 'variante_ids', 'variante_ids.marge_matiere')
+    @api.depends('matiere_ids', 'matiere_ids.matiere_option_id', 'matiere_ids.epaisseur', 'montant_matiere', 
+                 'variante_ids', 'variante_ids.marge_matiere','dimension_ids','dimension_ids.valeur')
     def _compute_option_matiere(self):
         for obj in self:
             delta = 0
@@ -922,7 +923,8 @@ class is_devis_parametrable(models.Model):
                         prix_vente_option = 0
                         for line in obj.variante_ids:
                             line._compute_montants()
-                            prix_vente_option =line.prix_vente_int
+                            #prix_vente_option =line.prix_vente_int
+                            prix_vente_option =line.montant_unitaire
                             break
                         #******************************************************
 
@@ -937,7 +939,8 @@ class is_devis_parametrable(models.Model):
                         prix_vente_standard = 0
                         for line in obj.variante_ids:
                             line._compute_montants()
-                            prix_vente_standard =line.prix_vente_int
+                            #prix_vente_standard =line.prix_vente_int
+                            prix_vente_standard =line.montant_unitaire
                             break
                         #******************************************************
 

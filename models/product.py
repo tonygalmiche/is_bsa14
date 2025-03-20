@@ -149,6 +149,10 @@ class product_template(models.Model):
     # sizex : Taille X des caractères (1 à 9)
     # sizey : Taille Y des caractères (1 à 9)
     def datamax(self,sizex, sizey, y, x, txt):
+
+        #** Supprime les accents
+        txt = unicodedata.normalize('NFKD', txt).encode('ASCII', 'ignore').decode("utf-8")
+
         sizex="0"+str(sizex)
         sizex=sizex[-1:]
 
@@ -165,8 +169,65 @@ class product_template(models.Model):
         return r
 
 
+    #TODO Ancienne version remplacée le 20/03/2025
+    # def generer_etiquette(self):
+    #     for obj in self:
+    #         txt=""
+    #         txt=txt+chr(2)+"qC"+chr(10)
+    #         txt=txt+chr(2)+"qC"+chr(10)
+    #         txt=txt+chr(2)+"n"+chr(10)
+    #         txt=txt+chr(2)+"e"+chr(10)
+    #         txt=txt+chr(2)+"c0000"+chr(10)
+    #         txt=txt+chr(2)+"Kf0000"+chr(10)
+    #         txt=txt+chr(2)+"V0"+chr(10)
+    #         txt=txt+chr(2)+"M0591"+chr(10)
+    #         txt=txt+chr(2)+"L"+chr(10)
+    #         txt=txt+"A2"+chr(10)
+    #         txt=txt+"D11"+chr(10)
+    #         txt=txt+"z"+chr(10)
+    #         txt=txt+"PG"+chr(10)
+    #         txt=txt+"SG"+chr(10)
+    #         txt=txt+"pC"+chr(10)
+    #         txt=txt+"H20"+chr(10)
+
+    #         name1=""
+    #         name2=""
+    #         name3=""
+    #         name1=obj.name[0:30]
+    #         if len(obj.name)>30:
+    #             name2=obj.name[30:60]
+    #         if len(obj.name)>60:
+    #             name3=obj.name[60:]
+
+    #         txt=txt+self.datamax(x=15,y=200,sizex=2,sizey=2,txt="ARTICLE:")
+    #         txt=txt+self.datamax(x=15,y=180,sizex=3,sizey=4,txt=name1) #.encode("utf-8"))
+    #         txt=txt+self.datamax(x=15,y=155,sizex=3,sizey=4,txt=name2) #.encode("utf-8"))
+    #         txt=txt+self.datamax(x=15,y=130,sizex=3,sizey=4,txt=name3) #.encode("utf-8"))
+
+    #         txt=txt+self.datamax(x=15,y=110,sizex=2,sizey=2,txt="FOURNISSEUR:")
+    #         for line in obj.seller_ids:
+    #             fournisseur=line.name.name
+    #             txt=txt+self.datamax(x=15,y=90,sizex=4,sizey=4,txt=fournisseur) #.encode("utf-8"))
+    #             break
+
+    #         now=time.strftime('%Y-%m-%d',time.gmtime())
+    #         txt=txt+self.datamax(x=15,y=70,sizex=2,sizey=2,txt="DATE:")
+    #         txt=txt+self.datamax(x=15,y=50,sizex=4,sizey=4,txt=now)
+
+    #         txt=txt+self.datamax(x=250,y=70,sizex=2,sizey=2,txt="ID:")
+    #         txt=txt+self.datamax(x=250,y=50,sizex=4,sizey=4,txt=str(obj.id))
+
+    #         txt=txt+self.datamax(x=15,y=30,sizex=2,sizey=2,txt="REFERENCE:")
+    #         txt=txt+self.datamax(x=15,y=10 ,sizex=4,sizey=4,txt=obj.default_code) #.encode("utf-8"))
+
+    #         txt=txt+"^01"+chr(10)
+    #         txt=txt+"Q0001"+chr(10)
+    #         txt=txt+"E"+chr(10)
+    #         return txt
+
+
     def generer_etiquette(self):
-        for obj in self:
+        for eti in self:
             txt=""
             txt=txt+chr(2)+"qC"+chr(10)
             txt=txt+chr(2)+"qC"+chr(10)
@@ -185,40 +246,43 @@ class product_template(models.Model):
             txt=txt+"pC"+chr(10)
             txt=txt+"H20"+chr(10)
 
+            #** Désignation article sur 2 lignes ******************************
             name1=""
             name2=""
-            name3=""
-            name1=obj.name[0:30]
-            if len(obj.name)>30:
-                name2=obj.name[30:60]
-            if len(obj.name)>60:
-                name3=obj.name[60:]
+            name1=eti.name[0:30]
+            if len(eti.name)>30:
+                name2=eti.name[30:60]
+            txt=txt+self.datamax(x=15,y=220,sizex=2,sizey=2,txt="ARTICLE:")
+            txt=txt+self.datamax(x=15,y=200,sizex=3,sizey=4,txt=name1)
+            txt=txt+self.datamax(x=15,y=175,sizex=3,sizey=4,txt=name2) 
+            #******************************************************************
 
-            txt=txt+self.datamax(x=15,y=200,sizex=2,sizey=2,txt="ARTICLE:")
-            txt=txt+self.datamax(x=15,y=180,sizex=3,sizey=4,txt=name1) #.encode("utf-8"))
-            txt=txt+self.datamax(x=15,y=155,sizex=3,sizey=4,txt=name2) #.encode("utf-8"))
-            txt=txt+self.datamax(x=15,y=130,sizex=3,sizey=4,txt=name3) #.encode("utf-8"))
+            #** Ref sur ligne 3 ***********************************************
+            ref=eti.default_code or ''
+            txt=txt+self.datamax(x=15,y=150,sizex=2,sizey=2,txt="REF INTERNE:")
+            txt=txt+self.datamax(x=15,y=130,sizex=3,sizey=4,txt=ref) 
+            #******************************************************************
 
-            txt=txt+self.datamax(x=15,y=110,sizex=2,sizey=2,txt="FOURNISSEUR:")
-            for line in obj.seller_ids:
-                fournisseur=line.name.name
-                txt=txt+self.datamax(x=15,y=90,sizex=4,sizey=4,txt=fournisseur) #.encode("utf-8"))
+            #** ID sur ligne 3 ***********************************************
+            txt=txt+self.datamax(x=250,y=150,sizex=2,sizey=2,txt="ID:")
+            txt=txt+self.datamax(x=250,y=130,sizex=3,sizey=4,txt=str(eti.id)) 
+            #******************************************************************
+
+            #** Fournsseur sur ligne 4 ***********************************************
+            fournisseur=""
+            for line in eti.seller_ids:
+                fournisseur = line.name.name
                 break
+            txt=txt+self.datamax(x=15,y=110,sizex=2,sizey=2,txt="FOURNISSEUR:")
+            txt=txt+self.datamax(x=15,y=90,sizex=3,sizey=4,txt=fournisseur)
+            #******************************************************************
 
-            now=time.strftime('%Y-%m-%d',time.gmtime())
-            txt=txt+self.datamax(x=15,y=70,sizex=2,sizey=2,txt="DATE:")
-            txt=txt+self.datamax(x=15,y=50,sizex=4,sizey=4,txt=now)
-
-            txt=txt+self.datamax(x=250,y=70,sizex=2,sizey=2,txt="ID:")
-            txt=txt+self.datamax(x=250,y=50,sizex=4,sizey=4,txt=str(obj.id))
-
-            txt=txt+self.datamax(x=15,y=30,sizex=2,sizey=2,txt="REFERENCE:")
-            txt=txt+self.datamax(x=15,y=10 ,sizex=4,sizey=4,txt=obj.default_code) #.encode("utf-8"))
+            txt=txt+"1E1406100060025B"+str(eti.id)+chr(10) # Code barre
 
             txt=txt+"^01"+chr(10)
             txt=txt+"Q0001"+chr(10)
             txt=txt+"E"+chr(10)
-            return txt
+            return txt #.encode('cp1252') 
 
 
     def generer_etiquette_zpl(self):
@@ -229,7 +293,7 @@ class product_template(models.Model):
             ZPL+='^CI28 \n'                                   # Encodage en UTF-8
             ZPL+='^PR3~SD25 \n'                               # PR4=Vitesse de 4 (sur 6) et SD30= Contraste à 30 => Pour imprimer sur du papier Plolypro avec un ruban transfert résine, il est nécessaire de mettre une valeur de chauffe (contraste) de la tête d impression entre 20 et 30 e
             ZPL+='^LH170,35 \n'                               # Décalage x,y depuis le point supérieur gauche
-            #ZPL+='^FO1,1 ^GB920,675,3,0,1^FS \n'              # Cadre de l'étiquette (Largeur, Hauteur, Epaisseur, Couleur, Arrondi) => 300pt = 2,54mm
+            #ZPL+='^FO1,1 ^GB920,675,3,0,1^FS \n'             # Cadre de l'étiquette (Largeur, Hauteur, Epaisseur, Couleur, Arrondi) => 300pt = 2,54mm
             size=40; x=15
             y=40;  ZPL+=o.zpl_text(x,y,size,obj.name)
             y+=50; ZPL+=o.zpl_text(x,y,size,'REF : %s'%(obj.default_code or ''))
@@ -243,6 +307,9 @@ class product_template(models.Model):
 
     def imprimer_etiquette_direct(self):
         for obj in self:
+            print(obj)
+
+
             #etiquettes=self.generer_etiquette()
             company = self.env.user.company_id
             if company.is_type_imprimante=='zebra':
@@ -260,6 +327,10 @@ class product_template(models.Model):
                 imprimante = user.company_id.is_nom_imprimante or 'Datamax'
                 cmd="lpr -h -P"+imprimante+" "+path
                 os.system(cmd)
+
+                print(cmd)
+
+
 
 
     def message_new(self, cr, uid, msg_dict, custom_values=None, context=None):

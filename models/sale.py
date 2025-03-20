@@ -601,6 +601,9 @@ class sale_order_line(models.Model):
 
     def creer_of(self,product_id,quantite):
         for obj in self:
+            if not obj.is_date_prevue:
+                raise Warning("Le champ 'Date prévue initialement' n'est pas renseigné")
+
             production=False
             #** Recherche si un OF existe déja pour cette ligne de commande****
             mrp_production_obj = self.env["mrp.production"]

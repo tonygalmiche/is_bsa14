@@ -114,7 +114,7 @@
                                 <div style="font-size:11pt;text-align:left;color:black">
                                     <div style="padding-top:2mm;padding-left:33mm">
                                         <span t-field="o.quantite_kit"/> x <span t-field="o.description_kit"/> 
-                                        <div t-field="o.description_kit_complement"/>
+                                        <!-- <div t-field="o.description_kit_complement"/> -->
                                     </div>
                                 </div>
                             </t>

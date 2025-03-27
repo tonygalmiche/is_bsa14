@@ -18,11 +18,14 @@
                     <field name="attention_de"              optional="show"/>
                     <field name="is_societe_commerciale_id" optional="show"/>
                     <field name="vendeur_id"                optional="hide"/>
-
                     <field name="montant_ht"                 optional="hide"/>
                     <field name="capacite"                   optional="hide"/>
                     <field name="prix_par_hl"                optional="hide"/>
                     <field name="date_affaire"               optional="hide"/>
+                    <field name="kit"                        optional="hide"/>
+                    <field name="description_kit"            optional="hide"/>
+                    <field name="description_kit_complement" optional="hide"/>
+                    <field name="quantite_kit"               optional="hide"/>
                     <field name="conditions_particulieres"   optional="hide"/>
                     <field name="information_technique"      optional="hide"/>
                     <field name="information_complementaire" optional="hide"/>
@@ -93,6 +96,15 @@
                         <group>
                             <field name="descriptif_affaire_suite" options="{'style-inline': true}" nolabel="1"/>
                         </group>
+
+                        <group string="Kit" attrs="{'invisible':[('kit','=',False)]}"/>
+                        <group>
+                            <field name="kit"/>
+                            <field name="description_kit"            attrs="{'invisible':[('kit','=',False)]}"/>
+                            <field name="description_kit_complement" attrs="{'invisible':[('kit','=',False)]}"/>
+                            <field name="quantite_kit"               attrs="{'invisible':[('kit','=',False)]}"/>
+                        </group>
+
                         <group string="Conditions">
                             <field name="conditions_particulieres"/>
                             <field name="information_technique"/>
@@ -120,6 +132,7 @@
                                     <field name="unite"                           optional="show"/>
                                     <field name="montant_marge"       sum="Total" optional="show"/>
                                     <field name="quantite"            sum="Total" optional="show"/>
+                                    <field name="qt_kit"              sum="Total" optional="hide"/>
                                     <field name="sous_total_capacite" sum="Total" optional="show"/>
                                     <field name="sous_total_marge"    sum="Total" optional="show"/>
                                     <field name="prix_a_afficher"            optional="hide"/>
@@ -184,6 +197,7 @@
                         </group>
                         <group attrs="{'invisible':[('type_devis','=','ombriere')]}">
                             <field name="devise_client_id"/>
+                            <field name="prix_unitaire_kit" attrs="{'invisible':[('kit','=',False)]}"/>
                             <field name="montant_ht"/>
 
                             <field name="capacite"    attrs="{'invisible':[('capacite','=',0)]}"/>

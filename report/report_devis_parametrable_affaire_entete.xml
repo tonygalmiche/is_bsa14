@@ -96,22 +96,28 @@
                         <t t-if="o.type_devis in ('ensemble')">
                             <div style="text-align:center;padding:20mm;font-size:22pt;font-weight:bold;color:black"><span t-field="o.name"/></div>
                         </t>
-
-
-
                         <t t-if="o.descriptif_affaire">
                             <div t-field="o.descriptif_affaire"/>
                         </t>
-
                         <t t-if="o.type_devis not in ('ensemble')">
-                            <div style="font-size:11pt;text-align:left;color:black">
-                                <t t-foreach="o.variante_ids" t-as="variante">
+                            <t t-if="not o.kit">
+                                <div style="font-size:11pt;text-align:left;color:black">
+                                    <t t-foreach="o.variante_ids" t-as="variante">
+                                        <div style="padding-top:2mm;padding-left:33mm">
+                                            - <span t-field="variante.variante_id.quantite"/> x 
+                                            <span t-field="variante.variante_id.devis_id.designation"/>
+                                        </div>
+                                    </t>
+                                </div>    
+                            </t>
+                            <t t-if="o.kit">
+                                <div style="font-size:11pt;text-align:left;color:black">
                                     <div style="padding-top:2mm;padding-left:33mm">
-                                        - <span t-field="variante.variante_id.quantite"/> x 
-                                        <span t-field="variante.variante_id.devis_id.designation"/>
+                                        <span t-field="o.quantite_kit"/> x <span t-field="o.description_kit"/> 
+                                        <div t-field="o.description_kit_complement"/>
                                     </div>
-                                </t>
-                            </div>    
+                                </div>
+                            </t>
                         </t>
                          <div style="text-align:center;margin-top:10mm">
                             <img 

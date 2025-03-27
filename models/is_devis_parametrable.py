@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from email.policy import default
 from odoo import models,fields,api
+from odoo.exceptions import Warning
 import datetime
 from odoo.http import request
 import base64
@@ -84,6 +85,12 @@ class is_devis_parametrable_affaire(models.Model):
     tax_ids                  = fields.One2many('is.devis.parametrable.affaire.tax', 'affaire_id', 'Montant TVA', compute='_compute_tax_ids', store=True, readonly=True)
     afficher_capacite        = fields.Boolean("Indiquer capacité sur récapititualtif", default=False)
 
+    kit                        = fields.Boolean("Kit", default=False)
+    description_kit            = fields.Char("Description kit")
+    description_kit_complement = fields.Text("Description complémentaire kit")
+    quantite_kit               = fields.Integer("Quantité prévue kit")
+    prix_unitaire_kit          = fields.Monetary("Prix unitaire kit", readonly=True, compute='_compute_montants', currency_field='devise_client_id')
+
 
     @api.depends('devis_parametrable_ids','devis_parametrable_ids.quantite','devis_parametrable_ids.devis_id.montant_equipement_ttc')
     def _compute_tax_ids(self):
@@ -131,7 +138,7 @@ class is_devis_parametrable_affaire(models.Model):
 
 
 
-    @api.depends('variante_ids','devis_parametrable_ids')
+    @api.depends('variante_ids','devis_parametrable_ids','quantite_kit')
     def _compute_montants(self):
         company = self.env.user.company_id
         for obj in self:
@@ -141,6 +148,7 @@ class is_devis_parametrable_affaire(models.Model):
             ht=tva=ttc=0
             tax_id = False
             devise_client_id = False
+            prix_unitaire_kit = False
             for line in obj.variante_ids:
                 tax_id = line.variante_id.devis_id.tax_id.id
                 devise_client_id = line.variante_id.devise_client_id.id
@@ -159,6 +167,10 @@ class is_devis_parametrable_affaire(models.Model):
                 tva+=line.montant_tva
                 ht+=line.montant_ht
                 ttc+=line.montant_ht+line.montant_tva
+
+            if obj.kit and obj.quantite_kit>0:
+                prix_unitaire_kit = ht / obj.quantite_kit
+            obj.prix_unitaire_kit = prix_unitaire_kit
 
             obj.montant_ht       = ht
             obj.montant_tva      = tva
@@ -190,9 +202,20 @@ class is_devis_parametrable_affaire(models.Model):
                 obj.conditions_reglement = note
 
 
+    def test_quantite_kit(self):
+        for obj in self:
+            if obj.quantite_kit>0:
+                for line in obj.variante_ids:
+                    if line.quantite/obj.quantite_kit!=round(line.quantite/obj.quantite_kit):
+                        raise Warning("La quantité de la variante (%s) n'est pas un multiple du kit (%s)"%(line.quantite,obj.quantite_kit))
+
+
     def write(self, vals):
         vals["date_modification"] = fields.Date.today()
         res = super(is_devis_parametrable_affaire, self).write(vals)
+        for obj in self:
+            if obj.kit:
+                obj.test_quantite_kit()
         if 'partner_id' in vals:
             for obj in self:
                 for line in obj.variante_ids:
@@ -349,6 +372,9 @@ class is_devis_parametrable_affaire(models.Model):
 
     def generer_pdf_action(self):
         for obj in self:
+
+            obj.test_quantite_kit()
+
             #obj._compute_tax_ids()
 
             #** Mise à jour société commerciale *******************************
@@ -580,6 +606,7 @@ class is_devis_parametrable_affaire_variante(models.Model):
     capacite    = fields.Integer("Capacité", related="variante_id.capacite", readonly=True)
     unite       = fields.Selection(related="variante_id.unite", readonly=True)
     quantite    = fields.Integer(related="variante_id.quantite", readonly=True)
+    qt_kit      = fields.Integer("Qt kit", help="Qt pour 1 kit", compute='_compute_qt_kit', store=False, readonly=True)
     prix_a_afficher          = fields.Selection(related="variante_id.prix_a_afficher")
     currency_id              = fields.Many2one(related="variante_id.currency_id")
     montant_marge            = fields.Monetary(related="variante_id.montant_marge")
@@ -590,6 +617,16 @@ class is_devis_parametrable_affaire_variante(models.Model):
     sous_total_capacite      = fields.Integer(related="variante_id.sous_total_capacite")
     sous_total_capacite      = fields.Integer(related="variante_id.sous_total_capacite")
     taux_marge_commerciale   = fields.Float(related="variante_id.taux_marge_commerciale", string="Tx cial", help="Taux de marge commerciale (%)")
+
+
+    @api.depends('qt_kit',"affaire_id.quantite_kit")
+    def _compute_qt_kit(self):
+        for obj in self:
+            qt_kit=0
+            if obj.affaire_id:
+                if obj.affaire_id.quantite_kit>0:
+                    qt_kit = obj.quantite/ obj.affaire_id.quantite_kit
+            obj.qt_kit = round(qt_kit)
 
 
     @api.depends('quantite',"prix_vente_remise_devise")

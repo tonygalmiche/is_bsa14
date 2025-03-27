@@ -20,8 +20,43 @@
                         </t>
                         <t t-if="len(o.variante_ids)>0">
                             <t t-set="devis_all" t-value="o.get_devis()"/>
-                            <t t-foreach="devis_all" t-as="devis">
-                                <h3 t-esc="devis.designation"/>
+                            <t t-if="not o.kit">
+                                <t t-foreach="devis_all" t-as="devis">
+                                    <h3 t-esc="devis.designation"/>
+                                    <table class="table table-sm o_main_table">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-left">Description</th>
+                                                <th class="text-center">Quantité<br />prévue</th>
+                                                <th class="text-right">Prix<br />unitaire</th>
+                                                <th class="text-right">Montant HT</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="devis_all[devis]" t-as="variante">
+                                                <tr style="border-bottom: 1px solid;">
+                                                    <td class="text-left">
+                                                        <b><div t-field="variante.variante_id.description_libre"/></b>
+                                                        <i><div t-field="variante.variante_id.description_complementaire"/></i>
+                                                        <t t-if="variante.variante_id.intitule_remise">
+                                                            <div style="font-style: italic;">
+                                                                <span t-field="variante.variante_id.intitule_remise"/>
+                                                                <!-- <span>&#160;incluse sur le prix unitaire</span> -->
+                                                            </div>
+                                                        </t>
+                                                    </td>
+                                                    <td class="text-center"><span t-field="variante.quantite"/></td>
+                                                    <td class="text-right"><span t-field="variante.prix_vente_remise_devise"/> <span t-field="o.devise_client_id.symbol"/></td>
+                                                    <td t-if="variante.quantite>0"  class="text-right"><span t-field="variante.montant"/> <span t-field="o.devise_client_id.symbol"/></td>
+                                                    <td t-if="variante.quantite==0" class="text-right">0,00 <span t-field="o.devise_client_id.symbol"/></td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table> 
+                                </t>
+                            </t>
+                            <t t-if="o.kit">
+                                <h3 t-esc="o.description_kit"/>
                                 <table class="table table-sm o_main_table">
                                     <thead>
                                         <tr>
@@ -32,27 +67,36 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <t t-foreach="devis_all[devis]" t-as="variante">
-                                            <tr style="border-bottom: 1px solid;">
-                                                <td class="text-left">
-                                                    <b><div t-field="variante.variante_id.description_libre"/></b>
-                                                    <i><div t-field="variante.variante_id.description_complementaire"/></i>
-                                                    <t t-if="variante.variante_id.intitule_remise">
-                                                        <div style="font-style: italic;">
-                                                            <span t-field="variante.variante_id.intitule_remise"/>
-                                                            <!-- <span>&#160;incluse sur le prix unitaire</span> -->
+                                        <tr style="border-bottom: 1px solid;">
+                                            <td class="text-left">
+                                                <div><b>Composition d'un kit complet</b></div>
+
+                                                <t t-foreach="devis_all" t-as="devis">
+
+
+                                                    <t t-foreach="devis_all[devis]" t-as="variante">
+                                                        <div>- <span t-field="variante.qt_kit"/>
+                                                            <span t-esc="devis.designation"/>
                                                         </div>
                                                     </t>
-                                                </td>
-                                                <td class="text-center"><span t-field="variante.quantite"/></td>
-                                                <td class="text-right"><span t-field="variante.prix_vente_remise_devise"/> <span t-field="o.devise_client_id.symbol"/></td>
-                                                <td t-if="variante.quantite>0"  class="text-right"><span t-field="variante.montant"/> <span t-field="o.devise_client_id.symbol"/></td>
-                                                <td t-if="variante.quantite==0" class="text-right">0,00 <span t-field="o.devise_client_id.symbol"/></td>
-                                            </tr>
-                                        </t>
+                                                </t>
+                                                <t t-if="o.description_kit_complement"><i><div t-field="o.description_kit_complement"/></i></t>
+                                            </td>
+                                            <td class="text-center"><span t-field="o.quantite_kit"/></td>
+                                            <td class="text-right"><span t-field="o.prix_unitaire_kit"/></td>
+                                            <td class="text-right"><span t-field="o.montant_ht"/></td>
+                                        </tr>
                                     </tbody>
                                 </table> 
                             </t>
+
+
+   <!-- kit                        = fields.Boolean("Kit", default=False)
+    description_kit            = fields.Char("Description kit")
+    description_kit_complement = fields.Text("Description complémentaire kit")
+    quantite_kit               = fields.Integer("Quantité prévue kit") -->
+
+
                         </t>
                     </div>
                 </t>

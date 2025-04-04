@@ -56,6 +56,11 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <form>  
+                    <style>
+                        .o_form_label{
+                            white-space: nowrap;
+                        }
+                    </style>
                     <header>
                         <button name="action_send_mail" string="Envoie par mail" type="object" />
                         <button 
@@ -83,6 +88,7 @@
                         <group>
                             <field name="categorie_id"/>
                             <field name="product_id"/>
+                            <field name="product_ids" widget="many2many_tags" />
                             <field name="nb_rebuts"/>
                             <field name="move_id" attrs="{'invisible': [('move_id','=',False)]}"/>
                             <field name="rsp_projet_id"/>

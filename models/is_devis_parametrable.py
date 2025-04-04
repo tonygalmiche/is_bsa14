@@ -1554,8 +1554,6 @@ class is_devis_parametrable_article_operation(models.Model):
             obj.duree_totale = obj.product_qty*obj.duree
 
 
-
-
 class is_devis_parametrable_option(models.Model):
     _name = 'is.devis.parametrable.option'
     _description = "Options du devis paramètrable"
@@ -1570,9 +1568,10 @@ class is_devis_parametrable_option(models.Model):
     valeur             = fields.Float("Valeur"     , help="Donnée d'entrée du calculateur")
     quantite           = fields.Float("Quantitée"  , help="Donnée de sortie du calculateur")
     prix               = fields.Float("Prix"       , help="Prix unitaire de l'option")
-    montant            = fields.Float("Montant (€)"        , store=True, readonly=True, compute='_compute_montant')
-    montant_int        = fields.Integer("Montant (arrondi)", store=True, readonly=True, compute='_compute_montant')
-    montant_devise     = fields.Monetary("Montant"         , store=True, readonly=True, compute='_compute_montant', currency_field='devise_client_id')
+    montant            = fields.Float("Montant (€)"        , store=True , readonly=True, compute='_compute_montant')
+    montant_int        = fields.Integer("Montant (arrondi)", store=True , readonly=True, compute='_compute_montant')
+    montant_devise     = fields.Monetary("Montant"         , store=True , readonly=True, compute='_compute_montant', currency_field='devise_client_id')
+    montant_marge      = fields.Float("Montant margé (€)"  , store=False, readonly=True, compute='_compute_montant_marge', help = "'Montant (€)' x 'Marge option de la variante'")
     entree2            = fields.Float("Entrée 2")
     sortie2            = fields.Float("Sortie 2")
     option_active      = fields.Boolean("Active"  , default=True)
@@ -1580,6 +1579,14 @@ class is_devis_parametrable_option(models.Model):
     thermoregulation   = fields.Boolean("Thermo.", help="Thermorégulation", related="option_id.thermoregulation")
 
 
+    @api.depends('montant')
+    def _compute_montant_marge(self):
+        for obj in self:
+            marge_option = 0
+            for variante in obj.devis_id.variante_ids:
+                marge_option = variante.marge_option
+            montant_marge = obj.montant * (1+marge_option/100)
+            obj.montant_marge = montant_marge
 
 
     @api.onchange('option_id')

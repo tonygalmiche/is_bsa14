@@ -22,6 +22,7 @@
                     <field name="controleur_id" optional="hide"/>
                     <field name="soudeur_id"    optional="hide"/>
                     <field name="operateur_id"  optional="hide"/>
+                    <field name="operateur_ids" optional="hide" widget="many2many_tags"/>
                     <field name="ot_line_id"    optional="hide"/>
                     <field name="observation"   optional="show"/>
                 </tree>
@@ -46,9 +47,10 @@
                                 <field name="type_fiche" required="1"/>
                                 <field name="product_id" required="1"/>
                                 <field name="soudeur_id"/>
-                                <field name="operateur_id" attrs="{'invisible': [('operateur_id','=', False)]}"/>
-                                <field name="ot_line_id"   attrs="{'invisible': [('ot_line_id','=', False)]}"/>
-                                <field name="modele_id"    attrs="{'invisible': [('modele_id','=', False)]}"/>
+                                <field name="operateur_id"  attrs="{'invisible': [('operateur_id','=', False)]}"/>
+                                <field name="operateur_ids" attrs="{'invisible': [('operateur_id','=', False)]}" widget="many2many_tags"/>
+                                <field name="ot_line_id"    attrs="{'invisible': [('ot_line_id','=', False)]}"/>
+                                <field name="modele_id"     attrs="{'invisible': [('modele_id','=', False)]}"/>
                             </group>
                             <group>
                                 <field name="date_creation" />
@@ -108,7 +110,7 @@
                     <field name="name"/>
                     <field name="date_creation"/>
                     <field name="createur_id"/>
-                </tree>
+                 </tree>
             </field>
         </record>
         <record id="is_fiche_controle_modele_form" model="ir.ui.view">

@@ -22,10 +22,21 @@ class is_fiche_controle(models.Model):
     ligne_ids          = fields.One2many('is.fiche.controle.ligne', 'fiche_id', 'Lignes', copy=True)
     observation        = fields.Text("Observations", tracking=True)
     modele             = fields.Boolean("Modèle", default=False)
-    operateur_id       = fields.Many2one('hr.employee', 'Opérateur')
+    operateur_id       = fields.Many2one('hr.employee', 'Contrôleur')
+    operateur_ids      = fields.Many2many('hr.employee', 'is_fiche_controle_operateur_rel', 'fiche_id', 'operateur_id', 'Opérateurs', compute="_compute_operateur_ids", readonly=True, store=False)
     ot_line_id         = fields.Many2one('is.ordre.travail.line', 'Ligne ordre de travail')
     modele_id          = fields.Many2one('is.fiche.controle', "Modèle utilisé")
     active             = fields.Boolean("Actif", default="True", tracking=True)
+
+
+    @api.depends("ot_line_id","ot_line_id.temps_passe_ids.employe_id")
+    def _compute_operateur_ids(self):
+        for obj in self:
+            ids=[]
+            for line in obj.ot_line_id.temps_passe_ids:
+                if line.employe_id:
+                    ids.append(line.employe_id.id)
+            obj.operateur_ids = ids
 
 
     @api.model

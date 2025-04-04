@@ -518,6 +518,7 @@
                                             <field name="quantite"            optional="show"/>
                                             <field name="prix"                optional="show"/>
                                             <field name="montant"        sum="Total" optional="show"/>
+                                            <field name="montant_marge"  sum="Total" optional="hide"/>
                                             <field name="montant_int"    sum="Total" optional="hide"/>
                                             <field name="montant_devise" sum="Total" optional="hide"/>
                                             <field name="entree2"             optional="show"/>

@@ -398,6 +398,16 @@
             parent="stock.menu_stock_config_settings" 
             sequence="12" 
         />
+
+        <menuitem 
+            name="Cause correction stock" 
+            action="is_correction_stock_cause_action" 
+            id="is_correction_stock_cause_menu"
+            parent="stock.menu_stock_config_settings" 
+            sequence="13" 
+        />
+
+
         <menuitem   
             name="Lignes des livraisons"
             action="is_picking_line_action"  

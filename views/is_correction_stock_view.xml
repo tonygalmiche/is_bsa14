@@ -15,6 +15,11 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <form>  
+                    <style>
+                        .o_form_label{
+                            white-space: nowrap;
+                        }
+                    </style>
                     <header>
                         <button 
                             name="correction_stock_action" 
@@ -31,14 +36,15 @@
                                 <field name="name"/> 
                                 <field name="product_id"       attrs="{'readonly': [('state','=','valide')]}"/> 
                                 <field name="quantite"         attrs="{'readonly': [('state','=','valide')]}"/> 
-                                <field name="location_id"      attrs="{'readonly': [('state','=','valide')]}"/> 
-                                <field name="location_dest_id" attrs="{'readonly': [('state','=','valide')]}"/> 
-                                <field name="move_id"/> 
+                                <field name="cause_id"         attrs="{'readonly': [('state','=','valide')]}"/> 
                                 <field name="commentaire"      attrs="{'readonly': [('state','=','valide')]}"/> 
                             </group>
                             <group>
                                 <field name="create_date" string="Créé le"/> 
                                 <field name="create_uid"  string="Créé par"/> 
+                                <field name="location_id"/> 
+                                <field name="location_dest_id"/> 
+                                <field name="move_id"/> 
                             </group>
                         </group>
                     </sheet>
@@ -57,6 +63,7 @@
                     <field name="location_id"      optional="show" widget="many2one_clickable"/> 
                     <field name="location_dest_id" optional="show" widget="many2one_clickable"/> 
                     <field name="move_id"          optional="show" widget="many2one_clickable"/> 
+                    <field name="cause_id"         optional="show"/> 
                     <field name="commentaire"      optional="show"/> 
                     <field name="create_date"      optional="show" string="Créé le"/> 
                     <field name="create_uid"       optional="show" string="Créé par"/> 
@@ -79,6 +86,7 @@
                     <field name="product_id"/> 
                     <field name="location_id"/> 
                     <field name="location_dest_id"/> 
+                    <field name="cause_id"/> 
                     <field name="commentaire"/> 
                     <field name="create_uid"  string="Créé par"/> 
                 </search>
@@ -87,6 +95,49 @@
         <record model="ir.actions.act_window" id="is_correction_stock_action">
             <field name="name">Correction stock</field>
             <field name="res_model">is.correction.stock</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- is.correction.stock.cause --> 
+        <record model="ir.ui.view" id="is_correction_stock_cause_form_view">
+            <field name="name">is_correction_stock_cause_form_view</field>
+            <field name="model">is.correction.stock.cause</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>  
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/> 
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_correction_stock_cause_tree_view">
+            <field name="name">is_correction_stock_cause_tree_view</field>
+            <field name="model">is.correction.stock.cause</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/> 
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="is_correction_stock_cause_search_view" >
+            <field name="name">is_correction_stock_cause_search_view</field>
+            <field name="model">is.correction.stock.cause</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/> 
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="is_correction_stock_cause_action">
+            <field name="name">Cause correction stock</field>
+            <field name="res_model">is.correction.stock.cause</field>
             <field name="view_mode">tree,form</field>
         </record>
     </data>

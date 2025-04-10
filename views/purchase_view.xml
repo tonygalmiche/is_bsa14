@@ -27,7 +27,6 @@
                         attrs="{'invisible': [('state','in',('draft','sent'))]}"
                     />
                 </field>
-
                 <field name="picking_type_id" position="replace"/>
                 <field name="dest_address_id" position="replace"/>
                 <field name="origin" position="after">
@@ -36,10 +35,10 @@
                     <field name="picking_type_id"/>
                     <field name="dest_address_id"/>
                 </field>
-
-
-
-
+                <xpath expr="//group/group/field[@name='currency_id']" position="after">
+                    <field name="is_sale_order_id"/>
+                    <field name="is_nom_affaire" attrs="{'invisible':[('is_nom_affaire','=',False)]}"/>
+                </xpath>
                 <notebook position="before">
                     <div style="background:orange;font-weight:bold;padding-left:5pt" attrs="{'invisible':[('is_alerte_rsp_achat','=',False)]}">
                         <field 
@@ -72,7 +71,6 @@
                         <field name="is_valideur_id"    readonly="1" attrs="{'invisible':[('is_valideur_id','=',False)]}"/>
                     </group>
                 </notebook>
-
                 <xpath expr="//page[@name='products']/field[@name='order_line']/tree/field[@name='product_id']" position="before">
                     <field name="is_num_ligne" optional="show"/>
                 </xpath>
@@ -85,8 +83,6 @@
                 <xpath expr="//page[@name='products']/field[@name='order_line']/tree/field[@name='date_planned']" position="after">
                     <field name="is_date_ar"    optional="show"/>
                 </xpath>
-
-
                 <xpath expr="//page[@name='products']/field[@name='order_line']/form/group/group/field[@name='price_unit']" position="before">
                     <field name="is_contrat_id" optional="show"/>
                     <field name="is_qt_contrat" optional="show"/>
@@ -117,6 +113,28 @@
                 </field>
             </field>
         </record>
+        <record id="is_purchase_order_kpis_tree" model="ir.ui.view">
+            <field name="name">is_purchase_order_kpis_tree</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_kpis_tree"/>
+            <field name="arch" type="xml">
+                <field name="origin" position="after">
+                    <field name="is_sale_order_id" optional="hide" widget="many2one_clickable"/>
+                    <field name="is_nom_affaire"   optional="show"/>
+                </field>
+            </field>
+        </record>
+        <record id="is_purchase_order_view_tree" model="ir.ui.view">
+            <field name="name">is_purchase_order_view_tree</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_view_tree"/>
+            <field name="arch" type="xml">
+                <field name="origin" position="after">
+                    <field name="is_sale_order_id" optional="hide" widget="many2one_clickable"/>
+                    <field name="is_nom_affaire"   optional="show"/>
+                </field>
+            </field>
+        </record>
         <record id="is_purchase_order_tree" model="ir.ui.view">
             <field name="name">is_purchase_order_arc_tree</field>
             <field name="model">purchase.order</field>
@@ -136,7 +154,6 @@
                 <tree editable="top">
                     <field name="name"                 readonly="1"/>
                     <field name="partner_id"           readonly="1"/>
-                    <!-- <field name="minimum_planned_date" readonly="1"/> -->
                     <field name="amount_untaxed"       readonly="1"/>
                     <field name="amount_total"         readonly="1"/>
                     <field name="is_a_commander"       readonly="1"/>
@@ -151,36 +168,40 @@
             <field name="view_id" ref="is_purchase_order_arc_tree"/>
             <field name="view_mode">tree,form</field>
         </record>
-
-
         <record id="purchase.purchase_rfq" model="ir.actions.act_window">
             <field name="domain">[('state', 'not in', ('purchase', 'done'))]</field>
         </record>
+        <record id="is_purchase_order_view_search" model="ir.ui.view">
+            <field name="name">is_purchase_order_view_search</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_view_search"/>
+            <field name="priority" eval="90"/>
+            <field name="arch" type="xml">
+                <field name="product_id" position="after">
+                    <field name="is_sale_order_id"/>
+                    <field name="is_nom_affaire"/>
+                </field>
+            </field>
+        </record>
+        <record id="is_view_purchase_order_filter" model="ir.ui.view">
+            <field name="name">is_view_purchase_order_filter</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.view_purchase_order_filter"/>
+            <field name="priority" eval="90"/>
+            <field name="arch" type="xml">
+                <field name="product_id" position="after">
+                    <field name="is_sale_order_id"/>
+                    <field name="is_nom_affaire"/>
+                </field>
+            </field>
+        </record>
 
+
+        
 
 
 
         <!-- purchase.order.line -->
-        <!-- <record id="is_purchase_order_line_form" model="ir.ui.view">
-            <field name="name">is.purchase.order.line.form</field>
-            <field name="model">purchase.order.line</field>
-            <field name="inherit_id" ref="purchase.purchase_order_line_form"/>
-            <field name="arch" type="xml">
-                <field name="product_id" position="before">
-                    <field name="order_id" readonly="1" />
-                </field>
-            </field>
-        </record> -->
-        <!-- <record id="is_purchase_order_line_form" model="ir.ui.view">
-            <field name="name">is_purchase_order_line_form</field>
-            <field name="model">purchase.order.line</field>
-            <field name="inherit_id" ref="purchase.purchase_order_line_form" />
-            <field name="arch" type="xml">
-                <field name="date_planned" position="after">
-                    <field name="is_date_ar"/>
-                </field>
-            </field>
-        </record> -->
         <record id="is_purchase_order_line_tree" model="ir.ui.view">
             <field name="name">is_purchase_order_line_tree</field>
             <field name="model">purchase.order.line</field>
@@ -245,13 +266,6 @@
             <field name="view_mode">tree,form,graph</field>
         </record>
 
-
-        <!-- Modèles de mail de demande de prix -->
-        <!-- <record id="is_demande_de_prix_email_template" model="email.template">
-            <field name="name">Demande de prix</field>
-            <field name="model_id" ref="purchase.model_purchase_order"/>
-            <field name="auto_delete" eval="True"/>
-        </record> -->
 
     </data>
 </odoo>

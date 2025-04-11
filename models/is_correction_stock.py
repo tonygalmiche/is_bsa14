@@ -17,7 +17,7 @@ class is_correction_stock(models.Model):
 
     name             = fields.Char("N°", readonly=True)
     product_id       = fields.Many2one('product.product', 'Article', required=True)
-    quantite         = fields.Integer("Quantité à enlever", required=True)
+    quantite         = fields.Integer("Quantité à modifier", required=True)
     location_id      = fields.Many2one('stock.location', "Emplacement d'origine"     , required=False, store=True, readonly=True, compute='_compute_location_id')
     location_dest_id = fields.Many2one('stock.location', "Emplacement de destination", required=False, store=True, readonly=True, compute='_compute_location_id')
     move_id          = fields.Many2one('stock.move', 'Mouvement de stock', readonly=True, copy=False)
@@ -39,7 +39,7 @@ class is_correction_stock(models.Model):
             locations=self.env['stock.location'].search([('usage' , '=' , 'production')],limit=1)
             for location in locations:
                 location_dest_id = location.id
-            if obj.quantite<0:
+            if obj.quantite>0:
                 mem_location_id  = location_id
                 location_id      = location_dest_id
                 location_dest_id = mem_location_id

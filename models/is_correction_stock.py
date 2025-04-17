@@ -85,4 +85,5 @@ class is_correction_stock(models.Model):
                 move._action_done()
                 obj.move_id = move.id
                 obj.state='valide'
+        return True
 

@@ -107,6 +107,7 @@ class is_inventaire_tournant(models.Model):
             for ligne in obj.ligne_ids:
                 if ligne.product_id in mydict:
                     ligne.qt_comptee = mydict[ligne.product_id]
+        return True
             
     
     def voir_mouvements_action(self):

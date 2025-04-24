@@ -15,7 +15,8 @@
             <field name="arch" type="xml">
                 <form>  
                     <header>
-                        <field name="ligne_ids" invisible="1"/>
+                        <field name="ligne_ids"  invisible="1"/>
+                        <field name="saisie_ids" invisible="1"/>
                         <button 
                             name="recherche_article_action" string="Rechercher les articles à inventorier" type="object" 
                             attrs="{'invisible':[('ligne_ids','!=',[])]}"
@@ -23,6 +24,14 @@
                         <button 
                             name="voir_lignes_action" string="Voir les lignes" type="object" 
                             attrs="{'invisible':[('ligne_ids','=',[])]}"
+                        />
+                        <button 
+                            name="voir_saisies_action" string="Voir les saisies" type="object" 
+                            attrs="{'invisible':[('ligne_ids','=',[])]}"
+                        />
+                        <button 
+                            name="actualiser_lignes_action" string="Actualiser les lignes à partir des sasies" type="object" 
+                            attrs="{'invisible':['|',('state','!=','encours'),('saisie_ids','=',[])]}"
                         />
                         <button 
                             name="valider_inventaire_action" string="Valider l'inventaire" type="object" 
@@ -100,8 +109,8 @@
         </record>
 
         <!-- is.inventaire.tournant.ligne --> 
-        <record model="ir.ui.view" id="is_inventaire_tournant__ligne_tree_view">
-            <field name="name">is_inventaire_tournant__ligne_tree_view</field>
+        <record model="ir.ui.view" id="is_inventaire_tournant_ligne_tree_view">
+            <field name="name">is_inventaire_tournant_ligne_tree_view</field>
             <field name="model">is.inventaire.tournant.ligne</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
@@ -120,6 +129,21 @@
                     <field name="date_inventaire"   optional="hide"/>   
                     <field name="move_id"           optional="hide"  widget="many2one_clickable" />   
                     <field name="state"             optional="show" widget="badge" decoration-success="state == 'termine'" decoration-warning="state == 'encours'"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <!-- is.inventaire.tournant.saisie --> 
+        <record model="ir.ui.view" id="is_inventaire_tournant_saisie_tree_view">
+            <field name="name">is_inventaire_tournant_saisie_tree_view</field>
+            <field name="model">is.inventaire.tournant.saisie</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom" limit="2000">
+                    <field name="product_id"    widget="many2one_clickable"/> 
+                    <field name="quantite"      sum="Total"/>   
+                    <field name="inventaire_id" invisible="1"/> 
                 </tree>
             </field>
         </record>

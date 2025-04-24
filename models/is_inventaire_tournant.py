@@ -13,10 +13,8 @@ class is_inventaire_tournant(models.Model):
     stock_category_ids = fields.Many2many('is.stock.category', 'is_inventaire_tournant_stock_category_rel', 'inventaire_id', 'stock_category_id', 'Catégorie de stock', required=True)
     location_id        = fields.Many2one('stock.location', "Emplacement à inventorier", readonly=True)
     location_dest_id   = fields.Many2one('stock.location', "Emplacement d'inventaire" , readonly=True)
-
-
-
-    ligne_ids          = fields.One2many('is.inventaire.tournant.ligne', 'inventaire_id', 'Lignes')
+    ligne_ids          = fields.One2many('is.inventaire.tournant.ligne' , 'inventaire_id', 'Lignes')
+    saisie_ids         = fields.One2many('is.inventaire.tournant.saisie', 'inventaire_id', 'Saisies')
     state              = fields.Selection([
             ('encours', 'En cours'),
             ('termine', 'Terminé'),
@@ -49,9 +47,6 @@ class is_inventaire_tournant(models.Model):
                         date_limite =  product.is_date_inventaire + timedelta(days=product.is_frequence_inventaire*30) 
                         if date_limite>=date.today():
                             test=False
-
-                        print(product.is_date_inventaire, product.is_frequence_inventaire,date_limite,test)
-
                     if test:
                         #** Recherche stock article *******************************
                         domain=[
@@ -78,7 +73,7 @@ class is_inventaire_tournant(models.Model):
     def voir_lignes_action(self):
         for obj in self:
             return {
-                "name": obj.name,
+                "name": 'Lignes',
                 "view_mode": "tree",
                 "res_model": "is.inventaire.tournant.ligne",
                 "domain": [
@@ -88,6 +83,32 @@ class is_inventaire_tournant(models.Model):
             }
 
 
+    def voir_saisies_action(self):
+        for obj in self:
+            return {
+                "name": 'Saisies',
+                "view_mode": "tree",
+                "res_model": "is.inventaire.tournant.saisie",
+                "domain": [
+                    ("inventaire_id" ,"=",obj.id),
+                ],
+                "type": "ir.actions.act_window",
+                'context': {'default_inventaire_id': obj.id }
+            }
+
+
+    def actualiser_lignes_action(self):
+        for obj in self:
+            mydict={}
+            for saisie in obj.saisie_ids:
+                if saisie.product_id not in mydict:
+                    mydict[saisie.product_id] = 0
+                mydict[saisie.product_id]+=saisie.quantite
+            for ligne in obj.ligne_ids:
+                if ligne.product_id in mydict:
+                    ligne.qt_comptee = mydict[ligne.product_id]
+            
+    
     def voir_mouvements_action(self):
         view_id = self.env['ir.model.data'].get_object_reference('is_bsa14', 'is_view_move_tree')[1]
         for obj in self:
@@ -104,10 +125,7 @@ class is_inventaire_tournant(models.Model):
                 ],
                 "type": "ir.actions.act_window",
                 'views': [(view_id, 'tree'),(False, 'form')],
-
-
             }
-
 
 
     def valider_inventaire_action(self):
@@ -124,7 +142,7 @@ class is_inventaire_tournant_ligne(models.Model):
     _description = "Lignes inventaire tournant"
     _order='designation'
 
-    inventaire_id     = fields.Many2one('is.inventaire.tournant', 'Export Compta', required=True, ondelete='cascade')
+    inventaire_id     = fields.Many2one('is.inventaire.tournant', 'Inventaire', required=True, ondelete='cascade')
     product_id        = fields.Many2one('product.product', 'Article', required=True)
     reference         = fields.Char("Référence"  , readonly=True)
     designation       = fields.Char("Désignation", readonly=True)
@@ -190,4 +208,18 @@ class is_inventaire_tournant_ligne(models.Model):
             self.env['stock.move.line'].create(vals)
             move._action_done()
             obj.move_id = move.id
+
+
+
+
+
+class is_inventaire_tournant_saisie(models.Model):
+    _name = "is.inventaire.tournant.saisie"
+    _description = "Saisies pour inventaire tournant"
+    _order='product_id'
+
+    inventaire_id = fields.Many2one('is.inventaire.tournant', 'Inventaire', required=True, ondelete='cascade')
+    product_id    = fields.Many2one('product.product', 'Article', required=True)
+    quantite      = fields.Float("Quantité", digits='Product Unit of Measure')
+
 

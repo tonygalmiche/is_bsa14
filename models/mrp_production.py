@@ -319,10 +319,22 @@ class mrp_production(models.Model):
     def action_confirm(self):
         self._check_company()
         for production in self:
+
+
+            _logger.info("action_confirm %s : %s"%(production.name, production.product_id.name))
+
+
             if production.bom_id:
                 production.consumption = production.bom_id.consumption
+
+            _logger.info("production.bom_id =  %s"% production.bom_id.id)
+
+
             if not production.move_raw_ids:
-                raise UserError(_("Add some materials to consume before marking this MO as to do."))
+                raise UserError(("Add some materials to consume before marking this MO as to do : %s : %s"%(production.name, production.product_id.name)))
+            
+
+
             # In case of Serial number tracking, force the UoM to the UoM of product
             if production.product_tracking == 'serial' and production.product_uom_id != production.product_id.uom_id:
                 production.write({

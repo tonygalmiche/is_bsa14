@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <!-- is.emplacement.palette -->
+        <record id="is_emplacement_palette_form" model="ir.ui.view">
+            <field name="name">is_emplacement_palette_form</field>
+            <field name="model">is.emplacement.palette</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>                
+                        <group>
+                            <field name="name"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_emplacement_palette_tree" model="ir.ui.view">
+            <field name="name">is_emplacement_palette_tree</field>
+            <field name="model">is.emplacement.palette</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_emplacement_palette_search" model="ir.ui.view">
+            <field name="name">is_emplacement_palette_search</field>
+            <field name="model">is.emplacement.palette</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                </search>
+            </field>
+        </record>
+        <record id="is_emplacement_palette_action" model="ir.actions.act_window">
+            <field name="name">Emplacement des palettes</field>
+            <field name="res_model">is.emplacement.palette</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- is.emplacement.palette.stock -->
+        <record id="is_emplacement_palette_stock_form" model="ir.ui.view">
+            <field name="name">is_emplacement_palette_stock_form</field>
+            <field name="model">is.emplacement.palette.stock</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>                
+                        <group>
+                            <field name="emplacement_id"/>
+                            <field name="product_id"/>
+                            <field name="quantite"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_emplacement_palette_stock_tree" model="ir.ui.view">
+            <field name="name">is_emplacement_palette_stock_tree</field>
+            <field name="model">is.emplacement.palette.stock</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="emplacement_id"/>
+                    <field name="product_id"/>
+                    <field name="quantite" sum="Total"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_emplacement_palette_stock_search" model="ir.ui.view">
+            <field name="name">is_emplacement_palette_stock_search</field>
+            <field name="model">is.emplacement.palette.stock</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="emplacement_id"/>
+                    <field name="product_id"/>
+                </search>
+            </field>
+        </record>
+        <record id="is_emplacement_palette_stock_action" model="ir.actions.act_window">
+            <field name="name">Stock des palettes</field>
+            <field name="res_model">is.emplacement.palette.stock</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+
+    
+
+        <!-- is.emplacement.palette.mouvement -->
+        <record id="is_emplacement_palette_mouvement_form" model="ir.ui.view">
+            <field name="name">is_emplacement_palette_mouvement_form</field>
+            <field name="model">is.emplacement.palette.mouvement</field>
+            <field name="arch" type="xml">
+                <form>
+                    <style>
+                        .o_form_label{
+                            white-space: nowrap;
+                        }
+                    </style>
+                    <header>
+                        <button 
+                            name="validation_action" 
+                            string="Validation" 
+                            type="object" 
+                            class="oe_highlight" 
+                             attrs="{'invisible': [('state','!=','creation')]}"
+                        />
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>                
+                        <group>
+                            <field name="emplacement_src_id"/>
+                            <field name="emplacement_dst_id"/>
+                            <field name="product_id"/>
+                            <field name="quantite"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="is_emplacement_palette_mouvement_tree" model="ir.ui.view">
+            <field name="name">is_emplacement_palette_mouvement_tree</field>
+            <field name="model">is.emplacement.palette.mouvement</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="emplacement_src_id"/>
+                    <field name="emplacement_dst_id"/>
+                    <field name="product_id"/>
+                    <field name="quantite" sum="Total"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_emplacement_palette_mouvement_search" model="ir.ui.view">
+            <field name="name">is_emplacement_palette_mouvement_search</field>
+            <field name="model">is.emplacement.palette.mouvement</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="emplacement_src_id"/>
+                    <field name="emplacement_dst_id"/>
+                    <field name="product_id"/>
+                </search>
+            </field>
+        </record>
+        <record id="is_emplacement_palette_mouvement_action" model="ir.actions.act_window">
+            <field name="name">Mouvements des palettes</field>
+            <field name="res_model">is.emplacement.palette.mouvement</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+    </data>
+</odoo>

@@ -100,6 +100,7 @@
                     <t t-set="has_product_barcode" t-value="any(m.product_id.barcode for m in o.move_raw_ids)"/>
                     <thead>
                         <tr>
+                            <th></th>
                             <th>Article</th>
                             <th t-attf-class="{{ 'text-right' if not has_product_barcode else '' }}">Quantité</th>
                         </tr>
@@ -107,6 +108,15 @@
                     <tbody>
                         <t t-if="o.move_raw_ids">
                             <tr t-foreach="o.move_raw_ids" t-as="raw_line">
+
+                                <td>
+                                    <t t-if=" raw_line.product_id.is_stock_category_id.imprimer_code_barre">
+                                        <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', raw_line.product_id.id, 1200, 300)" style="height:25mm"/><br/>
+                                    </t>
+                                </td>
+
+
+
                                 <td>
                                     <span t-field="raw_line.product_id"/>
                                 </td>

@@ -21,7 +21,8 @@ class is_position_dans_produit(models.Model):
 class is_stock_category(models.Model):
     _name = "is.stock.category"
     _description="is_stock_category"
-    name = fields.Char(string="Code", size=32)
+    name                = fields.Char(string="Code", size=32)
+    imprimer_code_barre = fields.Boolean(string="Imprimer code barre sur OF", default=False)
 
 
 class is_famille(models.Model):

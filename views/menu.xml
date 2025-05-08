@@ -408,6 +408,11 @@
         />
 
 
+
+
+
+
+
         <menuitem   
             name="Lignes des livraisons"
             action="is_picking_line_action"  
@@ -453,6 +458,7 @@
         />
 
 
+        <!-- Inventaire / Valorisation du stock -->
         <menuitem 
             id="is_valorisation_stock_menu" 
             sequence="10" 
@@ -487,6 +493,41 @@
             parent="is_valorisation_stock_menu" 
             action="is_calcul_pmp_action"
         />
+
+
+
+        <!-- Inventaire / Emplacement palette -->
+        <menuitem 
+            name="Emplacement des palettes" 
+            id="is_emplacement_palette_main_menu"
+            parent="stock.menu_stock_root" 
+            sequence="11" 
+        />
+
+
+        <menuitem 
+            name="Stock des palettes" 
+            action="is_emplacement_palette_stock_action" 
+            id="is_emplacement_palette_stock_menu"
+            parent="is_emplacement_palette_main_menu" 
+            sequence="10" 
+        />
+        <menuitem 
+            name="Mouvements des palettes" 
+            action="is_emplacement_palette_mouvement_action" 
+            id="is_emplacement_palette_mouvement_menu"
+            parent="is_emplacement_palette_main_menu" 
+            sequence="20" 
+        />
+        <menuitem 
+            name="Emplacement des palettes" 
+            action="is_emplacement_palette_action" 
+            id="is_emplacement_palette_menu"
+            parent="is_emplacement_palette_main_menu" 
+            sequence="30" 
+        />
+
+
 
 
 

@@ -105,8 +105,10 @@ class is_inventaire_tournant(models.Model):
                     mydict[saisie.product_id] = 0
                 mydict[saisie.product_id]+=saisie.quantite
             for ligne in obj.ligne_ids:
+                qt_comptee = 0
                 if ligne.product_id in mydict:
-                    ligne.qt_comptee = mydict[ligne.product_id]
+                    qt_comptee = mydict[ligne.product_id]
+                ligne.qt_comptee = qt_comptee
         return True
             
     

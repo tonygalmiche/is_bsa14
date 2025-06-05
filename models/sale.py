@@ -123,6 +123,7 @@ class sale_order(models.Model):
             ('avec_situation', 'Avec situation'),
         ], "Type de facturation", default="standard")
     is_commercial_client_id = fields.Many2one("res.partner", "Commercial client")
+    is_of_ids = fields.One2many('mrp.production', 'is_sale_order_id', 'OFs')
 
 
     @api.depends('order_line.invoice_lines')

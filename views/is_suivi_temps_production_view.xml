@@ -72,6 +72,43 @@
                     <field name="line_id"/>
                     <field name="workcenter_id"/>
                     <field name="employe_id"/>
+                    <filter name="j_0" 
+                            string="Ce jour"
+                            domain="[
+                                ('heure_debut', '&gt;=' , (context_today()).strftime('%%Y-%%m-%%d 00:00:00')),
+                                ('heure_debut',  '&lt;=', (context_today()).strftime('%%Y-%%m-%%d 23:59:59'))
+                            ]"
+                    />
+                    <filter name="j_1" 
+                            string="J-1"
+                            domain="[
+                                ('heure_debut', '&gt;=' , (context_today() - datetime.timedelta(days=1)).strftime('%%Y-%%m-%%d 00:00:00')),
+                                ('heure_debut',  '&lt;=', (context_today() - datetime.timedelta(days=1)).strftime('%%Y-%%m-%%d 23:59:59'))
+                            ]"
+                    />
+                    <filter name="j_2" 
+                            string="J-2"
+                            domain="[
+                                ('heure_debut', '&gt;=' , (context_today() - datetime.timedelta(days=2)).strftime('%%Y-%%m-%%d 00:00:00')),
+                                ('heure_debut',  '&lt;=', (context_today() - datetime.timedelta(days=2)).strftime('%%Y-%%m-%%d 23:59:59'))
+                            ]"
+                    />
+                    <filter name="j_3" 
+                            string="J-3"
+                            domain="[
+                                ('heure_debut', '&gt;=' , (context_today() - datetime.timedelta(days=3)).strftime('%%Y-%%m-%%d 00:00:00')),
+                                ('heure_debut',  '&lt;=', (context_today() - datetime.timedelta(days=3)).strftime('%%Y-%%m-%%d 23:59:59'))
+                            ]"
+                    />
+                    <filter name="s_0" 
+                            string="Cette semaine"
+                            domain="[('heure_debut', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%%Y-%%m-%%d 00:00:00')),
+                                    ('heure_debut', '&lt;=', datetime.datetime.now().strftime('%%Y-%%m-%%d 23:59:59'))]"/>
+                    
+                    <filter name="s_1" 
+                            string="S-1"
+                            domain="[('heure_debut', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday() + 7)).strftime('%%Y-%%m-%%d 00:00:00')),
+                                    ('heure_debut', '&lt;=', (context_today() - datetime.timedelta(days=context_today().weekday() + 1)).strftime('%%Y-%%m-%%d 23:59:59'))]"/>
                 </search>
             </field>
         </record>

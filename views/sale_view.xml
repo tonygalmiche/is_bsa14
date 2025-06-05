@@ -112,14 +112,9 @@
                         }
                     </style>
                 </xpath>
-
-
                 <xpath expr="//form" position="attributes">
                     <attribute name="disable_autofocus">true</attribute>
                 </xpath>
-
-
-
                 <xpath expr="//header/button[@name='action_quotation_send'][1]" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
@@ -145,8 +140,6 @@
                         attrs="{'invisible': [('state','in',('draft','sent'))]}"
                     />
                 </field>
-
-
                 <xpath expr="//div[@name='invoice_lines']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
@@ -154,13 +147,9 @@
                 <xpath expr="//field[@name='order_line']/form/group/group/div/field[@name='qty_delivered']" position="attributes">
                     <attribute name="readonly">1</attribute>
                 </xpath>
-
-
-
                 <xpath expr="//field[@name='order_line']/form/group/group/field[@name='price_unit']" position="after">
                     <field name="is_date_prevue"/>
                 </xpath>
-
                 <xpath expr="//field[@name='order_line']/form/group/group/field[@name='analytic_tag_ids']" position="after">
                     <field name="is_facturable_pourcent"/>
                     <field name="is_facture_avant_pourcent"/>
@@ -170,9 +159,6 @@
                     <field name="is_a_facturer"/>
                     <field name="is_reste_a_facturer"/>
                 </xpath>
-
-
-
                  <xpath expr="//group[@name='order_details']/div[2]/label[@for='date_order']" position="attributes">
                     <attribute name="string">Date AR</attribute>
                 </xpath>
@@ -212,19 +198,6 @@
                     <field name="is_date_prevue"           optional="show"/>
                     <field name="is_derniere_date_prevue"  optional="hide"/>
                 </xpath>
-                <!-- <xpath expr="//sheet/notebook/page/field[@name='order_line']/tree/field[@name='discount']" position="before">
-                    <field name="is_remise1" on_change="onchange_remise(is_remise1,is_remise2)" optional="show"/>
-                    <field name="is_remise2" on_change="onchange_remise(is_remise1,is_remise2)" optional="show"/>
-                </xpath> -->
-                <!-- <xpath expr="//page/field[@name='order_line']/tree/field[@name='price_subtotal']" position="after">
-                    <field name="is_facturable_pourcent"    optional="hide"/>
-                    <field name="is_facture_avant_pourcent" optional="hide"/>
-                    <field name="is_deja_facture_pourcent"  optional="hide"/>
-                    <field name="is_facturable"             optional="hide" sum="Total"/>
-                    <field name="is_deja_facture"           optional="hide" sum="Total"/>
-                    <field name="is_a_facturer"             optional="hide" sum="Total"/>
-                    <field name="is_reste_a_facturer"       optional="hide" sum="Total"/>
-                </xpath> -->
                 <field name="validity_date" position="after">
                     <field name="is_date_commande_client"/>
                     <field name="is_date_prevue"/>
@@ -235,13 +208,11 @@
                     <field name="is_pourcentage_commission"/>
                     <field name="is_montant_hors_commission"/>
                 </field>
-
                 <field name="payment_term_id" position="after">
                     <field name="is_type_facturation"/>
                     <field name="is_total_facture"/>
                     <field name="is_reste_a_facturer"/>
                 </field>
-
                 <group name="note_group" position="after">
                     <group string="Regroupement des lignes par article" attrs="{'invisible':[('is_group_line_ids','=',[])]}">
                         <field name="is_group_line_ids" nolabel="1">
@@ -264,14 +235,7 @@
                         <field name="is_group_line_print"/>
                     </group>
                 </group>
-
-
-
-
-
-
                 <xpath expr="//page[@name='order_lines']" position="after">
-               
                     <page string="Facturation">
     
                  
@@ -300,27 +264,28 @@
                             </field>
                         </group>
                     </page>
+                    <page string="PRU">
+                        <group>
+                            <field name="is_of_ids" nolabel="1">
+                                <tree>
+                                    <button title="OF" name="voir_of_action" type="object" icon="fa-search-plus"/>
+                                    <field name="name"/>
+                                    <field name="product_id"                  optional="show" widget="many2one_clickable"/>
+                                    <field name="date_planned_start"          optional="show"/>
+                                    <field name="is_devis_variante_id"        optional="hide" widget="many2one_clickable"/>
+                                    <field name="is_devis_matiere_equipement" optional="show"/>
+                                    <field name="is_devis_mo_option"          optional="show"/>
+                                    <field name="is_devis_montant_total"      optional="show"/>
+                                    <field name="is_pru_matiere"              optional="show"/>
+                                    <field name="is_pru_mo"                   optional="show"/>
+                                    <field name="is_pru_total"                optional="show"/>
+                                    <field name="is_devis_ecart_pru"          optional="show"/>
+                                    <field name="state" optional="show" widget="badge" decoration-info="state in ['draft','encours','confirmed','progress','to_close']" decoration-success="state == 'done'" decoration-muted="state == 'cancel'"/>
+                                 </tree>
+                            </field>
+                        </group>
+                    </page>
                 </xpath>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             </field>
         </record>
 
@@ -408,12 +373,6 @@
                 </xpath>
             </field>
         </record>
-
-
-        <!-- <field name="name" string="Order" filter_domain="['|', '|', ('name', 'ilike', self), ('client_order_ref', 'ilike', self), ('partner_id', 'child_of', self)]"/> -->
-
-
-
         <record id="sale.action_quotations_with_onboarding" model="ir.actions.act_window">
             <field name="domain">[('state', 'not in', ('sale', 'done'))]</field>
         </record>
@@ -421,11 +380,6 @@
         <record id="sale.action_orders" model="ir.actions.act_window">
             <field name="domain">[('state', 'not in', ('draft', 'cancel', 'sent'))]</field>
         </record>
-
-
-
-
-
 
 
     <!-- Saisie des commandes en ligne pour la facturation -->

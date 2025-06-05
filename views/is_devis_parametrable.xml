@@ -661,6 +661,16 @@
                     <field name="devise_client_id" optional="hide"/>
                     <field name="name" optional="show"/>
                     <field name="quantite" optional="show"/>
+
+                    <field name="montant_matiere"       optional="hide"/>
+                    <field name="montant_equipement"       optional="hide"/>
+                    <field name="montant_option"       optional="hide"/>
+                    <field name="montant_montage"       optional="hide"/>
+                    <field name="montant_montage_productivite"       optional="hide"/>
+                    <field name="montant_be"       optional="hide"/>
+                    <field name="montant_transport"       optional="hide"/>
+                    <field name="montant_total"       optional="hide"/>
+
                     <field name="montant_unitaire"       optional="show"/>
                     <field name="prix_vente"             optional="show"/>
                     <field name="montant_marge"          optional="show"/>

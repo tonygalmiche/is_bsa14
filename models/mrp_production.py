@@ -71,6 +71,12 @@ class mrp_production(models.Model):
     is_pru_mo      = fields.Float("PRU MO"     , readonly=True, copy=False, digits=(14,4))
     is_pru_total   = fields.Float("PRU Total"  , readonly=True, copy=False, digits=(14,4))
 
+    is_devis_variante_id        = fields.Many2one("is.devis.parametrable.variante", "Variante devis paramètrable")
+    is_devis_matiere_equipement = fields.Float("Montant matière + équipement", readonly=True, copy=False, digits=(14,4))
+    is_devis_mo_option          = fields.Float("Montant MO + options"        , readonly=True, copy=False, digits=(14,4))
+    is_devis_montant_total      = fields.Float("Montant total variante"      , readonly=True, copy=False, digits=(14,4))
+    is_devis_ecart_pru          = fields.Float("Écart avec PRU "             , readonly=True, copy=False, digits=(14,4))
+
 
     @api.depends('is_move_production_ids')
     def _compute_is_move_production_nb(self):
@@ -384,9 +390,15 @@ class mrp_production(models.Model):
         _logger.info("calculer_charge_action : ** FIN en %.1fs"%duree)
 
 
+    @api.onchange('is_devis_variante_id')
+    def _onchange_is_devis_variante_id(self):
+        self.calculer_pru_action()
+       
+
     def calculer_pru_action(self):
         for obj in self:
             pru_matiere = pru_mo = 0
+
 
             #** PRU des composants ********************************************
             for line in obj.move_raw_ids:
@@ -425,7 +437,19 @@ class mrp_production(models.Model):
                 obj.is_pru_total   = obj.is_pru_matiere + obj.is_pru_mo
 
 
-
+            #** Devis paramètrable ********************************************
+            is_devis_matiere_equipement = is_devis_mo_option = is_devis_montant_total = is_devis_ecart_pru = 0
+            if obj.is_devis_variante_id:
+                variante = obj.is_devis_variante_id
+                qt = variante.quantite or 1
+                is_devis_matiere_equipement = (variante.montant_matiere + variante.montant_equipement)/qt
+                is_devis_mo_option          = (variante.montant_montage + variante.montant_option)/qt
+                is_devis_montant_total      = variante.montant_total/qt
+            obj.is_devis_matiere_equipement = is_devis_matiere_equipement
+            obj.is_devis_mo_option          = is_devis_mo_option
+            obj.is_devis_montant_total      = is_devis_montant_total
+            obj.is_devis_ecart_pru = obj.is_pru_total - is_devis_montant_total
+            #******************************************************************
 
 
     def vue_gantt_ordre_production_action(self):
@@ -487,3 +511,17 @@ class mrp_production(models.Model):
             'err' : '\n'.join(err),
         }
         return res
+    
+
+
+
+    def voir_of_action(self):
+        for obj in self:
+            res={
+                'name': 'OF',
+                'view_mode': 'form',
+                'res_model': 'mrp.production',
+                'res_id': obj.id,
+                'type': 'ir.actions.act_window',
+            }
+            return res

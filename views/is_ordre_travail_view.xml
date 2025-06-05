@@ -184,6 +184,10 @@
                                         <field name="heure_debut"/>
                                         <field name="heure_fin"/>
                                         <field name="temps_passe" sum="Total" widget="float_time"/>
+                                        <field name="create_uid"  optional="hide" string="Créé par"/>
+                                        <field name="create_date" optional="hide" string="Créé le"/>
+                                        <field name="write_uid"   optional="hide" string="Modifié par"/>
+                                        <field name="write_date"  optional="hide" string="Modifié le"/>
                                    </tree>
                               </field>
                               <group string="Commentaires"/>

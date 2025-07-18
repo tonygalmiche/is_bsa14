@@ -8,6 +8,7 @@ from . import sale
 from . import purchase
 from . import stock
 from . import stock_picking
+from . import stock_inventory
 from . import mrp
 from . import mrp_production
 from . import is_fiche_travail

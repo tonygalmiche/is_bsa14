@@ -117,23 +117,6 @@
         
 
 
-        <!-- stock.inventory -->
-        <record id="stock_inventory_form_inherit_view" model="ir.ui.view">
-            <field name="name">stock.inventory.form.inherit</field>
-            <field name="model">stock.inventory</field>
-            <field name="inherit_id" ref="stock.view_inventory_form"/>
-            <field name="arch" type="xml">
-                <button name="action_print" position="after">
-                    <button name="action_force_date_inventaire" states="done" string="Forcer la date de l'inventaire" confirm="Voulez-vous vraiment forcer la date des mouvements de stock de cet inventaire ?" type="object"/>
-                </button>
-                <field name="product_ids" position="after">
-                    <field name="product_stock_category_id" attrs="{'readonly': [('state', '!=', 'draft')]}" />
-                    <field name="is_date_forcee"/>
-                </field>
-            </field>
-        </record>
-
-
         <!-- stock.move -->
         <record id="is_view_move_search" model="ir.ui.view">
             <field name="name">is_view_move_search</field>

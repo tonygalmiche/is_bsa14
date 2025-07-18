@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+
+
+        <!-- stock.inventory -->
+        <record id="stock_inventory_form_inherit_view" model="ir.ui.view">
+            <field name="name">stock.inventory.form.inherit</field>
+            <field name="model">stock.inventory</field>
+            <field name="inherit_id" ref="stock.view_inventory_form"/>
+            <field name="arch" type="xml">
+                <button name="action_open_inventory_lines" position="after">
+                    <button name="voir_saisies_action" string="Voir les saisies par scan" type="object"/>
+                    <button name="actualiser_inventaire_action" states="confirm" string="Actualiser l'inventaire avec les saisies par scan" type="object"/>
+                </button>
+                <button name="action_print" position="after">
+                    <button name="action_force_date_inventaire" states="done" string="Forcer la date de l'inventaire" confirm="Voulez-vous vraiment forcer la date des mouvements de stock de cet inventaire ?" type="object"/>
+                </button>
+                <field name="product_ids" position="after">
+                    <field name="product_stock_category_id" attrs="{'readonly': [('state', '!=', 'draft')]}" />
+                    <field name="is_date_forcee"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="is_stock_inventory_line_tree" model="ir.ui.view">
+            <field name="name">is_stock_inventory_line_tree</field>
+            <field name="model">stock.inventory.line</field>
+            <field name="inherit_id" ref="stock.stock_inventory_line_tree"/>
+            <field name="arch" type="xml">
+                <field name="product_id" position="after">
+                    <field name="is_stock_category_id" optional="show"/>
+                </field>
+            </field>
+        </record>       
+        <record id="is_stock_inventory_line_search" model="ir.ui.view">
+            <field name="name">is_stock_inventory_line_search</field>
+            <field name="model">stock.inventory.line</field>
+            <field name="inherit_id" ref="stock.stock_inventory_line_search"/>
+            <field name="arch" type="xml">
+                <filter name="product" position="before">
+                    <field name="is_stock_category_id"/>
+                </filter>
+            </field>
+        </record>
+
+
+
+
+        <!-- is.stock.inventory.ligne --> 
+        <record model="ir.ui.view" id="is_stock_inventory_ligne_tree_view">
+            <field name="name">is_stock_inventory_ligne_tree_view</field>
+            <field name="model">is.stock.inventory.ligne</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom" limit="2000">
+                    <field name="product_id"   widget="many2one_clickable"/> 
+                    <field name="quantite"     sum="Total"/>   
+                    <field name="employe_id"   optional="show" />   
+                    <field name="create_date"  optional="show" string="Créé le"/>
+                    <field name="create_uid"   optional="hide" string="Créé par"/>
+                    <field name="write_date"   optional="hide" string="Modifié le"/>
+                    <field name="write_uid"    optional="hide" string="Modifié par"/>
+                    <field name="inventaire_id" invisible="1"/> 
+                </tree>
+            </field>
+        </record>
+         <record model="ir.ui.view" id="is_stock_inventory_ligne_search_view" >
+            <field name="name">is_stock_inventory_ligne_search_view</field>
+            <field name="model">is.stock.inventory.ligne</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="product_id"/> 
+                    <field name="employe_id"/> 
+                </search>
+            </field>
+        </record>
+
+    </data>
+</odoo>

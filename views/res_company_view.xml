@@ -23,6 +23,7 @@
                             <field name="is_imprimante_bl"/>
                             <field name="is_seuil_validation_rsp_achat"/>
                             <field name="is_seuil_validation_dir_finance"/>
+                            <field name="is_url_app_flask"/>
                         </group>
                         <group>
                             <field name="is_cgv_ids" widget="many2many_binary"/>

@@ -381,8 +381,7 @@ class is_ordre_travail_line(models.Model):
     duree_reelle   = fields.Float("Durée hors tout (HH:MM)"        , compute='_compute_duree_reelle', store=True, help="Durée entre Heure début et Heure fin")
     heure_debut    = fields.Datetime("Heure début prévue", index=True              , required=False)
     heure_fin      = fields.Datetime("Heure fin prévue"                            , required=False)
-
-
+    employe_id     = fields.Many2one('hr.employee', string="Opérateur")
     state          = fields.Selection([
             ('attente', 'Attente'),
             ('pret'   , 'Prêt'),

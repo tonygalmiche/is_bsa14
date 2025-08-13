@@ -22,5 +22,6 @@ class res_company(models.Model):
     is_cout_horaire_montage         = fields.Float('Coût horaire montage')
     is_cout_horaire_be              = fields.Float('Coût horaire BE')
     is_bdd_pointage                 = fields.Char('Base de données des pointages', help="Utilisée pour le menu 'Supervision atelier'")
+    is_url_app_flask                = fields.Char("URL application Flask", help="Gestion des taches")
 
 

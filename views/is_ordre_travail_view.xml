@@ -160,6 +160,7 @@
                                         <field name="sequence"/> 
                                         <field name="ordre_planning"/> 
                                         <field name="name"/> 
+                                        <field name="employe_id"/> 
                                         <field name="workcenter_id"/> 
                                    </group>
                                    <group>
@@ -220,6 +221,7 @@
                          <field name="date_prevue"    optional="hide"/> 
                          <field name="ordre_planning" optional="hide"/> 
                          <field name="name"/>
+                         <field name="employe_id"                                     optional="show" widget="many2one_clickable"/>
                          <field name="workcenter_id"                                  optional="show" widget="many2one_clickable"/>
                          <field name="ne_pas_bloquer_solde"                           optional="hide"/> 
                          <field name="libre"          widget="boolean_toggle"         optional="show"/>

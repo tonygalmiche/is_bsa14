@@ -125,6 +125,11 @@ class sale_order(models.Model):
     is_commercial_client_id = fields.Many2one("res.partner", "Commercial client")
     is_of_ids = fields.One2many('mrp.production', 'is_sale_order_id', 'OFs')
 
+    is_couleur_affaire = fields.Char(string="Couleur affaire", help="utilisé dans la gestion des tâches")
+
+
+
+
 
     @api.depends('order_line.invoice_lines')
     def _get_invoiced(self):

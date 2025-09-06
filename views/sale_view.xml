@@ -174,6 +174,7 @@
                     <field name="client_order_ref"/>
                     <field name="is_notre_ref_devis"/>
                     <field name="is_nom_affaire"/>
+                    <field name="is_couleur_affaire" widget="color"/>
                 </field>
                 <xpath expr="//sheet" position="attributes">
                     <attribute name="class">oe_form_sheet_width_wider</attribute>
@@ -338,6 +339,7 @@
                     <field name="client_order_ref"   optional="show"/>
                     <field name="is_notre_ref_devis" optional="show"/>
                     <field name="is_nom_affaire"     optional="show"/>
+                    <field name="is_couleur_affaire" optional="hide" widget="color"/>
                 </field>
                 <field name="state" position="replace">
                     <field name="state" optional="hide"/>

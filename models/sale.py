@@ -325,26 +325,30 @@ class sale_order(models.Model):
                     mem=False
                     for move in picking.move_ids_without_package:
                         if move.product_id.product_tmpl_id==line.product_id:
-                            date_prevue = move.sale_line_id.is_derniere_date_prevue
-                            if not mem:
-                                mem=date_prevue
-                            if date_prevue<=mem:
-                                mem=date_prevue
-                                move_id = move.id
+                            #TODO : Modif du 24/09/2025
+                            if move.sale_line_id.product_uom_qty>move.sale_line_id.qty_delivered:
+                                #date_prevue = move.sale_line_id.is_derniere_date_prevue
+                                date_prevue = move.sale_line_id.is_date_prevue
+                                if not mem:
+                                    mem=date_prevue
+                                if date_prevue<=mem:
+                                    mem=date_prevue
+                                    move_id = move.id
                     product = line.product_id
-                    vals={
-                        "move_id"           : move_id,
-                        "picking_id"        : picking.id,
-                        "product_id"        : line.product_id.product_variant_id.id,
-                        "company_id"        : picking.company_id.id,
-                        "product_uom_id"    : line.product_id.uom_id.id,
-                        "location_id"       : picking.location_id.id,
-                        "location_dest_id"  : picking.location_dest_id.id,
-                        "qty_done"          : 1,
-                    }
-                    res = self.env['stock.move.line'].create(vals)
-                    line.sale_id   = obj.id
-                    line.move_id   = res.move_id.id
+                    if move_id:
+                        vals={
+                            "move_id"           : move_id,
+                            "picking_id"        : picking.id,
+                            "product_id"        : line.product_id.product_variant_id.id,
+                            "company_id"        : picking.company_id.id,
+                            "product_uom_id"    : line.product_id.uom_id.id,
+                            "location_id"       : picking.location_id.id,
+                            "location_dest_id"  : picking.location_dest_id.id,
+                            "qty_done"          : 1,
+                        }
+                        res = self.env['stock.move.line'].create(vals)
+                        line.sale_id   = obj.id
+                        line.move_id   = res.move_id.id
                 picking.write({'etiquette_livraison_ids': [(6, 0, etiquettes)]})
                 picking.with_context(skip_backorder=True).button_validate()
                 for line in lines:

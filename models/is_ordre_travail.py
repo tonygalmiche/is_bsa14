@@ -460,14 +460,13 @@ class is_ordre_travail_line(models.Model):
             obj.duree_totale=duree_totale
 
 
-    @api.depends('heure_debut','heure_fin')
+    @api.depends('heure_debut','heure_fin','heure_debut_reelle','duree_unitaire')
     def _compute_duree_reelle(self):
         for obj in self:
-            duree_reelle=0
-            if obj.heure_fin and obj.heure_debut:
-                duree_reelle = (obj.heure_fin-obj.heure_debut).total_seconds()/3600
+            duree_reelle=obj.duree_totale
+            if not obj.heure_debut_reelle and obj.heure_fin and obj.heure_debut and obj.heure_debut>obj.heure_fin:
+                    duree_reelle = (obj.heure_fin-obj.heure_debut).total_seconds()/3600
             obj.duree_reelle=duree_reelle
-
 
 
     def get_employe_id(self):

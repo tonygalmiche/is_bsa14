@@ -140,6 +140,7 @@
                     <field name="is_date_planifiee"/>
                     <field name="is_date_planifiee_fin"/>
                     <field name="is_pret"/>
+                    <field name="is_employe_id"/>
                 </field>
                 <field name="user_id" position="before">
                     <field name="is_semaine_prevue" readonly="1"/>
@@ -171,6 +172,7 @@
                     <field name="is_date_planifiee"     optional="show"/>
                     <field name="is_date_planifiee_fin" optional="show"/>
                     <field name="is_pret"               optional="show"/>
+                    <field name="is_employe_id"         optional="show"/>
                     <field name="is_sale_order_id"      optional="show" widget="many2one_clickable"/>
                     <field name="is_client_order_ref"   optional="show"/>
                     <field name="is_nom_affaire"        optional="show"/>
@@ -216,6 +218,7 @@
                     <field name="is_date_planifiee" optional="show"/>
                     <field name="is_date_planifiee_fin" optional="show"/>
                     <field name="is_pret"               optional="show"/>
+                    <field name="is_employe_id"  optional="show"/>
                     <field name="is_gabarit_id"  optional="show"/>
                     <field name="is_sale_order_line_id" readonly="1" optional="hide"/>
                     <field name="is_sale_order_id"                   optional="show" widget="many2one_clickable"/>
@@ -252,6 +255,7 @@
                     <field name="is_date_planifiee"                                   optional="hide"/>
                     <field name="is_date_planifiee_fin"                               optional="hide"/>
                     <field name="is_pret"                                             optional="show"/>
+                    <field name="is_employe_id"                                       optional="show"/>
                     <field name="is_gabarit_id"                                       optional="hide"/>
                     <field name="is_sale_order_line_id" readonly="1"                  optional="hide" widget="many2one_clickable"/>
                     <field name="is_sale_order_id"                                    optional="show" widget="many2one_clickable"/>
@@ -318,6 +322,7 @@
                     <field name="is_semaine_prevue"/>
                     <field name="is_mois_prevu"/>
                     <field name="is_pret"/>
+                    <field name="is_employe_id"/>
                 </field>
                 <filter name="scheduled_date" position="after">
                     <filter name="group_by_is_planification" string="Planification" context="{'group_by':'is_planification'}"/>

@@ -85,20 +85,21 @@
 
 
         <!-- account.move -->
+
         <record id="is_view_move_form" model="ir.ui.view">
             <field name="name">is_invoice_form</field>
             <field name="model">account.move</field>
             <field name="inherit_id" ref="account.view_move_form" />
             <field name="arch" type="xml">
                 <xpath expr="//sheet[1]" position="inside">
-                    <style>
+                    <style><![CDATA[
                          .o_form_view .o_form_sheet_bg > .o_form_sheet{
                             max-width: 1800px;
                         }
                         .o_form_label{
                             white-space: nowrap;
                         }
-                    </style>
+                    ]]></style>
                 </xpath>
 
 
@@ -134,7 +135,6 @@
                     <field name="is_situation" attrs="{'invisible': [('is_situation', '=', False)],}" />
                     <field name="is_situation_id"/>
                 </field>
-                <!-- TODO : J'ai mis ces champs dans l'onglet 'Ecriture comptables' car cela bugait dans l'onglet 'Lignes de facture' -->
                 <xpath expr="//page[@id='aml_tab']/field[@name='line_ids']/tree/field[@name='price_total']" position="after">
                     <field name="is_stock_move_id" optional="hide"/>
                     <field name="is_picking_id"    optional="hide"/>
@@ -151,6 +151,9 @@
                 </div>
             </field>
         </record>
+
+
+
         <record id="is_view_invoice_tree" model="ir.ui.view">
             <field name="name">is_view_invoice_tree</field>
             <field name="model">account.move</field>

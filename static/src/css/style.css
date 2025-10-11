@@ -3,3 +3,49 @@
     max-width: 1400px;
     /* color:red; */
 }
+
+/* Styles pour l'affichage des destinataires dans les messages */
+.o_Message_recipientsList {
+    font-size: 0.9em;
+    color: #666;
+    margin-left: 8px;
+}
+
+.o_Message_recipientsList strong {
+    color: #495057;
+    font-weight: 500;
+}
+
+.o_Message_recipientsList .recipient-email {
+    color: #28a745;
+    font-weight: normal;
+    font-style: italic;
+}
+
+.o_Message_recipientsList .no-email {
+    color: #dc3545;
+    font-weight: normal;
+    font-style: italic;
+}
+
+/* Styles pour l'affichage des informations de message dans le chat */
+.o_Message_infoList {
+    background-color: #f8f9fa;
+    border-left: 3px solid #007bff;
+    padding: 5px 10px;
+    margin: 5px 0;
+    border-radius: 3px;
+}
+
+.o_Message_infoList .message-email-from {
+    margin-bottom: 3px;
+}
+
+.o_Message_infoList .message-destinataires {
+    margin-bottom: 3px;
+}
+
+.o_Message_infoList strong {
+    color: #495057;
+    font-weight: 600;
+}

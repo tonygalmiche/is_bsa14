@@ -82,6 +82,8 @@ InfoSaône - Module Odoo 14 pour BSA
         "views/stock_picking_view.xml",
         "views/stock_inventory_view.xml",
         "views/account_move_view.xml",
+        "views/mail_compose_message_view.xml",
+        "views/mail_message_view.xml",
         "views/is_calcul_pmp.xml",
         "views/is_suivi_commercial_view.xml",
         "views/is_suivi_temps_production_view.xml",

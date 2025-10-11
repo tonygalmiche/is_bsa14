@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from . import mail_thread
+from . import mail_mail
+from . import mail_followers
+from . import mail_message
 from . import res_company
 from . import res_users
 from . import res_partner

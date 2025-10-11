@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+
+        <!-- Action serveur pour initialiser le champ is_destinataires -->
+        <record id="action_init_destinataires_server" model="ir.actions.server">
+            <field name="name">Initialiser destinataires</field>
+            <field name="model_id" ref="mail.model_mail_message"/>
+            <field name="binding_model_id" ref="mail.model_mail_message"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="state">code</field>
+            <field name="code">records.action_init_destinataires()</field>
+        </record>
+
+        <!-- Hériter de la vue formulaire des messages pour ajouter le champ is_destinataires -->
+        <record id="mail_message_form_destinataires" model="ir.ui.view">
+            <field name="name">mail.message.form.destinataires</field>
+            <field name="model">mail.message</field>
+            <field name="inherit_id" ref="mail.mail_message_view_form"/>
+            <field name="arch" type="xml">
+                <!-- Ajouter le champ is_destinataires après le champ partner_ids -->
+                <field name="email_from" position="after">
+                    <field name="is_destinataires" readonly="1" attrs="{'invisible': [('is_destinataires', '=', False)]}"/>
+                </field>
+            </field>
+        </record>
+        <!-- Hériter de la vue tree des messages pour ajouter le champ is_destinataires -->
+        <record id="mail_message_tree_destinataires" model="ir.ui.view">
+            <field name="name">mail.message.tree.destinataires</field>
+            <field name="model">mail.message</field>
+            <field name="inherit_id" ref="mail.view_message_tree"/>
+            <field name="arch" type="xml">
+                <field name="author_id" position="after">
+                    <field name="email_from" optional="hide"/>
+                    <field name="is_destinataires" optional="hide"/>
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>

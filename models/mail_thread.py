@@ -21,25 +21,55 @@ class MailThread(models.AbstractModel):
 
     def _message_get_default_recipients(self):
         """
-        Surcharge pour ne retourner que le destinataire principal du document
+        Surcharge pour ne retourner aucun destinataire par défaut
+        Cela évite complètement l'envoi automatique d'emails
         """
-        # Retourner seulement le destinataire principal
+        # Ne jamais retourner de destinataires par défaut
         result = {}
         for record in self:
-            partner_ids = []
-            reason = ''
-            
-            # Ajouter seulement le destinataire principal si il existe
-            if hasattr(record, 'partner_id') and record.partner_id and record.partner_id.email:
-                partner_ids = [record.partner_id.id]
-                reason = _('Principal recipient')
-            
             result[record.id] = {
-                'partner_ids': partner_ids,
-                'reason': reason
+                'partner_ids': [],
+                'reason': _('No automatic email sending')
             }
         
         return result
+
+    @api.returns('mail.message', lambda value: value.id)
+    def message_post(self, **kwargs):
+        """
+        Surcharge pour éviter l'envoi automatique d'emails lors des changements d'état
+        """
+        import traceback
+        
+        # Vérifier si l'appel vient du wizard mail_compose_message
+        is_from_wizard = False
+        for line in traceback.format_stack():
+            if 'mail_compose_message.py' in line and 'send_mail' in line:
+                is_from_wizard = True
+                break
+        
+        # Si l'appel vient du wizard ET que c'est un stock.picking, vérifier le contexte
+        if is_from_wizard and self._name == 'stock.picking':
+            print(f"\n=== INTERCEPTION WIZARD POUR STOCK.PICKING ===")
+            print(f"Picking ID: {self.ids}")
+            print(f"Partner_ids originaux: {kwargs.get('partner_ids')}")
+            
+            # Vérifier le contexte pour voir si c'est un envoi automatique ou manuel
+            context_mail_post_autofollow = self._context.get('mail_post_autofollow', False)
+            
+            if context_mail_post_autofollow:
+                print(f"DEBUG: Envoi automatique détecté - suppression des destinataires")
+                kwargs['partner_ids'] = []
+            else:
+                print(f"DEBUG: Envoi manuel détecté - conservation des destinataires")
+            
+            print(f"===============================================\n")
+        
+        # Si pas de destinataires explicites, ne pas envoyer d'email
+        elif not kwargs.get('partner_ids') and not kwargs.get('email_to'):
+            kwargs['partner_ids'] = []
+        
+        return super(MailThread, self).message_post(**kwargs)
 
 
 

@@ -12,63 +12,61 @@ class MailComposer(models.TransientModel):
         help="Affiche la liste des destinataires avec leurs emails"
     )
 
-    @api.model
-    def create(self, vals):
-        """Intercepte la création du wizard"""
-        return super(MailComposer, self).create(vals)
+
 
     @api.model
     def default_get(self, fields_list):
-        """Surcharge pour supprimer les abonnés du document et garder le destinataire principal"""
-        # IMPORTANT: Supprimer les abonnés AVANT d'appeler la méthode parent
-        # qui va calculer les destinataires par défaut
+        """Surcharge pour supprimer les abonnés du document"""
         context = self.env.context or {}
-        main_recipient_id = None
-        
-        # Déterminer le modèle et l'ID depuis le contexte ou les paramètres
         model_name = context.get('default_model')
         res_id = context.get('default_res_id')
         
+        # Supprimer les abonnés du document si présent
         if model_name and res_id:
             try:
                 document = self.env[model_name].browse(res_id)
-                
-                # Sauvegarder le destinataire principal avant de supprimer les abonnés
-                if hasattr(document, 'partner_id') and document.partner_id:
-                    main_recipient_id = document.partner_id.id
-                
                 if hasattr(document, 'message_follower_ids'):
-                    # Supprimer TOUS les abonnés du document AVANT le calcul des destinataires
-                    followers_to_remove = document.message_follower_ids
-                    if followers_to_remove:
-                        followers_to_remove.unlink()
+                    document.message_follower_ids.unlink()
             except Exception:
                 pass
         
-        # Maintenant appeler la méthode parent qui va calculer les destinataires
+        # Appeler la méthode parent
         result = super(MailComposer, self).default_get(fields_list)
         
-        # Forcer les destinataires selon notre logique
-        if result.get('model') and result.get('res_id'):
-            # Si on a un destinataire principal, l'utiliser
-            if main_recipient_id:
-                result['partner_ids'] = [(6, 0, [main_recipient_id])]
-            else:
-                result['partner_ids'] = []
+        # Détecter appel automatique : custom_layout = None pour les appels automatiques
+        # Les appels automatiques d'Odoo ont custom_layout: None
+        # Les appels manuels ont une valeur dans custom_layout
+        is_automatic = context.get('custom_layout') is None
+        
+        # Gestion des destinataires selon le type d'appel
+        if is_automatic:
+            # Appel automatique - pas de destinataires
+            result['partner_ids'] = []
         else:
-            # Pas de document, vider les destinataires
-            if 'partner_ids' in result:
-                result['partner_ids'] = []
+            # Appel manuel - ajouter le destinataire principal
+            if model_name and res_id:
+                try:
+                    document = self.env[model_name].browse(res_id)
+                    if hasattr(document, 'partner_id') and document.partner_id:
+                        result['partner_ids'] = [(6, 0, [document.partner_id.id])]
+                except Exception:
+                    pass
                 
         return result
 
     @api.model
     def get_record_data(self, values):
-        """Surcharge pour supprimer les abonnés automatiques pour TOUS les documents"""
+        """Surcharge pour supprimer les abonnés automatiques seulement pour les appels automatiques"""
         result = super(MailComposer, self).get_record_data(values)
-        # Forcer la suppression des destinataires automatiques (abonnés)
-        if 'partner_ids' in result:
+        
+        # Détecter appel automatique via le contexte
+        context = self.env.context or {}
+        is_automatic = context.get('custom_layout') is None
+        
+        # Vider les destinataires seulement pour les appels automatiques
+        if is_automatic:
             result['partner_ids'] = []
+            
         return result
 
     @api.onchange('template_id')
@@ -81,16 +79,17 @@ class MailComposer(models.TransientModel):
 
     @api.onchange('model', 'res_id')
     def _onchange_model_res_id_clear_followers(self):
-        """Supprime automatiquement les abonnés du document et garde le destinataire principal"""
+        """Supprime automatiquement les abonnés du document"""
         if self.model and self.res_id:
             try:
                 document = self.env[self.model].browse(self.res_id)
-                if hasattr(document, 'message_follower_ids'):
-                    # Supprimer TOUS les abonnés du document
-                    followers_to_remove = document.message_follower_ids
-                    followers_to_remove.unlink()
                 
-                # Garder/ajouter le destinataire principal du document
+                # Supprimer les abonnés du document
+                if hasattr(document, 'message_follower_ids'):
+                    document.message_follower_ids.unlink()
+                
+                # Ajouter le destinataire principal pour les appels manuels
+                # (les appels automatiques n'arrivent jamais ici)
                 if hasattr(document, 'partner_id') and document.partner_id:
                     self.partner_ids = [(6, 0, [document.partner_id.id])]
                 else:

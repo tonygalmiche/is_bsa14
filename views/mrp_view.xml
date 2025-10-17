@@ -179,6 +179,7 @@
                     <group  string="Suivi du temps">
                         <field name="is_activer_bouton_terminer"/>
                         <field name="is_ne_pas_bloquer_solde"/>
+                        <field name="is_gestion_tache"/>
                     </group>
                 </group>              
                 <xpath expr="//label[@for='time_start']/.." position="replace"/>
@@ -191,9 +192,10 @@
             <field name="inherit_id" ref="mrp.mrp_workcenter_tree_view" />
             <field name="arch" type="xml">
                 <field name="name" position="after">
-                    <field name="is_activer_bouton_terminer"/>
-                    <field name="is_ne_pas_bloquer_solde"/>
-                    <field name="costs_hour"/>
+                    <field name="is_activer_bouton_terminer" optional="show"/>
+                    <field name="is_ne_pas_bloquer_solde" optional="show"/>
+                    <field name="is_gestion_tache" optional="show"/>
+                    <field name="costs_hour" optional="show"/>
                 </field>
             </field>
         </record>

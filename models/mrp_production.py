@@ -76,8 +76,8 @@ class mrp_production(models.Model):
     is_devis_mo_option          = fields.Float("Montant MO + options"        , readonly=True, copy=False, digits=(14,4))
     is_devis_montant_total      = fields.Float("Montant total variante"      , readonly=True, copy=False, digits=(14,4))
     is_devis_ecart_pru          = fields.Float("Écart avec PRU "             , readonly=True, copy=False, digits=(14,4))
-    is_employe_id               = fields.Many2one('hr.employee', string="Opérateur", help="Utilisé pour la gestion des tâches ")
-
+    is_employe_id               = fields.Many2one('hr.employee'   , string="Opérateur"      , help="Utilisé pour la gestion des tâches ")
+    is_workcenter_id            = fields.Many2one('mrp.workcenter', string="Poste de charge", help="Utilisé pour la gestion des tâches ")
 
 
     @api.depends('is_move_production_ids')

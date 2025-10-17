@@ -117,6 +117,7 @@ class mrp_workcenter(models.Model):
     is_planning                = fields.Char("Planning")
     is_activer_bouton_terminer = fields.Boolean("Activer bouton terminer"        , default=True , help="Activer le bouton pour terminer les opérations dans le suivi du temps de la tablette")
     is_ne_pas_bloquer_solde    = fields.Boolean("Ne pas bloquer le solde de l’OF", default=False, help="Si cette case est cochée, il sera possible de solder l'OT et l'OF même si l'opération de ce poste de charge n'est pas terminée")
+    is_gestion_tache           = fields.Boolean("Disponible dans 'Gestion des tâches'", default=False, help="Si cette case est cochée, ce poste sera disponible dans le planning de gestion des tâches")
 
 
     def clear_fermeture_action(self):

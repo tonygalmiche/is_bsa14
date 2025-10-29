@@ -76,8 +76,18 @@ class mrp_production(models.Model):
     is_devis_mo_option          = fields.Float("Montant MO + options"        , readonly=True, copy=False, digits=(14,4))
     is_devis_montant_total      = fields.Float("Montant total variante"      , readonly=True, copy=False, digits=(14,4))
     is_devis_ecart_pru          = fields.Float("Écart avec PRU "             , readonly=True, copy=False, digits=(14,4))
-    is_employe_id               = fields.Many2one('hr.employee'   , string="Opérateur"      , help="Utilisé pour la gestion des tâches ")
     is_workcenter_id            = fields.Many2one('mrp.workcenter', string="Poste de charge", help="Utilisé pour la gestion des tâches ")
+    is_employe_ids              = fields.Many2many('hr.employee', 'is_mrp_production_employe_rel', 'production_id', 'employe_id', 'Opérateurs')
+    is_employe_ids_txt          = fields.Char(string="Opérateurs (texte)", compute='_compute_is_employe_ids_txt', store=True, readonly=True)
+
+
+    @api.depends('is_employe_ids')
+    def _compute_is_employe_ids_txt(self):
+        for obj in self:
+            employes_names = []
+            for employe in obj.is_employe_ids:
+                employes_names.append(employe.name)
+            obj.is_employe_ids_txt = ', '.join(employes_names)
 
 
     @api.depends('is_move_production_ids')
@@ -125,8 +135,25 @@ class mrp_production(models.Model):
         return res
 
 
+    def creer_ordre_travail_ir_cron(self):
+        domain=[
+            ("is_ordre_travail_id","=",False),
+            ("state","not in",['cancel','done']),
+        ]
+        productions = self.env["mrp.production"].search(domain)
+        print(len(productions))
+        productions.creer_ordre_travail_action()
+
+
+
     def creer_ordre_travail_action(self):
+        nb=len(self)
+        ct=1
         for obj in self:
+            _logger.info("creer_ordre_travail_action : %s/%s : %s"%(ct,nb,obj.name))
+
+
+
             #** Recherche de la qty à fabriquer de tous les backorders *******
             qty=0
             filtre=[
@@ -176,12 +203,19 @@ class mrp_production(models.Model):
                             'line_ids'            : line_ids,
                         }
                         ordre = self.env['is.ordre.travail'].create(vals)
+                        if not ordre.production_id.is_workcenter_id:
+                            for line in ordre.line_ids:
+                                ordre.production_id.is_workcenter_id = line.workcenter_id.id
+                                break
+                        _logger.info("creer_ordre_travail_action : %s/%s : %s : create %s"%(ct,nb,obj.name,ordre.name))
             if ordre:
                 obj.is_ordre_travail_id=ordre.id
                 ordre.quantite = qty
                 ordre.calculer_charge_ordre_travail()
                 if obj.state!='done':
                     ordre.production_id = obj.id
+            ct+=1
+
 
 
     def _pre_button_mark_done(self):

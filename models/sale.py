@@ -504,6 +504,10 @@ class sale_order_line(models.Model):
     is_voir_production_vsb     = fields.Boolean("Voir les productions vsb", compute='_compute_is_voir_production_vsb')
 
 
+
+
+
+
     @api.depends('product_uom_qty','qty_invoiced','price_unit','price_subtotal')
     def _compute_is_reste_a_facturer(self):
         for obj in self:
@@ -607,6 +611,24 @@ class sale_order_line(models.Model):
         remise=remise-remise*self.is_remise2/100.0
         remise=100-remise
         self.discount=remise
+
+
+    @api.onchange('is_date_prevue')
+    def onchange_is_date_prevue(self):
+        if self.is_date_prevue:
+            # Calculer la date en retirant 4 jours ouvrables
+            date_courante = self.is_date_prevue
+            jours_a_retirer = 4
+            
+            while jours_a_retirer > 0:
+                date_courante = date_courante - datetime.timedelta(days=1)
+                # Si ce n'est pas un week-end (lundi=0, dimanche=6)
+                if date_courante.weekday() < 5:  # 0-4 = lundi à vendredi
+                    jours_a_retirer -= 1
+            
+            self.is_derniere_date_prevue = date_courante
+        else:
+            self.is_derniere_date_prevue = False
 
 
     def creer_of(self,product_id,quantite):

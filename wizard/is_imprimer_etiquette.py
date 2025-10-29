@@ -9,10 +9,11 @@ class is_etiquette_line(models.TransientModel):
     _name = 'is.etiquette.line'
     _description = 'Lignes des etiquettes'
     
-    product_id   = fields.Many2one('product.product', 'Produit', required=True)
-    quantity     = fields.Float('Quantité', required=True)
-    move_id      = fields.Many2one('stock.move', 'Mouvement de stock', required=True)
-    etiquette_id = fields.Many2one('is.imprimer.etiquette', 'Etiquette')
+    product_id         = fields.Many2one('product.product', 'Produit', required=True)
+    is_trace_reception = fields.Boolean(related="product_id.is_trace_reception")
+    quantity           = fields.Float('Quantité', required=True)
+    move_id            = fields.Many2one('stock.move', 'Mouvement de stock', required=True)
+    etiquette_id       = fields.Many2one('is.imprimer.etiquette', 'Etiquette')
     
     
 class is_imprimer_etiquette(models.TransientModel):
@@ -27,13 +28,15 @@ class is_imprimer_etiquette(models.TransientModel):
         res = []
         if picking:
             for move in picking.move_lines:
+                quantity=1
                 if move.product_id.is_trace_reception:
-                    vals = {
-                        'product_id': move.product_id.id,
-                        'quantity': move.product_uom_qty,
-                        'move_id': move.id,
-                    }
-                    res.append((0,0, vals))
+                    quantity = move.product_uom_qty
+                vals = {
+                    'product_id': move.product_id.id,
+                    'quantity': quantity,
+                    'move_id': move.id,
+                }
+                res.append((0,0, vals))
         return res
     
 

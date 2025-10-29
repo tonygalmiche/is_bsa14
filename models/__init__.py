@@ -60,3 +60,4 @@ from . import is_correction_stock
 from . import is_inventaire_tournant
 from . import is_relance_facture
 from . import is_emplacement_palette
+from . import resource_calendar_leaves

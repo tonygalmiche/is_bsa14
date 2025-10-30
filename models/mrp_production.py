@@ -141,7 +141,6 @@ class mrp_production(models.Model):
             ("state","not in",['cancel','done']),
         ]
         productions = self.env["mrp.production"].search(domain)
-        print(len(productions))
         productions.creer_ordre_travail_action()
 
 

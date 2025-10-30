@@ -227,7 +227,7 @@
                     <field name="message_unread" invisible="1"/>
                     <field name="name" />
                     <field name="product_id"/>
-                    <field name="is_ordre_travail_id" optional="show"/>
+                    <field name="is_ordre_travail_id"   optional="show"/>
                     <field name="product_qty"/>
                     <field name="is_date_prevue" optional="show"/>
                     <field name="is_planification" optional="show"/>
@@ -272,7 +272,7 @@
                     <field name="is_date_planifiee"                                   optional="hide"/>
                     <field name="is_date_planifiee_fin"                               optional="hide"/>
                     <field name="is_pret"                                             optional="show"/>
-                    <field name="is_employe_ids"                                       optional="hide" widget="many2many_tags" />
+                    <field name="is_employe_ids"                                      optional="hide" widget="many2many_tags" />
                     <field name="is_workcenter_id"                                    optional="hide"/>
                     <field name="is_gabarit_id"                                       optional="hide"/>
                     <field name="is_sale_order_line_id" readonly="1"                  optional="hide" widget="many2one_clickable"/>

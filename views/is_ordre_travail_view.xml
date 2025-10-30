@@ -48,8 +48,9 @@
                                    <field name="createur_id"/> 
                                    <field name="date_creation"/> 
                                    <field name="heure_debut_reelle"/> 
-                                   <field name="duree_prevue"/> 
-                                   <field name="temps_passe"/> 
+                                   <field name="duree_prevue" widget="float_time"/> 
+                                   <field name="duree_planifiee" widget="float_time"/>
+                                   <field name="temps_passe" widget="float_time"/> 
                                    <field name="avancement" widget="progressbar"/>
                                    <field name="operation_encours_id"/>
                               </group>
@@ -73,8 +74,9 @@
                          <field name="quantite"             optional="show"/>
                          <field name="date_prevue"          optional="show"/>
                          <field name="heure_debut_reelle"   optional="show"/>
-                         <field name="duree_prevue"         optional="show"/>
-                         <field name="temps_passe"          optional="show"/>
+                         <field name="duree_prevue"         optional="show" widget="float_time"/>
+                         <field name="duree_planifiee"      optional="show" widget="float_time"/>
+                         <field name="temps_passe"          optional="show" widget="float_time"/>
                          <field name="avancement"           optional="show" widget="progressbar"/>
                          <field name="operation_encours_id" optional="hide" widget="many2one_clickable"/>
                          <field name="createur_id"          optional="show"/>

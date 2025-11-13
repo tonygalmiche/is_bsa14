@@ -79,6 +79,8 @@ class mrp_production(models.Model):
     is_workcenter_id            = fields.Many2one('mrp.workcenter', string="Poste de charge", help="Utilisé pour la gestion des tâches ")
     is_employe_ids              = fields.Many2many('hr.employee', 'is_mrp_production_employe_rel', 'production_id', 'employe_id', 'Opérateurs')
     is_employe_ids_txt          = fields.Char(string="Opérateurs (texte)", compute='_compute_is_employe_ids_txt', store=True, readonly=True)
+    is_composants_non_disponibles = fields.Text(string="Composants non disponibles", compute='_compute_is_composants_non_disponibles', store=True, readonly=True,
+                                                 help="Liste des composants dont le stock ne sera pas disponible pour la date limite")
 
 
     @api.depends('is_employe_ids')
@@ -88,6 +90,24 @@ class mrp_production(models.Model):
             for employe in obj.is_employe_ids:
                 employes_names.append(employe.name)
             obj.is_employe_ids_txt = ', '.join(employes_names)
+
+
+    @api.depends('move_raw_ids', 'move_raw_ids.is_stock_disponible', 'move_raw_ids.product_id','state')
+    def _compute_is_composants_non_disponibles(self):
+        """
+        Calcule la liste des composants dont le stock n'est pas disponible.
+        """
+        for obj in self:
+            msg = False
+            if obj.state not in ['done','cancel']:
+                composants_non_dispo = []
+                for move in obj.move_raw_ids:
+                    if move.product_id.type == 'product' and not move.is_stock_disponible:
+                        composants_non_dispo.append(move.product_id.display_name)
+                
+                if composants_non_dispo:
+                    msg = '\n'.join(composants_non_dispo)
+            obj.is_composants_non_disponibles = msg
 
 
     @api.depends('is_move_production_ids')

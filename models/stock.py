@@ -55,6 +55,8 @@ class stock_move(models.Model):
     is_pru_mo_total      = fields.Float("PRU MO Total"     , readonly=True, copy=False, digits=(14,4))
     is_pru_total         = fields.Float("PRU Total"        , readonly=True, copy=False, digits=(14,4))
     is_pru_production_id = fields.Many2one("mrp.production", "OF PRU" )
+    is_stock_disponible  = fields.Boolean("Stock disponible", compute='_compute_is_stock_disponible', store=True, readonly=True,
+                                          help="Indique si le stock sera disponible pour la date limite (deadline)")
 
 
     def _create_invoice_line_from_vals(self, cr, uid, move, invoice_line_vals, context=None):
@@ -94,6 +96,53 @@ class stock_move(models.Model):
         for obj in self:
             obj._action_cancel()
  
+
+    @api.depends('forecast_availability', 'forecast_expected_date', 'date_deadline', 'product_qty', 'reserved_availability', 'state')
+    def _compute_is_stock_disponible(self):
+        """
+        Calcule si le stock sera disponible pour la date limite (deadline).
+        Le stock est considéré disponible si :
+        - La quantité réservée (reserved_availability) >= quantité demandée (product_qty)
+        - ET (pas de date prévue OU date prévue <= date limite)
+        
+        Si la quantité réservée est inférieure, le stock n'est PAS disponible.
+        """
+        for move in self:
+            is_disponible = False
+            
+
+            # Vérifier si c'est un mouvement de consommation (composant d'OF)
+            if move.raw_material_production_id and move.product_id.type == 'product':
+                # Le stock n'est disponible que si la quantité réservée est suffisante
+                is_reserved = move.reserved_availability >= move.product_qty
+
+
+                print('TEST 1',move.date_deadline,move.forecast_expected_date,move.product_qty,move.reserved_availability,is_reserved)
+
+
+
+                if not is_reserved:
+                    # Si pas complètement réservé, vérifier forecast_availability
+                    will_be_fulfilled = move.forecast_availability >= move.product_qty
+
+
+                    print('TEST 2',move.product_qty,move.forecast_availability,will_be_fulfilled)
+
+
+
+                    if will_be_fulfilled:
+                        # Vérifier la date uniquement si la quantité sera suffisante
+                        is_on_time = True
+                        if move.forecast_expected_date and move.date_deadline:
+                            is_on_time = move.forecast_expected_date <= move.date_deadline
+                        
+                        # Stock disponible si quantité prévue suffisante ET à temps
+                        is_disponible = is_on_time
+                else:
+                    # Complètement réservé = disponible
+                    is_disponible = True
+            
+            move.is_stock_disponible = is_disponible
 
     @api.depends('state', 'picking_id', 'product_id')
     def _compute_is_quantity_done_editable(self):

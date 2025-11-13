@@ -30,14 +30,21 @@ class mrp_production(models.Model):
             obj.is_nom_affaire      = obj.is_sale_order_line_id.order_id.is_nom_affaire
 
 
-    @api.depends('is_sale_order_line_id','is_sale_order_line_id.is_date_prevue')
+    @api.depends('is_sale_order_line_id','is_sale_order_line_id.is_date_prevue','is_sale_order_line_id.is_derniere_date_prevue')
     def _compute_is_date_prevue(self):
         for obj in self:
-            obj.is_date_prevue = obj.is_sale_order_line_id.is_date_prevue # or obj.date_planned_start
+            print('TEST',obj,obj.is_sale_order_line_id,obj.is_sale_order_line_id.is_date_prevue, obj.is_sale_order_line_id.is_derniere_date_prevue)
+            is_date_prevue = False
+            if  obj.is_sale_order_line_id:
+                if  obj.is_sale_order_line_id.is_derniere_date_prevue:
+                    is_date_prevue = obj.is_sale_order_line_id.is_derniere_date_prevue
+                else:
+                    is_date_prevue = obj.is_sale_order_line_id.is_date_prevue
+            obj.is_date_prevue = is_date_prevue
 
 
     date_planned          = fields.Datetime("Date plannifiée", required=False, index=True, readonly=False, states={}, copy=False)
-    is_date_prevue        = fields.Date(string="Date client" , compute='_compute_is_date_prevue'  , store=True, readonly=True, help="Date prévue sur la ligne de commande client")
+    is_date_prevue        = fields.Date(string="Date client" , compute='_compute_is_date_prevue'  , store=True, readonly=True, help="'Dernière date prévue' si renseignée, sinon 'Date prévue initialement' sur la ligne de commande client")
     is_client_order_ref   = fields.Char(string="Référence client", compute='_compute_is_sale_order_id', store=True, readonly=True)
     is_date_planifiee     = fields.Datetime("Date planifiée début")
     is_date_planifiee_fin = fields.Datetime("Date planifiée fin", readonly=True)

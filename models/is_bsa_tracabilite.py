@@ -193,6 +193,25 @@ class is_tracabilite_livraison(models.Model):
     operateur_livraison_ids = fields.Many2many('hr.employee', 'is_tracabilite_livraison_operateur_livraison_rel', 'tracabilite_livraison_id', 'employee_id', 'Opérateurs Livraison')
     etiquette_reception_id  = fields.One2many('is.tracabilite.reception.line', 'livraison_id', 'Etiquettes réception')
     etiquette_livraison_id  = fields.One2many('is.tracabilite.livraison.line', 'livraison_id', 'Etiquettes semi-fini')
+    suivi_temps_ids         = fields.One2many('is.ordre.travail.line.temps.passe', 'tracabilite_livraison_id', 'Suivi du temps')
+    temps_passe             = fields.Float("Temps passé (HH:MM)", compute="_compute_temps_passe", readonly=True, store=True)
+
+
+    @api.depends("suivi_temps_ids","suivi_temps_ids.temps_passe")
+    def _compute_temps_passe(self):
+        for obj in self:
+            print(obj.suivi_temps_ids)
+            temps_passe = 0
+            # domain=[
+            #     ('tracabilite_livraison_id', '=', obj.id),
+            # ]
+            # lines=self.env['is.ordre.travail.line.temps.passe'].search(domain)
+            for line in obj.suivi_temps_ids:
+                temps_passe+=(line.temps_passe or 0)
+            obj.temps_passe = temps_passe
+
+
+
     #num_serie               = fields.Char('N°série', store=True, readonly=True, compute='_compute_num_serie')
     
 

@@ -69,11 +69,16 @@
         </record>
                     
         <!--  is.tracabilite.livraison -->    
+        <record id="is_tracabilite_actualiser_temps_passe_action_server" model="ir.actions.server">
+            <field name="name">Actualiser le temps passé</field>
+            <field name="model_id" ref="model_is_tracabilite_livraison"/>
+            <field name="binding_model_id" ref="model_is_tracabilite_livraison"/>
+            <field name="state">code</field>
+            <field name="code">action = records._compute_temps_passe()</field>
+        </record>
         <record id="is_bsa_tracabilite_livraison_seq" model="ir.sequence">
             <field name="name">Tracabilité livraison</field>
             <field name="code">is.tracabilite.livraison</field>
-            <!-- <field name="prefix">TL</field> -->
-            <!-- <field name="padding">6</field> -->
             <field eval="False" name="company_id"/>
         </record>
         <record id="is_bsa_tracabilite_livraison_tree" model="ir.ui.view">
@@ -92,7 +97,7 @@
                     <field name="livraison"               optional="show" />
                     <field name="operateur_livraison_ids" optional="show" />
                     <field name="create_date"             optional="show" />
-                    <!-- <field name="num_serie"               optional="hide"/> -->
+                    <field name="temps_passe"             optional="hide" widget="float_time"/>
                 </tree>
             </field>
         </record>
@@ -101,6 +106,11 @@
             <field name="model">is.tracabilite.livraison</field>
             <field name="arch" type="xml">
                 <form string="Etiquettes en livraison">
+                    <style>
+                        .o_form_label{
+                            white-space: nowrap;
+                        }
+                    </style>
                     <sheet>
                         <div class="oe_right oe_button_box" style="width: 300px;" name="buttons">
                             <button class="oe_inline oe_stat_button" string="Imprimer" name= "imprimer_etiquette_livraison_direct" type="object" icon="fa-print"/>
@@ -109,18 +119,20 @@
                             <field name="name" class="oe_inline" readonly="1"/>
                         </h1>
                         <group>
-                            <field name="production_id" />
-                            <field name="lot_fabrication" />
-                            <field name="product_id" />
-                            <field name="fabrique" />
-                            <field name="consomme" />
-                            <field name="operateur_ids" widget="many2many_tags" />
-                            <field name="sale_id" />
-                            <field name="move_id" />
-                            <field name="livraison" />
-                            <field name="operateur_livraison_ids"  widget="many2many_tags" />
-                            <!-- <field name="num_serie" /> -->
+                            <group string="Identification">
+                                <field name="production_id" />
+                                <field name="lot_fabrication" />
+                                <field name="product_id" />
+                                <field name="fabrique" />
+                                <field name="consomme" />
+                                <field name="operateur_ids" widget="many2many_tags" />
+                                <field name="sale_id" />
+                                <field name="move_id" />
+                                <field name="livraison" />
+                                <field name="operateur_livraison_ids"  widget="many2many_tags" />
+                            </group>
                         </group>
+ 
                         <field name="etiquette_reception_id" >
                             <tree editable="bottom">
                                 <field name="etiquette_id" />
@@ -135,6 +147,23 @@
                                 <field name="livraison_id" invisible="1"/>
                             </tree>
                         </field>
+                        <group string="Suivi du temps">
+                            <field name="suivi_temps_ids" colspan="2"  nolabel="1" readonly="1">
+                                <tree>
+                                    <field name="line_id"     optional="show" widget="many2one_clickable"/>
+                                    <field name="employe_id"  optional="show" />
+                                    <field name="heure_debut" optional="show" />
+                                    <field name="heure_fin"   optional="show" />
+                                    <field name="temps_passe" optional="show"  sum="Total" widget="float_time"/>
+                                    <field name="tracabilite_livraison_id" optional="hide" widget="many2one_clickable"/>
+                                    <field name="create_uid"  optional="hide" string="Créé par"/>
+                                    <field name="create_date" optional="hide" string="Créé le"/>
+                                    <field name="write_uid"   optional="hide" string="Modifié par"/>
+                                    <field name="write_date"  optional="hide" string="Modifié le"/>
+                                </tree>
+                            </field>
+                            <field name="temps_passe" widget="float_time"/>
+                        </group>
                     </sheet>
                 </form>
             </field>

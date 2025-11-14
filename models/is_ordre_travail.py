@@ -545,8 +545,6 @@ class is_ordre_travail_line(models.Model):
             return res
 
 
-
-
 class is_ordre_travail_line_temps_passe(models.Model):
     _name='is.ordre.travail.line.temps.passe'
     _description='Temps passé Ligne Ordre de travail'
@@ -556,6 +554,7 @@ class is_ordre_travail_line_temps_passe(models.Model):
     heure_debut = fields.Datetime("Heure de début"          , required=True)
     heure_fin   = fields.Datetime("Heure de fin")
     temps_passe = fields.Float("Temps passé (HH:MM)", compute="_compute_temps_passe", readonly=True, store=True)
+    tracabilite_livraison_id = fields.Many2one("is.tracabilite.livraison", "Traçabilité livraison", index=True)
 
 
     @api.depends("heure_debut","heure_fin")

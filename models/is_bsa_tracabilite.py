@@ -391,6 +391,76 @@ class is_tracabilite_livraison(models.Model):
         return True
 
 
+    def terminer_suivi_temps_employe(self, employe_id, now=False):
+        """
+        Termine toutes les lignes de suivi du temps en cours pour un employé
+        en mettant une heure de fin sur toutes les lignes sans heure de fin
+        """
+        if not now:
+            now = fields.Datetime.now()
+        
+        # Rechercher toutes les lignes de suivi du temps de l'employé sans heure de fin
+        domain = [
+            ('employe_id', '=', employe_id),
+            ('heure_fin', '=', False),
+        ]
+        lines_en_cours = self.env['is.ordre.travail.line.temps.passe'].search(domain)
+        
+        # Mettre une heure de fin sur toutes les lignes trouvées
+        for line in lines_en_cours:
+            line.write({'heure_fin': now})
+        
+        return True
+
+
+    def demarrer_suivi_temps_action(self, employe_id=False):
+        """
+        Démarre le suivi du temps pour cette étiquette :
+        - Recherche l'ordre de travail attaché à production_id
+        - Trouve la première ligne de l'ordre de travail
+        - Termine tous les suivis en cours de l'employé
+        - Ajoute une ligne de suivi du temps avec la date de début à maintenant,
+          l'étiquette indiquée et l'utilisateur connecté (ou l'employé passé en paramètre)
+        """
+        for obj in self:
+            if not obj.production_id:
+                raise Warning("Aucun ordre de production associé à cette étiquette")
+            
+            ordre_travail = obj.production_id.is_ordre_travail_id
+            if not ordre_travail:
+                raise Warning("Aucun ordre de travail associé à l'ordre de production %s" % obj.production_id.name)
+            
+            # Recherche de la première ligne (triée par sequence)
+            lines = ordre_travail.line_ids.sorted(key=lambda l: l.sequence)
+            if not lines:
+                raise Warning("Aucune ligne trouvée dans l'ordre de travail %s" % ordre_travail.name)
+            
+            first_line = lines[0]
+            
+            # Récupération de l'employé
+            if not employe_id:
+                # Récupération de l'employé lié à l'utilisateur connecté
+                employes = self.env['hr.employee'].search([("user_id", "=", self._uid)])
+                if not employes:
+                    raise Warning("Aucun employé trouvé pour l'utilisateur connecté")
+                employe_id = employes[0].id
+            
+            # Terminer tous les suivis en cours de l'employé
+            now = fields.Datetime.now()
+            obj.terminer_suivi_temps_employe(employe_id, now)
+            
+            # Création de la ligne de suivi du temps
+            vals = {
+                "line_id": first_line.id,
+                "employe_id": employe_id,
+                "heure_debut": now,
+                "tracabilite_livraison_id": obj.id,
+            }
+            self.env['is.ordre.travail.line.temps.passe'].create(vals)
+            
+        return []
+
+
 class is_tracabilite_reception_line(models.Model):
     _name = 'is.tracabilite.reception.line'
     _description = "Traçabilité reception line"

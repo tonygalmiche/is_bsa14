@@ -114,6 +114,7 @@
                     <sheet>
                         <div class="oe_right oe_button_box" style="width: 300px;" name="buttons">
                             <button class="oe_inline oe_stat_button" string="Imprimer" name= "imprimer_etiquette_livraison_direct" type="object" icon="fa-print"/>
+                            <button class="oe_inline oe_stat_button" string="Démarrer suivi du temps" name="demarrer_suivi_temps_action" type="object" icon="fa-clock-o" groups="base.group_system"/>
                         </div>
                         <h1>
                             <field name="name" class="oe_inline" readonly="1"/>

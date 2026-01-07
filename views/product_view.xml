@@ -349,6 +349,15 @@
             <field name="state">code</field>
             <field name="code">action = records.recalcul_prix_revient_action()</field>
         </record>
+        
+        <!-- Imprimer étiquette -->
+        <record id="is_imprimer_etiquette_direct_action_server" model="ir.actions.server">
+            <field name="name">Imprimer étiquette</field>
+            <field name="model_id" ref="product.model_product_template"/>
+            <field name="binding_model_id" ref="product.model_product_template"/>
+            <field name="state">code</field>
+            <field name="code">action = records.imprimer_etiquette_direct()</field>
+        </record>
         <record id="is_product_template_only_form_view" model="ir.ui.view">
             <field name="name">is_product_template_only_form_view</field>
             <field name="model">product.template</field>

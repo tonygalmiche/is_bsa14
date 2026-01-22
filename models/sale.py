@@ -45,15 +45,15 @@ class is_sale_order_line_group(models.Model):
 class sale_order(models.Model):
     _inherit = "sale.order"
 
-    def _prepare_confirmation_values(self):
-        """ Surcharge pour ne mettre à jour date_order que si elle est vide """
-        vals = super(sale_order, self)._prepare_confirmation_values()
-        # Ne mettre à jour date_order que si elle n'est pas déjà renseignée
-        for order in self:
-            if order.date_order:
-                vals.pop('date_order', None)
-                break
-        return vals
+    # def _prepare_confirmation_values(self):
+    #     """ Surcharge pour ne mettre à jour date_order que si elle est vide """
+    #     vals = super(sale_order, self)._prepare_confirmation_values()
+    #     # Ne mettre à jour date_order que si elle n'est pas déjà renseignée
+    #     for order in self:
+    #         if order.date_order:
+    #             vals.pop('date_order', None)
+    #             break
+    #     return vals
 
     def action_confirm(self):
         res = super(sale_order, self).action_confirm()
@@ -109,8 +109,8 @@ class sale_order(models.Model):
             obj.is_date_prevue = date_prevue
 
 
-    # Surcharge du champ date_order pour le rendre modifiable même après confirmation
-    date_order = fields.Datetime(readonly=False)
+    date_order = fields.Datetime(string="Date AR (archivé)")
+    is_date_ar_commande = fields.Date("Date AR", tracking=True)
     
     is_societe_commerciale_id  = fields.Many2one("is.societe.commerciale", "Société commerciale")
     is_condition_livraison     = fields.Char("Conditions de livraison")
@@ -140,6 +140,30 @@ class sale_order(models.Model):
 
     is_couleur_affaire = fields.Char(string="Couleur affaire", help="utilisé dans la gestion des tâches")
 
+
+    def message_post(self, **kwargs):
+        """Surcharge pour renseigner is_date_ar_commande quand un mail est envoyé"""
+        _logger.info("=== message_post appelé pour sale.order ===")
+        _logger.info("kwargs: %s", kwargs)
+        _logger.info("self: %s", self)
+        _logger.info("is_date_ar_commande actuel: %s", self.is_date_ar_commande)
+        
+        res = super(sale_order, self).message_post(**kwargs)
+        
+        # Détecter l'envoi d'email : vérifier s'il y a des destinataires email (partner_ids) ou un email_from
+        is_email = kwargs.get('partner_ids') or kwargs.get('email_from')
+        _logger.info("message_type: %s, partner_ids: %s, email_from: %s, is_email: %s", 
+                     kwargs.get('message_type'), kwargs.get('partner_ids'), kwargs.get('email_from'), is_email)
+        
+        # Si c'est un envoi de mail (présence de destinataires) et que le champ n'est pas encore renseigné
+        if is_email and not self.is_date_ar_commande:
+            _logger.info("=== Mise à jour de is_date_ar_commande ===")
+            self.is_date_ar_commande = fields.Date.today()
+            _logger.info("is_date_ar_commande après mise à jour: %s", self.is_date_ar_commande)
+        else:
+            _logger.info("Condition non remplie - is_email=%s, is_date_ar_commande=%s", is_email, self.is_date_ar_commande)
+        
+        return res
 
 
 

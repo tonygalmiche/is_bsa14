@@ -45,6 +45,16 @@ class is_sale_order_line_group(models.Model):
 class sale_order(models.Model):
     _inherit = "sale.order"
 
+    def _prepare_confirmation_values(self):
+        """ Surcharge pour ne mettre à jour date_order que si elle est vide """
+        vals = super(sale_order, self)._prepare_confirmation_values()
+        # Ne mettre à jour date_order que si elle n'est pas déjà renseignée
+        for order in self:
+            if order.date_order:
+                vals.pop('date_order', None)
+                break
+        return vals
+
     def action_confirm(self):
         res = super(sale_order, self).action_confirm()
         for obj in self:
@@ -99,6 +109,9 @@ class sale_order(models.Model):
             obj.is_date_prevue = date_prevue
 
 
+    # Surcharge du champ date_order pour le rendre modifiable même après confirmation
+    date_order = fields.Datetime(readonly=False)
+    
     is_societe_commerciale_id  = fields.Many2one("is.societe.commerciale", "Société commerciale")
     is_condition_livraison     = fields.Char("Conditions de livraison")
     is_apporteur_affaire_id    = fields.Many2one("res.partner", "Apporteur d'affaire")

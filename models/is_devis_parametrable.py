@@ -56,7 +56,7 @@ class is_devis_parametrable_affaire(models.Model):
     information_complementaire = fields.Text("Informations complémentaires")
     payment_term_id            = fields.Many2one(string="Conditions de règlement client",related="partner_id.property_payment_term_id")
     conditions_reglement       = fields.Text("Conditions de règlement")
-    delais                     = fields.Char("Délais")
+    delais                     = fields.Text("Délais")
     duree_validite             = fields.Char("Durée de validité de l'offre")
     transport                  = fields.Text("Transport")
     conditions_generales       = fields.Text("Conditions générales")
@@ -90,6 +90,7 @@ class is_devis_parametrable_affaire(models.Model):
     description_kit_complement = fields.Text("Description complémentaire kit")
     quantite_kit               = fields.Integer("Quantité prévue kit")
     prix_unitaire_kit          = fields.Monetary("Prix unitaire kit", readonly=True, compute='_compute_montants', currency_field='devise_client_id')
+    warning_kit                = fields.Html("Avertissement kit", compute='_compute_warning_kit', sanitize=False)
 
 
     @api.depends('devis_parametrable_ids','devis_parametrable_ids.quantite','devis_parametrable_ids.devis_id.montant_equipement_ttc')
@@ -202,12 +203,23 @@ class is_devis_parametrable_affaire(models.Model):
                 obj.conditions_reglement = note
 
 
-    def test_quantite_kit(self):
+    @api.depends('quantite_kit', 'variante_ids', 'variante_ids.quantite')
+    def _compute_warning_kit(self):
         for obj in self:
-            if obj.quantite_kit>0:
+            warning = False
+            if obj.quantite_kit > 0:
+                messages = []
                 for line in obj.variante_ids:
-                    if line.quantite/obj.quantite_kit!=round(line.quantite/obj.quantite_kit):
-                        raise Warning("La quantité de la variante (%s) n'est pas un multiple du kit (%s)"%(line.quantite,obj.quantite_kit))
+                    if line.quantite / obj.quantite_kit != round(line.quantite / obj.quantite_kit):
+                        variante_name = line.variante_id.display_name or "Sans nom"
+                        messages.append("La quantité de la variante '%s' (%s) n'est pas un multiple du kit (%s)" % (variante_name, line.quantite, obj.quantite_kit))
+                if messages:
+                    warning = "<br/>".join(messages)
+            obj.warning_kit = warning
+
+    def test_quantite_kit(self):
+        """Méthode conservée pour compatibilité, ne bloque plus la modification"""
+        pass
 
 
     def write(self, vals):

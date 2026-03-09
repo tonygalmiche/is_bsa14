@@ -62,7 +62,7 @@
                             string="Liste des devis" type="object" 
                             attrs="{'invisible':[('devis_parametrable_ids','=',[])]}"
                         />
-                </header>
+                    </header>
                     <sheet>
                         <style>
                             .o_form_view .o_form_sheet_bg > .o_form_sheet{
@@ -72,6 +72,9 @@
                                 white-space: nowrap;
                             }
                         </style>
+                        <div class="alert alert-warning" role="alert" attrs="{'invisible':[('warning_kit','=',False)]}">
+                            <field name="warning_kit" nolabel="1"/>
+                        </div>
                         <group>
                             <group>
                                 <field name="is_societe_commerciale_id"/>

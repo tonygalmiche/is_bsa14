@@ -47,6 +47,17 @@ class is_paye(models.Model):
                             if l.intitule_id.name=="Compteur":
                                 compteur = l.heure
                 #**************************************************************
+
+                #** Recherche compteur solidarité du mois précédent ***********
+                compteur_solidarite=False
+                if previous:
+                    lines = self.env['is.paye.employe'].search([("paye_id","=",previous.id),('employee_id','=',employee.id)], limit=1)
+                    for line in lines:
+                        for l in line.intitule_ids:
+                            if l.intitule_id.name=="Compteur journée de solidarité":
+                                compteur_solidarite = l.heure
+                #**************************************************************
+
                 date = obj.date_debut
                 semaine = date.isocalendar().week
                 vals={
@@ -62,6 +73,10 @@ class is_paye(models.Model):
                     }
                     if compteur and intitule.name=="Compteur":
                         vals["heure"]=compteur
+
+                    if compteur_solidarite and intitule.name=="Compteur journée de solidarité":
+                        vals["heure"]=compteur_solidarite
+
                     res = self.env['is.paye.employe.intitule'].create(vals)
                 total_heures_semaine=total_balance=0
                 total_balance_heure_sup=0

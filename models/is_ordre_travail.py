@@ -113,12 +113,33 @@ class is_ordre_travail(models.Model):
         for obj in self:
             obj._compute_of_a_solder()
             if obj.of_a_solder:
-                obj.state='termine'
-                for line in obj.line_ids:
-                    line.state='termine'
-                qt = obj.production_id.product_qty
-                obj.production_id.declarer_une_fabrication_action(qt=qt)
-                obj.production_id.calculer_pru_action()
+                production = obj.production_id
+                qt = production.product_qty
+                production.declarer_une_fabrication_action(qt=qt)
+                production.calculer_pru_action()
+                # Rechercher si un reliquat a été créé dans le même groupe d'approvisionnement
+                reliquat = False
+                if production.procurement_group_id:
+                    reliquats = self.env['mrp.production'].search([
+                        ('procurement_group_id', '=', production.procurement_group_id.id),
+                        ('state', 'not in', ['cancel', 'done']),
+                    ], limit=1)
+                    if reliquats:
+                        reliquat = reliquats[0]
+                if reliquat:
+                    # Réaffecter l'OT au reliquat et ne pas le solder
+                    obj.production_id = reliquat.id
+                    reliquat.is_ordre_travail_id = obj.id
+                    obj.quantite = reliquat.product_qty
+                    obj.state = 'encours'
+                    for line in obj.line_ids:
+                        if line.state == 'termine':
+                            line.state = 'pret'
+                else:
+                    # Pas de reliquat : solder l'OT
+                    obj.state = 'termine'
+                    for line in obj.line_ids:
+                        line.state = 'termine'
 
 
 

@@ -292,6 +292,13 @@ class mrp_production(models.Model):
         for etiquette in self.etiquette_ids:
             if not etiquette.fabrique:
                 etiquette.production_id = res.id
+        # Réaffecter l'OT au reliquat
+        if self.is_ordre_travail_id and res:
+            ordre = self.is_ordre_travail_id
+            ordre.production_id = res.id
+            ordre.quantite = res.product_qty
+            ordre.state = 'encours'
+            res.is_ordre_travail_id = ordre.id
         return res
 
 

@@ -134,7 +134,7 @@
                         </div>
                         <field name="is_operation_ids" context="{'tree_view_ref':'is_bsa14.is_ordre_travail_line_tree_view'}"/>
                     </page>
-                    <page string="Etiquettes">
+                    <page string="Etiquettes" attrs="{'invisible': [('etiquette_ids', '=', [])]}">
                         <field name="etiquette_ids">
                             <tree string="Etiquettes" >
                                 <field name="name" />

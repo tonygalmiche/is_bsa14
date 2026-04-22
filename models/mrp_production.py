@@ -53,7 +53,7 @@ class mrp_production(models.Model):
     is_sale_order_line_id = fields.Many2one("sale.order.line", "Ligne de commande",index=True)
     is_sale_order_id      = fields.Many2one("sale.order", "Commande", compute='_compute_is_sale_order_id', store=True, readonly=True)
     is_nom_affaire        = fields.Char("Nom de l'affaire"          , compute='_compute_is_sale_order_id', store=True, readonly=True)
-    generer_etiquette     = fields.Boolean('Etiquettes générées', default=False, copy=False)
+    generer_etiquette     = fields.Boolean('Etiquettes générées', compute='_compute_generer_etiquette', store=True, copy=False)
     etiquette_ids         = fields.One2many('is.tracabilite.livraison', 'production_id', 'Etiquettes', copy=False)
     is_gestion_lot        = fields.Boolean('Gestion par lots')
     is_ref_client         = fields.Char("Référence client (champ obsolète)")
@@ -89,6 +89,17 @@ class mrp_production(models.Model):
     is_composants_non_disponibles = fields.Text(string="Composants non disponibles", compute='_compute_is_composants_non_disponibles', store=True, readonly=True,
                                                  help="Liste des composants dont le stock ne sera pas disponible pour la date limite")
 
+
+    @api.depends('etiquette_ids', 'procurement_group_id')
+    def _compute_generer_etiquette(self):
+        for obj in self:
+            if obj.procurement_group_id:
+                productions = self.env['mrp.production'].search([
+                    ('procurement_group_id', '=', obj.procurement_group_id.id)
+                ])
+                obj.generer_etiquette = any(bool(p.etiquette_ids) for p in productions)
+            else:
+                obj.generer_etiquette = bool(obj.etiquette_ids)
 
     @api.depends('is_employe_ids')
     def _compute_is_employe_ids_txt(self):
@@ -338,7 +349,6 @@ class mrp_production(models.Model):
                     }
                     new_id = self.env["is.tracabilite.livraison"].create(vals)
                     qty = qty - lot
-                obj.generer_etiquette=True
 
 
     def action_creer_imprimer_etiquette_mrp(self):

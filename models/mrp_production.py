@@ -33,7 +33,6 @@ class mrp_production(models.Model):
     @api.depends('is_sale_order_line_id','is_sale_order_line_id.is_date_prevue','is_sale_order_line_id.is_derniere_date_prevue')
     def _compute_is_date_prevue(self):
         for obj in self:
-            print('TEST',obj,obj.is_sale_order_line_id,obj.is_sale_order_line_id.is_date_prevue, obj.is_sale_order_line_id.is_derniere_date_prevue)
             is_date_prevue = False
             if  obj.is_sale_order_line_id:
                 if  obj.is_sale_order_line_id.is_derniere_date_prevue:

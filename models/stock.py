@@ -109,27 +109,13 @@ class stock_move(models.Model):
         """
         for move in self:
             is_disponible = False
-            
-
             # Vérifier si c'est un mouvement de consommation (composant d'OF)
             if move.raw_material_production_id and move.product_id.type == 'product':
                 # Le stock n'est disponible que si la quantité réservée est suffisante
                 is_reserved = move.reserved_availability >= move.product_qty
-
-
-                print('TEST 1',move.date_deadline,move.forecast_expected_date,move.product_qty,move.reserved_availability,is_reserved)
-
-
-
                 if not is_reserved:
                     # Si pas complètement réservé, vérifier forecast_availability
                     will_be_fulfilled = move.forecast_availability >= move.product_qty
-
-
-                    print('TEST 2',move.product_qty,move.forecast_availability,will_be_fulfilled)
-
-
-
                     if will_be_fulfilled:
                         # Vérifier la date uniquement si la quantité sera suffisante
                         is_on_time = True

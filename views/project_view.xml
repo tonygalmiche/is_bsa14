@@ -109,6 +109,18 @@
 
 
 
+        <!-- project.project -->
+        <record id="is_view_project_form" model="ir.ui.view">
+            <field name="name">is_view_project_form</field>
+            <field name="model">project.project</field>
+            <field name="inherit_id" ref="project.edit_project"/>
+            <field name="arch" type="xml">
+                <field name="allowed_internal_user_ids" position="after">
+                    <field name="is_equipe_projet_ids" widget="many2many_tags" string="Équipe projet"/>
+                </field>
+            </field>
+        </record>
+
         <!-- is.cause.retour.plan -->
         <record id="is_cause_retour_plan_form_view" model="ir.ui.view">
             <field name="name">is_cause_retour_plan_form_view</field>

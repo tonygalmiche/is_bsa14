@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name" : "InfoSaône - Module Odoo 14 pour BSA",
-    "version" : "0.1",
+    "version" : "0.2",
     "author" : "InfoSaône / Tony Galmiche",
     "category" : "InfoSaône",
     "description": """
@@ -30,6 +30,7 @@ InfoSaône - Module Odoo 14 pour BSA
     ],
     "data" : [
         "security/res.groups.xml",
+        "security/project_security.xml",
         "security/ir.model.access.csv",
         "views/assets.xml",
         "views/account_invoice_report_view.xml",

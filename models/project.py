@@ -9,6 +9,19 @@ class is_cause_retour_plan(models.Model):
     name = fields.Char('Cause de retour plan',required=True)
 
 
+class ProjectProject(models.Model):
+    _inherit = "project.project"
+
+    is_equipe_projet_ids = fields.Many2many(
+        'res.users',
+        'is_project_equipe_users_rel',
+        'project_id',
+        'user_id',
+        string='Équipe projet',
+        domain=[('share', '=', False)],
+    )
+
+
 class ProjectTask(models.Model):
     _inherit = "project.task"
     _order = 'date_deadline'

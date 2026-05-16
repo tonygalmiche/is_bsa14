@@ -998,8 +998,15 @@
             action="is_heure_effective_action"
         />
         <menuitem 
+            id="is_suivi_heures_menu"
+            sequence="22"
+            name="Suivi des heures travaillées"
+            parent="menu_is_pointage"
+            action="is_suivi_heures_action"
+        />
+        <menuitem 
             id="is_heure_effective_info_menu"     
-            sequence="22" 
+            sequence="23" 
             parent="menu_is_pointage" 
             action="is_heure_effective_info_action"
         />

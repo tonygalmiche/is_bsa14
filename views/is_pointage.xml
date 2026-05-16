@@ -137,5 +137,100 @@
                <field name="res_model">is.heure.effective.info</field>
                <field name="view_mode">tree,form</field>
           </record>
+
+
+          <!-- is.suivi.heures -->
+          <record model="ir.ui.view" id="is_suivi_heures_tree_view">
+               <field name="name">is_suivi_heures_tree_view</field>
+               <field name="model">is.suivi.heures</field>
+               <field name="type">tree</field>
+               <field name="arch" type="xml">
+                    <tree string="Suivi des heures travaillées" create="false">
+                         <field name="annee"          readonly="1"/>
+                         <field name="mois_numero"    readonly="1"/>
+                         <field name="mois"           readonly="1"/>
+                         <field name="semaine"        readonly="1"/>
+                         <field name="semaine_label"  readonly="1"/>
+                         <field name="week_start"     readonly="1"/>
+                         <field name="employee_id"    readonly="1"/>
+                         <field name="department_id"  readonly="1"/>
+                         <field name="balance_semaine" readonly="1"/>
+                    </tree>
+               </field>
+          </record>
+          <record model="ir.ui.view" id="is_suivi_heures_pivot_view">
+               <field name="name">is_suivi_heures_pivot_view</field>
+               <field name="model">is.suivi.heures</field>
+               <field name="type">pivot</field>
+               <field name="arch" type="xml">
+                    <pivot string="Suivi des heures travaillées" default_order="balance_semaine desc">
+                         <field name="employee_id"     type="row"/>
+                         <field name="annee"           type="col"/>
+                         <field name="balance_semaine" type="measure"/>
+                    </pivot>
+               </field>
+          </record>
+          <record model="ir.ui.view" id="is_suivi_heures_graph_view">
+               <field name="name">is_suivi_heures_graph_view</field>
+               <field name="model">is.suivi.heures</field>
+               <field name="type">graph</field>
+               <field name="arch" type="xml">
+                    <graph string="Suivi des heures travaillées" type="bar" order="desc">
+                         <field name="employee_id"     type="row"/>
+                         <field name="balance_semaine" type="measure"/>
+                    </graph>
+               </field>
+          </record>
+          <record model="ir.ui.view" id="is_suivi_heures_filter_view">
+               <field name="name">is_suivi_heures_filter_view</field>
+               <field name="model">is.suivi.heures</field>
+               <field name="arch" type="xml">
+                    <search string="Recherche">
+                         <field name="employee_id"/>
+                         <field name="department_id"/>
+                         <field name="annee"/>
+                         <field name="mois_numero"/>
+                         <field name="mois"/>
+                         <field name="semaine"/>
+                         <field name="semaine_label"/>
+                         <separator/>
+                         <filter name="filter_annee_courante" string="Année courante"
+                                 domain="[('week_start','&gt;=', (context_today() + relativedelta(day=1,month=1)).strftime('%%Y-%%m-%%d')),
+                                           ('week_start','&lt;=', (context_today() + relativedelta(day=31,month=12)).strftime('%%Y-%%m-%%d'))]"/>
+                         <group expand="0" string="Regroupé par...">
+                              <filter name="group_annee"         string="Année"       context="{'group_by':'annee'}"/>
+                              <filter name="group_mois"          string="Mois"        context="{'group_by':'mois'}"/>
+                              <filter name="group_semaine_label" string="Semaine"     context="{'group_by':'semaine_label'}"/>
+                              <filter name="group_employee_id"   string="Employé"     context="{'group_by':'employee_id'}"/>
+                              <filter name="group_department_id" string="Département" context="{'group_by':'department_id'}"/>
+                         </group>
+                    </search>
+               </field>
+          </record>
+          <record model="ir.actions.act_window" id="is_suivi_heures_action">
+               <field name="name">Suivi des heures travaillées</field>
+               <field name="res_model">is.suivi.heures</field>
+               <field name="view_mode">tree,pivot,graph</field>
+          </record>
+          <record id="suivi_heures_cron_nuit" model="ir.cron">
+               <field name="name">Suivi heures travaillées — recalcul nuit (10 semaines)</field>
+               <field name="model_id" ref="model_is_suivi_heures"/>
+               <field name="state">code</field>
+               <field name="code">model.action_calculer(nb_semaines=10)</field>
+               <field name="interval_number">1</field>
+               <field name="interval_type">days</field>
+               <field name="numbercall">-1</field>
+               <field name="active">True</field>
+          </record>
+          <record id="suivi_heures_cron_mensuel" model="ir.cron">
+               <field name="name">Suivi heures travaillées — recalcul complet mensuel</field>
+               <field name="model_id" ref="model_is_suivi_heures"/>
+               <field name="state">code</field>
+               <field name="code">model.action_calculer(nb_semaines=None)</field>
+               <field name="interval_number">1</field>
+               <field name="interval_type">months</field>
+               <field name="numbercall">-1</field>
+               <field name="active">True</field>
+          </record>
      </data>
 </odoo>

@@ -57,6 +57,7 @@ access_is_jour_ferie_manager,is.jour.ferie.manager,model_is_jour_ferie,hr.group_
 access_is_pointage_commentaire,access_is_pointage_commentaire,model_is_pointage_commentaire,hr.group_hr_manager,1,1,1,1
 access_is_heure_effective,access_is_heure_effective,model_is_heure_effective,hr.group_hr_manager,1,1,1,1
 access_is_heure_effective_info,access_is_heure_effective_info,model_is_heure_effective_info,hr.group_hr_manager,1,1,1,1
+access_is_suivi_heures,access_is_suivi_heures,model_is_suivi_heures,hr.group_hr_manager,1,1,1,1
 
 access_is_etiquette_line,access_is_etiquette_line,model_is_etiquette_line,base.group_user,1,1,1,1
 access_is_imprimer_etiquette,access_is_imprimer_etiquette,model_is_imprimer_etiquette,base.group_user,1,1,1,1

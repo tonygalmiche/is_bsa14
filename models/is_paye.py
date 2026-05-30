@@ -189,15 +189,16 @@ class is_paye(models.Model):
                         abs_enfant_malade = total_abs_enfant_malade
                         ecole             = total_ecole
 
-                        #Le samedi est toujours compté à 50%
+                        #30/05/2026 : Heure sup à 50% à partir de 8H
                         total_balance_heure_sup=total_balance_heure_sup-heures_samedi
                         if total_balance_heure_sup>0:
-                            if total_balance_heure_sup<=4:
+                            if total_balance_heure_sup<=8:
                                 hs25=total_balance_heure_sup
                             else:
-                                hs25=4
-                        if total_balance_heure_sup>4:
-                            hs50=total_balance_heure_sup-4
+                                hs25=8
+                        if total_balance_heure_sup>8:
+                            hs50=total_balance_heure_sup-8
+                        #Le samedi est toujours compté à 50%
                         if heures_samedi>0:
                             hs50+=heures_samedi
 

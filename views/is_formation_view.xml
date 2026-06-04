@@ -58,7 +58,7 @@
                               <group col="2" colspan="4">
                                    <field name="formation_id"/>
                                    <field name="employee_id"/>
-                                   <field name="atelier"/>
+                                   <field name="department_id"/>
                                    <field name="training_date"/>
                                    <field name="validity_date"/>
                                    <field name="remaining_days"/>
@@ -77,7 +77,7 @@
                     <tree string="Suivi formations">
                         <field name="formation_id" widget="many2one_clickable"/>
                         <field name="employee_id"  widget="many2one_clickable"/>
-                        <field name="atelier" optional="show"/>
+                        <field name="department_id" optional="show"/>
                         <field name="training_date" optional="show"/>
                         <field name="validity_date" optional="show"/>
                         <field name="remaining_days" optional="show"/>
@@ -99,7 +99,7 @@
                     <search string="Recherche">
                          <field name="formation_id"/>
                          <field name="employee_id"/>
-                         <field name="atelier"/>
+                         <field name="department_id"/>
                          <field name="status"/>
                          <filter name="ok_filter" string="OK" domain="[('status', '=', 'ok')]"/>
                          <filter name="expired_filter" string="Expirée" domain="[('status', '=', 'expired')]"/>

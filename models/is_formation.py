@@ -23,11 +23,16 @@ class IsFormationSuivi(models.Model):
 
     formation_id = fields.Many2one('is.formation', string='Formation', required=True)
     employee_id = fields.Many2one('hr.employee', string='Salarié', required=True)
-    atelier = fields.Selection([('A', 'Atelier'), ('I', 'Intérieur')], string='Atelier', required=True)
+    department_id = fields.Many2one('hr.department', string='Département')
     training_date = fields.Date(string='Date de la formation', required=True)
     validity_date = fields.Date(string='Validité de la formation', compute='_compute_validity_date', store=True)
     remaining_days = fields.Integer(string='Jours restant', compute='_compute_remaining_days', store=True)
     status = fields.Selection([('ok', 'OK'), ('expired', 'Expirée')], string='Statut', compute='_compute_status', store=True)
+
+    @api.onchange('employee_id')
+    def _onchange_employee_id(self):
+        if self.employee_id:
+            self.department_id = self.employee_id.department_id
 
     @api.depends('training_date', 'formation_id.validity_duration')
     def _compute_validity_date(self):

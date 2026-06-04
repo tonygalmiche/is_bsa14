@@ -122,7 +122,6 @@
                             <tree string="Formations">
                                 <button name="action_open_suivi" type="object" icon="fa-search-plus" title="Ouvrir le suivi"/>
                                 <field name="formation_id" widget="many2one_clickable"/>
-                                <field name="atelier"/>
                                 <field name="training_date"/>
                                 <field name="validity_date"/>
                                 <field name="remaining_days"/>

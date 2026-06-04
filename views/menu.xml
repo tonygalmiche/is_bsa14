@@ -968,6 +968,27 @@
         />
 
 
+        <!-- Employés / Formations -->
+        <menuitem 
+            id="menu_is_formation"                    
+            sequence="29" 
+            name="Formations" 
+            parent="hr.menu_hr_root"
+        />
+        <menuitem 
+            id="menu_is_formation_list"     
+            sequence="10" 
+            name="Formations"
+            parent="menu_is_formation" 
+            action="is_formation_action"
+        />
+        <menuitem 
+            id="menu_is_formation_suivi"     
+            sequence="20" 
+            name="Suivi des formations"
+            parent="menu_is_formation" 
+            action="is_formation_suivi_action"
+        />
 
 
 
@@ -1043,6 +1064,7 @@
         <menuitem id="menu_is_pointage_report" sequence="25" parent="hr.menu_hr_root" name="Rapport" />
         <menuitem id="menu_is_pointage_report1" sequence="10" action="is_pointage_report1_action" parent="menu_is_pointage_report"/>
         <!--<menuitem action="hr.open_view_employee_list_my" id="is_menu_open_view_employee_list_my" sequence="10" parent="hr.menu_hr_main"/>-->
+
 
 
        <!-- Qualité / FNC -->

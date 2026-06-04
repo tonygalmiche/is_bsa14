@@ -22,6 +22,15 @@
         </record>
 
 
+        <!-- is.formation.suivi -->
+        <record model="ir.actions.act_window" id="is_formation_suivi_action2">
+            <field name="context">{'default_employee_id': active_id, 'search_default_employee_id': active_id}</field>
+            <field name="name">Formations</field>
+            <field name="res_model">is.formation.suivi</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
         <!-- hr.employee -->
         <record id="ajout_pauses_ir_cron" model="ir.cron">
             <field name="name">Ajout des pauses au suivi du temps</field>
@@ -60,6 +69,14 @@
                             <span class="o_stat_text">Pointages</span>
                         </div>
                     </button>
+                    <button class="oe_stat_button" name="%(is_formation_suivi_action2)d" type="action" icon="fa-graduation-cap">
+                        <div class="o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="is_formation_suivi_count"/>
+                            </span>
+                            <span class="o_stat_text">Formations</span>
+                        </div>
+                    </button>
                 </div>
                 <page name="public" position="after">
                     <page string="Planification">
@@ -85,7 +102,7 @@
                                 <field name="is_jour7"/>
                             </group>
                         </group>
-			<group>
+                        <group>
                             <group string="Détachement">
                                 <field name="is_detachement_ids" nolabel="1">
                                     <tree editable="bottom">
@@ -95,10 +112,28 @@
                                     </tree>
                                 </field>
                             </group>
-		        </group>
+                        </group>
                         <group>
                             <field name="is_observation"/>
                         </group>
+                    </page>
+                    <page string="Formations">
+                        <field name="is_formation_suivi_ids" nolabel="1" view_mode="tree">
+                            <tree string="Formations">
+                                <button name="action_open_suivi" type="object" icon="fa-search-plus" title="Ouvrir le suivi"/>
+                                <field name="formation_id" widget="many2one_clickable"/>
+                                <field name="atelier"/>
+                                <field name="training_date"/>
+                                <field name="validity_date"/>
+                                <field name="remaining_days"/>
+                                <field 
+                                    name="status" 
+                                    widget="badge" 
+                                    decoration-danger="status == 'expired'" 
+                                    decoration-success="status == 'ok'"
+                                />
+                            </tree>
+                        </field>
                     </page>
                 </page>
             </field>

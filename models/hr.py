@@ -37,7 +37,9 @@ class hr_employee(models.Model):
     is_interimaire    = fields.Boolean('Intérimaire',  help="Cocher pour indiquer que c'est un intérimaire")
     is_badge_count    = fields.Integer(string='# Badges'   , compute="_badge_count")
     is_pointage_count = fields.Integer(string='# Pointages', compute="_pointage_count")
+    is_formation_suivi_count = fields.Integer(string='# Formations', compute="_formation_suivi_count")
     is_detachement_ids      = fields.One2many('is.detachement', 'employe_id', 'Détachement')
+    is_formation_suivi_ids = fields.One2many('is.formation.suivi', 'employee_id', 'Formations')
     is_jour1 = fields.Float('Lundi')
     is_jour2 = fields.Float('Mardi')
     is_jour3 = fields.Float('Mercredi')
@@ -57,6 +59,11 @@ class hr_employee(models.Model):
     def _pointage_count(self):
         for obj in self:
             obj.is_pointage_count = 0
+
+
+    def _formation_suivi_count(self):
+        for obj in self:
+            obj.is_formation_suivi_count = len(obj.is_formation_suivi_ids)
 
 
     def action_view_badge(self):

@@ -274,3 +274,6 @@ access_is_emplacement_palette_mouvement_manager,access_is_emplacement_palette_mo
 
 
 access_is_stock_inventory_ligne,access_is_stock_inventory_ligne,model_is_stock_inventory_ligne,base.group_user,1,1,1,1
+
+access_is_formation,access_is_formation,model_is_formation,hr.group_hr_manager,1,1,1,1
+access_is_formation_suivi,access_is_formation_suivi,model_is_formation_suivi,hr.group_hr_manager,1,1,1,1

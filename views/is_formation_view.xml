@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+     <data>
+          <!-- is.formation -->
+          <record model="ir.ui.view" id="is_formation_form_view">
+               <field name="name">is_formation_form_view</field>
+               <field name="model">is.formation</field>
+               <field name="type">form</field>
+               <field name="arch" type="xml">
+                    <form string="Formation" version="7.0">
+                         <sheet>
+                              <group col="2" colspan="4">
+                                   <field name="name"/>
+                                   <field name="validity_duration"/>
+                              </group>
+                         </sheet>
+                    </form>
+               </field>
+          </record>
+
+          <record model="ir.ui.view" id="is_formation_tree_view">
+               <field name="name">is_formation_tree_view</field>
+               <field name="model">is.formation</field>
+               <field name="type">tree</field>
+               <field name="arch" type="xml">
+                    <tree string="Formations">
+                         <field name="name"/>
+                         <field name="validity_duration"/>
+                    </tree>
+               </field>
+          </record>
+
+          <record model="ir.ui.view" id="is_formation_filter_view">
+               <field name="name">is_formation_filter_view</field>
+               <field name="model">is.formation</field>
+               <field name="arch" type="xml">
+                    <search string="Recherche">
+                         <field name="name" filter_domain="[('name', 'ilike', self)]"/>
+                    </search>
+               </field>
+          </record>
+
+          <record model="ir.actions.act_window" id="is_formation_action">
+               <field name="name">Formations</field>
+               <field name="res_model">is.formation</field>
+               <field name="view_mode">tree,form</field>
+          </record>
+
+          <!-- is.formation.suivi -->
+          <record model="ir.ui.view" id="is_formation_suivi_form_view">
+               <field name="name">is_formation_suivi_form_view</field>
+               <field name="model">is.formation.suivi</field>
+               <field name="type">form</field>
+               <field name="arch" type="xml">
+                    <form string="Suivi formation" version="7.0">
+                         <sheet>
+                              <group col="2" colspan="4">
+                                   <field name="formation_id"/>
+                                   <field name="employee_id"/>
+                                   <field name="atelier"/>
+                                   <field name="training_date"/>
+                                   <field name="validity_date"/>
+                                   <field name="remaining_days"/>
+                                   <field name="status"/>
+                              </group>
+                         </sheet>
+                    </form>
+               </field>
+          </record>
+
+          <record model="ir.ui.view" id="is_formation_suivi_tree_view">
+               <field name="name">is_formation_suivi_tree_view</field>
+               <field name="model">is.formation.suivi</field>
+               <field name="type">tree</field>
+               <field name="arch" type="xml">
+                    <tree string="Suivi formations">
+                        <field name="formation_id" widget="many2one_clickable"/>
+                        <field name="employee_id"  widget="many2one_clickable"/>
+                        <field name="atelier" optional="show"/>
+                        <field name="training_date" optional="show"/>
+                        <field name="validity_date" optional="show"/>
+                        <field name="remaining_days" optional="show"/>
+                        <field 
+                            name="status" 
+                            widget="badge" 
+                            decoration-danger="status == 'expired'" 
+                            decoration-success="status == 'ok'" 
+                            optional="show"
+                        />
+                    </tree>
+               </field>
+          </record>
+
+          <record model="ir.ui.view" id="is_formation_suivi_filter_view">
+               <field name="name">is_formation_suivi_filter_view</field>
+               <field name="model">is.formation.suivi</field>
+               <field name="arch" type="xml">
+                    <search string="Recherche">
+                         <field name="formation_id"/>
+                         <field name="employee_id"/>
+                         <field name="atelier"/>
+                         <field name="status"/>
+                         <filter name="ok_filter" string="OK" domain="[('status', '=', 'ok')]"/>
+                         <filter name="expired_filter" string="Expirée" domain="[('status', '=', 'expired')]"/>
+                    </search>
+               </field>
+          </record>
+
+          <record model="ir.ui.view" id="is_formation_suivi_pivot_view">
+               <field name="name">is_formation_suivi_pivot_view</field>
+               <field name="model">is.formation.suivi</field>
+               <field name="type">pivot</field>
+               <field name="arch" type="xml">
+                    <pivot string="Suivi formations - Tableau croisé">
+                         <field name="formation_id" type="row"/>
+                         <field name="employee_id" type="row"/>
+                         <field name="status" type="col"/>
+                    </pivot>
+               </field>
+          </record>
+
+          <record model="ir.ui.view" id="is_formation_suivi_graph_view">
+               <field name="name">is_formation_suivi_graph_view</field>
+               <field name="model">is.formation.suivi</field>
+               <field name="type">graph</field>
+               <field name="arch" type="xml">
+                    <graph string="Suivi formations - Graphique" type="bar">
+                         <field name="employee_id" type="row"/>
+                         <field name="formation_id" type="row"/>
+                    </graph>
+               </field>
+          </record>
+
+          <record model="ir.actions.act_window" id="is_formation_suivi_action">
+               <field name="name">Suivi des formations</field>
+               <field name="res_model">is.formation.suivi</field>
+               <field name="view_mode">tree,form,pivot,graph</field>
+          </record>
+
+          <record id="recalculate_formation_status_ir_cron" model="ir.cron">
+               <field name="name">Recalculer le statut des formations</field>
+               <field name="model_id" ref="model_is_formation_suivi"/>
+               <field name="state">code</field>
+               <field name="code">model.recalculate_status_cron()</field>
+               <field name="interval_type">days</field>
+               <field name="interval_number">1</field>
+               <field name="numbercall">-1</field>
+               <field name="doall">False</field>
+          </record>
+
+     </data>
+</odoo>

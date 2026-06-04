@@ -48,6 +48,7 @@ from . import is_systeme_gestion
 from . import is_simulation_livrable
 from . import is_historique_achat
 from . import is_calcul_pmp
+from . import is_formation
 from . import crm_lead
 from . import is_ordre_travail
 from . import is_suivi_commercial

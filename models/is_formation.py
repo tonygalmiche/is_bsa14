@@ -8,6 +8,8 @@ from dateutil.relativedelta import relativedelta
 class IsFormation(models.Model):
     _name = 'is.formation'
     _description = 'Formation'
+    _order = "name"
+
 
     name = fields.Char(string='Nom de la formation', required=True)
     validity_duration = fields.Integer(string='Durée de validité (mois)', required=True, default=12)

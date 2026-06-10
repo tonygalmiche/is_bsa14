@@ -681,6 +681,13 @@
         />
         <menuitem id="bsa_affectation_gabarit_menu"   parent="mrp.menu_mrp_manufacturing" action="bsa_affectation_gabarit_action" sequence="10" />
         <menuitem id="mrp.menu_mrp_production_action" action="bsa_mrp_production_action" parent="mrp.menu_mrp_manufacturing" sequence="1"/>
+        <menuitem 
+            name="Préparation de déclaration de production"
+            id="is_preparation_declaration_production_menu" 
+            parent="mrp.menu_mrp_manufacturing" 
+            action="is_preparation_declaration_production_action" 
+            sequence="2"
+        />
         <menuitem name="Gabarits" id="is_gabarit_menu" parent="mrp.menu_mrp_manufacturing" action="is_gabarit_action" sequence="90" />
         <menuitem 
             name="Valorisation encours" 

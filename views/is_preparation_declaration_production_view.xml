@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- is.preparation.declaration.production -->
+        <record model="ir.ui.view" id="is_preparation_declaration_production_form_view">
+            <field name="name">is_preparation_declaration_production_form_view</field>
+            <field name="model">is.preparation.declaration.production</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="action_terminer" type="object" string="Terminer" class="oe_highlight" states="en_cours"/>
+                        <field name="state" widget="statusbar" options="{'clickable': False}"/>
+                    </header>
+                    <sheet>
+                        <style><![CDATA[
+                            .o_form_view .o_form_sheet_bg > .o_form_sheet{
+                                max-width: 1800px;
+                            }
+                            .o_form_label{
+                                white-space: nowrap;
+                            }
+                        ]]></style>
+                        <group>
+                            <field name="etiquette_tracabilite_id" attrs="{'readonly': [('state', '=', 'termine')]}"/>
+                            <field name="production_id"/>
+                            <field name="article_id"/>
+                            <field name="is_gestion_lot" force_save="1"/>
+                            <field name="quantite_a_declarer" attrs="{'readonly': [('state', '=', 'termine')]}"/>
+                            <field name="operateurs_ids" widget="many2many_tags" attrs="{'readonly': [('state', '=', 'termine')]}"/>
+                        </group>
+                        <field name="composant_ids" readonly="True" force_save="1">
+                            <tree decoration-danger="stock_disponible &lt; total_quantite_scanee" decoration-warning="ecart != 0 and stock_disponible >= total_quantite_scanee" decoration-success="ecart == 0 and stock_disponible >= total_quantite_scanee">
+                                <field name="product_id"/>
+                                <field name="quantite_prevue_unitaire"/>
+                                <field name="quantite_prevue"/>                                
+                                <field name="stock_disponible"/>                                
+                                <field name="total_quantite_scanee"/>
+                                <field name="ecart"/>
+                            </tree>
+                        </field>
+                        <group>
+                            <button name="action_actualiser_stocks" type="object" string="Actualiser les stocks" class="btn-secondary" states="en_cours"/>
+                        </group>
+                        <field name="ligne_ids" attrs="{'readonly': [('state', '=', 'termine')]}">
+                            <tree editable="bottom">
+                                <field name="etiquette_reception_id"/>
+                                <field name="etiquette_livraison_id"/>
+                                <field name="product_id"/>
+                                <field name="quantite_saisie"/>
+                            </tree>
+                        </field>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        
+        <record model="ir.ui.view" id="is_preparation_declaration_production_tree_view">
+            <field name="name">is_preparation_declaration_production_tree_view</field>
+            <field name="model">is.preparation.declaration.production</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="etiquette_tracabilite_id"/>
+                    <field name="production_id"/>
+                    <field name="article_id"/>
+                    <field name="is_gestion_lot"/>
+                    <field name="quantite_a_declarer"/>
+                    <field name="operateurs_ids" widget="many2many_tags"/>
+                </tree>
+            </field>
+        </record>
+        
+        <record model="ir.ui.view" id="is_preparation_declaration_production_search_view">
+            <field name="name">is_preparation_declaration_production_search_view</field>
+            <field name="model">is.preparation.declaration.production</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="etiquette_tracabilite_id"/>
+                    <field name="production_id"/>
+                    <field name="operateurs_ids"/>
+                </search>
+            </field>
+        </record>
+        
+        <record model="ir.actions.act_window" id="is_preparation_declaration_production_action">
+            <field name="name">Préparation de déclaration de production</field>
+            <field name="res_model">is.preparation.declaration.production</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Créer une nouvelle préparation de déclaration de production
+                </p>
+            </field>
+        </record>
+
+        <!-- is.preparation.declaration.production.line -->
+        <record model="ir.ui.view" id="is_preparation_declaration_production_line_form_view">
+            <field name="name">is_preparation_declaration_production_line_form_view</field>
+            <field name="model">is.preparation.declaration.production.line</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="etiquette_reception_id"/>
+                            <field name="etiquette_livraison_id"/>
+                            <field name="product_id"/>
+                            <field name="quantite_saisie"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="is_preparation_declaration_production_line_tree_view">
+            <field name="name">is_preparation_declaration_production_line_tree_view</field>
+            <field name="model">is.preparation.declaration.production.line</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="etiquette_reception_id"/>
+                    <field name="etiquette_livraison_id"/>
+                    <field name="product_id"/>
+                    <field name="quantite_saisie"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="is_preparation_declaration_production_line_search_view">
+            <field name="name">is_preparation_declaration_production_line_search_view</field>
+            <field name="model">is.preparation.declaration.production.line</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="etiquette_reception_id"/>
+                    <field name="etiquette_livraison_id"/>
+                    <field name="product_id"/>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="is_preparation_declaration_production_line_action">
+            <field name="name">Lignes de préparation de déclaration de production</field>
+            <field name="res_model">is.preparation.declaration.production.line</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>

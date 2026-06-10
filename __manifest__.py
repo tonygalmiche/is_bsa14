@@ -97,6 +97,7 @@ InfoSaône - Module Odoo 14 pour BSA
         "views/is_relance_facture_view.xml",
         "views/is_emplacement_palette_view.xml",
         "views/is_formation_view.xml",
+        "views/is_preparation_declaration_production_view.xml",
         "views/resource_calendar_leaves_view.xml",
         "report/external_layout_boxed.xml",
         "report/report_template.xml",

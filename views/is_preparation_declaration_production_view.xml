@@ -29,27 +29,40 @@
                             <field name="quantite_a_declarer" attrs="{'readonly': [('state', '=', 'termine')]}"/>
                             <field name="operateurs_ids" widget="many2many_tags" attrs="{'readonly': [('state', '=', 'termine')]}"/>
                         </group>
-                        <field name="composant_ids" readonly="True" force_save="1">
-                            <tree decoration-danger="stock_disponible &lt; total_quantite_scanee" decoration-warning="ecart != 0 and stock_disponible >= total_quantite_scanee" decoration-success="ecart == 0 and stock_disponible >= total_quantite_scanee">
-                                <field name="product_id"/>
-                                <field name="quantite_prevue_unitaire"/>
-                                <field name="quantite_prevue"/>                                
-                                <field name="stock_disponible"/>                                
-                                <field name="total_quantite_scanee"/>
-                                <field name="ecart"/>
-                            </tree>
-                        </field>
-                        <group>
-                            <button name="action_actualiser_stocks" type="object" string="Actualiser les stocks" class="btn-secondary" states="en_cours"/>
-                        </group>
-                        <field name="ligne_ids" attrs="{'readonly': [('state', '=', 'termine')]}">
-                            <tree editable="bottom">
-                                <field name="etiquette_reception_id"/>
-                                <field name="etiquette_livraison_id"/>
-                                <field name="product_id"/>
-                                <field name="quantite_saisie"/>
-                            </tree>
-                        </field>
+                        <notebook>
+                            <page string="Composants et Lignes">
+                                <group string="Composants">
+                                    <field name="composant_ids" readonly="True" force_save="1">
+                                        <tree decoration-danger="stock_disponible &lt; total_quantite_scanee" decoration-warning="ecart != 0 and stock_disponible >= total_quantite_scanee" decoration-success="ecart == 0 and stock_disponible >= total_quantite_scanee">
+                                            <field name="product_id"/>
+                                            <field name="quantite_prevue_unitaire"/>
+                                            <field name="quantite_prevue"/>                                
+                                            <field name="stock_disponible"/>                                
+                                            <field name="total_quantite_scanee"/>
+                                            <field name="ecart"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                                <group string="Lignes">
+                                    <field name="ligne_ids" attrs="{'readonly': [('state', '=', 'termine')]}">
+                                        <tree editable="bottom">
+                                            <field name="etiquette_reception_id"/>
+                                            <field name="etiquette_livraison_id"/>
+                                            <field name="product_id"/>
+                                            <field name="quantite_saisie"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                                <group>
+                                    <button name="action_actualiser_stocks" type="object" string="Actualiser les stocks" class="btn-secondary" states="en_cours"/>
+                                </group>
+                            </page>
+                            <page string="Affichage Mobile">
+                                <div style="max-width: 375px; margin: 20px auto; border: 1px solid #ddd; border-radius: 8px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                    <field name="affichage_mobile_html" widget="html" readonly="True"/>
+                                </div>
+                            </page>
+                        </notebook>
                     </sheet>
                     <div class="oe_chatter">
                         <field name="message_ids" widget="mail_thread"/>

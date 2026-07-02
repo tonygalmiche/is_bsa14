@@ -2,6 +2,8 @@
 from email.policy import default
 from odoo import models,fields,api
 import datetime
+import math
+import pytz
 from odoo.exceptions import AccessError, UserError, ValidationError
 
 
@@ -78,15 +80,15 @@ class is_paye(models.Model):
                         vals["heure"]=compteur_solidarite
 
                     res = self.env['is.paye.employe.intitule'].create(vals)
-                total_heures_semaine=total_balance=0
+                total_heures_semaine=total_balance=total_nuit=0
                 total_balance_heure_sup=0
                 total_cp_heure=total_cp_jour=total_maladie=total_at=total_ecole=total_abs=total_abs_justifiee=total_abs_enfant_malade=0
                 heures_samedi=nb_detachements=0
                 for i in range(0,nb_jours):                    
                     if date.weekday()==0:
                         semaine = date.isocalendar().week
-                    info_id=info_complementaire=False
-                    cp_heure=cp_jour=maladie=at=ecole=abs=abs_justifiee=abs_enfant_malade=heures_semaine=balance=hs25=hs50=0
+                    info_id=info_complementaire=heure_entree=heure_sortie=False
+                    cp_heure=cp_jour=maladie=at=ecole=abs=abs_justifiee=abs_enfant_malade=heures_semaine=balance=hs25=hs50=nuit=0
                     balance_heure_sup=0
                     if date.weekday()!=6:
                         #** Recherche Détachement *****************************
@@ -103,6 +105,8 @@ class is_paye(models.Model):
                         jour=date
                         jour_char = jour.strftime('%d/%m/%Y')
                         if date<=obj.date_pointage:
+                            nuit = obj._compute_heures_nuit(employee, jour)
+                            heure_entree, heure_sortie = obj._get_premier_dernier_pointage(employee, jour)
                             heures = self.env['is.heure.effective'].search([('employee_id','=',employee.id),('name','=',jour)])
                             for heure in heures:
                                 heures_semaine      = heure.effectif_reel
@@ -161,6 +165,7 @@ class is_paye(models.Model):
 
                         total_heures_semaine+=heures_semaine
                         total_balance+=balance
+                        total_nuit+=nuit
                         total_balance_heure_sup+=balance_heure_sup
                         total_cp_heure += cp_heure
                         total_cp_jour  += cp_jour
@@ -178,8 +183,10 @@ class is_paye(models.Model):
 
                         jour=False
                         jour_char = "Semaine %s"%(semaine)
+                        heure_entree=heure_sortie=False
                         heures_semaine = total_heures_semaine
                         balance        = total_balance
+                        nuit           = total_nuit
                         cp_heure       = total_cp_heure
                         cp_jour        = total_cp_jour
                         maladie        = total_maladie
@@ -212,6 +219,9 @@ class is_paye(models.Model):
                         "info_complementaire": info_complementaire,
                         "cp_heure"           : cp_heure,
                         "cp_jour"            : cp_jour,
+                        "heure_entree"       : heure_entree,
+                        "heure_sortie"       : heure_sortie,
+                        "nuit"               : nuit,
                         "hs25"               : hs25,
                         "hs50"               : hs50,
                         "maladie"            : maladie,
@@ -223,7 +233,7 @@ class is_paye(models.Model):
                     }
                     res = self.env['is.paye.employe.jour'].create(vals)
                     if date.weekday()==6:
-                        total_heures_semaine=total_balance=total_balance_heure_sup=0
+                        total_heures_semaine=total_balance=total_nuit=total_balance_heure_sup=0
                         total_cp_heure=total_cp_jour=total_maladie=total_at=total_ecole=total_abs=total_abs_justifiee=total_abs_enfant_malade=0
                         heures_samedi=0
                     date = date + datetime.timedelta(days=1)
@@ -256,6 +266,95 @@ class is_paye(models.Model):
                 #******************************************************************
 
 
+    def _arrondir_quart_heure(self, dt, entree_sortie):
+        """Arrondit un horaire de pointage au 1/4 d'heure : à l'entrée on arrondit
+        au 1/4 d'heure supérieur, à la sortie au 1/4 d'heure inférieur."""
+        if entree_sortie == 'E':
+            mn = 15 * math.ceil(dt.minute / 15)
+        else:
+            mn = 15 * math.floor(dt.minute / 15)
+        dt = dt.replace(minute=0, second=0, microsecond=0)
+        if mn == 60:
+            dt += datetime.timedelta(hours=1)
+        else:
+            dt += datetime.timedelta(minutes=mn)
+        return dt
+
+
+    def _get_intervalles_travail(self, employee, date):
+        """Reconstitue, à partir des pointages bruts (is.pointage), les intervalles
+        (heure d'entrée, heure de sortie) en heure locale Europe/Paris, sur une plage
+        couvrant la veille et le lendemain de 'date' (pour gérer les horaires à cheval
+        sur minuit)."""
+        paris = pytz.timezone('Europe/Paris')
+        utc = pytz.utc
+        debut = datetime.datetime.combine(date - datetime.timedelta(days=1), datetime.time(0, 0))
+        fin   = datetime.datetime.combine(date + datetime.timedelta(days=2), datetime.time(0, 0))
+        pointages = self.env['is.pointage'].search([
+            ('employee', '=', employee.id),
+            ('name', '>=', debut),
+            ('name', '<=', fin),
+        ], order='name asc')
+        intervalles = []
+        debut_intervalle = False
+        for p in pointages:
+            dt_local = utc.localize(p.name).astimezone(paris).replace(tzinfo=None)
+            dt_local = self._arrondir_quart_heure(dt_local, p.entree_sortie)
+            if p.entree_sortie == 'E':
+                debut_intervalle = dt_local
+            elif p.entree_sortie == 'S' and debut_intervalle:
+                intervalles.append((debut_intervalle, dt_local))
+                debut_intervalle = False
+        return intervalles
+
+
+    def _compute_heures_nuit(self, employee, date):
+        """Calcule les heures de nuit (entre 21H et 6H) travaillées le jour 'date',
+        à partir des pointages bruts. Exemple : un travail entre 4H et 12H donne 2H
+        de nuit (entre 4H et 6H)."""
+        intervalles = self._get_intervalles_travail(employee, date)
+        fenetres_nuit = [
+            (datetime.datetime.combine(date, datetime.time(0, 0)), datetime.datetime.combine(date, datetime.time(6, 0))),
+            (datetime.datetime.combine(date, datetime.time(21, 0)), datetime.datetime.combine(date + datetime.timedelta(days=1), datetime.time(0, 0))),
+        ]
+        total_secondes = 0
+        for debut_travail, fin_travail in intervalles:
+            for debut_fenetre, fin_fenetre in fenetres_nuit:
+                debut_max = max(debut_travail, debut_fenetre)
+                fin_min   = min(fin_travail, fin_fenetre)
+                if fin_min > debut_max:
+                    total_secondes += (fin_min - debut_max).total_seconds()
+        return round(total_secondes / 3600.0, 2)
+
+
+    def _get_premier_dernier_pointage(self, employee, date):
+        """Retourne (heure du premier pointage 'Entrée', heure du dernier pointage
+        'Sortie') de la journée locale 'date', arrondies au 1/4 d'heure, au format
+        HH:MM (ou False si aucun pointage)."""
+        paris = pytz.timezone('Europe/Paris')
+        utc = pytz.utc
+        debut_local = paris.localize(datetime.datetime.combine(date, datetime.time(0, 0)))
+        fin_local   = paris.localize(datetime.datetime.combine(date + datetime.timedelta(days=1), datetime.time(0, 0)))
+        debut = debut_local.astimezone(utc).replace(tzinfo=None)
+        fin   = fin_local.astimezone(utc).replace(tzinfo=None)
+        pointages = self.env['is.pointage'].search([
+            ('employee', '=', employee.id),
+            ('name', '>=', debut),
+            ('name', '<', fin),
+        ], order='name asc')
+        premier_entree=dernier_sortie=False
+        for p in pointages:
+            dt_local = utc.localize(p.name).astimezone(paris).replace(tzinfo=None)
+            dt_local = self._arrondir_quart_heure(dt_local, p.entree_sortie)
+            if p.entree_sortie == 'E' and not premier_entree:
+                premier_entree = dt_local
+            if p.entree_sortie == 'S':
+                dernier_sortie = dt_local
+        heure_entree = premier_entree.strftime('%H:%M') if premier_entree else False
+        heure_sortie = dernier_sortie.strftime('%H:%M') if dernier_sortie else False
+        return heure_entree, heure_sortie
+
+
 class is_paye_employe(models.Model):
     _name='is.paye.employe'
     _description='is.paye.employe'
@@ -270,6 +369,7 @@ class is_paye_employe(models.Model):
     intitule_calcule_ids = fields.One2many('is.paye.employe.intitule.calcule', 'employe_id', 'Intitulé Calculé')
     heures_semaine = fields.Float("Heures semaine", digits=(14,2))
     balance        = fields.Float("Balance", digits=(14,2))
+    nuit           = fields.Float("Nuit", digits=(14,2))
     hs25           = fields.Float("HS 25", digits=(14,2))
     hs50           = fields.Float("HS 50", digits=(14,2))
     cp_heure       = fields.Float("CP Heure", digits=(14,2))
@@ -310,11 +410,12 @@ class is_paye_employe(models.Model):
     @api.onchange('jour_ids')
     def onchange_jour_ids(self):
         for obj in self:
-            heures_semaine=balance=hs25=hs50=cp_heure=cp_jour=maladie=at=abs=abs_justifiee=abs_enfant_malade=ecole=0
+            heures_semaine=balance=nuit=hs25=hs50=cp_heure=cp_jour=maladie=at=abs=abs_justifiee=abs_enfant_malade=ecole=0
             for line in obj.jour_ids:
                 if line.jour:
                     heures_semaine+=line.heures_semaine
                     balance+=line.balance
+                    nuit+=line.nuit
                     cp_heure+=line.cp_heure
                     cp_jour+=line.cp_jour
                     maladie+=line.maladie
@@ -328,6 +429,7 @@ class is_paye_employe(models.Model):
                     hs50+=line.hs50
             obj.heures_semaine = heures_semaine
             obj.balance = balance
+            obj.nuit = nuit
             obj.hs25 = hs25
             obj.hs50 = hs50
             obj.cp_heure = cp_heure
@@ -391,6 +493,9 @@ class is_paye_employe_jour(models.Model):
     balance        = fields.Float("Balance", digits=(14,2))
     info_id             = fields.Many2one('is.heure.effective.info', 'Information')
     info_complementaire = fields.Char('Information complémentaire')
+    heure_entree   = fields.Char("Entrée")
+    heure_sortie   = fields.Char("Sortie")
+    nuit           = fields.Float("Nuit", digits=(14,2))
     hs25           = fields.Float("HS 25", digits=(14,2))
     hs50           = fields.Float("HS 50", digits=(14,2))
     cp_heure       = fields.Float("CP Heure", digits=(14,2))
@@ -403,6 +508,27 @@ class is_paye_employe_jour(models.Model):
     abs_enfant_malade = fields.Float("Abs enfant malade", digits=(14,2))
 
     ecole          = fields.Float("Ecole", digits=(14,2))
+
+
+    def voir_pointages_action(self):
+        for obj in self:
+            paris = pytz.timezone('Europe/Paris')
+            debut_local = paris.localize(datetime.datetime.combine(obj.jour, datetime.time(0, 0)))
+            fin_local   = paris.localize(datetime.datetime.combine(obj.jour + datetime.timedelta(days=1), datetime.time(0, 0)))
+            debut = debut_local.astimezone(pytz.utc).replace(tzinfo=None)
+            fin   = fin_local.astimezone(pytz.utc).replace(tzinfo=None)
+            return {
+                "name"    : "Pointages du %s"%(obj.jour_char),
+                "view_mode": "tree,form",
+                "res_model": "is.pointage",
+                "domain"  : [
+                    ('employee', '=', obj.employe_id.employee_id.id),
+                    ('name', '>=', debut),
+                    ('name', '<', fin),
+                ],
+                "context" : {'default_employee': obj.employe_id.employee_id.id},
+                "type"    : "ir.actions.act_window",
+            }
 
 
 class is_paye_intitule(models.Model):

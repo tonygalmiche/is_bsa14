@@ -52,7 +52,6 @@ class mrp_production(models.Model):
     is_sale_order_line_id = fields.Many2one("sale.order.line", "Ligne de commande",index=True)
     is_sale_order_id      = fields.Many2one("sale.order", "Commande", compute='_compute_is_sale_order_id', store=True, readonly=True)
     is_nom_affaire        = fields.Char("Nom de l'affaire"          , compute='_compute_is_sale_order_id', store=True, readonly=True)
-    generer_etiquette     = fields.Boolean('Etiquettes générées', compute='_compute_generer_etiquette', store=True, copy=False)
     etiquette_ids         = fields.One2many('is.tracabilite.livraison', 'production_id', 'Etiquettes', copy=False)
     is_gestion_lot        = fields.Boolean('Gestion par lots')
     is_ref_client         = fields.Char("Référence client (champ obsolète)")
@@ -87,18 +86,31 @@ class mrp_production(models.Model):
     is_employe_ids_txt          = fields.Char(string="Opérateurs (texte)", compute='_compute_is_employe_ids_txt', store=True, readonly=True)
     is_composants_non_disponibles = fields.Text(string="Composants non disponibles", compute='_compute_is_composants_non_disponibles', store=True, readonly=True,
                                                  help="Liste des composants dont le stock ne sera pas disponible pour la date limite")
+    is_generer_etiquette_vsb = fields.Boolean('generer_etiquette_vsb', compute='_compute_is_generer_etiquette_vsb', store=False)
 
 
-    @api.depends('etiquette_ids', 'procurement_group_id')
-    def _compute_generer_etiquette(self):
+    @api.depends('etiquette_ids', 'procurement_group_id', 'product_id.is_gestion_lot')
+    def _compute_is_generer_etiquette_vsb(self):
+        # Visibilité du bouton "Créer les étiquettes" :
+        # - masqué si l'OF est en brouillon, annulé ou terminé ;
+        # - sinon, si l'article est géré par lots, masqué si des étiquettes existent déjà pour cet OF précisément ;
+        # - sinon, masqué si des étiquettes ont déjà été créées pour cet OF
+        #   (ou pour l'un des OF du même groupe d'approvisionnement, en cas de reliquat).
         for obj in self:
-            if obj.procurement_group_id:
+            if obj.state in ['draft','cancel','done']:
+                vsb=False
+            elif obj.product_id.is_gestion_lot:
+                vsb = not bool(obj.etiquette_ids)
+            elif obj.procurement_group_id:
                 productions = self.env['mrp.production'].search([
                     ('procurement_group_id', '=', obj.procurement_group_id.id)
                 ])
-                obj.generer_etiquette = any(bool(p.etiquette_ids) for p in productions)
+                vsb = not any(bool(p.etiquette_ids) for p in productions)
             else:
-                obj.generer_etiquette = bool(obj.etiquette_ids)
+                vsb = not bool(obj.etiquette_ids)
+            obj.is_generer_etiquette_vsb = vsb
+
+
 
     @api.depends('is_employe_ids')
     def _compute_is_employe_ids_txt(self):

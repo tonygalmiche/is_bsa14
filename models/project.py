@@ -42,4 +42,10 @@ class ProjectTask(models.Model):
     is_cause_retour_plan_id = fields.Many2one('is.cause.retour.plan', "Cause retour plan")
     is_mise_en_place        = fields.Date('Date Limite de mise en plan')
 
+    def _compute_allowed_user_ids(self):
+        # Le calcul natif lit task.allowed_user_ids (champ réservé à group_project_manager)
+        # avec les droits de l'utilisateur courant. Passage en sudo pour éviter une erreur
+        # d'accès chez les simples utilisateurs (ex: tâches sans projet).
+        super(ProjectTask, self.sudo())._compute_allowed_user_ids()
+
 

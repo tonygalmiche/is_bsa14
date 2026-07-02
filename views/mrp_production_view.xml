@@ -45,20 +45,21 @@
                     </style>
                 </xpath>
                  <xpath expr="//button[@name='action_cancel']" position="replace">
-                    <button 
-                        name="action_cancel" type="object" states="confirmed" string="Annuler la production" 
+                    <field name="is_generer_etiquette_vsb" invisible="1"/>
+                    <button
+                        name="action_cancel" type="object" states="confirmed" string="Annuler la production"
                         confirm="Voulez-vous vraiment annuler cette production ?"
                     />
                     <button name="action_creer_etiquette_mrp"
                         string="Créer les étiquette" 
                         groups="base.group_user" type="object"
-                        attrs="{'invisible': ['|',('generer_etiquette','=', True),('state','=', 'draft')]}"
+                        attrs="{'invisible': [('is_generer_etiquette_vsb','=', False)]}"
                         confirm="Voulez-vous vraiment créer les étiquette ?"
                     />
                     <button name="action_creer_imprimer_etiquette_mrp"
                         string="Créer et imprimer  les étiquette" 
                         groups="base.group_user" type="object" class="oe_highlight"
-                        attrs="{'invisible': ['|',('generer_etiquette','=', True),('state','=', 'draft')]}"
+                        attrs="{'invisible': [('is_generer_etiquette_vsb','=', False)]}"
                         confirm="Voulez-vous vraiment créer et imprimer les étiquette ?"
                     />
                     <button name="liste_etiquettes_action"
@@ -143,8 +144,7 @@
                                 <field name="move_id"/>
                             </tree>
                         </field>
-                        <field name="is_gestion_lot"    invisible="0"/>
-                        <field name="generer_etiquette" invisible="0"/>
+                        <field name="is_gestion_lot" invisible="0"/>
                     </page>
                     <page string="PRU">
                         <group>

@@ -32,16 +32,20 @@
                                              <field name="balance"/>
                                              <field name="info_id"/>
                                              <field name="info_complementaire" optional="hide"/>
-                                             <field name="hs25"/>
-                                             <field name="hs50"/>
-                                             <field name="cp_heure"/>
-                                             <field name="cp_jour"/>
-                                             <field name="maladie"/>
-                                             <field name="at"/>
-                                             <field name="abs"/>
-                                             <field name="abs_justifiee"/>
-                                             <field name="abs_enfant_malade"/>
-                                             <field name="ecole"/>
+                                             <button name="voir_pointages_action" type="object" icon="fa-list" title="Voir les pointages de la journée" attrs="{'invisible': [('jour', '=', False)]}"/>
+                                             <field name="heure_entree" readonly="1" optional="hide"/>
+                                             <field name="heure_sortie" readonly="1" optional="hide"/>
+                                             <field name="nuit" optional="show"/>
+                                             <field name="hs25" optional="show"/>
+                                             <field name="hs50" optional="show"/>
+                                             <field name="cp_heure" optional="show"/>
+                                             <field name="cp_jour" optional="show"/>
+                                             <field name="maladie" optional="show"/>
+                                             <field name="at" optional="show"/>
+                                             <field name="abs" optional="show"/>
+                                             <field name="abs_justifiee" optional="show"/>
+                                             <field name="abs_enfant_malade" optional="show"/>
+                                             <field name="ecole" optional="show"/>
                                           </tree>
                                    </field>
                               </group>
@@ -49,6 +53,7 @@
                                    <group>
                                         <field name="heures_semaine"/>
                                         <field name="balance"/>
+                                        <field name="nuit"/>
                                         <field name="hs25"/>
                                         <field name="hs50"/>
                                         <field name="cp_heure"/>
@@ -93,19 +98,20 @@
                          <field name="employee_id"/>
                          <field name="heures_semaine"/>
                          <field name="balance"/>
-                         <field name="hs25"/>
-                         <field name="hs50"/>
-                         <field name="cp_heure"/>
-                         <field name="cp_jour"/>
-                         <field name="maladie"/>
-                         <field name="at"/>
-                         <field name="abs"/>
-                         <field name="abs_justifiee"/>
-                         <field name="abs_enfant_malade"/>
-                         <field name="ecole"/>
-                         <field name="deplacement"/>
-                         <field name="detachement"/>
-                         <field name="ticket_restaurant"/>
+                         <field name="nuit" optional="show"/>
+                         <field name="hs25" optional="show"/>
+                         <field name="hs50" optional="show"/>
+                         <field name="cp_heure" optional="show"/>
+                         <field name="cp_jour" optional="show"/>
+                         <field name="maladie" optional="show"/>
+                         <field name="at" optional="show"/>
+                         <field name="abs" optional="show"/>
+                         <field name="abs_justifiee" optional="show"/>
+                         <field name="abs_enfant_malade" optional="show"/>
+                         <field name="ecole" optional="show"/>
+                         <field name="deplacement" optional="show"/>
+                         <field name="detachement" optional="show"/>
+                         <field name="ticket_restaurant" optional="show"/>
                          <field name="intitules"   optional="hide" widget="html" />
                          <field name="commentaire" optional="hide"/>
                     </tree>

@@ -131,31 +131,35 @@ class stock_picking(models.Model):
  
         for partner in partners:
             lines=[]
+            fiscal_position_id = self.env['account.fiscal.position'].get_fiscal_position(partner.id)
             for obj in self:
                 for move in obj.move_ids_without_package:
                     if not move.is_account_move_line_id and move.state=="done" and partner == move.picking_id.partner_id:
-                        account_id = move.product_id.property_account_income_id.id or move.product_id.categ_id.property_account_income_categ_id.id
+                        account = move.product_id.property_account_expense_id or move.product_id.categ_id.property_account_expense_categ_id
+                        account = fiscal_position_id.map_account(account)
+                        taxes = fiscal_position_id.map_tax(move.purchase_line_id.taxes_id)
                         vals={
                             "product_id"       : move.product_id.id,
                             "name"             : move.purchase_line_id.name,
                             "display_type"     : False,
-                            "account_id"       : account_id,
+                            "account_id"       : account.id,
                             "quantity"         : move.product_uom_qty,
-                            "tax_ids"          : move.purchase_line_id.taxes_id,
+                            "tax_ids"          : taxes,
                             "price_unit"       : move.purchase_line_id.price_unit,
-                            "is_stock_move_id" : move.id, 
+                            "is_stock_move_id" : move.id,
                             "product_uom_id"   : move.product_uom.id,
                             "purchase_line_id" : move.purchase_line_id.id,
                             "purchase_order_id": move.purchase_line_id.order_id.id,
                         }
 
 
-                        
+
                         lines.append((0, 0, vals))
             vals={
                 "partner_id": partner.id,
                 "move_type" : "in_invoice",
                 "journal_id": 2,
+                "fiscal_position_id": fiscal_position_id.id,
                 "invoice_line_ids": lines,
             }
             if len(lines)>0:

@@ -172,6 +172,7 @@
                     <field name="is_employe_ids" widget="many2many_tags"/>
                     <field name="is_employe_ids_txt" invisible="1"/>
                     <field name="is_workcenter_id"/>
+                    <field name="is_couleur_of" widget="color"/>
                 </field>
                 <field name="user_id" position="before">
                     <field name="is_semaine_prevue" readonly="1"/>
@@ -205,6 +206,7 @@
                     <field name="is_pret"               optional="show"/>
                     <field name="is_employe_ids"        optional="hide" widget="many2many_tags" />
                     <field name="is_workcenter_id"      optional="hide"/>
+                    <field name="is_couleur_of"         optional="show" widget="color"/>
                     <field name="is_sale_order_id"      optional="show" widget="many2one_clickable"/>
                     <field name="is_client_order_ref"   optional="show"/>
                     <field name="is_nom_affaire"        optional="show"/>
@@ -253,6 +255,7 @@
                     <field name="is_pret"               optional="show"/>
                     <field name="is_employe_ids"  optional="hide" widget="many2many_tags"/>
                     <field name="is_workcenter_id"  optional="hide"/>
+                    <field name="is_couleur_of"  optional="show" widget="color"/>
                     <field name="is_gabarit_id"  optional="show"/>
                     <field name="is_sale_order_line_id" readonly="1" optional="hide"/>
                     <field name="is_sale_order_id"                   optional="show" widget="many2one_clickable"/>
@@ -288,6 +291,7 @@
                     <field name="is_mois_prevu"                                       optional="hide"/>
                     <field name="is_date_planifiee"                                   optional="hide"/>
                     <field name="is_date_planifiee_fin"                               optional="hide"/>
+                    <field name="is_couleur_of"                                       optional="show" widget="color"/>
                     <field name="is_pret"                                             optional="show"/>
                     <field name="is_employe_ids"                                      optional="hide" widget="many2many_tags" />
                     <field name="is_workcenter_id"                                    optional="hide"/>

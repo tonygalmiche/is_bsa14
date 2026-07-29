@@ -5,7 +5,16 @@ from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from odoo.exceptions import AccessError, UserError, ValidationError
 import logging
+import random
 _logger = logging.getLogger(__name__)
+
+
+def generer_couleur_foncee():
+    """Génère une couleur hexadécimale aléatoire foncée pour assurer une bonne lisibilité du texte blanc"""
+    r = random.randint(0, 190)
+    g = random.randint(0, 190)
+    b = random.randint(0, 190)
+    return "#{:02x}{:02x}{:02x}".format(r, g, b)
 
 
 _ETAT_OF=[
@@ -42,49 +51,56 @@ class mrp_production(models.Model):
             obj.is_date_prevue = is_date_prevue
 
 
-    date_planned          = fields.Datetime("Date plannifiée", required=False, index=True, readonly=False, states={}, copy=False)
-    is_date_prevue        = fields.Date(string="Date client" , compute='_compute_is_date_prevue'  , store=True, readonly=True, help="'Dernière date prévue' si renseignée, sinon 'Date prévue initialement' sur la ligne de commande client")
-    is_client_order_ref   = fields.Char(string="Référence client", compute='_compute_is_sale_order_id', store=True, readonly=True)
-    is_date_planifiee     = fields.Datetime("Date planifiée début")
-    is_date_planifiee_fin = fields.Datetime("Date planifiée fin", readonly=True)
-    is_ecart_date         = fields.Integer("Ecart date", readonly=True)
-    is_gabarit_id         = fields.Many2one("is.gabarit", "Gabarit")
-    is_sale_order_line_id = fields.Many2one("sale.order.line", "Ligne de commande",index=True)
-    is_sale_order_id      = fields.Many2one("sale.order", "Commande", compute='_compute_is_sale_order_id', store=True, readonly=True)
-    is_nom_affaire        = fields.Char("Nom de l'affaire"          , compute='_compute_is_sale_order_id', store=True, readonly=True)
+    date_planned_start     = fields.Datetime(tracking=True)
+    date_planned_finished  = fields.Datetime(tracking=True)
+    date_deadline          = fields.Datetime(tracking=True)
+    product_qty            = fields.Float(tracking=True)
+    state                  = fields.Selection(tracking=True)
+
+    date_planned          = fields.Datetime("Date plannifiée", required=False, index=True, readonly=False, states={}, copy=False, tracking=True)
+    is_date_prevue        = fields.Date(string="Date client" , compute='_compute_is_date_prevue'  , store=True, readonly=True, tracking=True, help="'Dernière date prévue' si renseignée, sinon 'Date prévue initialement' sur la ligne de commande client")
+    is_client_order_ref   = fields.Char(string="Référence client", compute='_compute_is_sale_order_id', store=True, readonly=True, tracking=True)
+    is_date_planifiee     = fields.Datetime("Date planifiée début", tracking=True)
+    is_date_planifiee_fin = fields.Datetime("Date planifiée fin", readonly=True, tracking=True)
+    is_ecart_date         = fields.Integer("Ecart date", readonly=True, tracking=True)
+    is_gabarit_id         = fields.Many2one("is.gabarit", "Gabarit", tracking=True)
+    is_sale_order_line_id = fields.Many2one("sale.order.line", "Ligne de commande",index=True, tracking=True)
+    is_sale_order_id      = fields.Many2one("sale.order", "Commande", compute='_compute_is_sale_order_id', store=True, readonly=True, tracking=True)
+    is_nom_affaire        = fields.Char("Nom de l'affaire"          , compute='_compute_is_sale_order_id', store=True, readonly=True, tracking=True)
     etiquette_ids         = fields.One2many('is.tracabilite.livraison', 'production_id', 'Etiquettes', copy=False)
-    is_gestion_lot        = fields.Boolean('Gestion par lots')
-    is_ref_client         = fields.Char("Référence client (champ obsolète)")
-    is_ordre_travail_id   = fields.Many2one("is.ordre.travail", "Ordre de travail", copy=False)
+    is_gestion_lot        = fields.Boolean('Gestion par lots', tracking=True)
+    is_ref_client         = fields.Char("Référence client (champ obsolète)", tracking=True)
+    is_ordre_travail_id   = fields.Many2one("is.ordre.travail", "Ordre de travail", copy=False, tracking=True)
     is_planification      = fields.Selection([
             ('au_plus_tot' , 'Au plus tôt'),
             ('au_plus_tard', 'Au plus tard'),
             ('date_fixee'  , 'Date fixée'),
-        ], "Planification", required=True, default="au_plus_tard", 
+        ], "Planification", required=True, default="au_plus_tard", tracking=True,
         help="Au plus tôt : Démarrer dés maintenant\nAu plus tard : Terminer pour date client\nDate fixée : Commence à la date prévue fixée manuellement")
     is_operation_ids  = fields.One2many('is.ordre.travail.line', 'production_id', 'Opérations')
-    is_semaine_prevue = fields.Char(string="Semaine prévue") #compute='_compute_is_semaine_prevue', store=True, readonly=True)
-    is_mois_prevu     = fields.Char(string="Mois prévu")     #compute='_compute_is_semaine_prevue', store=True, readonly=True)
+    is_semaine_prevue = fields.Char(string="Semaine prévue", tracking=True) #compute='_compute_is_semaine_prevue', store=True, readonly=True)
+    is_mois_prevu     = fields.Char(string="Mois prévu", tracking=True)     #compute='_compute_is_semaine_prevue', store=True, readonly=True)
     is_pret = fields.Selection([
             ('oui', 'Oui'),
             ('non', 'Non'),
-        ], "Prêt", help="Prêt à produire")
+        ], "Prêt", help="Prêt à produire", tracking=True)
     is_move_production_ids = fields.One2many('stock.move', 'production_id', 'Produits finis',  copy=False, readonly=True)
     is_move_production_nb  = fields.Integer("Nb mouvements", compute='_compute_is_move_production_nb')
 
-    is_pru_matiere = fields.Float("PRU Matière", readonly=True, copy=False, digits=(14,4))
-    is_pru_mo      = fields.Float("PRU MO"     , readonly=True, copy=False, digits=(14,4))
-    is_pru_total   = fields.Float("PRU Total"  , readonly=True, copy=False, digits=(14,4))
+    is_pru_matiere = fields.Float("PRU Matière", readonly=True, copy=False, digits=(14,4), tracking=True)
+    is_pru_mo      = fields.Float("PRU MO"     , readonly=True, copy=False, digits=(14,4), tracking=True)
+    is_pru_total   = fields.Float("PRU Total"  , readonly=True, copy=False, digits=(14,4), tracking=True)
 
-    is_devis_variante_id        = fields.Many2one("is.devis.parametrable.variante", "Variante devis paramètrable")
-    is_devis_matiere_equipement = fields.Float("Montant matière + équipement", readonly=True, copy=False, digits=(14,4))
-    is_devis_mo_option          = fields.Float("Montant MO + options"        , readonly=True, copy=False, digits=(14,4))
-    is_devis_montant_total      = fields.Float("Montant total variante"      , readonly=True, copy=False, digits=(14,4))
-    is_devis_ecart_pru          = fields.Float("Écart avec PRU "             , readonly=True, copy=False, digits=(14,4))
-    is_workcenter_id            = fields.Many2one('mrp.workcenter', string="Poste de charge", help="Utilisé pour la gestion des tâches ")
-    is_employe_ids              = fields.Many2many('hr.employee', 'is_mrp_production_employe_rel', 'production_id', 'employe_id', 'Opérateurs')
-    is_employe_ids_txt          = fields.Char(string="Opérateurs (texte)", compute='_compute_is_employe_ids_txt', store=True, readonly=True)
-    is_composants_non_disponibles = fields.Text(string="Composants non disponibles", compute='_compute_is_composants_non_disponibles', store=True, readonly=True,
+    is_devis_variante_id        = fields.Many2one("is.devis.parametrable.variante", "Variante devis paramètrable", tracking=True)
+    is_devis_matiere_equipement = fields.Float("Montant matière + équipement", readonly=True, copy=False, digits=(14,4), tracking=True)
+    is_devis_mo_option          = fields.Float("Montant MO + options"        , readonly=True, copy=False, digits=(14,4), tracking=True)
+    is_devis_montant_total      = fields.Float("Montant total variante"      , readonly=True, copy=False, digits=(14,4), tracking=True)
+    is_devis_ecart_pru          = fields.Float("Écart avec PRU "             , readonly=True, copy=False, digits=(14,4), tracking=True)
+    is_workcenter_id            = fields.Many2one('mrp.workcenter', string="Poste de charge", help="Utilisé pour la gestion des tâches ", tracking=True)
+    is_couleur_of                = fields.Char(string="Couleur OF", compute='_compute_is_couleur_of', store=True, readonly=False, help="Utilisé dans la gestion des tâches (mode OF)")
+    is_employe_ids              = fields.Many2many('hr.employee', 'is_mrp_production_employe_rel', 'production_id', 'employe_id', 'Opérateurs', tracking=True)
+    is_employe_ids_txt          = fields.Char(string="Opérateurs (texte)", compute='_compute_is_employe_ids_txt', store=True, readonly=True, tracking=True)
+    is_composants_non_disponibles = fields.Text(string="Composants non disponibles", compute='_compute_is_composants_non_disponibles', store=True, readonly=True, tracking=True,
                                                  help="Liste des composants dont le stock ne sera pas disponible pour la date limite")
     is_generer_etiquette_vsb = fields.Boolean('generer_etiquette_vsb', compute='_compute_is_generer_etiquette_vsb', store=False)
 
@@ -110,6 +126,13 @@ class mrp_production(models.Model):
                 vsb = not bool(obj.etiquette_ids)
             obj.is_generer_etiquette_vsb = vsb
 
+
+
+    @api.depends()
+    def _compute_is_couleur_of(self):
+        for obj in self:
+            if not obj.is_couleur_of:
+                obj.is_couleur_of = generer_couleur_foncee()
 
 
     @api.depends('is_employe_ids')
@@ -448,6 +471,8 @@ class mrp_production(models.Model):
 
             # run scheduler for moves forecasted to not have enough in stock
             #production.move_raw_ids._trigger_scheduler()
+
+        self.filtered(lambda p: not p.is_ordre_travail_id).creer_ordre_travail_action()
         return True
 
 

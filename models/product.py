@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models,fields,api
+from dateutil.relativedelta import relativedelta
 from lxml import etree
 import xml.etree.ElementTree as ET
 import uuid
@@ -116,6 +117,8 @@ class product_template(models.Model):
     is_emplacement_niveau_id  = fields.Many2one("is.emplacement.niveau", string="Niveau")
     is_frequence_inventaire   = fields.Float('Fréquence inventaire (mois)', digits=(14,2), default=12, help="Fréquence inventaire tournant")
     is_date_inventaire        = fields.Date('Date inventaire', help="Date derniere inventaire tournant")
+    is_montant_facture_12_mois = fields.Float('Montant facturé depuis 12 mois', readonly=True, help="Montant HT facturé au cours des 12 derniers mois (ventes en positif, achats en négatif, avoirs en sens inverse). Mis à jour chaque nuit par tâche planifiée")
+    is_montant_facture_24_mois = fields.Float('Montant facturé depuis 24 mois', readonly=True, help="Montant HT facturé au cours des 24 derniers mois (ventes en positif, achats en négatif, avoirs en sens inverse). Mis à jour chaque nuit par tâche planifiée")
 
 
     def copy(self, default=None):
@@ -457,6 +460,44 @@ class product_template(models.Model):
             product.recalcul_prix_revient_action()
             _logger.info("%s/%s recalcul_prix_revient_ir_cron : %s (id=%s) => %s"%(ct,nb,product.display_name,product.id,product.standard_price))
             ct+=1
+        return True
+
+
+    @api.model
+    def calculer_facture_recente_ir_cron(self):
+        today = fields.Date.context_today(self)
+        date_12_mois = today - relativedelta(months=12)
+        date_24_mois = today - relativedelta(months=24)
+        signe_par_type = {
+            'out_invoice': 1,   # Facture de vente
+            'out_refund' : -1,  # Avoir de vente
+            'in_invoice' : -1,  # Facture d'achat
+            'in_refund'  : 1,   # Avoir d'achat
+        }
+        move_line_obj = self.env['account.move.line']
+        domain = [
+            ('product_id', '!=', False),
+            ('move_id.move_type', 'in', list(signe_par_type.keys())),
+            ('move_id.state', '=', 'posted'),
+            ('move_id.invoice_date', '>=', date_24_mois),
+        ]
+        lignes_24_mois = move_line_obj.search(domain)
+
+        montants_12_mois = {}
+        montants_24_mois = {}
+        for ligne in lignes_24_mois:
+            tmpl_id = ligne.product_id.product_tmpl_id.id
+            montant = signe_par_type[ligne.move_id.move_type] * ligne.price_subtotal
+            montants_24_mois[tmpl_id] = montants_24_mois.get(tmpl_id, 0.0) + montant
+            if ligne.move_id.invoice_date >= date_12_mois:
+                montants_12_mois[tmpl_id] = montants_12_mois.get(tmpl_id, 0.0) + montant
+
+        product_tmpl_obj = self.env['product.template']
+        product_tmpl_obj.search([]).write({'is_montant_facture_12_mois': 0.0, 'is_montant_facture_24_mois': 0.0})
+        for tmpl_id, montant in montants_12_mois.items():
+            product_tmpl_obj.browse(tmpl_id).write({'is_montant_facture_12_mois': montant})
+        for tmpl_id, montant in montants_24_mois.items():
+            product_tmpl_obj.browse(tmpl_id).write({'is_montant_facture_24_mois': montant})
         return True
 
 

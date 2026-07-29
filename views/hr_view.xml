@@ -131,6 +131,7 @@
                                     decoration-danger="status == 'expired'" 
                                     decoration-success="status == 'ok'"
                                 />
+                                <field name="non_renouvelable"/>
                             </tree>
                         </field>
                     </page>

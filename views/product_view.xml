@@ -383,6 +383,16 @@
             <field name="interval_type">days</field>
             <field name="numbercall">-1</field>
         </record>
+        <record id="calculer_facture_recente_ir_cron" model="ir.cron">
+            <field name="name">Calcul des articles facturés depuis 12/24 mois</field>
+            <field name="model_id" ref="product.model_product_template"/>
+            <field name="state">code</field>
+            <field name="code">model.calculer_facture_recente_ir_cron()</field>
+            <field name="interval_type">days</field>
+            <field name="interval_number">1</field>
+            <field name="numbercall">-1</field>
+            <field name="doall">False</field>
+        </record>
         <record id="is_product_inherit_view" model="ir.ui.view">
             <field name="name">is_product_inherit_view</field>
             <field name="model">product.template</field>
@@ -415,6 +425,8 @@
                 </field>
                 <field name="standard_price" position="before">
                     <field name="is_recalcul_prix_revient" />
+                    <field name="is_montant_facture_12_mois" />
+                    <field name="is_montant_facture_24_mois" />
                 </field>
                 <field name="uom_po_id" position="before">
                     <field name="is_masse_tole" />
@@ -517,7 +529,46 @@
                     <field name="is_emplacement_etagere_id"/>
                     <field name="is_emplacement_niveau_id"/>
                 </field>
+                <filter name="filter_to_purchase" position="after">
+                    <!-- Sans ce séparateur, ces 2 filtres seraient dans le même groupe que
+                         filter_to_sell/filter_to_purchase (des <filter> consécutifs = combinés en OU) -->
+                    <separator/>
+                    <filter name="is_facture_12_mois_filter" string="Facturé depuis 12 mois" domain="[('is_montant_facture_12_mois', '!=', 0)]"/>
+                    <filter name="is_facture_24_mois_filter" string="Facturé depuis 24 mois" domain="[('is_montant_facture_24_mois', '!=', 0)]"/>
+                </filter>
             </field>
+        </record>
+        <record id="is_account_product_template_view_tree" model="ir.ui.view">
+            <field name="name">is_account_product_template_view_tree</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="account.product_template_view_tree"/>
+            <field name="arch" type="xml">
+                <field name="supplier_taxes_id" position="after">
+                    <field name="property_account_income_id" string="Compte de vente" optional="show" groups="account.group_account_readonly"/>
+                    <field name="property_account_expense_id" string="Compte d'achat" optional="show" groups="account.group_account_readonly"/>
+                    <field name="is_montant_facture_12_mois" optional="show"/>
+                    <field name="is_montant_facture_24_mois" optional="show"/>
+                </field>
+            </field>
+        </record>
+        <record id="is_account_product_template_form_view" model="ir.ui.view">
+            <field name="name">is_account_product_template_form_view</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="account.product_template_form_view"/>
+            <field name="arch" type="xml">
+                <group name="accounting" position="inside">
+                    <group string="Montant facturé">
+                        <field name="is_montant_facture_12_mois"/>
+                        <field name="is_montant_facture_24_mois"/>
+                    </group>
+                </group>
+            </field>
+        </record>
+        <record id="account.product_product_action_sellable" model="ir.actions.act_window">
+            <field name="context">{'search_default_filter_to_sell': 1, 'search_default_is_facture_24_mois_filter': 1}</field>
+        </record>
+        <record id="account.product_product_action_purchasable" model="ir.actions.act_window">
+            <field name="context">{'search_default_filter_to_purchase': 1, 'search_default_is_facture_24_mois_filter': 1}</field>
         </record>
         <record id="is_product_template_tree_view" model="ir.ui.view">
             <field name="name">is_product_template_tree_view</field>

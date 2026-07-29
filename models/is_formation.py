@@ -28,6 +28,7 @@ class IsFormationSuivi(models.Model):
     validity_date = fields.Date(string='Validité de la formation', compute='_compute_validity_date', store=True)
     remaining_days = fields.Integer(string='Jours restant', compute='_compute_remaining_days', store=True)
     status = fields.Selection([('ok', 'OK'), ('expired', 'Expirée')], string='Statut', compute='_compute_status', store=True)
+    non_renouvelable = fields.Boolean(string='Non renouvelable', default=False)
 
     @api.onchange('employee_id')
     def _onchange_employee_id(self):

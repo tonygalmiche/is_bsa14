@@ -89,6 +89,7 @@
                     <field name="is_code_client_affare"    optional="show"/>
                     <field name="is_categorie_client_id"   optional="show"/>
                     <field name="property_payment_term_id" optional="hide"/>
+                    <field name="siret"                    optional="show"/>
                 </field>
             </field>
         </record>

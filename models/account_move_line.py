@@ -35,3 +35,9 @@ class account_move_line(models.Model):
     is_facturable_pourcent = fields.Float("% facturable", digits=(14,2), copy=False, store=True)
     is_a_facturer          = fields.Float("A Facturer"  , digits=(14,2), copy=False, help="Montant à facturer sur cette facture")
 
+
+    def maj_compte_achat_action(self):
+        for line in self:
+            if line.move_id.move_type in ('in_invoice', 'in_refund') and line.product_id and line.account_id:
+                line.product_id.product_tmpl_id.property_account_expense_id = line.account_id
+

@@ -107,6 +107,10 @@
                     <attribute name="disable_autofocus">true</attribute>
                 </xpath>
 
+                <xpath expr="//page[@id='invoice_tab']//field[@name='invoice_line_ids']/tree" position="attributes">
+                    <attribute name="limit">200</attribute>
+                </xpath>
+
 
 
                 <field name="payment_reference" position="attributes">
@@ -135,6 +139,15 @@
                     <field name="is_situation" attrs="{'invisible': [('is_situation', '=', False)],}" />
                     <field name="is_situation_id"/>
                 </field>
+                <xpath expr="//page[@id='invoice_tab']//field[@name='invoice_line_ids']/tree/field[@name='account_id']" position="after">
+                    <button
+                        name="maj_compte_achat_action"
+                        type="object"
+                        icon="fa-arrow-circle-o-up"
+                        title="Mettre à jour le compte d'achat de la fiche article avec ce compte"
+                        attrs="{'invisible': ['|', ('product_id', '=', False), ('parent.move_type', 'not in', ['in_invoice', 'in_refund'])]}"
+                    />
+                </xpath>
                 <xpath expr="//page[@id='aml_tab']/field[@name='line_ids']/tree/field[@name='price_total']" position="after">
                     <field name="is_stock_move_id" optional="hide"/>
                     <field name="is_picking_id"    optional="hide"/>

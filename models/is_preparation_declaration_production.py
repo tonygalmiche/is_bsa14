@@ -103,6 +103,11 @@ class IsPreparationDeclarationProduction(models.Model):
             production = self.etiquette_tracabilite_id.production_id
             for move in production.move_raw_ids:
                 if move.state not in ('cancel', 'draft'):
+                    # Si l'article fabriqué n'est pas en gestion par lots, on n'affiche pas
+                    # les composants qui n'ont pas de traçabilité en réception (pas d'étiquette
+                    # TR/TL possible à scanner pour eux).
+                    if not self.is_gestion_lot and not move.product_id.is_trace_reception:
+                        continue
                     # Diviser par la quantité prévue de l'OF pour obtenir la quantité unitaire
                     quantite_unitaire = move.product_qty / production.product_qty if production.product_qty else 0.0
                     composants.append((0, 0, {
@@ -128,6 +133,8 @@ class IsPreparationDeclarationProduction(models.Model):
             if record.production_id and record.article_id:
                 # En-tête avec OF, article et quantité
                 html += "<div style='padding: 10px; background-color: #f5f5f5; border-bottom: 1px solid #ddd;'>"
+                if record.etiquette_tracabilite_id:
+                    html += f"<p style='margin: 5px 0; font-weight: bold;'><strong>Etiquette:</strong> {record.etiquette_tracabilite_id.name}</p>"
                 html += f"<p style='margin: 5px 0; font-weight: bold;'><strong>OF:</strong> {record.production_id.name}</p>"
                 html += f"<p style='margin: 5px 0;'><strong>Article:</strong> {record.article_id.name}</p>"
                 html += f"<p style='margin: 5px 0;'><strong>Quantité à déclarer:</strong> {record.quantite_a_declarer}</p>"
@@ -256,6 +263,10 @@ class IsPreparationDeclarationProduction(models.Model):
                 composants = []
                 for move in production.move_raw_ids:
                     if move.state not in ('cancel', 'draft'):
+                        # Si l'article fabriqué n'est pas en gestion par lots, on n'affiche pas
+                        # les composants qui n'ont pas de traçabilité en réception.
+                        if not record.is_gestion_lot and not move.product_id.is_trace_reception:
+                            continue
                         quantite_unitaire = (
                             move.product_qty / production.product_qty
                             if production.product_qty else 0.0
@@ -265,6 +276,66 @@ class IsPreparationDeclarationProduction(models.Model):
                             'quantite_prevue_unitaire': quantite_unitaire,
                         }))
                 record.composant_ids = composants
+
+    def _ajouter_composant(self, prep, scan_value, quantite):
+        """Ajoute une ligne de composant scanné (TR ou TL) à la préparation.
+        Retourne (ok, error, article_name)."""
+        vals = {'preparation_id': prep.id, 'quantite_saisie': quantite}
+        article_name = ''
+        ok = False
+        error = ''
+
+        if scan_value.startswith('TR'):
+            etiquette = self.env['is.tracabilite.reception'].search(
+                [('name', '=', scan_value)], limit=1)
+            if not etiquette:
+                error = f"Étiquette '{scan_value}' non trouvée"
+            else:
+                composants_tmpl_ids = prep.composant_ids.mapped(
+                    'product_id.product_tmpl_id.id')
+                if etiquette.product_id.id not in composants_tmpl_ids:
+                    error = (
+                        f"'{etiquette.product_id.name}' "
+                        f"ne fait pas partie des composants de l'OF"
+                    )
+                else:
+                    try:
+                        vals['etiquette_reception_id'] = etiquette.id
+                        self.env[
+                            'is.preparation.declaration.production.line'
+                        ].create(vals)
+                        article_name = etiquette.product_id.name
+                        ok = True
+                    except ValidationError as e:
+                        error = str(e)
+
+        elif scan_value.startswith('TL'):
+            etiquette = self.env['is.tracabilite.livraison'].search(
+                [('name', '=', scan_value)], limit=1)
+            if not etiquette:
+                error = f"Étiquette '{scan_value}' non trouvée"
+            else:
+                composants_tmpl_ids = prep.composant_ids.mapped(
+                    'product_id.product_tmpl_id.id')
+                if etiquette.product_id.id not in composants_tmpl_ids:
+                    error = (
+                        f"'{etiquette.product_id.name}' "
+                        f"ne fait pas partie des composants de l'OF"
+                    )
+                else:
+                    try:
+                        vals['etiquette_livraison_id'] = etiquette.id
+                        self.env[
+                            'is.preparation.declaration.production.line'
+                        ].create(vals)
+                        article_name = etiquette.product_id.name
+                        ok = True
+                    except ValidationError as e:
+                        error = str(e)
+        else:
+            error = f"Code '{scan_value}' non reconnu"
+
+        return ok, error, article_name
 
     @api.model
     def mobile_scan(self, preparation_id, action, scan_value, quantite=0.0, ligne_id=0):
@@ -313,7 +384,13 @@ class IsPreparationDeclarationProduction(models.Model):
                         f"OF {etiquette.production_id.name} | {etiquette.product_id.name}"
                     )
                 result['preparation_id'] = prep.id
-                result['next_action'] = 'saisie-quantite-declarer'
+                if etiquette.product_id.is_gestion_lot:
+                    result['next_action'] = 'saisie-quantite-declarer'
+                else:
+                    prep.write({'quantite_a_declarer': 1.0})
+                    self.env.cache.invalidate()
+                    prep = self.browse(prep.id)
+                    result['next_action'] = 'scan-operateur'
                 result['html'] = str(prep.affichage_mobile_html or '')
 
         # --- SAISIE QUANTITÉ À DÉCLARER ---
@@ -366,18 +443,32 @@ class IsPreparationDeclarationProduction(models.Model):
                 if not etiquette:
                     result['error'] = f"Étiquette réception '{scan_value}' non trouvée"
                     result['next_action'] = 'scan-composant'
-                else:
+                elif etiquette.product_id.is_gestion_lot:
                     result['composant_code'] = scan_value
                     result['next_action'] = 'saisie-quantite'
+                else:
+                    ok, error, article_name = self._ajouter_composant(prep, scan_value, 1.0)
+                    if error:
+                        result['error'] = error
+                    if ok:
+                        result['message'] = f"{article_name} | qté : 1"
+                    result['next_action'] = 'scan-composant'
             elif scan_value.startswith('TL'):
                 etiquette = self.env['is.tracabilite.livraison'].search(
                     [('name', '=', scan_value)], limit=1)
                 if not etiquette:
                     result['error'] = f"Étiquette semi-fini '{scan_value}' non trouvée"
                     result['next_action'] = 'scan-composant'
-                else:
+                elif etiquette.product_id.is_gestion_lot:
                     result['composant_code'] = scan_value
                     result['next_action'] = 'saisie-quantite'
+                else:
+                    ok, error, article_name = self._ajouter_composant(prep, scan_value, 1.0)
+                    if error:
+                        result['error'] = error
+                    if ok:
+                        result['message'] = f"{article_name} | qté : 1"
+                    result['next_action'] = 'scan-composant'
             else:
                 result['error'] = (
                     f"Code '{scan_value}' non reconnu (doit commencer par TR ou TL)"
@@ -388,60 +479,9 @@ class IsPreparationDeclarationProduction(models.Model):
         # --- AJOUTER COMPOSANT (après saisie quantité clavier) ---
         elif action == 'ajouter-composant':
             prep = self.browse(preparation_id)
-            vals = {'preparation_id': prep.id, 'quantite_saisie': quantite}
-            article_name = ''
-            ok = False
-
-            if scan_value.startswith('TR'):
-                etiquette = self.env['is.tracabilite.reception'].search(
-                    [('name', '=', scan_value)], limit=1)
-                if not etiquette:
-                    result['error'] = f"Étiquette '{scan_value}' non trouvée"
-                else:
-                    composants_tmpl_ids = prep.composant_ids.mapped(
-                        'product_id.product_tmpl_id.id')
-                    if etiquette.product_id.id not in composants_tmpl_ids:
-                        result['error'] = (
-                            f"'{etiquette.product_id.name}' "
-                            f"ne fait pas partie des composants de l'OF"
-                        )
-                    else:
-                        try:
-                            vals['etiquette_reception_id'] = etiquette.id
-                            self.env[
-                                'is.preparation.declaration.production.line'
-                            ].create(vals)
-                            article_name = etiquette.product_id.name
-                            ok = True
-                        except ValidationError as e:
-                            result['error'] = str(e)
-
-            elif scan_value.startswith('TL'):
-                etiquette = self.env['is.tracabilite.livraison'].search(
-                    [('name', '=', scan_value)], limit=1)
-                if not etiquette:
-                    result['error'] = f"Étiquette '{scan_value}' non trouvée"
-                else:
-                    composants_tmpl_ids = prep.composant_ids.mapped(
-                        'product_id.product_tmpl_id.id')
-                    if etiquette.product_id.id not in composants_tmpl_ids:
-                        result['error'] = (
-                            f"'{etiquette.product_id.name}' "
-                            f"ne fait pas partie des composants de l'OF"
-                        )
-                    else:
-                        try:
-                            vals['etiquette_livraison_id'] = etiquette.id
-                            self.env[
-                                'is.preparation.declaration.production.line'
-                            ].create(vals)
-                            article_name = etiquette.product_id.name
-                            ok = True
-                        except ValidationError as e:
-                            result['error'] = str(e)
-            else:
-                result['error'] = f"Code '{scan_value}' non reconnu"
-
+            ok, error, article_name = self._ajouter_composant(prep, scan_value, quantite)
+            if error:
+                result['error'] = error
             if ok:
                 result['message'] = f"{article_name} | qté : {quantite}"
             result['next_action'] = 'scan-composant'

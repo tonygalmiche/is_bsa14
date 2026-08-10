@@ -105,17 +105,17 @@ class mrp_production(models.Model):
     is_generer_etiquette_vsb = fields.Boolean('generer_etiquette_vsb', compute='_compute_is_generer_etiquette_vsb', store=False)
 
 
-    @api.depends('etiquette_ids', 'procurement_group_id', 'product_id.is_gestion_lot')
+    @api.depends('etiquette_ids', 'procurement_group_id', 'product_id.is_gestion_lot', 'product_id.is_1_etiquette_par_article')
     def _compute_is_generer_etiquette_vsb(self):
         # Visibilité du bouton "Créer les étiquettes" :
         # - masqué si l'OF est en brouillon, annulé ou terminé ;
-        # - sinon, si l'article est géré par lots, masqué si des étiquettes existent déjà pour cet OF précisément ;
+        # - sinon, si l'article est géré par lots (ou 1 étiquette par article à produire), masqué si des étiquettes existent déjà pour cet OF précisément ;
         # - sinon, masqué si des étiquettes ont déjà été créées pour cet OF
         #   (ou pour l'un des OF du même groupe d'approvisionnement, en cas de reliquat).
         for obj in self:
             if obj.state in ['draft','cancel','done']:
                 vsb=False
-            elif obj.product_id.is_gestion_lot:
+            elif obj.product_id.is_gestion_lot or obj.product_id.is_1_etiquette_par_article:
                 vsb = not bool(obj.etiquette_ids)
             elif obj.procurement_group_id:
                 productions = self.env['mrp.production'].search([
@@ -373,10 +373,11 @@ class mrp_production(models.Model):
         for obj in self:
             res = []
             etiquettes=""
+            nb_creees = 0
             if obj.product_qty:
                 qty = obj.product_qty
                 lot=1
-                if obj.product_id.is_gestion_lot:
+                if obj.product_id.is_gestion_lot or obj.product_id.is_1_etiquette_par_article:
                     lot=qty
                 while ( qty >= 1):
                     vals = {
@@ -385,7 +386,10 @@ class mrp_production(models.Model):
                         "lot_fabrication": lot,
                     }
                     new_id = self.env["is.tracabilite.livraison"].create(vals)
+                    nb_creees += 1
                     qty = qty - lot
+            if nb_creees:
+                obj.message_post(body="Création de %s étiquette(s)"%nb_creees)
 
 
     def action_creer_imprimer_etiquette_mrp(self):
@@ -393,12 +397,21 @@ class mrp_production(models.Model):
         self.action_creer_etiquette_mrp()
         res=""
         for obj in self:
+            # Si l'article est configuré avec "1 étiquette par article à produire" :
+            # une seule TL est créée pour l'OF, mais elle doit être imprimée
+            # autant de fois que la quantité à produire.
+            nb_exemplaires = 1
+            if obj.product_id.is_1_etiquette_par_article:
+                nb_exemplaires = int(obj.product_qty) or 1
             for line in obj.etiquette_ids:
                 if company.is_type_imprimante=='zebra':
-                    res+=line.generer_etiquette_zpl()
+                    etiquette=line.generer_etiquette_zpl()
                 else:
-                    res+=line.generer_etiquette_livraison()
-                #res+=line.generer_etiquette_livraison()
+                    etiquette=line.generer_etiquette_livraison()
+                res+=etiquette*nb_exemplaires
+            imprimante = company.is_nom_imprimante or 'Datamax'
+            nb_etiquettes = len(obj.etiquette_ids)*nb_exemplaires
+            obj.message_post(body="Impression de %s étiquette(s) sur l'imprimante %s"%(nb_etiquettes, imprimante))
         self.env['is.tracabilite.reception'].imprimer_etiquette(res)
 
     

@@ -381,7 +381,7 @@ class sale_order(models.Model):
                             "product_uom_id"    : line.product_id.uom_id.id,
                             "location_id"       : picking.location_id.id,
                             "location_dest_id"  : picking.location_dest_id.id,
-                            "qty_done"          : 1,
+                            "qty_done"          : line.quantity if line.quantity else 1,
                         }
                         res = self.env['stock.move.line'].create(vals)
                         line.sale_id   = obj.id

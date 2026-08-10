@@ -95,6 +95,7 @@ class product_template(models.Model):
     is_type_equipement_id        = fields.Many2one("is.type.equipement", string="Type d'équipement")
     is_trace_reception           = fields.Boolean('Traçabilité en réception')
     is_gestion_lot               = fields.Boolean('Gestion par lots', default=False)
+    is_1_etiquette_par_article    = fields.Boolean('1 étiquette par article à produire', default=False)
     is_description_devis         = fields.Text('Description devis')
     is_simulation_livrable       = fields.Boolean('Simulation livrable', help="Utilisé dans le calcul des besoins de la simulation livrable des ventes")
     is_article_pour_devis        = fields.Boolean('Article pour devis' , help="Utilisé pour calculer le cout des équipements pour les devis paramètrable")

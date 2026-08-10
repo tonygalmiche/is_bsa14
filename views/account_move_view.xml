@@ -161,6 +161,7 @@
                     <field name="is_num_relance"/>
                     <field name="is_intitule_relance"/>
                     <field name="is_remarque_paiement"/>
+                    <field name="is_date_dernier_reglement"/>
                 </div>
             </field>
         </record>
@@ -186,6 +187,7 @@
                     <field name="is_num_relance"           optional="hide"/>
                     <field name="is_intitule_relance"      optional="hide"/>
                     <field name="is_remarque_paiement"     optional="hide"/>
+                    <field name="is_date_dernier_reglement" optional="show"/>
                 </field>
             </field>
         </record>

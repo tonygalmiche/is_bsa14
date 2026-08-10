@@ -439,6 +439,7 @@
                         <group name="is_tracabilte" string='Traçabilité'>
                             <field name="is_trace_reception"/>
                             <field name="is_gestion_lot"/>
+                            <field name="is_1_etiquette_par_article"/>
                         </group>
                         <group string='Emplacement de stock et inventaire tournant'>
                             <field name="is_emplacement_lieu_id"/>

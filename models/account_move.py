@@ -91,6 +91,14 @@ class account_move(models.Model):
     is_remarque_paiement = fields.Char("Remarque paiememt")
     is_date_relance      = fields.Date(string='Date relance', help='Date dernière relance')
     is_date_envoi        = fields.Date(string="Date d'envoi", help="Date d'envoi de la facture par mail")
+    is_date_dernier_reglement = fields.Date(string='Date du dernier règlement', store=True, compute='_compute_is_date_dernier_reglement')
+
+
+    @api.depends('line_ids.matched_credit_ids.max_date', 'line_ids.matched_debit_ids.max_date')
+    def _compute_is_date_dernier_reglement(self):
+        for obj in self:
+            partials = obj.line_ids.matched_credit_ids | obj.line_ids.matched_debit_ids
+            obj.is_date_dernier_reglement = max(partials.mapped('max_date')) if partials else False
 
 
     @api.depends('invoice_line_ids')

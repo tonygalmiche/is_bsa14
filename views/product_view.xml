@@ -425,8 +425,6 @@
                 </field>
                 <field name="standard_price" position="before">
                     <field name="is_recalcul_prix_revient" />
-                    <field name="is_montant_facture_12_mois" />
-                    <field name="is_montant_facture_24_mois" />
                 </field>
                 <field name="uom_po_id" position="before">
                     <field name="is_masse_tole" />

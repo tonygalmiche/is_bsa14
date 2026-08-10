@@ -200,10 +200,12 @@ class mrp_production(models.Model):
         if "date_planned_start" in vals and not "is_date_planifiee" in vals:
             vals["is_planification"]="date_fixee"
         res = super(mrp_production, self).write(vals)
-        if "date_planned_start" in vals or "is_planification" in vals:
-            #Ne pas lancer le calcul en récursif
-            if not "is_date_planifiee" in vals:
-                self.calculer_charge_ordre_travail()
+
+        # Désactivé le 10/08/2026
+        # if "date_planned_start" in vals or "is_planification" in vals:
+        #     #Ne pas lancer le calcul en récursif
+        #     if not "is_date_planifiee" in vals:
+        #         self.calculer_charge_ordre_travail()
         return res
 
 
@@ -282,7 +284,8 @@ class mrp_production(models.Model):
             if ordre:
                 obj.is_ordre_travail_id=ordre.id
                 ordre.quantite = qty
-                ordre.calculer_charge_ordre_travail()
+                # Désactivé le 10/08/2026
+                #ordre.calculer_charge_ordre_travail()
                 if obj.state!='done':
                     ordre.production_id = obj.id
             ct+=1
@@ -496,8 +499,10 @@ class mrp_production(models.Model):
         for production in productions:
             _logger.info("calculer_charge_action : %s/%s %s"%(ct,nb,production.name))
             production.creer_ordre_travail_action()
-            if production.is_ordre_travail_id:
-                production.is_ordre_travail_id.calculer_charge_ordre_travail()
+
+            # Désactivé le 10/08/2026
+            # if production.is_ordre_travail_id:
+            #    production.is_ordre_travail_id.calculer_charge_ordre_travail()
             ct+=1
 
 
@@ -604,8 +609,10 @@ class mrp_production(models.Model):
 
 
     def calculer_charge_ordre_travail(self):
-        for obj in self:
-            obj.is_ordre_travail_id.calculer_charge_ordre_travail()
+        return
+        # Désactivé le 10/08/2026
+        #for obj in self:
+        #    obj.is_ordre_travail_id.calculer_charge_ordre_travail()
 
 
     def scan_declaration_of1_action(self,TL=False):

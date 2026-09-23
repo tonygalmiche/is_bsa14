@@ -379,7 +379,7 @@
                                 </group>
                                 <group string="Dimensions" attrs="{'invisible':[('type_devis','not in',['cuve','bassin','ensemble','ombriere'])]}">
                                     <field name="dimension_ids" nolabel="1">
-                                        <tree editable="bottom" limit="100">
+                                        <tree editable="bottom" limit="200">
                                             <field name="sequence" widget="handle" />
                                             <field name="devis_id" invisible="1"/>
                                             <field name="dimension_id"/>

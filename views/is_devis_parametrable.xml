@@ -87,6 +87,7 @@
                                 <field name="date_affaire"/>
                                 <field name="date_modification"/>
                                 <field name="type_devis"/>
+                                <field name="affichage_remise" attrs="{'invisible':[('type_devis','!=','ombriere')]}"/>
                                 <field name="lead_id"/>
                             </group>
                             <group>
@@ -184,6 +185,8 @@
                                 <field name="montant_ttc"/>
                                 <field name="afficher_capacite"/>
                                 <field name="total_capacite" attrs="{'invisible':[('afficher_capacite','=',False)]}"/>
+                                <field name="montant_ht_avant_remise" attrs="{'invisible':['|',('type_devis','!=','ombriere'),('affichage_remise','in',[False,'non'])]}"/>
+                                <field name="montant_remise"          attrs="{'invisible':['|',('type_devis','!=','ombriere'),('affichage_remise','in',[False,'non'])]}"/>
                             </group>
 
                             <group>
@@ -933,6 +936,9 @@
 
                                 <field name="prix_avec_marge_devise"    optional="hide" attrs="{'column_invisible':[('parent.type_devis','not in',['bassin','ombriere'])]}"/>
                                 <field name="montant_avec_marge_devise" optional="show" attrs="{'column_invisible':[('parent.type_devis','not in',['bassin','ombriere'])]}" sum="Total"/>
+                                <field name="prix_avant_remise_devise"  optional="hide" attrs="{'column_invisible':[('parent.type_devis','not in',['ombriere'])]}"/>
+                                <field name="remise_devise"             optional="hide" attrs="{'column_invisible':[('parent.type_devis','not in',['ombriere'])]}"/>
+                                <field name="montant_remise_devise"     optional="hide" attrs="{'column_invisible':[('parent.type_devis','not in',['ombriere'])]}" sum="Total"/>
                                 <field name="tax_id"                    optional="show" attrs="{'column_invisible':[('parent.type_devis','not in',['ombriere'])]}"/>
                                 <field name="tps_montage"               optional="show" attrs="{'column_invisible':[('parent.type_devis','in',['ombriere'])]}"              sum="Total" widget="float_time"/>
                                 <field name="tps_montage_force"         optional="show" attrs="{'column_invisible':[('parent.type_devis','in',['ombriere'])]}"              sum="Total" widget="float_time"/>

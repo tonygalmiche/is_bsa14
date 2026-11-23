@@ -56,10 +56,28 @@
                                             <td><strong>Total capacité</strong></td>
                                             <td class="text-right"><span t-field="o.total_capacite"/></td>
                                         </tr>
+                                        <!-- Affichage de la remise : uniquement si demandé et si l'affaire a une remise -->
+                                        <t t-set="remise_total" t-value="o.affichage_remise in ('total','detail') and o.montant_remise>0"/>
+                                        <t t-if="remise_total">
+                                            <tr>
+                                                <td><strong>Total HT</strong></td>
+                                                <td class="text-right"><span t-field="o.montant_ht_avant_remise"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Remise</strong></td>
+                                                <td class="text-right">- <span t-field="o.montant_remise"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Total HT avec remise</strong></td>
+                                                <td class="text-right"><span t-field="o.montant_ht"/></td>
+                                            </tr>
+                                        </t>
+                                        <t t-if="not remise_total">
                                         <tr>
                                             <td><strong>Total HT</strong></td>
                                             <td class="text-right"><span t-field="o.montant_ht"/></td>
                                         </tr>
+                                        </t>
 
                                         <t t-foreach="o.tax_ids" t-as="t">
                                             <tr>

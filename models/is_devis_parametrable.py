@@ -28,6 +28,12 @@ _OUI_NON=[
     ('non'   , 'Non'),
 ]
 
+_AFFICHAGE_REMISE=[
+    ('non'   , 'Non'),
+    ('total' , 'Total uniquement'),
+    ('detail', 'Détaillé'),
+]
+
 _UNITE=[
     ('Litre', 'Litre'),
     ('m3'   , 'm3'),
@@ -84,6 +90,9 @@ class is_devis_parametrable_affaire(models.Model):
     type_devis               = fields.Selection(_TYPE_DEVIS, "Type devis", compute='_compute_type_devis', store=True, readonly=False, tracking=True)
     tax_ids                  = fields.One2many('is.devis.parametrable.affaire.tax', 'affaire_id', 'Montant TVA', compute='_compute_tax_ids', store=True, readonly=True)
     afficher_capacite        = fields.Boolean("Indiquer capacité sur récapititualtif", default=False)
+    affichage_remise         = fields.Selection(_AFFICHAGE_REMISE, "Affichage de la remise", default="non", help="Affichage de la remise sur le PDF (Ombrière / PPV / Install)")
+    montant_ht_avant_remise  = fields.Monetary("Total HT avant remise", readonly=True, compute='_compute_montant_remise', currency_field='devise_client_id')
+    montant_remise           = fields.Monetary("Remise"               , readonly=True, compute='_compute_montant_remise', currency_field='devise_client_id')
 
     kit                        = fields.Boolean("Kit", default=False)
     description_kit            = fields.Char("Description kit")
@@ -179,6 +188,16 @@ class is_devis_parametrable_affaire(models.Model):
             obj.tax_id           = tax_id
             obj.devise_client_id = devise_client_id
             obj.total_capacite   = "%s %s"%(total_capacite,unite)
+
+
+    @api.depends('devis_parametrable_ids','devis_parametrable_ids.quantite')
+    def _compute_montant_remise(self):
+        for obj in self:
+            remise=0
+            for line in obj.devis_parametrable_ids:
+                remise+=line.devis_id.montant_equipement_remise_devise*line.quantite
+            obj.montant_remise          = remise
+            obj.montant_ht_avant_remise = obj.montant_ht + remise
 
 
 
@@ -452,7 +471,7 @@ class is_devis_parametrable_affaire(models.Model):
             if obj.type_devis in ('ombriere'):
                 for line in obj.devis_parametrable_ids:
                     if line.devis_id:
-                        pdf = request.env.ref('is_bsa14.action_report_devis_parametrable').sudo()._render_qweb_pdf([line.devis_id.id])[0]
+                        pdf = request.env.ref('is_bsa14.action_report_devis_parametrable').sudo()._render_qweb_pdf([line.devis_id.id], data={'affichage_remise': obj.affichage_remise})[0]
                         path="/tmp/affaire_%s_%02d_devis.pdf"%(obj.id,ct)
                         paths.append(path)
                         f = open(path,'wb')
@@ -812,6 +831,18 @@ class is_devis_parametrable(models.Model):
             obj.montant_equipement_devise     = montant_equipement_devise
             obj.ratio_wc                      = ratio_wc
 
+
+    @api.depends('section_ids')
+    def _compute_montant_remise_devise(self):
+        for obj in self:
+            montant_avant_remise=montant_remise=0
+            for line in obj.section_ids:
+                for l in line.product_ids:
+                    montant_avant_remise+=l.montant_avant_remise_devise
+                    montant_remise      +=l.montant_remise_devise
+            obj.montant_equipement_avant_remise_devise = montant_avant_remise
+            obj.montant_equipement_remise_devise       = montant_remise
+
     def _compute_affaire_ids(self):
         for obj in self:
             affaire_ids=[]
@@ -894,7 +925,9 @@ class is_devis_parametrable(models.Model):
     montant_equipement_marge      = fields.Monetary("Montant marge"                , readonly=True, compute='_compute_montant', currency_field='devise_bsa_id')
     montant_equipement_taux_marge = fields.Float("Taux de marge (%)"               , readonly=True, compute='_compute_montant', digits=(12, 2))
     montant_equipement_devise     = fields.Monetary("Montant équipements HT"       , readonly=True, compute='_compute_montant', currency_field='devise_client_id')
-    ratio_wc                      = fields.Float("Ratio Wc"                        , readonly=True, compute='_compute_montant')
+    montant_equipement_avant_remise_devise = fields.Monetary("Montant équipements HT avant remise", readonly=True, compute='_compute_montant_remise_devise', currency_field='devise_client_id')
+    montant_equipement_remise_devise       = fields.Monetary("Remise équipements"                 , readonly=True, compute='_compute_montant_remise_devise', currency_field='devise_client_id')
+    ratio_wc                     = fields.Float("Ratio Wc"                        , readonly=True, compute='_compute_montant')
     tax_ids                       = fields.One2many('is.devis.parametrable.tax', 'devis_id', 'Montant TVA', store=True, readonly=True, compute='_compute_tax_ids')
     montant_equipement_ttc        = fields.Monetary("Montant équipements TTC"                             , store=True, readonly=True, compute='_compute_tax_ids', currency_field='devise_client_id')
     impression_dimensions         = fields.Selection(_OUI_NON, "Impression dimensions", default="oui")
@@ -1761,6 +1794,31 @@ class is_devis_parametrable_section_product(models.Model):
             obj.montant_avec_marge_devise = prix_en_devise_arrondi  * obj.quantite
 
 
+    @api.depends('product_id','quantite','prix','marge','remise','commission')
+    def _compute_remise_devise(self):
+        "Prix avant remise arrondi comme le prix vendu ; remise affichée = différence des deux prix arrondis"
+        for obj in self:
+            prix_net = obj.prix_avec_marge_devise
+            prix_avant_remise = prix_net
+            if obj.remise>0:
+                marge = obj.marge or obj.marge_equipement_variante
+                taux  = obj.section_id.devis_id.taux_devise or 1
+                montant_marge_unitaire        = obj.prix*marge/100
+                prix_avec_marge               = obj.prix + montant_marge_unitaire
+                montant_commission_unitaire   = prix_avec_marge * obj.commission/100
+                prix_avec_marge_et_commission = prix_avec_marge + montant_commission_unitaire
+                prix_en_devise                = prix_avec_marge_et_commission/taux
+                arrondi = obj.section_id.devis_id.is_societe_commerciale_id.arrondi
+                if arrondi<1:
+                    arrondi=10
+                prix_avant_remise = max(arrondi*ceil(prix_en_devise/arrondi), prix_net)
+            remise = prix_avant_remise - prix_net
+            obj.prix_avant_remise_devise    = prix_avant_remise
+            obj.remise_devise               = remise
+            obj.montant_avant_remise_devise = prix_avant_remise * obj.quantite
+            obj.montant_remise_devise       = remise            * obj.quantite
+
+
     @api.depends('product_id','quantite','prix')
     def _compute_date_achat(self):
         for obj in self:
@@ -1818,6 +1876,10 @@ class is_devis_parametrable_section_product(models.Model):
     mt_vendu_avec_commission  = fields.Monetary("Mt vendu avec commission (€)", readonly=True, compute='_compute_avec_marge', currency_field='devise_bsa_id')
     prix_avec_marge_devise    = fields.Monetary("Prix vendu (Devise)"         , readonly=True, compute='_compute_avec_marge', currency_field='devise_client_id', help="Prix en device")
     montant_avec_marge_devise = fields.Monetary("Mt vendu (Devise)"      , readonly=True, compute='_compute_avec_marge', currency_field='devise_client_id')
+    prix_avant_remise_devise    = fields.Monetary("Prix avant remise (Devise)", readonly=True, compute='_compute_remise_devise', currency_field='devise_client_id', help="Prix avant remise arrondi, pour l'affichage de la remise sur le PDF")
+    remise_devise               = fields.Monetary("Remise (Devise)"           , readonly=True, compute='_compute_remise_devise', currency_field='devise_client_id', help="Prix avant remise - Prix vendu (Devise)")
+    montant_avant_remise_devise = fields.Monetary("Mt avant remise (Devise)"  , readonly=True, compute='_compute_remise_devise', currency_field='devise_client_id')
+    montant_remise_devise       = fields.Monetary("Mt remise (Devise)"        , readonly=True, compute='_compute_remise_devise', currency_field='devise_client_id')
     tax_id                    = fields.Many2one('account.tax', 'TVA', domain=[('type_tax_use','=','sale')])
 
 

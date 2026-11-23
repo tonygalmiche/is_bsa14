@@ -63,6 +63,10 @@
 
 
 
+                <!-- Affichage de la remise : uniquement si demandé par l'affaire (paramètre affichage_remise) et si le devis a une remise -->
+                <t t-set="remise_detail" t-value="affichage_remise=='detail' and o.montant_equipement_remise_devise>0"/>
+                <t t-set="remise_total"  t-value="affichage_remise in ('total','detail') and o.montant_equipement_remise_devise>0"/>
+
                 <table class="table table-sm o_main_table" style="border-left:0;border-right:0;">
                     <thead>
                         <tr>
@@ -70,7 +74,14 @@
                             <th style="border-left:0;border-right:0;" class="text-center">Description</th>
                             <th style="border-left:0;border-right:0;" class="text-center">Quantité</th>
                             <th style="border-left:0;border-right:0;" class="text-right text-nowrap">Prix unitaire</th>
+                            <t t-if="remise_detail">
+                                <th style="border-left:0;border-right:0;" class="text-right text-nowrap">Remise</th>
+                                <th style="border-left:0;border-right:0;" class="text-right text-nowrap">Prix net</th>
+                                <th style="border-left:0;border-right:0;" class="text-right">Montant HT avec remise</th>
+                            </t>
+                            <t t-if="not remise_detail">
                             <th style="border-left:0;border-right:0;" class="text-right text-nowrap">Montant HT</th>
+                            </t>
                             <t t-if="o.montant_equipement_devise!=o.montant_equipement_ttc">
                                 <th style="border-left:0;border-right:0;" class="text-right text-nowrap">TVA</th>
                             </t>
@@ -87,8 +98,16 @@
                                         <div t-if="l.description_detaillee" t-field="l.description_detaillee"/>
                                     </td>
                                     <td style="border-left:0;border-right:0;" class="text-center"><span t-field="l.quantite"/></td>
+                                    <t t-if="remise_detail">
+                                        <td style="border-left:0;border-right:0;" class="text-right"> <span t-field="l.prix_avant_remise_devise"/></td>
+                                        <td style="border-left:0;border-right:0;" class="text-right"> <span t-if="l.remise_devise" t-field="l.remise_devise"/></td>
+                                        <td style="border-left:0;border-right:0;" class="text-right"> <span t-field="l.prix_avec_marge_devise"/></td>
+                                        <td style="border-left:0;border-right:0;" class="text-right"> <span t-field="l.montant_avec_marge_devise"/></td>
+                                    </t>
+                                    <t t-if="not remise_detail">
                                     <td style="border-left:0;border-right:0;" class="text-right"> <span t-field="l.prix_avec_marge_devise"/></td>
                                     <td style="border-left:0;border-right:0;" class="text-right"> <span t-field="l.montant_avec_marge_devise"/></td>
+                                    </t>
                                     <t t-if="o.montant_equipement_devise!=o.montant_equipement_ttc">
                                         <td style="border-left:0;border-right:0;" class="text-center">
                                             <span t-esc="l.tax_id.name or o.tax_id.name or ''"/>
@@ -104,15 +123,25 @@
                 <div class="row">
                     <div class="col-6 ml-auto">
                         <table class="table table-sm o_main_table" style="page-break-inside: avoid;">
+                            <t t-if="remise_total">
+                                <tr>
+                                    <td><strong>Total HT</strong></td>
+                                    <td class="text-right" style="width:40mm"><span t-field="o.montant_equipement_avant_remise_devise"/></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Remise</strong></td>
+                                    <td class="text-right" style="width:40mm">- <span t-field="o.montant_equipement_remise_devise"/></td>
+                                </tr>
+                            </t>
                             <t t-if="o.montant_equipement_devise==o.montant_equipement_ttc">
                                 <tr>
-                                    <td><strong>Total</strong></td>
+                                    <td><strong><t t-if="remise_total">Total avec remise</t><t t-if="not remise_total">Total</t></strong></td>
                                     <td class="text-right" style="width:40mm"><span t-field="o.montant_equipement_ttc"/></td>
                                 </tr>
                             </t>
                             <t t-if="o.montant_equipement_devise!=o.montant_equipement_ttc">
                                 <tr>
-                                    <td><strong>Total HT</strong></td>
+                                    <td><strong><t t-if="remise_total">Total HT avec remise</t><t t-if="not remise_total">Total HT</t></strong></td>
                                     <td class="text-right" style="width:40mm"><span t-field="o.montant_equipement_devise"/></td>
                                 </tr>
                                 <t t-foreach="o.tax_ids" t-as="t">

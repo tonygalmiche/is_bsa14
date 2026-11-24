@@ -708,6 +708,8 @@ class is_devis_parametrable_affaire_devis(models.Model):
 
     montant_devise_ht   = fields.Monetary("Montant HT (Devise)" , compute='_compute_montant', store=False, readonly=True, currency_field='devise_client_id')
     montant_devise_ttc  = fields.Monetary("Montant TTC (Devise)", compute='_compute_montant', store=False, readonly=True, currency_field='devise_client_id')
+    prix_devise_ht_avant_remise    = fields.Monetary("Prix HT avant remise (Devise)"   , compute='_compute_montant_avant_remise', store=False, readonly=True, currency_field='devise_client_id')
+    montant_devise_ht_avant_remise = fields.Monetary("Montant HT avant remise (Devise)", compute='_compute_montant_avant_remise', store=False, readonly=True, currency_field='devise_client_id')
 
 
     @api.depends('capacite',"quantite")
@@ -734,6 +736,14 @@ class is_devis_parametrable_affaire_devis(models.Model):
             obj.taux_marge         = taux_marge
             obj.montant_devise_ht  = obj.prix_devise_ht  * obj.quantite
             obj.montant_devise_ttc = obj.prix_devise_ttc * obj.quantite
+
+
+    @api.depends('quantite','devis_id')
+    def _compute_montant_avant_remise(self):
+        for obj in self:
+            prix = obj.devis_id.montant_equipement_avant_remise_devise
+            obj.prix_devise_ht_avant_remise    = prix
+            obj.montant_devise_ht_avant_remise = prix * obj.quantite
 
 
 class is_devis_parametrable_affaire_tax(models.Model):

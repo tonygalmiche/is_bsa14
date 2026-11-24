@@ -104,7 +104,11 @@
                                         <td style="border-left:0;border-right:0;" class="text-right"> <span t-field="l.prix_avec_marge_devise"/></td>
                                         <td style="border-left:0;border-right:0;" class="text-right"> <span t-field="l.montant_avec_marge_devise"/></td>
                                     </t>
-                                    <t t-if="not remise_detail">
+                                    <t t-if="remise_total and not remise_detail">
+                                        <td style="border-left:0;border-right:0;" class="text-right"> <span t-field="l.prix_avant_remise_devise"/></td>
+                                        <td style="border-left:0;border-right:0;" class="text-right"> <span t-field="l.montant_avant_remise_devise"/></td>
+                                    </t>
+                                    <t t-if="not remise_total">
                                     <td style="border-left:0;border-right:0;" class="text-right"> <span t-field="l.prix_avec_marge_devise"/></td>
                                     <td style="border-left:0;border-right:0;" class="text-right"> <span t-field="l.montant_avec_marge_devise"/></td>
                                     </t>

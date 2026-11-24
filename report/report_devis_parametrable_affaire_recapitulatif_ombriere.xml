@@ -25,6 +25,10 @@
                             <div t-field="o.descriptif_affaire_suite"/>
                         </t> -->
 
+                        <!-- Affichage de la remise : uniquement si demandé et si l'affaire a une remise -->
+                        <t t-set="remise_total" t-value="o.affichage_remise in ('total','detail') and o.montant_remise>0"/>
+                        <t t-set="remise_total_seul" t-value="remise_total and o.affichage_remise=='total'"/>
+
                         <t t-if="len(o.devis_parametrable_ids)>0">
                             <h3>Récapitulatif de l'offre</h3>
                             <table class="table table-sm o_main_table">
@@ -42,9 +46,16 @@
                                         <tr style="border-bottom: 1px solid;">
                                             <td class="text-left">  <span t-field="devis.designation"/></td>
                                             <td t-if="o.afficher_capacite" class="text-right"><span t-field="devis.capacite"/> <span t-field="devis.unite"/></td>
+                                            <t t-if="remise_total_seul">
+                                                <td class="text-right"> <span t-field="devis.prix_devise_ht_avant_remise"/></td>
+                                                <td class="text-center"><span t-field="devis.quantite"/></td>
+                                                <td class="text-right"> <span t-field="devis.montant_devise_ht_avant_remise"/></td>
+                                            </t>
+                                            <t t-if="not remise_total_seul">
                                             <td class="text-right"> <span t-field="devis.prix_devise_ht"/></td>
                                             <td class="text-center"><span t-field="devis.quantite"/></td>
                                             <td class="text-right"> <span t-field="devis.montant_devise_ht"/></td>
+                                            </t>
                                         </tr>
                                     </t>
                                 </tbody>
@@ -56,8 +67,6 @@
                                             <td><strong>Total capacité</strong></td>
                                             <td class="text-right"><span t-field="o.total_capacite"/></td>
                                         </tr>
-                                        <!-- Affichage de la remise : uniquement si demandé et si l'affaire a une remise -->
-                                        <t t-set="remise_total" t-value="o.affichage_remise in ('total','detail') and o.montant_remise>0"/>
                                         <t t-if="remise_total">
                                             <tr>
                                                 <td><strong>Total HT</strong></td>

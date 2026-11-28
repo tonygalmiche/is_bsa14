@@ -318,7 +318,12 @@ class is_dispo_ressource(models.Model):
             heure_debut = heure_debut + timedelta(minutes=30)
 
         _logger.info("calculer_dispo_ressource : Début création des lignes en %sms"%duree(debut))
-        res=self.env['is.dispo.ressource'].create(listd) #50% du temps de traitement
+        #res=self.env['is.dispo.ressource'].create(listd) #50% du temps de traitement
+        # Création par paquets de 50 000 et cache vidé (MemoryError avec 1,3 million de lignes d'un coup)
+        for i in range(0, len(listd), 50000):
+            self.env['is.dispo.ressource'].create(listd[i:i+50000])
+            self.env['is.dispo.ressource'].flush()
+            self.invalidate_cache()
         _logger.info("calculer_dispo_ressource : Fin création des lignes en %sms"%duree(debut))
         _logger.info("calculer_dispo_ressource : Fin du traitement en %sms"%duree(debut))
 

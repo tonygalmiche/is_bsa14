@@ -235,6 +235,8 @@ class is_dispo_ressource(models.Model):
         #Suppression des lignes passées et des lignes dans l'interval à recalculer
         sql="delete from is_dispo_ressource where heure_debut<%s or (heure_debut>=%s and heure_debut<=%s)"
         cr.execute(sql, [heure_now, heure_debut, heure_fin])
+        # Compteur remis après le plus grand id restant (évite d'atteindre la limite de 2 147 483 647)
+        cr.execute("select setval('is_dispo_ressource_id_seq', coalesce((select max(id) from is_dispo_ressource), 0) + 1, false)")
 
         _logger.info("calculer_dispo_ressource : delete is_dispo_ressource en %sms"%duree(debut))
 
